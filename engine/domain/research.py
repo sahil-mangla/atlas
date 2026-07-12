@@ -10,6 +10,7 @@ from uuid import UUID, uuid4
 from pydantic import BaseModel, Field
 
 from engine.domain.enums import ResearchStatus
+from engine.domain.metadata import ArtifactMetadata
 
 
 class ProblemDefinition(BaseModel):
@@ -111,8 +112,9 @@ class ResearchSummary(BaseModel):
 class ResearchSnapshot(BaseModel):
     """Immutable snapshot of a completed research phase."""
 
-    id: UUID = Field(default_factory=uuid4, description="Unique snapshot identifier.")
-    version: int = Field(description="Sequential version number.")
+    metadata: ArtifactMetadata = Field(
+        default_factory=ArtifactMetadata, description="Standardized artifact metadata."
+    )
     problem_definition: ProblemDefinition = Field(description="Problem state.")
     research_sources: list[ResearchSource] = Field(description="Sources used.")
     evidence: list[Evidence] = Field(description="Gathered evidence.")
@@ -123,10 +125,6 @@ class ResearchSnapshot(BaseModel):
     open_questions: list[str] = Field(description="Remaining open questions.")
     summary: ResearchSummary = Field(description="Overall synthesis.")
     confidence: float = Field(description="Confidence in the research snapshot.")
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC),
-        description="When the snapshot was frozen.",
-    )
 
 
 class Research(BaseModel):

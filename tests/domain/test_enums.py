@@ -43,9 +43,11 @@ def test_evaluation_status_values() -> None:
 
 
 def test_research_status_values() -> None:
-    assert ResearchStatus.PLANNED.value == "planned"
+    assert ResearchStatus.DRAFT.value == "draft"
     assert ResearchStatus.IN_PROGRESS.value == "in_progress"
-    assert ResearchStatus.COMPLETE.value == "complete"
+    assert ResearchStatus.READY_FOR_REVIEW.value == "ready_for_review"
+    assert ResearchStatus.APPROVED.value == "approved"
+    assert ResearchStatus.ARCHIVED.value == "archived"
 
 
 def test_task_status_values() -> None:

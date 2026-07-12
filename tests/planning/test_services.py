@@ -4,6 +4,7 @@ from uuid import UUID, uuid4
 import pytest
 
 from engine.domain.enums import PlanningStatus, ResearchStatus
+from engine.domain.metadata import ArtifactMetadata
 from engine.domain.research import (
     ProblemDefinition,
     Research,
@@ -37,8 +38,7 @@ def repos(
 
 def create_snapshot(snapshot_id: UUID) -> ResearchSnapshot:
     return ResearchSnapshot(
-        id=snapshot_id,
-        version=1,
+        metadata=ArtifactMetadata(id=snapshot_id, version=1),
         problem_definition=ProblemDefinition(statement="A", objectives=[]),
         research_sources=[],
         evidence=[],
@@ -200,7 +200,7 @@ def test_summary_service(
     assert planning.status == PlanningStatus.REVIEW
 
     snap = sum_svc.freeze_snapshot(project_id, research_snapshot_id, "Synthesis")
-    assert snap.version == 1
+    assert snap.metadata.version == 1
     assert snap.research_snapshot_id == research_snapshot_id
 
     planning = plan_repo.get_by_project_id(project_id)

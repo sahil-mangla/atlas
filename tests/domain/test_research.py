@@ -86,5 +86,5 @@ def test_research_snapshot() -> None:
         summary=summary,
         confidence=0.9,
     )
-    assert snapshot.version == 1
+    assert snapshot.metadata.version == 1
     assert snapshot.confidence == 0.9

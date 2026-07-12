@@ -3,6 +3,7 @@
 from uuid import UUID
 
 from engine.domain.enums import PlanningStatus
+from engine.domain.metadata import ArtifactMetadata
 from engine.domain.planning import (
     AcceptanceCriteria,
     DefinitionOfDone,
@@ -47,7 +48,9 @@ class PlanningInitializationService:
             raise InvalidPlanningOperationException("Project research not found.")
 
         # Ensure the specified snapshot exists (meaning it was approved)
-        snapshot_exists = any(s.id == research_snapshot_id for s in research.snapshots)
+        snapshot_exists = any(
+            s.metadata.id == research_snapshot_id for s in research.snapshots
+        )
         if not snapshot_exists:
             raise InvalidPlanningOperationException(
                 "Specified research snapshot not found or not approved."
@@ -363,7 +366,7 @@ class PlanningSummaryService:
 
         next_version = len(planning.snapshots) + 1
         snapshot = PlanningSnapshot(
-            version=next_version,
+            metadata=ArtifactMetadata(version=next_version),
             research_snapshot_id=research_snapshot_id,
             scope_definition=planning.scope_definition,
             milestones=list(planning.milestones),

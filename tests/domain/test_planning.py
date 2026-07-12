@@ -49,7 +49,7 @@ def test_planning_models() -> None:
         milestones=[milestone],
         summary=summary,
     )
-    assert snapshot.version == 1
+    assert snapshot.metadata.version == 1
 
     planning = Planning(project_id=uuid4())
     assert planning.status == PlanningStatus.DRAFT

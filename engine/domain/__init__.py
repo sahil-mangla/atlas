@@ -14,6 +14,7 @@ from engine.domain.engineering_specification import EngineeringSpecification
 from engine.domain.enums import (
     EvaluationStatus,
     FindingSeverity,
+    PlanningStatus,
     Priority,
     ProjectStatus,
     ResearchStatus,
@@ -26,6 +27,7 @@ from engine.domain.evaluation import (
     ReviewFinding,
 )
 from engine.domain.memory import Memory, MemoryEntry
+from engine.domain.metadata import ArtifactMetadata, ArtifactStatus
 from engine.domain.planning import (
     AcceptanceCriteria,
     DefinitionOfDone,
@@ -52,7 +54,9 @@ from engine.domain.research import (
     ResearchSource,
     ResearchSummary,
 )
+from engine.domain.review import EngineeringReview
 from engine.domain.roadmap import Milestone, Roadmap, Task
+from engine.domain.traceability import TraceabilityLink
 from engine.domain.workflow import ReadinessReview, Workflow, WorkflowHistoryEntry
 from engine.domain.workspace import Workspace, WorkspaceArtifact
 
@@ -61,10 +65,13 @@ __all__ = [
     "ArchitecturalComponent",
     "ArchitecturalDecision",
     "Architecture",
+    "ArtifactMetadata",
+    "ArtifactStatus",
     "Assumption",
     "Constraint",
     "DefinitionOfDone",
     "EngineeringDeliverable",
+    "EngineeringReview",
     "EngineeringSpecification",
     "Evaluation",
     "EvaluationStatus",
@@ -99,6 +106,7 @@ __all__ = [
     "ScopeDefinition",
     "Task",
     "TaskStatus",
+    "TraceabilityLink",
     "Workflow",
     "WorkflowHistoryEntry",
     "WorkflowStage",

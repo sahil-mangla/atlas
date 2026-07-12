@@ -125,10 +125,9 @@ def test_summary_service(repo: FilesystemResearchRepository) -> None:
     )
 
     snapshot = sum_svc.freeze_snapshot(
-        project_id, "Overall good", ["Key 1"], 0.95
+        project_id, synthesis="Synth", key_takeaways=["TK1"], confidence=0.95
     )
-
-    assert snapshot.version == 1
+    assert snapshot.metadata.version == 1
     assert snapshot.confidence == 0.95
     assert len(snapshot.evidence) == 1
 

@@ -4,12 +4,12 @@ Planning translates approved research findings into structured roadmaps,
 milestones, epics, tasks, and subtasks. It represents the engineering decomposition.
 """
 
-from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
 from engine.domain.enums import PlanningStatus, TaskStatus
+from engine.domain.metadata import ArtifactMetadata
 
 
 class EngineeringDeliverable(BaseModel):
@@ -127,18 +127,15 @@ class PlanningSummary(BaseModel):
 class PlanningSnapshot(BaseModel):
     """Immutable snapshot of a completed planning phase."""
 
-    id: UUID = Field(default_factory=uuid4, description="Unique snapshot identifier.")
-    version: int = Field(description="Sequential version number.")
+    metadata: ArtifactMetadata = Field(
+        default_factory=ArtifactMetadata, description="Standardized artifact metadata."
+    )
     research_snapshot_id: UUID = Field(
         description="Reference to the approved ResearchSnapshot this plan is based on."
     )
     scope_definition: ScopeDefinition = Field(description="Approved scope definition.")
     milestones: list[PlanningMilestone] = Field(description="Structured milestones.")
     summary: PlanningSummary = Field(description="Overall synthesis of the plan.")
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC),
-        description="When the snapshot was frozen.",
-    )
 
 
 class Planning(BaseModel):
