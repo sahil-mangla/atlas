@@ -6,6 +6,15 @@ ATLAS is an AI-native engineering operating system that transforms ideas into pr
 
 ---
 
+## Package Structure
+
+- **`engine/domain/`**: Strongly-typed, framework-independent Pydantic models representing the ubiquitous domain language of ATLAS (Projects, Workspace, Research, Roadmaps, etc.).
+- **`engine/project/`**: Project Subsystem governing workspace initialization (`.atlas/`), loading, metadata discovery, and lifecycle states (initialized, active, paused, archived).
+- **`interfaces/`**: External adapters and entry points (CLI, API) — *Reserved for future stages*.
+- **`shared/`**: Common utilities and shared cross-cutting concerns.
+
+---
+
 ## Development Setup
 
 ATLAS uses [uv](https://github.com/astral-sh/uv) for fast, robust package and dependency management.
