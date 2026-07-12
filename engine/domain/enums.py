@@ -80,3 +80,12 @@ class MemoryCategory(StrEnum):
     DECISION = "decision"
     CONTEXT = "context"
     ARTIFACT = "artifact"
+
+
+class ApprovalStatus(StrEnum):
+    """Human approval state for transitions in the workflow."""
+
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+

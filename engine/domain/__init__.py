@@ -34,7 +34,7 @@ from engine.domain.research import (
     ResearchTopic,
 )
 from engine.domain.roadmap import Milestone, Roadmap, Task
-from engine.domain.workflow import Workflow
+from engine.domain.workflow import ReadinessReview, Workflow, WorkflowHistoryEntry
 from engine.domain.workspace import Workspace, WorkspaceArtifact
 
 __all__ = [
@@ -52,6 +52,7 @@ __all__ = [
     "Priority",
     "Project",
     "ProjectStatus",
+    "ReadinessReview",
     "RequirementCoverage",
     "Research",
     "ResearchFinding",
@@ -62,6 +63,7 @@ __all__ = [
     "Task",
     "TaskStatus",
     "Workflow",
+    "WorkflowHistoryEntry",
     "WorkflowStage",
     "Workspace",
     "WorkspaceArtifact",
