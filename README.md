@@ -10,6 +10,10 @@ ATLAS is an AI-native engineering operating system that transforms ideas into pr
 
 - **`engine/domain/`**: Strongly-typed, framework-independent Pydantic models representing the ubiquitous domain language of ATLAS (Projects, Workspace, Research, Roadmaps, etc.).
 - **`engine/project/`**: Project Subsystem governing workspace initialization (`.atlas/`), loading, metadata discovery, and lifecycle states (initialized, active, paused, archived).
+- **`engine/memory/`**: Memory Subsystem managing persistent architectural decisions and engineering knowledge.
+- **`engine/workflow/`**: Workflow Subsystem governing the execution readiness and engineering phase transitions.
+- **`engine/research/`**: Research Subsystem handling problem definition, evidence gathering, snapshotting, and hypothesis validation.
+- **`engine/planning/`**: Planning Subsystem decomposing research into scopes, milestones, epics, tasks, subtasks, and dependency management.
 - **`interfaces/`**: External adapters and entry points (CLI, API) — *Reserved for future stages*.
 - **`shared/`**: Common utilities and shared cross-cutting concerns.
 

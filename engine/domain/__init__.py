@@ -26,6 +26,19 @@ from engine.domain.evaluation import (
     ReviewFinding,
 )
 from engine.domain.memory import Memory, MemoryEntry
+from engine.domain.planning import (
+    AcceptanceCriteria,
+    DefinitionOfDone,
+    EngineeringDeliverable,
+    Planning,
+    PlanningEpic,
+    PlanningMilestone,
+    PlanningSnapshot,
+    PlanningSubtask,
+    PlanningSummary,
+    PlanningTask,
+    ScopeDefinition,
+)
 from engine.domain.project import Project
 from engine.domain.research import (
     Assumption,
@@ -44,11 +57,14 @@ from engine.domain.workflow import ReadinessReview, Workflow, WorkflowHistoryEnt
 from engine.domain.workspace import Workspace, WorkspaceArtifact
 
 __all__ = [
+    "AcceptanceCriteria",
     "ArchitecturalComponent",
     "ArchitecturalDecision",
     "Architecture",
     "Assumption",
     "Constraint",
+    "DefinitionOfDone",
+    "EngineeringDeliverable",
     "EngineeringSpecification",
     "Evaluation",
     "EvaluationStatus",
@@ -58,6 +74,14 @@ __all__ = [
     "MemoryEntry",
     "Milestone",
     "Opportunity",
+    "Planning",
+    "PlanningEpic",
+    "PlanningMilestone",
+    "PlanningSnapshot",
+    "PlanningStatus",
+    "PlanningSubtask",
+    "PlanningSummary",
+    "PlanningTask",
     "Priority",
     "ProblemDefinition",
     "Project",
@@ -72,6 +96,7 @@ __all__ = [
     "ResearchSummary",
     "ReviewFinding",
     "Roadmap",
+    "ScopeDefinition",
     "Task",
     "TaskStatus",
     "Workflow",

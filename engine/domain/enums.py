@@ -58,6 +58,15 @@ class ResearchStatus(StrEnum):
     ARCHIVED = "archived"
 
 
+class PlanningStatus(StrEnum):
+    """Progress state of project planning."""
+
+    DRAFT = "draft"
+    REVIEW = "review"
+    APPROVED = "approved"
+    ARCHIVED = "archived"
+
+
 class TaskStatus(StrEnum):
     """Execution state of an implementation task."""
 
