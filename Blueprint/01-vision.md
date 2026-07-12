@@ -1,4 +1,4 @@
-# STRATA
+# ATLAS
 
 ## Tagline
 
@@ -8,9 +8,9 @@ Where Ideas Become Engineering.
 
 ## Vision
 
-STRATA is an AI-native engineering operating system that transforms ideas into production-ready software through structured research, architecture, planning, implementation, verification, and persistent project intelligence.
+ATLAS is an AI-native engineering operating system that transforms ideas into production-ready software through structured research, architecture, planning, implementation, verification, and persistent project intelligence.
 
-Unlike traditional AI assistants that answer isolated questions, STRATA understands an entire project as a continuously evolving system. It maintains context, remembers engineering decisions, tracks progress, and guides developers throughout the complete software development lifecycle.
+Unlike traditional AI assistants that answer isolated questions, ATLAS understands an entire project as a continuously evolving system. It maintains context, remembers engineering decisions, tracks progress, and guides developers throughout the complete software development lifecycle.
 
 The goal is not to replace engineers.
 
@@ -86,7 +86,7 @@ Future versions may expand toward startups and engineering teams.
 
 ## Non-Goals
 
-STRATA is NOT:
+ATLAS is NOT:
 
 - A chatbot
 - An IDE
@@ -98,7 +98,7 @@ STRATA is NOT:
 
 ## Long-Term Vision
 
-STRATA should evolve into an engineering operating system.
+ATLAS should evolve into an engineering operating system.
 
 Interfaces such as MCP, IDE agents, CLI, and REST APIs are adapters built on top of the same engineering engine.
 

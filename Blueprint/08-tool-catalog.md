@@ -1,12 +1,12 @@
-# STRATA Capability Catalog
+# ATLAS Capability Catalog
 
-This capability catalog defines the functional capabilities provided by the STRATA platform. Capabilities represent the core actions and operations that the platform can execute, independent of the user interfaces, adapters, or protocols through which they are exposed. By defining these capabilities at the system layer, we ensure that the underlying engine remains decoupled from presentation, allowing the same operational features to be reused across different interaction patterns and integrations.
+This capability catalog defines the functional capabilities provided by the ATLAS platform. Capabilities represent the core actions and operations that the platform can execute, independent of the user interfaces, adapters, or protocols through which they are exposed. By defining these capabilities at the system layer, we ensure that the underlying engine remains decoupled from presentation, allowing the same operational features to be reused across different interaction patterns and integrations.
 
 ---
 
 # Capability Principles
 
-All capabilities within STRATA must be designed according to the following principles:
+All capabilities within ATLAS must be designed according to the following principles:
 
 - **Capability Before Interface**: Core system capabilities are defined and implemented independently of how they are accessed. The same capability may later be exposed through command-line interfaces, network endpoints, editor integrations, or remote protocol adapters.
 - **Single Responsibility**: Each capability has a single, well-defined objective. It must focus entirely on executing that specific task without absorbing adjacent operations.
@@ -16,7 +16,7 @@ All capabilities within STRATA must be designed according to the following princ
 
 # Capability Categories
 
-The core functional capabilities of STRATA are organized into eight distinct categories:
+The core functional capabilities of ATLAS are organized into eight distinct categories:
 
 ## Project Management
 
@@ -105,10 +105,10 @@ Each capability operates strictly within its functional boundary, passing struct
 
 # Future Expansion
 
-Additional capabilities (e.g., performance profiling, dependency vulnerability scanning) may be introduced to STRATA as the platform matures. Any new capability must respect the system boundaries and engineering constitution, presenting a single focused responsibility and integrating cleanly into the existing catalog without introducing tight coupling.
+Additional capabilities (e.g., performance profiling, dependency vulnerability scanning) may be introduced to ATLAS as the platform matures. Any new capability must respect the system boundaries and engineering constitution, presenting a single focused responsibility and integrating cleanly into the existing catalog without introducing tight coupling.
 
 ---
 
 # Closing Statement
 
-This catalog represents the functional capabilities of STRATA. It serves as the formal capabilities registry for the platform and acts as the foundation for defining subsequent interfaces, protocol integrations, and system implementations.
+This catalog represents the functional capabilities of ATLAS. It serves as the formal capabilities registry for the platform and acts as the foundation for defining subsequent interfaces, protocol integrations, and system implementations.

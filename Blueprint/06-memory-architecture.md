@@ -1,6 +1,6 @@
-# STRATA Memory Architecture
+# ATLAS Memory Architecture
 
-Persistent engineering knowledge is a fundamental capability of the STRATA platform. Unlike conventional development aids that treat each execution session as an isolated interaction, STRATA models project development as a continuous, cumulative intelligence lifecycle. Within this architecture, memory is not limited to raw chat logs or conversation history. It encompasses all technical knowledge, design decisions, research discoveries, milestone statuses, and quality evaluations generated throughout the engineering lifecycle.
+Persistent engineering knowledge is a fundamental capability of the ATLAS platform. Unlike conventional development aids that treat each execution session as an isolated interaction, ATLAS models project development as a continuous, cumulative intelligence lifecycle. Within this architecture, memory is not limited to raw chat logs or conversation history. It encompasses all technical knowledge, design decisions, research discoveries, milestone statuses, and quality evaluations generated throughout the engineering lifecycle.
 
 ---
 
@@ -17,7 +17,7 @@ The Memory System exists to:
 
 # Memory Principles
 
-All memory operations and structures within STRATA must align with the following core principles:
+All memory operations and structures within ATLAS must align with the following core principles:
 
 - **Knowledge Accumulates**: Projects must become structurally more intelligent over time. Every phase of work, decision record, or verification output must add to the system's context, making subsequent engineering tasks more efficient.
 - **Context is Persistent**: Crucial architectural rules, system boundaries, and project guidelines must remain active and accessible throughout the project lifecycle rather than being treated as transient inputs.
@@ -29,7 +29,7 @@ All memory operations and structures within STRATA must align with the following
 
 # Memory Categories
 
-STRATA maintains its cumulative context across several conceptual categories:
+ATLAS maintains its cumulative context across several conceptual categories:
 
 ## Project Knowledge
 - **Purpose**: Captures high-level configuration, metadata, progress indicators, and global parameters of the engineering effort.
@@ -63,7 +63,7 @@ STRATA maintains its cumulative context across several conceptual categories:
 
 # Memory Lifecycle
 
-Knowledge within STRATA evolves through a continuous, conceptual lifecycle:
+Knowledge within ATLAS evolves through a continuous, conceptual lifecycle:
 
 ```
 Capture ──> Organize ──> Maintain ──> Retrieve ──> Update ──> Preserve
@@ -122,10 +122,10 @@ The categories of knowledge stored in memory do not exist in isolation; they for
 
 # Future Evolution
 
-As STRATA expands, new conceptual categories of memory (e.g., operational metrics, user feedback records) may be introduced. These categories must align with the capture-to-preservation lifecycle and maintain clear conceptual boundaries, integrating into the network of relationships without disrupting the core memory architecture.
+As ATLAS expands, new conceptual categories of memory (e.g., operational metrics, user feedback records) may be introduced. These categories must align with the capture-to-preservation lifecycle and maintain clear conceptual boundaries, integrating into the network of relationships without disrupting the core memory architecture.
 
 ---
 
 # Closing Statement
 
-STRATA's primary architectural advantage lies in its ability to accumulate engineering intelligence over time. Rather than repeatedly recreating context and losing historical rationale, the Memory System ensures that every decision, research brief, and validation output permanently strengthens the project’s technical foundation.
+ATLAS's primary architectural advantage lies in its ability to accumulate engineering intelligence over time. Rather than repeatedly recreating context and losing historical rationale, the Memory System ensures that every decision, research brief, and validation output permanently strengthens the project’s technical foundation.

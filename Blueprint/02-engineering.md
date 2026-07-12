@@ -1,12 +1,12 @@
-# STRATA Engineering Constitution
+# ATLAS Engineering Constitution
 
-> This document defines the engineering principles that govern every architectural decision, implementation, and review within STRATA.
+> This document defines the engineering principles that govern every architectural decision, implementation, and review within ATLAS.
 
 ---
 
 # Purpose
 
-This document establishes the fundamental engineering standards and practices for STRATA. It exists to guarantee that the codebase and design remain maintainable, understandable, scalable, modular, and consistent over time, regardless of the size of the project or the individuals or agents contributing to it. By establishing these rules, we ensure that technical debt is minimized and the system remains stable and adaptable to future requirements.
+This document establishes the fundamental engineering standards and practices for ATLAS. It exists to guarantee that the codebase and design remain maintainable, understandable, scalable, modular, and consistent over time, regardless of the size of the project or the individuals or agents contributing to it. By establishing these rules, we ensure that technical debt is minimized and the system remains stable and adaptable to future requirements.
 
 ---
 
@@ -88,7 +88,7 @@ To maintain code readability and reduce technical debt, all contributions must a
 
 # AI Implementation Workflow
 
-STRATA utilizes a structured workflow to direct AI implementation agents through strict guardrails:
+ATLAS utilizes a structured workflow to direct AI implementation agents through strict guardrails:
 
 ```
 Design
@@ -146,4 +146,4 @@ Completing functional implementation alone does not constitute completion.
 
 # Closing Statement
 
-> STRATA is engineered as a long-term platform rather than a collection of features. Every contribution should strengthen the architecture, improve maintainability, and preserve the engineering principles defined in this document.
+> ATLAS is engineered as a long-term platform rather than a collection of features. Every contribution should strengthen the architecture, improve maintainability, and preserve the engineering principles defined in this document.

@@ -1,6 +1,6 @@
-# STRATA Requirements
+# ATLAS Requirements
 
-This document defines the functional and non-functional requirements for the STRATA AI-native engineering operating system. These requirements describe the expected capabilities of the platform independent of any architectural design, data structures, frameworks, or programming languages. All subsequent design, workflow definition, and system implementation must satisfy the specifications set forth in this document.
+This document defines the functional and non-functional requirements for the ATLAS AI-native engineering operating system. These requirements describe the expected capabilities of the platform independent of any architectural design, data structures, frameworks, or programming languages. All subsequent design, workflow definition, and system implementation must satisfy the specifications set forth in this document.
 
 ---
 
@@ -138,4 +138,4 @@ The initial version of the platform will explicitly exclude the following capabi
 
 # Closing Statement
 
-Every future architectural decision, workflow configuration, and system implementation within STRATA must satisfy the functional and non-functional requirements defined in this document.
+Every future architectural decision, workflow configuration, and system implementation within ATLAS must satisfy the functional and non-functional requirements defined in this document.

@@ -1,12 +1,12 @@
-# STRATA Domain Models
+# ATLAS Domain Models
 
-Consistent domain models are essential for establishing a unified information language across the STRATA platform. They ensure that all subsystems, developers, and AI agents share a common understanding of the data structures and context they manipulate. These models describe conceptual information requirements and logical relationships rather than physical storage formats, serialization rules, or database schemas. By defining the "what" of project information independent of "how" it is stored, we maintain a flexible and highly maintainable core representation.
+Consistent domain models are essential for establishing a unified information language across the ATLAS platform. They ensure that all subsystems, developers, and AI agents share a common understanding of the data structures and context they manipulate. These models describe conceptual information requirements and logical relationships rather than physical storage formats, serialization rules, or database schemas. By defining the "what" of project information independent of "how" it is stored, we maintain a flexible and highly maintainable core representation.
 
 ---
 
 # Modeling Principles
 
-All domain models within STRATA must adhere to the following modeling principles:
+All domain models within ATLAS must adhere to the following modeling principles:
 
 - **Single Source of Truth**: Each model represents a single, cohesive business concept. The information it contains is authoritative for that concept.
 - **Clear Ownership**: Every model is responsible for managing its own encapsulated information and validating its logical rules.
@@ -211,10 +211,10 @@ Project
 
 # Future Evolution
 
-Additional domain models (e.g., user profile definitions, environment configuration overrides) may be introduced to STRATA as needs evolve. Any new model must respect the existing domain language and architectural boundaries, encapsulating its own information without introducing redundant data properties.
+Additional domain models (e.g., user profile definitions, environment configuration overrides) may be introduced to ATLAS as needs evolve. Any new model must respect the existing domain language and architectural boundaries, encapsulating its own information without introducing redundant data properties.
 
 ---
 
 # Closing Statement
 
-These domain models establish the common information language used throughout STRATA. They provide the conceptual schema foundation required to define database formats, serialization packages, and internal programming structures in future implementations.
+These domain models establish the common information language used throughout ATLAS. They provide the conceptual schema foundation required to define database formats, serialization packages, and internal programming structures in future implementations.

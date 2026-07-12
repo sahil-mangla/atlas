@@ -1,4 +1,4 @@
-# STRATA Service Contracts
+# ATLAS Service Contracts
 
 In a modular software architecture, subsystems must communicate through well-defined contracts rather than depending on each other's internal implementation details. Establishing formal, conceptual contracts ensures that subsystems remain decoupled and independent. It guarantees that any internal changes, optimization, or implementation refactoring within a subsystem will not break the behaviors of collaborating systems, thereby preserving overall platform stability and ease of testing.
 
@@ -6,7 +6,7 @@ In a modular software architecture, subsystems must communicate through well-def
 
 # Contract Principles
 
-All service interactions within STRATA are governed by the following core principles:
+All service interactions within ATLAS are governed by the following core principles:
 
 - **Clear Responsibilities**: Every subsystem owns its own domain objects and execution logic. No subsystem is permitted to perform tasks or mutate data that conceptually belongs to another.
 - **Explicit Collaboration**: Subsystems request services from one another through clearly defined contracts. They must never bypass boundaries or access another subsystem's internal implementations or private storage models.
@@ -137,10 +137,10 @@ Dependencies between subsystems must point toward stable, abstract interfaces ra
 
 # Future Evolution
 
-New subsystems (e.g., notification systems, external gateway adapters) may be introduced into the STRATA ecosystem. Any new system must establish clear, well-defined service contracts, declare its inputs and outputs, and respect the boundaries of existing subsystems.
+New subsystems (e.g., notification systems, external gateway adapters) may be introduced into the ATLAS ecosystem. Any new system must establish clear, well-defined service contracts, declare its inputs and outputs, and respect the boundaries of existing subsystems.
 
 ---
 
 # Closing Statement
 
-Service contracts preserve modularity, maintainability, and long-term architectural stability across STRATA. By formalizing these boundary lines, we guarantee that the platform can grow in capabilities while remaining simple to understand, test, and maintain.
+Service contracts preserve modularity, maintainability, and long-term architectural stability across ATLAS. By formalizing these boundary lines, we guarantee that the platform can grow in capabilities while remaining simple to understand, test, and maintain.

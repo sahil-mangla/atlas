@@ -1,4 +1,4 @@
-# STRATA Domain Model
+# ATLAS Domain Model
 
 Domain modeling establishes a shared, conceptual understanding of the problem space before defining software architecture or writing executable code. By identifying the core domain entities, their responsibilities, boundaries, and interactions, we create a common framework—known as the Ubiquitous Language. This language ensures that human architects, developers, and AI agents communicate with absolute clarity, avoiding translation errors and structural misalignment during the engineering lifecycle.
 
@@ -171,7 +171,7 @@ Represents the formal quality assessment and verification check of implemented c
 
 # Relationships
 
-The conceptual hierarchy of the STRATA domain is organized under the **Project** aggregate root:
+The conceptual hierarchy of the ATLAS domain is organized under the **Project** aggregate root:
 
 ```
 Project

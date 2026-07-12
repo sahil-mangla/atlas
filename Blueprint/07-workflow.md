@@ -1,12 +1,12 @@
-# STRATA Workflow Architecture
+# ATLAS Workflow Architecture
 
-Structured workflows are essential for achieving consistent, predictable, and high-quality engineering outcomes. By defining the sequence of activities that transform a product concept into a verified software release, we establish a repeatable methodology that guides development, minimizes context loss, and prevents architectural decay. In the STRATA platform, workflows are designed to provide structured guidance and process guardrails rather than rigid, fully automated execution. This approach ensures that while AI agents perform bounded tasks, human developers maintain architectural oversight and technical control throughout the development lifecycle.
+Structured workflows are essential for achieving consistent, predictable, and high-quality engineering outcomes. By defining the sequence of activities that transform a product concept into a verified software release, we establish a repeatable methodology that guides development, minimizes context loss, and prevents architectural decay. In the ATLAS platform, workflows are designed to provide structured guidance and process guardrails rather than rigid, fully automated execution. This approach ensures that while AI agents perform bounded tasks, human developers maintain architectural oversight and technical control throughout the development lifecycle.
 
 ---
 
 # Workflow Philosophy
 
-Every workflow within STRATA is governed by the following core philosophies:
+Every workflow within ATLAS is governed by the following core philosophies:
 
 - **Progress Through Engineering Stages**: Projects must advance through distinct, logical stages. This prevents premature implementation and ensures that design prerequisites are met before code is written.
 - **Iterative Development**: Engineering is fundamentally iterative. The workflow supports looping back to earlier stages when new insights, technical challenges, or requirements changes emerge.
@@ -17,7 +17,7 @@ Every workflow within STRATA is governed by the following core philosophies:
 
 # Engineering Lifecycle
 
-The STRATA engineering workflow progresses through nine sequential lifecycle stages:
+The ATLAS engineering workflow progresses through nine sequential lifecycle stages:
 
 ```
 Idea ──> Research ──> Problem Definition ──> Planning ──> Architecture ──> Implementation ──> Review ──> Iteration ──> Completion
@@ -169,7 +169,7 @@ Freezes the implemented state, updates final documentation, and archives the com
 
 # Workflow Characteristics
 
-Every workflow instantiated within STRATA exhibits the following properties:
+Every workflow instantiated within ATLAS exhibits the following properties:
 
 - **Repeatable**: Workflows must produce predictable results under similar inputs. The sequence of validations and execution steps remains uniform across milestones.
 - **Resumable**: Workflows must support pausing and serialization at any stage. Developers can safely shut down the system and resume without losing task progress or context.
@@ -219,4 +219,4 @@ Completing code functionality alone does not satisfy the completion criteria.
 
 # Closing Statement
 
-Workflows provide STRATA with a consistent, reliable engineering process, ensuring structural integrity at every milestone while remaining adaptable to the unique demands of each project.
+Workflows provide ATLAS with a consistent, reliable engineering process, ensuring structural integrity at every milestone while remaining adaptable to the unique demands of each project.

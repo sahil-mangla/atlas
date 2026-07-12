@@ -1,12 +1,12 @@
-# STRATA System Architecture
+# ATLAS System Architecture
 
-This document defines the high-level architecture of STRATA. Software architecture defines how responsibilities, logic, and data boundaries are divided across the platform. The goal of this architecture is to maximize maintainability, modularity, and structural clarity, ensuring that the system can evolve without accumulating technical debt or component coupling.
+This document defines the high-level architecture of ATLAS. Software architecture defines how responsibilities, logic, and data boundaries are divided across the platform. The goal of this architecture is to maximize maintainability, modularity, and structural clarity, ensuring that the system can evolve without accumulating technical debt or component coupling.
 
 ---
 
 # Architectural Principles
 
-To ensure long-term stability and clarity, the design of all STRATA subsystems must adhere to the following architectural principles:
+To ensure long-term stability and clarity, the design of all ATLAS subsystems must adhere to the following architectural principles:
 
 - **Separation of Concerns**: Each subsystem focuses on a distinct aspect of the engineering lifecycle (e.g., planning, architecture, or evaluation). Separating concerns prevents the emergence of complex, coupled code and makes components easier to debug and refactor.
 - **Single Responsibility**: A subsystem is responsible for one conceptual aspect of the system. This limits the blast radius of changes and ensures that updates to one feature area do not introduce regression elsewhere.
@@ -20,7 +20,7 @@ To ensure long-term stability and clarity, the design of all STRATA subsystems m
 
 # System Overview
 
-STRATA is composed of independent, highly cohesive subsystems that collaborate through clearly defined boundaries. To maintain system integrity, no subsystem is permitted to absorb, duplicate, or directly own the responsibilities of another subsystem. Instead, they interact via request and notification patterns, exchanging structured schemas across boundary layers.
+ATLAS is composed of independent, highly cohesive subsystems that collaborate through clearly defined boundaries. To maintain system integrity, no subsystem is permitted to absorb, duplicate, or directly own the responsibilities of another subsystem. Instead, they interact via request and notification patterns, exchanging structured schemas across boundary layers.
 
 ---
 
@@ -29,7 +29,7 @@ STRATA is composed of independent, highly cohesive subsystems that collaborate t
 ## Project System
 
 ### Purpose
-Acts as the orchestrator and entry point for the STRATA application, managing the lifecycle and high-level configuration of the engineering workspace.
+Acts as the orchestrator and entry point for the ATLAS application, managing the lifecycle and high-level configuration of the engineering workspace.
 
 ### Responsibilities
 - Manages project-level initialization, loading, pausing, and archiving operations.
@@ -195,7 +195,7 @@ Manages technical interactions with external AI execution agents tasked with cod
 - Compiles the necessary blueprints, contracts, and guidelines into structured engineering specifications.
 - Generates targeted implementation prompts for external agents.
 - Receives implementation diffs and verification outputs from external agents.
-- *Note: External execution agents are external collaborators and do not constitute part of STRATA's core internal architecture.*
+- *Note: External execution agents are external collaborators and do not constitute part of ATLAS's core internal architecture.*
 
 ### Inputs
 - Approved architecture specs, task briefs from the planning system, and code files.
@@ -214,7 +214,7 @@ Manages technical interactions with external AI execution agents tasked with cod
 
 # System Relationships
 
-STRATA subsystems collaborate in a structured pipeline, where each step acts as a prerequisite validation gate for the next:
+ATLAS subsystems collaborate in a structured pipeline, where each step acts as a prerequisite validation gate for the next:
 
 ```
     Project (Lifecycle & State Orchestrator)
@@ -247,10 +247,10 @@ To preserve modularity, the following boundary rules are strictly enforced:
 
 # Future Evolution
 
-Additional subsystems (e.g., notification systems, external adapter gateways) may be introduced to STRATA as the platform grows. Any new subsystem must respect the architectural boundaries, ownership structures, and core principles established in this document, communicating through clean interfaces without introducing tight coupling.
+Additional subsystems (e.g., notification systems, external adapter gateways) may be introduced to ATLAS as the platform grows. Any new subsystem must respect the architectural boundaries, ownership structures, and core principles established in this document, communicating through clean interfaces without introducing tight coupling.
 
 ---
 
 # Closing Statement
 
-This architecture defines the high-level structural organization of STRATA. It serves as the baseline design model for the platform and acts as the structural foundation for all subsequent Blueprint documents.
+This architecture defines the high-level structural organization of ATLAS. It serves as the baseline design model for the platform and acts as the structural foundation for all subsequent Blueprint documents.
