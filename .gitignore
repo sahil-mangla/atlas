@@ -26,3 +26,11 @@ __pycache__/
 node_modules/
 dist/
 build/
+
+# Test coverage & tooling caches
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/

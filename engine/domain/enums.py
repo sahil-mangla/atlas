@@ -1,0 +1,73 @@
+"""Shared domain enumerations for the ATLAS platform.
+
+All enumerations are defined here to provide a single source of truth for
+domain state values used across every domain model.
+"""
+
+from enum import StrEnum
+
+
+class ProjectStatus(StrEnum):
+    """Operational lifecycle state of an engineering project."""
+
+    INITIALIZED = "initialized"
+    ACTIVE = "active"
+    PAUSED = "paused"
+    ARCHIVED = "archived"
+
+
+class WorkflowStage(StrEnum):
+    """Sequential stages of the ATLAS engineering lifecycle."""
+
+    IDEA = "idea"
+    RESEARCH = "research"
+    PROBLEM_DEFINITION = "problem_definition"
+    PLANNING = "planning"
+    ARCHITECTURE = "architecture"
+    IMPLEMENTATION = "implementation"
+    REVIEW = "review"
+    ITERATION = "iteration"
+    COMPLETION = "completion"
+
+
+class Priority(StrEnum):
+    """Execution urgency and ordering for tasks and milestones."""
+
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+class EvaluationStatus(StrEnum):
+    """Result state of a quality evaluation."""
+
+    PENDING = "pending"
+    PASSED = "passed"
+    PASSED_WITH_WARNINGS = "passed_with_warnings"
+    FAILED = "failed"
+
+
+class ResearchStatus(StrEnum):
+    """Progress state of a research investigation."""
+
+    PLANNED = "planned"
+    IN_PROGRESS = "in_progress"
+    COMPLETE = "complete"
+
+
+class TaskStatus(StrEnum):
+    """Execution state of an implementation task."""
+
+    PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    COMPLETE = "complete"
+    BLOCKED = "blocked"
+
+
+class FindingSeverity(StrEnum):
+    """Severity classification of an evaluation finding."""
+
+    INFO = "info"
+    WARNING = "warning"
+    BLOCKING = "blocking"
