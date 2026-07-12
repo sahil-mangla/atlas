@@ -2,78 +2,89 @@ from uuid import UUID, uuid4
 
 from engine.domain.enums import ResearchStatus
 from engine.domain.research import (
-    KnowledgeGap,
+    Assumption,
+    Constraint,
+    Evidence,
+    Opportunity,
+    ProblemDefinition,
     Research,
     ResearchFinding,
-    ResearchTopic,
+    ResearchSnapshot,
+    ResearchSource,
+    ResearchSummary,
 )
 
 
-def test_research_sub_models() -> None:
-    topic = ResearchTopic(title="DB Scaling", description="Evaluate postgres vs mongo")
-    assert isinstance(topic.id, UUID)
-    assert topic.title == "DB Scaling"
+def test_research_models() -> None:
+    problem = ProblemDefinition(statement="Scale DB", objectives=["Find good DB"])
+    assert problem.statement == "Scale DB"
+
+    source = ResearchSource(title="Postgres Docs", url_or_reference="https://pg.org")
+    assert isinstance(source.id, UUID)
+    assert source.title == "Postgres Docs"
+
+    evidence = Evidence(
+        type="literature",
+        title="Postgres scales",
+        origin="Docs",
+        citation="PG v15",
+        summary="Works well",
+    )
+    assert isinstance(evidence.id, UUID)
+    assert evidence.type == "literature"
 
     finding = ResearchFinding(
-        title="Postgres works",
-        summary="Postgres scales well enough for current load",
-        source="https://example.com/postgres-scaling",
+        title="PG is good", summary="Use PG", evidence_ids=[evidence.id]
     )
     assert isinstance(finding.id, UUID)
-    assert finding.title == "Postgres works"
-    assert finding.source == "https://example.com/postgres-scaling"
+    assert finding.evidence_ids == [evidence.id]
 
-    gap = KnowledgeGap(
-        description="Missing load test data",
-        impact="Could fail under peak load",
+    constraint = Constraint(
+        description="Must use SQL", impact="Limits NoSQL", finding_ids=[finding.id]
     )
-    assert isinstance(gap.id, UUID)
-    assert gap.description == "Missing load test data"
+    assert isinstance(constraint.id, UUID)
+    assert constraint.finding_ids == [finding.id]
+
+    assumption = Assumption(description="Load < 10k", risk="Might break")
+    assert isinstance(assumption.id, UUID)
+
+    opportunity = Opportunity(
+        title="Use JSONB", description="Store JSON", finding_ids=[finding.id]
+    )
+    assert isinstance(opportunity.id, UUID)
+    assert opportunity.finding_ids == [finding.id]
 
 
-def test_research_defaults() -> None:
+def test_research_aggregate() -> None:
     project_id = uuid4()
     research = Research(project_id=project_id)
-
     assert isinstance(research.id, UUID)
     assert research.project_id == project_id
-    assert research.problem_statement == ""
-    assert research.status == ResearchStatus.PLANNED
-    assert research.topics == []
-    assert research.literature == []
-    assert research.findings == []
-    assert research.references == []
-    assert research.knowledge_gaps == []
+    assert research.status == ResearchStatus.DRAFT
+    assert research.snapshots == []
+
+    # Active state
+    assert research.problem_definition is None
+    assert research.sources == []
+    assert research.evidence == []
 
 
-def test_research_custom() -> None:
-    research_id = uuid4()
-    project_id = uuid4()
-    topic = ResearchTopic(title="DB Scaling")
-    finding = ResearchFinding(title="Postgres works", summary="Postgres works well")
-    gap = KnowledgeGap(description="Missing load test data")
+def test_research_snapshot() -> None:
+    summary = ResearchSummary(synthesis="PG wins", key_takeaways=["Use PG"])
+    problem = ProblemDefinition(statement="Scale DB", objectives=[])
 
-    research = Research(
-        id=research_id,
-        project_id=project_id,
-        problem_statement="Investigate data persistence options",
-        status=ResearchStatus.IN_PROGRESS,
-        topics=[topic],
-        literature=["Ref paper 1"],
-        findings=[finding],
-        references=["https://google.com"],
-        knowledge_gaps=[gap],
+    snapshot = ResearchSnapshot(
+        version=1,
+        problem_definition=problem,
+        research_sources=[],
+        evidence=[],
+        findings=[],
+        constraints=[],
+        assumptions=[],
+        opportunities=[],
+        open_questions=[],
+        summary=summary,
+        confidence=0.9,
     )
-
-    assert research.id == research_id
-    assert research.project_id == project_id
-    assert research.problem_statement == "Investigate data persistence options"
-    assert research.status == ResearchStatus.IN_PROGRESS
-    assert len(research.topics) == 1
-    assert research.topics[0].title == "DB Scaling"
-    assert research.literature == ["Ref paper 1"]
-    assert len(research.findings) == 1
-    assert research.findings[0].title == "Postgres works"
-    assert research.references == ["https://google.com"]
-    assert len(research.knowledge_gaps) == 1
-    assert research.knowledge_gaps[0].description == "Missing load test data"
+    assert snapshot.version == 1
+    assert snapshot.confidence == 0.9

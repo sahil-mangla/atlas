@@ -51,9 +51,11 @@ class EvaluationStatus(StrEnum):
 class ResearchStatus(StrEnum):
     """Progress state of a research investigation."""
 
-    PLANNED = "planned"
+    DRAFT = "draft"
     IN_PROGRESS = "in_progress"
-    COMPLETE = "complete"
+    READY_FOR_REVIEW = "ready_for_review"
+    APPROVED = "approved"
+    ARCHIVED = "archived"
 
 
 class TaskStatus(StrEnum):
