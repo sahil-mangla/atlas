@@ -1,63 +1,128 @@
-from datetime import datetime
-from uuid import UUID, uuid4
+"""Unit tests for the memory domain models."""
 
-from engine.domain.memory import EngineeringDecision, Memory, MemoryEntry
+from uuid import uuid4
 
+import pytest
 
-def test_engineering_decision() -> None:
-    decision = EngineeringDecision(
-        title="Setup Db",
-        context="DB initialization needed",
-        rationale="We need local databases",
-    )
-    assert isinstance(decision.id, UUID)
-    assert decision.title == "Setup Db"
-    assert decision.context == "DB initialization needed"
-    assert decision.rationale == "We need local databases"
-    assert isinstance(decision.recorded_at, datetime)
+from engine.domain.enums import MemoryCategory
+from engine.domain.memory import Memory, MemoryEntry
 
 
-def test_memory_entry() -> None:
+def test_memory_entry_default_values() -> None:
+    project_id = uuid4()
     entry = MemoryEntry(
-        summary="User greeting",
-        content="Hello world",
-        source="user",
-    )
-    assert isinstance(entry.id, UUID)
-    assert entry.summary == "User greeting"
-    assert entry.content == "Hello world"
-    assert entry.source == "user"
-    assert isinstance(entry.recorded_at, datetime)
-
-
-def test_memory_defaults() -> None:
-    project_id = uuid4()
-    memory = Memory(project_id=project_id)
-    assert isinstance(memory.id, UUID)
-    assert memory.project_id == project_id
-    assert memory.engineering_decisions == []
-    assert memory.knowledge_entries == []
-    assert memory.lessons_learned == []
-
-
-def test_memory_custom() -> None:
-    mem_id = uuid4()
-    project_id = uuid4()
-    decision = EngineeringDecision(title="Use PG", context="ctx", rationale="rat")
-    entry = MemoryEntry(summary="User query", content="select *")
-
-    memory = Memory(
-        id=mem_id,
         project_id=project_id,
-        engineering_decisions=[decision],
-        knowledge_entries=[entry],
-        lessons_learned=["Always test config first"],
+        category=MemoryCategory.DECISION,
+        type="Architecture Decision",
+        title="Test Entry",
+        content="Test content",
     )
 
-    assert memory.id == mem_id
-    assert memory.project_id == project_id
-    assert len(memory.engineering_decisions) == 1
-    assert memory.engineering_decisions[0].title == "Use PG"
-    assert len(memory.knowledge_entries) == 1
-    assert memory.knowledge_entries[0].summary == "User query"
-    assert memory.lessons_learned == ["Always test config first"]
+    assert entry.project_id == project_id
+    assert entry.origin == ""
+    assert entry.tags == []
+    assert entry.confidence == 1.0
+    assert entry.version == 1
+    assert entry.is_active is True
+    assert entry.supersedes_id is None
+    assert entry.superseded_by_id is None
+    assert entry.created_at is not None
+
+
+def test_memory_add_entry() -> None:
+    memory = Memory(project_id=uuid4())
+    entry = MemoryEntry(
+        project_id=memory.project_id,
+        category=MemoryCategory.KNOWLEDGE,
+        type="Constraint",
+        title="Must run offline",
+        content="System must work without internet access.",
+    )
+
+    memory.add_entry(entry)
+    assert len(memory.entries) == 1
+    assert memory.entries[0] == entry
+
+    active = memory.get_active_entries()
+    assert len(active) == 1
+    assert active[0] == entry
+
+
+def test_memory_version_entry() -> None:
+    memory = Memory(project_id=uuid4())
+    entry_v1 = MemoryEntry(
+        project_id=memory.project_id,
+        category=MemoryCategory.ARTIFACT,
+        type="Specification",
+        title="Spec",
+        content="V1",
+    )
+    memory.add_entry(entry_v1)
+
+    entry_v2 = MemoryEntry(
+        project_id=memory.project_id,
+        category=MemoryCategory.ARTIFACT,
+        type="Specification",
+        title="Spec",
+        content="V2",
+    )
+
+    memory.version_entry(entry_v1.id, entry_v2)
+
+    assert len(memory.entries) == 2
+    assert entry_v1.is_active is False
+    assert entry_v1.superseded_by_id == entry_v2.id
+
+    assert entry_v2.is_active is True
+    assert entry_v2.version == 2
+    assert entry_v2.supersedes_id == entry_v1.id
+
+    active = memory.get_active_entries()
+    assert len(active) == 1
+    assert active[0] == entry_v2
+
+
+def test_memory_version_entry_not_found() -> None:
+    memory = Memory(project_id=uuid4())
+    entry_v2 = MemoryEntry(
+        project_id=memory.project_id,
+        category=MemoryCategory.ARTIFACT,
+        type="Specification",
+        title="Spec",
+        content="V2",
+    )
+
+    with pytest.raises(ValueError, match="not found"):
+        memory.version_entry(uuid4(), entry_v2)
+
+
+def test_memory_version_entry_multiple_successors_forbidden() -> None:
+    memory = Memory(project_id=uuid4())
+    entry_v1 = MemoryEntry(
+        project_id=memory.project_id,
+        category=MemoryCategory.ARTIFACT,
+        type="Specification",
+        title="Spec",
+        content="V1",
+    )
+    memory.add_entry(entry_v1)
+
+    entry_v2 = MemoryEntry(
+        project_id=memory.project_id,
+        category=MemoryCategory.ARTIFACT,
+        type="Specification",
+        title="Spec",
+        content="V2",
+    )
+    memory.version_entry(entry_v1.id, entry_v2)
+
+    # Try to version v1 again (branching history is forbidden by requirements)
+    entry_v2_alt = MemoryEntry(
+        project_id=memory.project_id,
+        category=MemoryCategory.ARTIFACT,
+        type="Specification",
+        title="Spec",
+        content="V2 Alt",
+    )
+    with pytest.raises(ValueError, match="already superseded"):
+        memory.version_entry(entry_v1.id, entry_v2_alt)

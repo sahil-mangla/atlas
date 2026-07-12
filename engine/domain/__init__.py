@@ -25,7 +25,7 @@ from engine.domain.evaluation import (
     RequirementCoverage,
     ReviewFinding,
 )
-from engine.domain.memory import EngineeringDecision, Memory, MemoryEntry
+from engine.domain.memory import Memory, MemoryEntry
 from engine.domain.project import Project
 from engine.domain.research import (
     KnowledgeGap,
@@ -41,7 +41,6 @@ __all__ = [
     "ArchitecturalComponent",
     "ArchitecturalDecision",
     "Architecture",
-    "EngineeringDecision",
     "EngineeringSpecification",
     "Evaluation",
     "EvaluationStatus",

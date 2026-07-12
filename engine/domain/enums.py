@@ -71,3 +71,12 @@ class FindingSeverity(StrEnum):
     INFO = "info"
     WARNING = "warning"
     BLOCKING = "blocking"
+
+
+class MemoryCategory(StrEnum):
+    """Categorized domain division of engineering memory."""
+
+    KNOWLEDGE = "knowledge"
+    DECISION = "decision"
+    CONTEXT = "context"
+    ARTIFACT = "artifact"
