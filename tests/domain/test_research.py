@@ -1,6 +1,7 @@
 from uuid import UUID, uuid4
 
 from engine.domain.enums import ResearchStatus
+from engine.domain.metadata import ArtifactMetadata
 from engine.domain.research import (
     Assumption,
     Constraint,
@@ -74,7 +75,7 @@ def test_research_snapshot() -> None:
     problem = ProblemDefinition(statement="Scale DB", objectives=[])
 
     snapshot = ResearchSnapshot(
-        version=1,
+        metadata=ArtifactMetadata(version=1),
         problem_definition=problem,
         research_sources=[],
         evidence=[],

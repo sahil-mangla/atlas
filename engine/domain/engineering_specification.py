@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field
 class EngineeringSpecification(BaseModel):
     """Formal implementation instructions and constraints for a specific task.
 
-    EngineeringSpecification is generated from Roadmap tasks and Architecture
+    EngineeringSpecification is generated from PlanningTask items and Architecture
     design rules. It is consumed by Evaluation to verify that code output
     meets all stated criteria and constraints.
     """
@@ -24,7 +24,7 @@ class EngineeringSpecification(BaseModel):
     )
     task_id: UUID | None = Field(
         default=None,
-        description="Reference to the Roadmap Task this specification drives.",
+        description="Reference to the PlanningTask this specification drives.",
     )
     title: str = Field(
         description="Short, human-readable name for this specification.",

@@ -6,12 +6,21 @@ are contained here.
 """
 
 from engine.domain.architecture import (
-    ArchitecturalComponent,
     ArchitecturalDecision,
     Architecture,
+    ArchitectureComponent,
+    ArchitectureDriver,
+    ArchitectureSnapshot,
+    ArchitectureSummary,
+    InterfaceContract,
+    QualityAttribute,
+    Risk,
+    Constraint as ArchitectureConstraint,
+    Assumption as ArchitectureAssumption,
 )
 from engine.domain.engineering_specification import EngineeringSpecification
 from engine.domain.enums import (
+    ArchitectureStatus,
     EvaluationStatus,
     FindingSeverity,
     PlanningStatus,
@@ -55,20 +64,25 @@ from engine.domain.research import (
     ResearchSummary,
 )
 from engine.domain.review import EngineeringReview
-from engine.domain.roadmap import Milestone, Roadmap, Task
 from engine.domain.traceability import TraceabilityLink
 from engine.domain.workflow import ReadinessReview, Workflow, WorkflowHistoryEntry
 from engine.domain.workspace import Workspace, WorkspaceArtifact
 
 __all__ = [
     "AcceptanceCriteria",
-    "ArchitecturalComponent",
     "ArchitecturalDecision",
     "Architecture",
+    "ArchitectureComponent",
+    "ArchitectureDriver",
+    "ArchitectureSnapshot",
+    "ArchitectureStatus",
+    "ArchitectureSummary",
     "ArtifactMetadata",
     "ArtifactStatus",
     "Assumption",
     "Constraint",
+    "ArchitectureConstraint",
+    "ArchitectureAssumption",
     "DefinitionOfDone",
     "EngineeringDeliverable",
     "EngineeringReview",
@@ -77,9 +91,9 @@ __all__ = [
     "EvaluationStatus",
     "Evidence",
     "FindingSeverity",
+    "InterfaceContract",
     "Memory",
     "MemoryEntry",
-    "Milestone",
     "Opportunity",
     "Planning",
     "PlanningEpic",
@@ -93,6 +107,7 @@ __all__ = [
     "ProblemDefinition",
     "Project",
     "ProjectStatus",
+    "QualityAttribute",
     "ReadinessReview",
     "RequirementCoverage",
     "Research",
@@ -101,10 +116,9 @@ __all__ = [
     "ResearchSource",
     "ResearchStatus",
     "ResearchSummary",
+    "Risk",
     "ReviewFinding",
-    "Roadmap",
     "ScopeDefinition",
-    "Task",
     "TaskStatus",
     "TraceabilityLink",
     "Workflow",

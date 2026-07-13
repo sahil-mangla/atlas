@@ -18,7 +18,7 @@ class Project(BaseModel):
     """The root aggregate governing the complete engineering project lifecycle.
 
     Project is the single owner of all domain contexts (Workspace, Research,
-    Roadmap, Architecture, Workflow, Memory, Evaluations). It references each
+    Planning, Architecture, Workflow, Memory, Evaluations). It references each
     by ID to remain lightweight and avoid circular coupling.
     """
 
@@ -47,9 +47,9 @@ class Project(BaseModel):
         default=None,
         description="Reference to the associated Workspace.",
     )
-    roadmap_id: UUID | None = Field(
+    planning_id: UUID | None = Field(
         default=None,
-        description="Reference to the active Roadmap.",
+        description="Reference to the active Planning context.",
     )
     architecture_id: UUID | None = Field(
         default=None,

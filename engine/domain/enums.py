@@ -67,6 +67,16 @@ class PlanningStatus(StrEnum):
     ARCHIVED = "archived"
 
 
+class ArchitectureStatus(StrEnum):
+    """Progress state of project architecture design."""
+
+    DRAFT = "draft"
+    REVIEW = "review"
+    APPROVED = "approved"
+    ARCHIVED = "archived"
+
+
+
 class TaskStatus(StrEnum):
     """Execution state of an implementation task."""
 

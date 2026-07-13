@@ -4,7 +4,8 @@ import json
 from uuid import UUID
 
 from engine.domain.workflow import Workflow
-from engine.project.fs_repository import FilesystemProjectRepository
+from engine.project.exceptions import ProjectNotFoundException
+from engine.project.repository import ProjectRepository
 from engine.workflow.exceptions import (
     InvalidTransitionException,
     WorkflowNotFoundException,
@@ -19,14 +20,14 @@ class FilesystemWorkflowRepository(WorkflowRepository):
     Stores workflow state as a JSON file within the project's .atlas/ directory.
     """
 
-    def __init__(self, project_repo: FilesystemProjectRepository) -> None:
+    def __init__(self, project_repo: ProjectRepository) -> None:
         self.project_repo = project_repo
 
     def save(self, workflow: Workflow) -> None:
         """Save the workflow state to persistence."""
         try:
             project_path = self.project_repo.get_project_path(workflow.project_id)
-        except Exception as e:
+        except ProjectNotFoundException as e:
             raise WorkflowNotFoundException(
                 f"Project {workflow.project_id} not tracked by repository."
             ) from e
@@ -48,7 +49,7 @@ class FilesystemWorkflowRepository(WorkflowRepository):
         """Retrieve the workflow state for a specific project."""
         try:
             project_path = self.project_repo.get_project_path(project_id)
-        except Exception:
+        except ProjectNotFoundException:
             return None
 
         workflow_file = project_path / ".atlas" / "workflow.json"
@@ -71,5 +72,5 @@ class FilesystemWorkflowRepository(WorkflowRepository):
             project_path = self.project_repo.get_project_path(project_id)
             workflow_file = project_path / ".atlas" / "workflow.json"
             return workflow_file.is_file()
-        except Exception:
+        except ProjectNotFoundException:
             return False

@@ -1,3 +1,9 @@
+"""Unit tests for the Planning subsystem services.
+
+S-03: FilesystemPlanningRepository and FilesystemResearchRepository now require
+a registered project. The fixture creates a shared project before operations.
+"""
+
 from pathlib import Path
 from uuid import UUID, uuid4
 
@@ -5,6 +11,7 @@ import pytest
 
 from engine.domain.enums import PlanningStatus, ResearchStatus
 from engine.domain.metadata import ArtifactMetadata
+from engine.domain.project import Project
 from engine.domain.research import (
     ProblemDefinition,
     Research,
@@ -23,17 +30,8 @@ from engine.planning.services import (
     ScopePlanningService,
     TaskPlanningService,
 )
+from engine.project.fs_repository import FilesystemProjectRepository
 from engine.research.fs_repository import FilesystemResearchRepository
-
-
-@pytest.fixture
-def repos(
-    tmp_path: Path,
-) -> tuple[FilesystemPlanningRepository, FilesystemResearchRepository]:
-    return (
-        FilesystemPlanningRepository(tmp_path),
-        FilesystemResearchRepository(tmp_path),
-    )
 
 
 def create_snapshot(snapshot_id: UUID) -> ResearchSnapshot:
@@ -52,14 +50,27 @@ def create_snapshot(snapshot_id: UUID) -> ResearchSnapshot:
     )
 
 
+@pytest.fixture
+def repos(
+    tmp_path: Path,
+) -> tuple[FilesystemPlanningRepository, FilesystemResearchRepository, UUID]:
+    """Provide both repos and a pre-registered project ID."""
+    project_repo = FilesystemProjectRepository(tmp_path)
+    plan_repo = FilesystemPlanningRepository(project_repo)
+    res_repo = FilesystemResearchRepository(project_repo)
+
+    project = Project(name="Planning Test", description="d", objective="o")
+    project_repo.save(project)
+
+    return plan_repo, res_repo, project.id
+
+
 def test_initialization_service(
-    repos: tuple[FilesystemPlanningRepository, FilesystemResearchRepository]
+    repos: tuple[FilesystemPlanningRepository, FilesystemResearchRepository, UUID],
 ) -> None:
-    plan_repo, res_repo = repos
-    project_id = uuid4()
+    plan_repo, res_repo, project_id = repos
     research_snapshot_id = uuid4()
 
-    # Need to setup research with snapshot
     snapshot = create_snapshot(research_snapshot_id)
     research = Research(
         project_id=project_id,
@@ -80,17 +91,16 @@ def test_initialization_service(
 
 
 def test_scope_service(
-    repos: tuple[FilesystemPlanningRepository, FilesystemResearchRepository]
+    repos: tuple[FilesystemPlanningRepository, FilesystemResearchRepository, UUID],
 ) -> None:
-    plan_repo, res_repo = repos
-    project_id = uuid4()
+    plan_repo, res_repo, project_id = repos
     research_snapshot_id = uuid4()
 
-    # Setup
     snapshot = create_snapshot(research_snapshot_id)
     res_repo.save(Research(project_id=project_id, snapshots=[snapshot]))
-    init_svc = PlanningInitializationService(plan_repo, res_repo)
-    init_svc.initialize_planning(project_id, research_snapshot_id)
+    PlanningInitializationService(plan_repo, res_repo).initialize_planning(
+        project_id, research_snapshot_id
+    )
 
     scope_svc = ScopePlanningService(plan_repo)
     scope = scope_svc.set_scope(
@@ -104,13 +114,11 @@ def test_scope_service(
 
 
 def test_milestone_and_task_service(
-    repos: tuple[FilesystemPlanningRepository, FilesystemResearchRepository]
+    repos: tuple[FilesystemPlanningRepository, FilesystemResearchRepository, UUID],
 ) -> None:
-    plan_repo, res_repo = repos
-    project_id = uuid4()
+    plan_repo, res_repo, project_id = repos
     research_snapshot_id = uuid4()
 
-    # Setup
     snapshot = create_snapshot(research_snapshot_id)
     res_repo.save(Research(project_id=project_id, snapshots=[snapshot]))
     PlanningInitializationService(plan_repo, res_repo).initialize_planning(
@@ -141,13 +149,11 @@ def test_milestone_and_task_service(
 
 
 def test_dependency_service_cycle_detection(
-    repos: tuple[FilesystemPlanningRepository, FilesystemResearchRepository]
+    repos: tuple[FilesystemPlanningRepository, FilesystemResearchRepository, UUID],
 ) -> None:
-    plan_repo, res_repo = repos
-    project_id = uuid4()
+    plan_repo, res_repo, project_id = repos
     research_snapshot_id = uuid4()
 
-    # Setup
     snapshot = create_snapshot(research_snapshot_id)
     res_repo.save(Research(project_id=project_id, snapshots=[snapshot]))
     PlanningInitializationService(plan_repo, res_repo).initialize_planning(
@@ -176,13 +182,11 @@ def test_dependency_service_cycle_detection(
 
 
 def test_summary_service(
-    repos: tuple[FilesystemPlanningRepository, FilesystemResearchRepository]
+    repos: tuple[FilesystemPlanningRepository, FilesystemResearchRepository, UUID],
 ) -> None:
-    plan_repo, res_repo = repos
-    project_id = uuid4()
+    plan_repo, res_repo, project_id = repos
     research_snapshot_id = uuid4()
 
-    # Setup
     snapshot = create_snapshot(research_snapshot_id)
     res_repo.save(Research(project_id=project_id, snapshots=[snapshot]))
     PlanningInitializationService(plan_repo, res_repo).initialize_planning(

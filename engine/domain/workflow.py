@@ -5,7 +5,7 @@ progress through the nine sequential engineering stages defined in the
 ATLAS Engineering Lifecycle.
 """
 
-from datetime import datetime
+from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
@@ -27,8 +27,8 @@ class WorkflowHistoryEntry(BaseModel):
         description="The stage transitioned to."
     )
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow,
-        description="When the transition occurred.",
+        default_factory=lambda: datetime.now(UTC),
+        description="When the transition occurred (timezone-aware UTC).",
     )
     approval_status: ApprovalStatus = Field(
         description="The human approval status of this transition."
@@ -58,8 +58,8 @@ class ReadinessReview(BaseModel):
     )
     confidence: float = Field(default=1.0, description="Readiness confidence score.")
     generated_at: datetime = Field(
-        default_factory=datetime.utcnow,
-        description="When this review was generated.",
+        default_factory=lambda: datetime.now(UTC),
+        description="When this review was generated (timezone-aware UTC).",
     )
 
 
@@ -83,11 +83,14 @@ class Workflow(BaseModel):
     )
     completed_stages: list[WorkflowStage] = Field(
         default_factory=list,
-        description="Stages that have been successfully navigated and signed off.",
+        description=(
+            "Stages from which a forward-approved transition was made. "
+            "Append-only: backward transitions do not remove entries."
+        ),
     )
     pending_stages: list[WorkflowStage] = Field(
         default_factory=list,
-        description="Remaining stages in the workflow sequence.",
+        description="Remaining stages not yet completed and not currently active.",
     )
     active_objectives: list[str] = Field(
         default_factory=list,
@@ -103,17 +106,31 @@ class Workflow(BaseModel):
     def record_transition(self, entry: WorkflowHistoryEntry) -> None:
         """Record a valid workflow transition.
 
+        completed_stages is maintained as an append-only log of stages from
+        which an explicit forward-approved transition was made. Backward
+        transitions are preserved in history but do not remove stages from
+        completed_stages and do not add the vacated stage as completed.
+
         Args:
             entry: The history entry to record.
         """
         self.history.append(entry)
         self.current_stage = entry.new_stage
 
-        # Re-calculate completed and pending lists
+        # Only mark the previous stage as completed on a genuine forward move.
         stages = list(WorkflowStage)
-        try:
-            current_idx = stages.index(entry.new_stage)
-            self.completed_stages = stages[:current_idx]
-            self.pending_stages = stages[current_idx + 1 :]
-        except ValueError:
-            pass
+        if entry.previous_stage is not None:
+            try:
+                prev_idx = stages.index(entry.previous_stage)
+                new_idx = stages.index(entry.new_stage)
+                is_forward = new_idx > prev_idx
+                if is_forward and entry.previous_stage not in self.completed_stages:
+                    self.completed_stages.append(entry.previous_stage)
+            except ValueError:
+                pass
+
+        # Pending: stages not yet completed and not the current active stage.
+        self.pending_stages = [
+            s for s in stages
+            if s not in self.completed_stages and s != self.current_stage
+        ]

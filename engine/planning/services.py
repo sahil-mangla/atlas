@@ -312,7 +312,7 @@ class DependencyPlanningService:
 
         # Ensure that depends_on_id actually exists in the graph globally
         all_ids = {
-            item.id
+            getattr(item, "id")
             for m in planning.milestones
             for e in m.epics
             for t in e.tasks

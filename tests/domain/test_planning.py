@@ -1,6 +1,7 @@
 from uuid import UUID, uuid4
 
 from engine.domain.enums import PlanningStatus, TaskStatus
+from engine.domain.metadata import ArtifactMetadata
 from engine.domain.planning import (
     AcceptanceCriteria,
     DefinitionOfDone,
@@ -43,7 +44,7 @@ def test_planning_models() -> None:
     summary = PlanningSummary(synthesis="Done", total_milestones=1, total_tasks=1)
 
     snapshot = PlanningSnapshot(
-        version=1,
+        metadata=ArtifactMetadata(version=1),
         research_snapshot_id=uuid4(),
         scope_definition=scope,
         milestones=[milestone],

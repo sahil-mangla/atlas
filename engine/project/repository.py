@@ -1,6 +1,7 @@
 """Repository abstraction for the ATLAS Project System."""
 
 from abc import ABC, abstractmethod
+from pathlib import Path
 from uuid import UUID
 
 from engine.domain.project import Project
@@ -38,4 +39,23 @@ class ProjectRepository(ABC):
 
         Returns:
             A list of all discovered Project domain models.
+        """
+
+    @abstractmethod
+    def get_project_path(self, project_id: UUID) -> Path:
+        """Return the canonical filesystem path for a project's root directory.
+
+        This is the single authoritative mechanism for resolving project storage
+        locations. Dependent repositories (Memory, Workflow, Research, Planning)
+        use this method rather than coupling to a concrete implementation.
+
+        Args:
+            project_id: The UUID of the project to resolve.
+
+        Returns:
+            The absolute Path to the project's root directory.
+
+        Raises:
+            ProjectNotFoundException: If the project is not tracked by this
+                repository.
         """

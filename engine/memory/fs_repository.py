@@ -7,7 +7,8 @@ from engine.domain.memory import Memory
 from engine.memory.exceptions import InvalidMemoryException
 from engine.memory.repository import MemoryRepository
 from engine.memory.serializers import deserialize_memory, serialize_memory
-from engine.project.fs_repository import FilesystemProjectRepository
+from engine.project.exceptions import ProjectNotFoundException
+from engine.project.repository import ProjectRepository
 
 
 class FilesystemMemoryRepository(MemoryRepository):
@@ -16,7 +17,7 @@ class FilesystemMemoryRepository(MemoryRepository):
     Stores memory as JSON files within the project's .atlas/ directory.
     """
 
-    def __init__(self, project_repo: FilesystemProjectRepository) -> None:
+    def __init__(self, project_repo: ProjectRepository) -> None:
         self.project_repo = project_repo
 
     def save(self, memory: Memory) -> None:
@@ -40,7 +41,7 @@ class FilesystemMemoryRepository(MemoryRepository):
         """Retrieve the memory aggregate for a specific project."""
         try:
             project_path = self.project_repo.get_project_path(project_id)
-        except Exception:
+        except ProjectNotFoundException:
             # If the project path cannot be found, memory cannot be retrieved
             return None
 
@@ -64,5 +65,5 @@ class FilesystemMemoryRepository(MemoryRepository):
             project_path = self.project_repo.get_project_path(project_id)
             memory_file = project_path / ".atlas" / "memory.json"
             return memory_file.is_file()
-        except Exception:
+        except ProjectNotFoundException:
             return False
