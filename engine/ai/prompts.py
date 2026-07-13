@@ -1,9 +1,15 @@
-"""Prompt template abstractions and core implementations."""
+"""Prompt template abstractions and core implementations with real schemas."""
 
 from abc import ABC, abstractmethod
 from typing import Any
 
 from engine.domain.ai import ContextPayload, PromptTemplateMetadata
+from engine.domain.ai_drafts import (
+    ResearchProposalDraft,
+    PlanningProposalDraft,
+    ArchitectureProposalDraft,
+    EvaluationProposalDraft,
+)
 from engine.domain.enums import ProposalType
 
 
@@ -51,8 +57,7 @@ class ResearchPromptTemplate(PromptTemplate):
 
     @property
     def expected_schema(self) -> dict[str, Any] | None:
-        # Placeholder for actual Research draft schema
-        return {"type": "object", "properties": {"research_synthesis": {"type": "string"}}}
+        return ResearchProposalDraft.model_json_schema()
 
     def build(self, context: ContextPayload, user_instructions: str = "") -> str:
         return (
@@ -77,7 +82,7 @@ class PlanningPromptTemplate(PromptTemplate):
 
     @property
     def expected_schema(self) -> dict[str, Any] | None:
-        return {"type": "object", "properties": {"planning_tasks": {"type": "array"}}}
+        return PlanningProposalDraft.model_json_schema()
 
     def build(self, context: ContextPayload, user_instructions: str = "") -> str:
         return (
@@ -102,7 +107,7 @@ class ArchitecturePromptTemplate(PromptTemplate):
 
     @property
     def expected_schema(self) -> dict[str, Any] | None:
-        return {"type": "object", "properties": {"components": {"type": "array"}}}
+        return ArchitectureProposalDraft.model_json_schema()
 
     def build(self, context: ContextPayload, user_instructions: str = "") -> str:
         return (
@@ -127,7 +132,7 @@ class EvaluationPromptTemplate(PromptTemplate):
 
     @property
     def expected_schema(self) -> dict[str, Any] | None:
-        return {"type": "object", "properties": {"findings": {"type": "array"}}}
+        return EvaluationProposalDraft.model_json_schema()
 
     def build(self, context: ContextPayload, user_instructions: str = "") -> str:
         return (

@@ -28,6 +28,13 @@ from engine.domain.ai import (
     PromptTemplateMetadata,
     AIProposal,
 )
+from engine.domain.ai_drafts import (
+    ResearchProposalDraft,
+    PlanningProposalDraft,
+    ArchitectureProposalDraft,
+    EvaluationProposalDraft,
+    CommitResult,
+)
 from engine.domain.conversation import (
     ConversationMessage,
     ConversationSession,
@@ -158,6 +165,11 @@ __all__ = [
     "ResearchSource",
     "ResearchStatus",
     "ResearchSummary",
+    "ResearchProposalDraft",
+    "PlanningProposalDraft",
+    "ArchitectureProposalDraft",
+    "EvaluationProposalDraft",
+    "CommitResult",
     "Risk",
     "ReadinessReview",
     "ScopeDefinition",
