@@ -94,6 +94,25 @@ class FindingSeverity(StrEnum):
     BLOCKING = "blocking"
 
 
+class FindingCategory(StrEnum):
+    """Category of an evaluation finding."""
+
+    TRACEABILITY = "traceability"
+    ARCHITECTURE = "architecture"
+    RISK = "risk"
+    QUALITY = "quality"
+    COMPLIANCE = "compliance"
+
+
+class FindingLifecycleStatus(StrEnum):
+    """Lifecycle state of an evaluation finding."""
+
+    ACTIVE = "active"
+    RESOLVED = "resolved"
+    WAIVED = "waived"
+
+
+
 class MemoryCategory(StrEnum):
     """Categorized domain division of engineering memory."""
 
@@ -110,3 +129,30 @@ class ApprovalStatus(StrEnum):
     APPROVED = "approved"
     REJECTED = "rejected"
 
+
+class ConversationRole(StrEnum):
+    """The role of a message participant."""
+
+    USER = "user"
+    ASSISTANT = "assistant"
+    SYSTEM = "system"
+
+
+class ProposalStatus(StrEnum):
+    """Lifecycle status of an AI proposal."""
+
+    DRAFT = "draft"
+    PENDING_REVIEW = "pending_review"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+    EXPIRED = "expired"
+
+
+class ProposalType(StrEnum):
+    """Subsystem domain classification of a proposal."""
+
+    RESEARCH = "research"
+    PLANNING = "planning"
+    ARCHITECTURE = "architecture"
+    EVALUATION = "evaluation"
+    MEMORY_CANDIDATE = "memory_candidate"

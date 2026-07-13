@@ -1,81 +1,98 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from engine.domain.enums import EvaluationStatus, FindingSeverity
+from engine.domain.enums import FindingSeverity, FindingCategory, FindingLifecycleStatus
 from engine.domain.evaluation import (
     Evaluation,
     RequirementCoverage,
-    ReviewFinding,
+    EvaluationFinding,
+    ReadinessDecision,
+    EvaluationSummary,
+    EvaluationSnapshot,
 )
+from engine.domain.metadata import ArtifactStatus, ArtifactMetadata
 
 
-def test_review_finding() -> None:
-    finding = ReviewFinding(
-        description="Line is too long",
+def test_evaluation_finding() -> None:
+    finding = EvaluationFinding(
         severity=FindingSeverity.WARNING,
-        location="engine/domain/project.py:L10",
+        category=FindingCategory.TRACEABILITY,
+        description="Line is too long",
+        evidence="Observed",
+        recommendation="Shorten it",
+        traceability_links=[uuid4()],
     )
     assert isinstance(finding.id, UUID)
     assert finding.description == "Line is too long"
     assert finding.severity == FindingSeverity.WARNING
-    assert finding.location == "engine/domain/project.py:L10"
+    assert finding.category == FindingCategory.TRACEABILITY
+    assert len(finding.traceability_links) == 1
+    assert finding.lifecycle_status == FindingLifecycleStatus.ACTIVE
 
 
 def test_requirement_coverage() -> None:
     coverage = RequirementCoverage(
-        requirement_id="REQ-01",
+        requirement_id=uuid4(),
+        requirement_type="deliverable",
         description="Provide a robust API",
-        covered=True,
-        notes="All methods implemented",
+        status="satisfied",
+        justification="All methods implemented",
     )
-    assert coverage.requirement_id == "REQ-01"
-    assert coverage.description == "Provide a robust API"
-    assert coverage.covered is True
-    assert coverage.notes == "All methods implemented"
+    assert isinstance(coverage.requirement_id, UUID)
+    assert coverage.requirement_type == "deliverable"
+    assert coverage.status == "satisfied"
+    assert coverage.justification == "All methods implemented"
+
+
+def test_readiness_decision() -> None:
+    decision = ReadinessDecision(ready=True, justification="Everything looks solid")
+    assert decision.ready is True
+    assert decision.justification == "Everything looks solid"
 
 
 def test_evaluation_defaults() -> None:
     project_id = uuid4()
-    evaluation = Evaluation(project_id=project_id)
+    research_snapshot_id = uuid4()
+    planning_snapshot_id = uuid4()
+    architecture_snapshot_id = uuid4()
+
+    evaluation = Evaluation(
+        project_id=project_id,
+        research_snapshot_id=research_snapshot_id,
+        planning_snapshot_id=planning_snapshot_id,
+        architecture_snapshot_id=architecture_snapshot_id,
+    )
     assert isinstance(evaluation.id, UUID)
     assert evaluation.project_id == project_id
-    assert evaluation.specification_id is None
-    assert evaluation.status == EvaluationStatus.PENDING
-    assert evaluation.quality_summary == ""
-    assert evaluation.requirement_coverage == []
+    assert evaluation.status == ArtifactStatus.DRAFT
+    assert evaluation.research_snapshot_id == research_snapshot_id
+    assert evaluation.planning_snapshot_id == planning_snapshot_id
+    assert evaluation.architecture_snapshot_id == architecture_snapshot_id
     assert evaluation.findings == []
-    assert evaluation.recommendations == []
-    assert evaluation.evaluated_at is None
+    assert evaluation.coverage == []
+    assert evaluation.readiness_decision is None
+    assert evaluation.summary is None
+    assert evaluation.snapshots == []
 
 
-def test_evaluation_custom() -> None:
-    eval_id = uuid4()
-    project_id = uuid4()
-    spec_id = uuid4()
-    finding = ReviewFinding(description="Warning", severity=FindingSeverity.WARNING)
-    coverage = RequirementCoverage(requirement_id="REQ-02", description="Robust API")
-
-    now = datetime.now()
-    evaluation = Evaluation(
-        id=eval_id,
-        project_id=project_id,
-        specification_id=spec_id,
-        status=EvaluationStatus.FAILED,
-        quality_summary="Coverage 80%",
-        requirement_coverage=[coverage],
-        findings=[finding],
-        recommendations=["Add more tests"],
-        evaluated_at=now,
+def test_evaluation_snapshot() -> None:
+    summary = EvaluationSummary(
+        synthesis="Passes",
+        total_findings=1,
+        blocking_findings=0,
+        satisfied_requirements=1,
     )
-
-    assert evaluation.id == eval_id
-    assert evaluation.project_id == project_id
-    assert evaluation.specification_id == spec_id
-    assert evaluation.status == EvaluationStatus.FAILED
-    assert evaluation.quality_summary == "Coverage 80%"
-    assert len(evaluation.requirement_coverage) == 1
-    assert evaluation.requirement_coverage[0].requirement_id == "REQ-02"
-    assert len(evaluation.findings) == 1
-    assert evaluation.findings[0].description == "Warning"
-    assert evaluation.recommendations == ["Add more tests"]
-    assert evaluation.evaluated_at == now
+    decision = ReadinessDecision(ready=True, justification="Ready")
+    snapshot = EvaluationSnapshot(
+        metadata=ArtifactMetadata(version=1),
+        research_snapshot_id=uuid4(),
+        planning_snapshot_id=uuid4(),
+        architecture_snapshot_id=uuid4(),
+        findings=[],
+        coverage=[],
+        readiness_decision=decision,
+        summary=summary,
+    )
+    assert snapshot.metadata.version == 1
+    assert snapshot.readiness_decision.ready is True
+    assert snapshot.summary.synthesis == "Passes"

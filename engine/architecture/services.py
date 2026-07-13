@@ -654,6 +654,7 @@ class ArchitectureSummaryService:
             metadata=ArtifactMetadata(version=next_version),
             planning_snapshot_id=planning_snapshot_id,
             research_snapshot_id=research_snapshot_id,
+            drivers=list(architecture.drivers),
             components=list(architecture.components),
             decisions=list(architecture.decisions),
             risks=list(architecture.risks),

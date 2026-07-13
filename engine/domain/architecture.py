@@ -277,6 +277,9 @@ class ArchitectureSnapshot(BaseModel):
     research_snapshot_id: UUID = Field(
         description="Approved ResearchSnapshot used as baseline."
     )
+    drivers: list[ArchitectureDriver] = Field(
+        description="Architecture drivers."
+    )
     components: list[ArchitectureComponent] = Field(
         description="Architecture components."
     )

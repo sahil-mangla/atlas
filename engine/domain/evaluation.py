@@ -1,69 +1,126 @@
-"""Evaluation domain models for the ATLAS platform.
+"""Evaluation domain assessment models for the ATLAS platform.
 
-Evaluation models the outcomes of quality checks, requirements verification,
-and code compliance audits conducted against the Architecture and
-Engineering Specifications.
+Assessment records quality findings, requirement coverage matrices, and implementation
+readiness decisions.
 """
 
-from datetime import datetime
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
-from engine.domain.enums import EvaluationStatus, FindingSeverity
+from engine.domain.enums import (
+    EvaluationStatus,
+    FindingSeverity,
+    FindingCategory,
+    FindingLifecycleStatus,
+)
+from engine.domain.metadata import ArtifactMetadata, ArtifactStatus
 
 
-class ReviewFinding(BaseModel):
-    """A single audit observation produced during an evaluation pass."""
+class EvaluationFinding(BaseModel):
+    """A single assessment audit observation produced during evaluation."""
 
     id: UUID = Field(
         default_factory=uuid4,
-        description="Unique finding identifier.",
-    )
-    description: str = Field(
-        description="What was observed during the review.",
+        description="Unique identifier for this finding.",
     )
     severity: FindingSeverity = Field(
-        description="Impact classification of this finding.",
+        description="Severity of this finding (e.g. info, warning, blocking).",
     )
-    location: str = Field(
-        default="",
-        description=(
-            "File path, component name, or code reference where the finding applies."
-        ),
+    category: FindingCategory = Field(
+        description="Finding domain category (e.g. traceability, risk).",
+    )
+    description: str = Field(description="Summary of the review observation.")
+    evidence: str = Field(description="Detailed engineering findings or observations.")
+    recommendation: str = Field(description="Action suggested to resolve finding.")
+    traceability_links: list[UUID] = Field(
+        default_factory=list,
+        description="Identifiers of relevant components, tasks, ADRs, or research.",
+    )
+    lifecycle_status: FindingLifecycleStatus = Field(
+        default=FindingLifecycleStatus.ACTIVE,
+        description="State of the finding (active, resolved, waived).",
     )
 
 
 class RequirementCoverage(BaseModel):
-    """Tracks whether a specific requirement has been implemented and verified."""
+    """Checklist tracking satisfy status of a specific engineering requirement."""
 
-    requirement_id: str = Field(
-        description="Unique identifier of the requirement being tracked.",
+    requirement_id: UUID = Field(
+        description="Unique identifier of the target constraint or deliverable.",
     )
-    description: str = Field(
-        description="Human-readable description of the requirement.",
+    requirement_type: str = Field(
+        description="Target type ('deliverable' or 'constraint').",
     )
-    covered: bool = Field(
-        default=False,
-        description=(
-            "Whether this requirement has been addressed in the implementation."
-        ),
+    description: str = Field(description="Summary of the requirement.")
+    status: str = Field(
+        description="Coverage classification ('satisfied', 'partially_satisfied', 'unsatisfied').",
     )
-    notes: str = Field(
-        default="",
-        description=(
-            "Additional context about coverage status or verification approach."
-        ),
+    justification: str = Field(
+        description="Reasoning explaining this status allocation.",
     )
+
+
+class ReadinessDecision(BaseModel):
+    """The formal outcome assessing whether a project is ready for implementation."""
+
+    ready: bool = Field(
+        description="True if the project is ready for implementation.",
+    )
+    justification: str = Field(
+        description="Detailed justification for this decision.",
+    )
+
+
+class EvaluationSummary(BaseModel):
+    """Synthesis of the evaluation outcomes."""
+
+    synthesis: str = Field(description="Overall synthesis of the evaluation.")
+    total_findings: int = Field(default=0, description="Total findings recorded.")
+    blocking_findings: int = Field(
+        default=0, description="Total blocking issues recorded."
+    )
+    satisfied_requirements: int = Field(
+        default=0, description="Total satisfied requirements."
+    )
+    partially_satisfied_requirements: int = Field(
+        default=0, description="Total partially satisfied requirements."
+    )
+    unsatisfied_requirements: int = Field(
+        default=0, description="Total unsatisfied requirements."
+    )
+
+
+class EvaluationSnapshot(BaseModel):
+    """Immutable snapshot of a finalized evaluation pass."""
+
+    metadata: ArtifactMetadata = Field(
+        default_factory=ArtifactMetadata,
+        description="Standardized artifact metadata.",
+    )
+    research_snapshot_id: UUID = Field(
+        description="Research snapshot baseline evaluated.",
+    )
+    planning_snapshot_id: UUID = Field(
+        description="Planning snapshot baseline evaluated.",
+    )
+    architecture_snapshot_id: UUID = Field(
+        description="Architecture snapshot baseline evaluated.",
+    )
+    findings: list[EvaluationFinding] = Field(
+        description="Findings captured in this evaluation pass.",
+    )
+    coverage: list[RequirementCoverage] = Field(
+        description="Requirement coverage checklist.",
+    )
+    readiness_decision: ReadinessDecision = Field(
+        description="Ready decision for this pass.",
+    )
+    summary: EvaluationSummary = Field(description="Summary synthesis.")
 
 
 class Evaluation(BaseModel):
-    """The formal quality assessment of implemented changes.
-
-    Evaluation records whether the implemented code meets the requirements
-    defined in Engineering Specifications and aligns with the Architecture.
-    It is the authoritative record of a review pass outcome.
-    """
+    """The authoritative quality assessment aggregate root."""
 
     id: UUID = Field(
         default_factory=uuid4,
@@ -72,35 +129,40 @@ class Evaluation(BaseModel):
     project_id: UUID = Field(
         description="Reference to the owning Project.",
     )
-    specification_id: UUID | None = Field(
+    status: ArtifactStatus = Field(
+        default=ArtifactStatus.DRAFT,
+        description="Lifecycle state of this quality assessment.",
+    )
+    research_snapshot_id: UUID = Field(
+        description="Research snapshot baseline evaluated.",
+    )
+    planning_snapshot_id: UUID = Field(
+        description="Planning snapshot baseline evaluated.",
+    )
+    architecture_snapshot_id: UUID = Field(
+        description="Architecture snapshot baseline evaluated.",
+    )
+
+    # Active draft assessment state
+    findings: list[EvaluationFinding] = Field(
+        default_factory=list,
+        description="Active draft findings.",
+    )
+    coverage: list[RequirementCoverage] = Field(
+        default_factory=list,
+        description="Active requirement coverage checklist.",
+    )
+    readiness_decision: ReadinessDecision | None = Field(
         default=None,
-        description="Reference to the EngineeringSpecification being evaluated.",
+        description="Active readiness decision.",
     )
-    status: EvaluationStatus = Field(
-        default=EvaluationStatus.PENDING,
-        description="Current outcome state of this evaluation.",
-    )
-    quality_summary: str = Field(
-        default="",
-        description=(
-            "Cohesion scores, compliance ratings, and structural metrics summary."
-        ),
-    )
-    requirement_coverage: list[RequirementCoverage] = Field(
-        default_factory=list,
-        description="Checklist mapping implementation items back to requirements.",
-    )
-    findings: list[ReviewFinding] = Field(
-        default_factory=list,
-        description=(
-            "Passed checks, warnings, and blocking defects discovered during review."
-        ),
-    )
-    recommendations: list[str] = Field(
-        default_factory=list,
-        description="Actions recommended to resolve warnings or blocking defects.",
-    )
-    evaluated_at: datetime | None = Field(
+    summary: EvaluationSummary | None = Field(
         default=None,
-        description="Timestamp when the evaluation was completed.",
+        description="Active summary synthesis.",
+    )
+
+    # Historical immutable approved snapshots
+    snapshots: list[EvaluationSnapshot] = Field(
+        default_factory=list,
+        description="Frozen evaluation snapshots.",
     )

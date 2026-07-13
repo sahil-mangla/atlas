@@ -185,6 +185,7 @@ def test_architecture_snapshot() -> None:
         metadata=ArtifactMetadata(version=1),
         planning_snapshot_id=uuid4(),
         research_snapshot_id=uuid4(),
+        drivers=[],
         components=[],
         decisions=[],
         risks=[],
