@@ -156,3 +156,10 @@ class ProposalType(StrEnum):
     ARCHITECTURE = "architecture"
     EVALUATION = "evaluation"
     MEMORY_CANDIDATE = "memory_candidate"
+
+
+class ProposalDecision(StrEnum):
+    """The formal engineering decision made by the human operator."""
+
+    APPROVE = "approve"
+    REJECT = "reject"

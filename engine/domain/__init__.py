@@ -35,6 +35,7 @@ from engine.domain.ai_drafts import (
     EvaluationProposalDraft,
     CommitResult,
 )
+from engine.domain.ai_feedback import ProposalFeedback
 from engine.domain.conversation import (
     ConversationMessage,
     ConversationSession,
@@ -51,6 +52,7 @@ from engine.domain.enums import (
     PlanningStatus,
     ProposalStatus,
     ProposalType,
+    ProposalDecision,
     Priority,
     ProjectStatus,
     ResearchStatus,
@@ -156,6 +158,8 @@ __all__ = [
     "ProjectStatus",
     "ProposalStatus",
     "ProposalType",
+    "ProposalDecision",
+    "ProposalFeedback",
     "QualityAttribute",
     "ReadinessDecision",
     "RequirementCoverage",
