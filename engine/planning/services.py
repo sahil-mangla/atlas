@@ -3,7 +3,7 @@
 from uuid import UUID
 
 from engine.domain.enums import PlanningStatus
-from engine.domain.metadata import ArtifactMetadata
+from engine.domain.metadata import ArtifactMetadata, ArtifactStatus
 from engine.domain.planning import (
     AcceptanceCriteria,
     DefinitionOfDone,
@@ -366,7 +366,10 @@ class PlanningSummaryService:
 
         next_version = len(planning.snapshots) + 1
         snapshot = PlanningSnapshot(
-            metadata=ArtifactMetadata(version=next_version),
+            metadata=ArtifactMetadata(
+                version=next_version,
+                status=ArtifactStatus.APPROVED,
+            ),
             research_snapshot_id=research_snapshot_id,
             scope_definition=planning.scope_definition,
             milestones=list(planning.milestones),

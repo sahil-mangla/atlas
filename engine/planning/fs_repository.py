@@ -113,3 +113,10 @@ class FilesystemPlanningRepository(PlanningRepository):
             return self._planning_file(project_id).is_file()
         except ProjectNotFoundException:
             return False
+
+    def delete(self, project_id: UUID) -> None:
+        """Remove an aggregate created by a failed unit of work."""
+        try:
+            self._planning_file(project_id).unlink(missing_ok=True)
+        except OSError as e:
+            raise InvalidPlanningException(f"Failed to remove planning data: {e}") from e

@@ -2,8 +2,8 @@
 
 from uuid import uuid4
 
-from engine.domain.enums import ApprovalStatus, WorkflowStage
-from engine.domain.workflow import Workflow, WorkflowHistoryEntry
+from engine.domain.enums import ApprovalStatus, ProposalDecision, WorkflowStage
+from engine.domain.workflow import ProposalReviewEntry, Workflow, WorkflowHistoryEntry
 from engine.workflow.serializers import (
     deserialize_history_entry,
     deserialize_workflow,
@@ -50,12 +50,20 @@ def test_serialize_and_deserialize_workflow() -> None:
         confidence=1.0,
     )
     workflow.record_transition(entry)
+    review = ProposalReviewEntry(
+        proposal_id=uuid4(),
+        approver="principal.engineer",
+        decision=ProposalDecision.APPROVE,
+        comment="Approved for commit.",
+    )
+    workflow.record_proposal_review(review)
 
     data = serialize_workflow(workflow)
 
     assert data["id"] == str(workflow.id)
     assert data["current_stage"] == "research"
     assert len(data["history"]) == 1
+    assert data["proposal_reviews"][0]["approver"] == "principal.engineer"
 
     deserialized = deserialize_workflow(data)
 
@@ -64,3 +72,4 @@ def test_serialize_and_deserialize_workflow() -> None:
     assert deserialized.current_stage == workflow.current_stage
     assert len(deserialized.history) == 1
     assert deserialized.history[0].id == entry.id
+    assert deserialized.proposal_reviews == [review]

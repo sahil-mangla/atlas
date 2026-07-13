@@ -69,6 +69,20 @@ def test_repository_exists(
     assert research_repo.exists(project.id)
 
 
+def test_repository_delete_removes_new_aggregate_for_rollback(
+    repos: tuple[FilesystemProjectRepository, FilesystemResearchRepository],
+) -> None:
+    """A failed filesystem unit of work can remove a newly-created aggregate."""
+    project_repo, research_repo = repos
+    project = Project(name="Rollback Project", description="d", objective="o")
+    project_repo.save(project)
+
+    research_repo.save(Research(project_id=project.id))
+    research_repo.delete(project.id)
+
+    assert research_repo.get_by_project_id(project.id) is None
+
+
 def test_repository_get_not_found(
     repos: tuple[FilesystemProjectRepository, FilesystemResearchRepository],
 ) -> None:

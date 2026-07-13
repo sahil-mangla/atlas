@@ -25,6 +25,7 @@ from engine.domain.ai_drafts import (
     ResearchProposalDraft,
 )
 from engine.domain.ai_feedback import ProposalFeedback
+from engine.domain.workflow import ProposalReviewEntry
 from engine.domain.enums import (
     ApprovalStatus,
     EvaluationStatus,
@@ -199,6 +200,7 @@ class WorkflowOrchestrationService:
         proposal: AIProposal[Any],
         decision: ProposalDecision,
         feedback: ProposalFeedback | None = None,
+        approver: str = "unknown",
         transition_reason: str = "",
     ) -> CommitResult | None:
         """Handle human review decisions.
@@ -211,13 +213,24 @@ class WorkflowOrchestrationService:
                 f"Workflow for project {project_id} not found."
             )
 
+        review_comment = feedback.feedback if feedback else None
+        review_approver = feedback.author if feedback else approver
+        workflow.record_proposal_review(
+            ProposalReviewEntry(
+                proposal_id=proposal.id,
+                approver=review_approver,
+                decision=decision,
+                comment=review_comment,
+            )
+        )
+        self.workflow_repo.save(workflow)
+
         if decision == ProposalDecision.REJECT:
             proposal.status = ProposalStatus.REJECTED
-            if feedback:
-                proposal.human_feedback = feedback.feedback
+            proposal.human_feedback = review_comment
             return None
 
-        # 1. Proposal Commit (atomic transaction managed inside commit_service)
+        # 1. Proposal commit with deterministic rollback on failure.
         proposal.status = ProposalStatus.APPROVED
         commit_res = self.commit_service.commit_proposal(project_id, proposal)
         if not commit_res.success:
@@ -226,9 +239,14 @@ class WorkflowOrchestrationService:
         # 2. Workflow Readiness Review
         readiness = self.readiness_service.evaluate_readiness(project_id)
         if readiness.status == EvaluationStatus.FAILED:
-            # Rollback transition if readiness requirements aren't satisfied
-            errors = [f"Readiness review failed. Blocking issues: {readiness.blocking_issues}"]
-            return CommitResult(success=False, errors=errors)
+            return CommitResult(
+                success=True,
+                committed_snapshot_id=commit_res.committed_snapshot_id,
+                transition_blocked=True,
+                transition_errors=[
+                    f"Readiness review failed. Blocking issues: {readiness.blocking_issues}"
+                ],
+            )
 
         # 3. Workflow Transition (resolving target stage from workflow pending stages)
         if not workflow.pending_stages:
@@ -245,8 +263,10 @@ class WorkflowOrchestrationService:
             )
         except Exception as e:
             return CommitResult(
-                success=False,
-                errors=[f"Stage transition failed: {e}"],
+                success=True,
+                committed_snapshot_id=commit_res.committed_snapshot_id,
+                transition_blocked=True,
+                transition_errors=[f"Stage transition failed: {e}"],
             )
 
         return commit_res

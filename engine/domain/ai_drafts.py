@@ -165,8 +165,10 @@ class EvaluationProposalDraft(BaseModel):
 # ==========================================
 
 class CommitResult(BaseModel):
-    """Model returning the atomic status of a committed proposal."""
+    """Model returning the outcome of a proposal commit."""
 
-    success: bool = Field(description="True if atomic commit succeeded.")
-    errors: list[str] = Field(default_factory=list, description="Any rollback or validation errors.")
+    success: bool = Field(description="True if the proposal commit succeeded.")
+    errors: list[str] = Field(default_factory=list, description="Commit validation or rollback errors.")
     committed_snapshot_id: UUID | None = Field(default=None, description="Frozen snapshot ID if generated.")
+    transition_blocked: bool = Field(default=False)
+    transition_errors: list[str] = Field(default_factory=list)

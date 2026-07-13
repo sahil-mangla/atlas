@@ -3,7 +3,7 @@
 from uuid import UUID
 
 from engine.domain.enums import ResearchStatus
-from engine.domain.metadata import ArtifactMetadata
+from engine.domain.metadata import ArtifactMetadata, ArtifactStatus
 from engine.domain.research import (
     Assumption,
     Constraint,
@@ -231,7 +231,10 @@ class ResearchSummaryService:
         next_version = len(research.snapshots) + 1
 
         snapshot = ResearchSnapshot(
-            metadata=ArtifactMetadata(version=next_version),
+            metadata=ArtifactMetadata(
+                version=next_version,
+                status=ArtifactStatus.APPROVED,
+            ),
             problem_definition=research.problem_definition,
             research_sources=list(research.sources),
             evidence=list(research.evidence),

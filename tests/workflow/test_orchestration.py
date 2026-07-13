@@ -138,6 +138,7 @@ def test_process_rejection_flow() -> None:
     assert proposal.status == ProposalStatus.REJECTED
     assert proposal.human_feedback == "Objective is too vague"
     commit_service.commit_proposal.assert_not_called()
+    assert mock_workflow.record_proposal_review.call_count == 1
 
 
 def test_process_approval_readiness_block() -> None:
@@ -182,8 +183,9 @@ def test_process_approval_readiness_block() -> None:
     )
 
     assert res is not None
-    assert not res.success
-    assert "Readiness review failed" in res.errors[0]
+    assert res.success
+    assert res.transition_blocked
+    assert "Readiness review failed" in res.transition_errors[0]
     commit_service.commit_proposal.assert_called_once_with(project_id, proposal)
 
 

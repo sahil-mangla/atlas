@@ -505,7 +505,10 @@ class EvaluationSummaryService:
 
         next_version = len(evaluation.snapshots) + 1
         snapshot = EvaluationSnapshot(
-            metadata=ArtifactMetadata(version=next_version),
+            metadata=ArtifactMetadata(
+                version=next_version,
+                status=ArtifactStatus.APPROVED,
+            ),
             research_snapshot_id=evaluation.research_snapshot_id,
             planning_snapshot_id=evaluation.planning_snapshot_id,
             architecture_snapshot_id=evaluation.architecture_snapshot_id,

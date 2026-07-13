@@ -3,8 +3,8 @@
 from datetime import datetime
 from typing import Any
 
-from engine.domain.enums import ApprovalStatus, WorkflowStage
-from engine.domain.workflow import Workflow, WorkflowHistoryEntry
+from engine.domain.enums import ApprovalStatus, ProposalDecision, WorkflowStage
+from engine.domain.workflow import ProposalReviewEntry, Workflow, WorkflowHistoryEntry
 
 
 def serialize_history_entry(entry: WorkflowHistoryEntry) -> dict[str, Any]:
@@ -34,6 +34,28 @@ def deserialize_history_entry(data: dict[str, Any]) -> WorkflowHistoryEntry:
     )
 
 
+def serialize_proposal_review(entry: ProposalReviewEntry) -> dict[str, Any]:
+    """Serialize a durable proposal-review record."""
+    return {
+        "proposal_id": str(entry.proposal_id),
+        "approver": entry.approver,
+        "decision": entry.decision.value,
+        "timestamp": entry.timestamp.isoformat(),
+        "comment": entry.comment,
+    }
+
+
+def deserialize_proposal_review(data: dict[str, Any]) -> ProposalReviewEntry:
+    """Deserialize a durable proposal-review record."""
+    return ProposalReviewEntry(
+        proposal_id=data["proposal_id"],
+        approver=data["approver"],
+        decision=ProposalDecision(data["decision"]),
+        timestamp=datetime.fromisoformat(data["timestamp"]),
+        comment=data.get("comment"),
+    )
+
+
 def serialize_workflow(workflow: Workflow) -> dict[str, Any]:
     """Serialize a Workflow aggregate into a dictionary."""
     return {
@@ -44,6 +66,9 @@ def serialize_workflow(workflow: Workflow) -> dict[str, Any]:
         "pending_stages": [s.value for s in workflow.pending_stages],
         "active_objectives": workflow.active_objectives,
         "history": [serialize_history_entry(e) for e in workflow.history],
+        "proposal_reviews": [
+            serialize_proposal_review(entry) for entry in workflow.proposal_reviews
+        ],
     }
 
 
@@ -57,4 +82,8 @@ def deserialize_workflow(data: dict[str, Any]) -> Workflow:
         pending_stages=[WorkflowStage(s) for s in data.get("pending_stages", [])],
         active_objectives=data.get("active_objectives", []),
         history=[deserialize_history_entry(e) for e in data.get("history", [])],
+        proposal_reviews=[
+            deserialize_proposal_review(entry)
+            for entry in data.get("proposal_reviews", [])
+        ],
     )

@@ -21,12 +21,15 @@ from engine.ai.engineering_services import (
     ResearchProposalValidator,
 )
 from engine.ai.exceptions import InvalidProposalException
+from engine.ai.unit_of_work import ProposalCommitUnitOfWork
 from engine.ai.services import ContextAssemblerService
 from engine.domain.ai import AIProposal, ContextPayload, PromptTemplateMetadata
 from engine.domain.ai_drafts import (
     ArchitectureProposalDraft,
+    ArchitectureComponentDraft,
     EvaluationProposalDraft,
     PlanningProposalDraft,
+    ResearchFindingDraft,
     ResearchProposalDraft,
 )
 from engine.domain.enums import ProposalStatus, ProposalType
@@ -187,7 +190,7 @@ def test_proposal_commit_atomic_rollback() -> None:
     res = commit_service.commit_proposal(project_id, proposal)
 
     assert not res.success
-    assert "Atomic commit failed" in res.errors[0]
+    assert "Commit failed; restored original state" in res.errors[0]
     assert research_repo.state is mock_original_research
 
 
@@ -222,3 +225,52 @@ def test_proposal_validation_failure() -> None:
     res = commit_service.commit_proposal(uuid4(), proposal)
     assert not res.success
     assert "Problem statement cannot be empty" in res.errors[0]
+
+
+def test_research_validator_rejects_invalid_reference() -> None:
+    draft = ResearchProposalDraft(
+        problem_statement="Problem",
+        objectives=["Objective"],
+        findings=[
+            ResearchFindingDraft(
+                title="Finding",
+                summary="Summary",
+                evidence_indices=[0],
+            )
+        ],
+    )
+
+    with pytest.raises(InvalidProposalException, match="invalid evidence index"):
+        ResearchProposalValidator().validate(draft)
+
+
+def test_architecture_validator_rejects_unmapped_fields() -> None:
+    draft = ArchitectureProposalDraft(
+        design_summary="Summary",
+        components=[ArchitectureComponentDraft(name="API", description="Boundary")],
+    )
+
+    with pytest.raises(InvalidProposalException, match="not representable"):
+        ArchitectureProposalValidator().validate(draft)
+
+
+def test_unit_of_work_removes_new_aggregate_on_rollback() -> None:
+    project_id = uuid4()
+
+    class RollbackRepo:
+        def __init__(self) -> None:
+            self.state: Any = None
+
+        def get_by_project_id(self, _: UUID) -> Any:
+            return self.state
+
+        def delete(self, _: UUID) -> None:
+            self.state = None
+
+    repository = RollbackRepo()
+    unit_of_work = ProposalCommitUnitOfWork(project_id, [repository])
+    unit_of_work.begin()
+    repository.state = Mock()
+    unit_of_work.rollback()
+
+    assert repository.state is None

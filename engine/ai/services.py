@@ -4,11 +4,11 @@ These services enforce the strict boundary between AI generation and
 domain state mutation.
 """
 
-from typing import Any, cast
+from typing import Any
 from uuid import UUID
 
 from engine.ai.context import ContextStrategy
-from engine.ai.exceptions import InvalidContextException, InvalidProposalException
+from engine.ai.exceptions import InvalidContextException
 from engine.ai.prompts import PromptTemplate
 from engine.ai.provider import AIProvider
 from engine.architecture.repository import ArchitectureRepository
@@ -19,6 +19,7 @@ from engine.domain.ai import (
     ContextPayload,
 )
 from engine.domain.enums import ProposalStatus
+from engine.domain.metadata import ArtifactStatus
 from engine.evaluation.repository import EvaluationRepository
 from engine.memory.repository import MemoryRepository
 from engine.planning.repository import PlanningRepository
@@ -50,18 +51,30 @@ class ContextAssemblerService:
         architecture = self.architecture_repo.get_by_project_id(project_id)
         evaluation = self.evaluation_repo.get_by_project_id(project_id)
 
-        res_snap_id = research.snapshots[-1].metadata.id if research and research.snapshots else None
-        plan_snap_id = planning.snapshots[-1].metadata.id if planning and planning.snapshots else None
-        arch_snap_id = architecture.snapshots[-1].metadata.id if architecture and architecture.snapshots else None
-        eval_snap_id = evaluation.snapshots[-1].metadata.id if evaluation and evaluation.snapshots else None
+        def latest_approved(aggregate: Any, name: str) -> Any:
+            snapshots = getattr(aggregate, "snapshots", []) if aggregate else []
+            for snapshot in reversed(snapshots):
+                if snapshot.metadata.status == ArtifactStatus.APPROVED:
+                    return snapshot
+            raise InvalidContextException(f"Approved {name} snapshot required.")
+
+        research_snapshot = latest_approved(research, "research")
+        planning_snapshot = latest_approved(planning, "planning")
+        architecture_snapshot = latest_approved(architecture, "architecture")
+        evaluation_snapshot = latest_approved(evaluation, "evaluation") if evaluation else None
+
+        res_snap_id = research_snapshot.metadata.id
+        plan_snap_id = planning_snapshot.metadata.id
+        arch_snap_id = architecture_snapshot.metadata.id
+        eval_snap_id = evaluation_snapshot.metadata.id if evaluation_snapshot else None
 
         # Build a textual dump of the active context (mocked for now)
         serialized = (
             f"Project {project_id} Context:\n"
-            f"Research Snapshot: {res_snap_id}\n"
-            f"Planning Snapshot: {plan_snap_id}\n"
-            f"Architecture Snapshot: {arch_snap_id}\n"
-            f"Evaluation Snapshot: {eval_snap_id}\n"
+            f"Research Snapshot: {research_snapshot.model_dump_json()}\n"
+            f"Planning Snapshot: {planning_snapshot.model_dump_json()}\n"
+            f"Architecture Snapshot: {architecture_snapshot.model_dump_json()}\n"
+            f"Evaluation Snapshot: {evaluation_snapshot.model_dump_json() if evaluation_snapshot else 'None'}\n"
         )
 
         return ContextPayload(
@@ -130,29 +143,3 @@ class AIOrchestrationService:
             context_used=processed_context,
             data=parsed_data,
         )
-
-
-class ProposalCommitService:
-    """Handles the final mutation step after a proposal has been explicitly approved by human review."""
-
-    def __init__(self) -> None:
-        # In a real implementation, this service takes all the subsystem Domain Services 
-        # (e.g., ResearchService, PlanningService) as dependencies.
-        # It takes an APPROVED AIProposal and routes the generic .data to the actual 
-        # service methods.
-        pass
-
-    def commit_proposal(self, proposal: AIProposal[Any]) -> None:
-        """Route the proposal payload into the target repository.
-
-        Args:
-            proposal: The AIProposal. It MUST be APPROVED.
-        """
-        if proposal.status != ProposalStatus.APPROVED:
-            raise InvalidProposalException("Only APPROVED proposals can be committed.")
-
-        # Logic to cast proposal.data and call specific domain service method
-        # E.g.
-        # if proposal.proposal_type == ProposalType.RESEARCH:
-        #     self.research_service.apply_draft(proposal.data)
-        pass

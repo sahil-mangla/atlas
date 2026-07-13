@@ -9,7 +9,7 @@ from engine.architecture.exceptions import (
 )
 from engine.architecture.repository import ArchitectureRepository
 from engine.domain.enums import ArchitectureStatus
-from engine.domain.metadata import ArtifactMetadata
+from engine.domain.metadata import ArtifactMetadata, ArtifactStatus
 from engine.domain.architecture import (
     Architecture,
     ArchitectureComponent,
@@ -651,7 +651,10 @@ class ArchitectureSummaryService:
 
         next_version = len(architecture.snapshots) + 1
         snapshot = ArchitectureSnapshot(
-            metadata=ArtifactMetadata(version=next_version),
+            metadata=ArtifactMetadata(
+                version=next_version,
+                status=ArtifactStatus.APPROVED,
+            ),
             planning_snapshot_id=planning_snapshot_id,
             research_snapshot_id=research_snapshot_id,
             drivers=list(architecture.drivers),

@@ -10,7 +10,7 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
-from engine.domain.enums import ApprovalStatus, EvaluationStatus, WorkflowStage
+from engine.domain.enums import ApprovalStatus, EvaluationStatus, ProposalDecision, WorkflowStage
 
 
 class WorkflowHistoryEntry(BaseModel):
@@ -63,6 +63,16 @@ class ReadinessReview(BaseModel):
     )
 
 
+class ProposalReviewEntry(BaseModel):
+    """Durable human decision recorded against an AI proposal."""
+
+    proposal_id: UUID
+    approver: str
+    decision: ProposalDecision
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    comment: str | None = None
+
+
 class Workflow(BaseModel):
     """The state machine governing movement through the engineering lifecycle.
 
@@ -102,6 +112,11 @@ class Workflow(BaseModel):
         default_factory=list,
         description="Immutable transition history.",
     )
+    proposal_reviews: list[ProposalReviewEntry] = Field(default_factory=list)
+
+    def record_proposal_review(self, entry: ProposalReviewEntry) -> None:
+        """Persist an append-only human review decision."""
+        self.proposal_reviews.append(entry)
 
     def record_transition(self, entry: WorkflowHistoryEntry) -> None:
         """Record a valid workflow transition.

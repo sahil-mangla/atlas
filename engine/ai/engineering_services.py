@@ -1,4 +1,4 @@
-"""AI Engineering Services coordinating generation, validation, and atomic commits."""
+"""AI Engineering Services coordinating generation, validation, and commits."""
 
 import json
 from abc import ABC, abstractmethod
@@ -16,6 +16,7 @@ from engine.ai.prompts import (
     ResearchPromptTemplate,
 )
 from engine.ai.services import AIOrchestrationService, ContextAssemblerService
+from engine.ai.unit_of_work import ProposalCommitUnitOfWork
 from engine.architecture.repository import ArchitectureRepository
 from engine.architecture.services import (
     ArchitectureCompositionService,
@@ -77,24 +78,50 @@ class ResearchProposalValidator(ProposalValidator[ResearchProposalDraft]):
             raise InvalidProposalException("Problem statement cannot be empty.")
         if not draft.objectives:
             raise InvalidProposalException("Research objectives list cannot be empty.")
+        evidence_count = len(draft.evidence)
+        for finding in draft.findings:
+            if any(index < 0 or index >= evidence_count for index in finding.evidence_indices):
+                raise InvalidProposalException("Finding references an invalid evidence index.")
+        finding_count = len(draft.findings)
+        for constraint in draft.constraints:
+            if any(index < 0 or index >= finding_count for index in constraint.finding_indices):
+                raise InvalidProposalException("Constraint references an invalid finding index.")
+        for opportunity in draft.opportunities:
+            if any(index < 0 or index >= finding_count for index in opportunity.finding_indices):
+                raise InvalidProposalException("Opportunity references an invalid finding index.")
 
 
 class PlanningProposalValidator(ProposalValidator[PlanningProposalDraft]):
     def validate(self, draft: PlanningProposalDraft) -> None:
         if not draft.scope_statement.strip():
             raise InvalidProposalException("Scope statement cannot be empty.")
+        if any(
+            task.estimated_hours is not None
+            for milestone in draft.milestones
+            for epic in milestone.epics
+            for task in epic.tasks
+        ):
+            raise InvalidProposalException("Task estimates are not supported by the planning aggregate.")
 
 
 class ArchitectureProposalValidator(ProposalValidator[ArchitectureProposalDraft]):
     def validate(self, draft: ArchitectureProposalDraft) -> None:
         if not draft.design_summary.strip():
             raise InvalidProposalException("Design summary cannot be empty.")
+        if draft.drivers or draft.components or draft.decisions or draft.risks:
+            raise InvalidProposalException(
+                "Architecture proposal contains fields not representable without invented traceability."
+            )
 
 
 class EvaluationProposalValidator(ProposalValidator[EvaluationProposalDraft]):
     def validate(self, draft: EvaluationProposalDraft) -> None:
         if not draft.synthesis.strip():
             raise InvalidProposalException("Evaluation synthesis cannot be empty.")
+        if draft.findings:
+            raise InvalidProposalException(
+                "Evaluation findings are not representable by the current evaluation service flow."
+            )
 
 
 # ==========================================
@@ -151,9 +178,7 @@ class ResearchProposalTransformer(ProposalTransformer[ResearchProposalDraft]):
         # Step 3: Organize findings
         finding_ids = []
         for f in draft.findings:
-            ref_ev_ids = [evidence_ids[idx] for idx in f.evidence_indices if idx < len(evidence_ids)]
-            if not ref_ev_ids and evidence_ids:
-                ref_ev_ids = [evidence_ids[0]]  # Fallback to satisfy non-empty validation
+            ref_ev_ids = [evidence_ids[idx] for idx in f.evidence_indices]
             finding = self.research_org.add_finding(
                 project_id=project_id,
                 title=f.title,
@@ -164,7 +189,7 @@ class ResearchProposalTransformer(ProposalTransformer[ResearchProposalDraft]):
 
         # Step 4: Add constraints and assumptions
         for c in draft.constraints:
-            ref_find_ids = [finding_ids[idx] for idx in c.finding_indices if idx < len(finding_ids)]
+            ref_find_ids = [finding_ids[idx] for idx in c.finding_indices]
             self.research_org.add_constraint(
                 project_id=project_id,
                 description=c.description,
@@ -181,9 +206,7 @@ class ResearchProposalTransformer(ProposalTransformer[ResearchProposalDraft]):
 
         # Step 5: Add opportunities
         for o in draft.opportunities:
-            ref_find_ids = [finding_ids[idx] for idx in o.finding_indices if idx < len(finding_ids)]
-            if not ref_find_ids and finding_ids:
-                ref_find_ids = [finding_ids[0]]
+            ref_find_ids = [finding_ids[idx] for idx in o.finding_indices]
             self.opp_analysis.add_opportunity(
                 project_id=project_id,
                 title=o.title,
@@ -494,7 +517,7 @@ class EvaluationAIEngineeringService(AIEngineeringService[EvaluationProposalDraf
 # ==========================================
 
 class ProposalCommitService:
-    """Manages transactional mapping and atomic writes for approved proposals."""
+    """Manages validated commits with deterministic filesystem rollback."""
 
     def __init__(
         self,
@@ -532,10 +555,7 @@ class ProposalCommitService:
         }
 
     def commit_proposal(self, project_id: UUID, proposal: AIProposal[Any]) -> CommitResult:
-        """Atomically validate, transform, and commit a proposal.
-
-        Enforces 'commit everything or commit nothing' transaction boundaries.
-        """
+        """Validate, transform, and commit a proposal with rollback on failure."""
         if proposal.status != ProposalStatus.APPROVED:
             return CommitResult(
                 success=False,
@@ -559,33 +579,32 @@ class ProposalCommitService:
         except InvalidProposalException as e:
             return CommitResult(success=False, errors=[str(e)])
 
-        # 3. Capture backup for transaction atomicity (atomic rollback)
-        backup_research = self.research_repo.get_by_project_id(project_id)
-        backup_planning = self.planning_repo.get_by_project_id(project_id)
-        backup_architecture = self.architecture_repo.get_by_project_id(project_id)
-        backup_evaluation = self.evaluation_repo.get_by_project_id(project_id)
+        # 3. Capture filesystem-restorable state before mutation.
+        unit_of_work = ProposalCommitUnitOfWork(
+            project_id,
+            (
+                self.research_repo,
+                self.planning_repo,
+                self.architecture_repo,
+                self.evaluation_repo,
+            ),
+        )
+        unit_of_work.begin()
 
-        backup_res = backup_research.model_copy(deep=True) if backup_research else None
-        backup_plan = backup_planning.model_copy(deep=True) if backup_planning else None
-        backup_arch = backup_architecture.model_copy(deep=True) if backup_architecture else None
-        backup_eval = backup_evaluation.model_copy(deep=True) if backup_evaluation else None
-
-        # 4. Transform and Commit
+        # 4. Transform and commit.
         try:
             snapshot_id = transformer.transform_and_commit(project_id, proposal.data)
             return CommitResult(success=True, committed_snapshot_id=snapshot_id)
         except Exception as e:
-            # ROLLBACK: restore original states to preserve atomic execution boundaries
-            if backup_res:
-                self.research_repo.save(backup_res)
-            if backup_plan:
-                self.planning_repo.save(backup_plan)
-            if backup_arch:
-                self.architecture_repo.save(backup_arch)
-            if backup_eval:
-                self.evaluation_repo.save(backup_eval)
+            try:
+                unit_of_work.rollback()
+            except Exception as rollback_error:
+                return CommitResult(
+                    success=False,
+                    errors=[f"Commit failed and rollback failed: {rollback_error}"],
+                )
 
             return CommitResult(
                 success=False,
-                errors=[f"Atomic commit failed; rolled back to original state. Error: {e}"],
+                errors=[f"Commit failed; restored original state. Error: {e}"],
             )
