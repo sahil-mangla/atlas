@@ -1,14 +1,12 @@
 from uuid import UUID
 
 from engine.domain.ai import (
-    AIToolSchema,
-    AIGenerationParameters,
-    ProviderCapabilities,
-    ContextPayload,
+    AIProposal,
     AIRequest,
     AIResponse,
+    AIToolSchema,
+    ContextPayload,
     PromptTemplateMetadata,
-    AIProposal,
 )
 from engine.domain.enums import ProposalStatus, ProposalType
 
@@ -27,7 +25,7 @@ def test_ai_request_response() -> None:
         response_schema={"type": "string"},
     )
     assert request.prompt == "hello"
-    
+
     response = AIResponse(content="world", finish_reason="stop")
     assert response.content == "world"
 

@@ -1,16 +1,15 @@
-from datetime import datetime
 from uuid import UUID, uuid4
 
-from engine.domain.enums import FindingSeverity, FindingCategory, FindingLifecycleStatus
+from engine.domain.enums import FindingCategory, FindingLifecycleStatus, FindingSeverity
 from engine.domain.evaluation import (
     Evaluation,
-    RequirementCoverage,
     EvaluationFinding,
-    ReadinessDecision,
-    EvaluationSummary,
     EvaluationSnapshot,
+    EvaluationSummary,
+    ReadinessDecision,
+    RequirementCoverage,
 )
-from engine.domain.metadata import ArtifactStatus, ArtifactMetadata
+from engine.domain.metadata import ArtifactMetadata, ArtifactStatus
 
 
 def test_evaluation_finding() -> None:

@@ -1,18 +1,18 @@
-from datetime import UTC, datetime
+from datetime import datetime
 from uuid import UUID, uuid4
 
 from engine.domain.architecture import (
+    ArchitecturalDecision,
     Architecture,
     ArchitectureComponent,
     ArchitectureDriver,
-    ArchitecturalDecision,
-    InterfaceContract,
-    Risk,
-    Constraint,
-    Assumption,
-    QualityAttribute,
-    ArchitectureSummary,
     ArchitectureSnapshot,
+    ArchitectureSummary,
+    Assumption,
+    Constraint,
+    InterfaceContract,
+    QualityAttribute,
+    Risk,
 )
 from engine.domain.enums import ArchitectureStatus
 from engine.domain.metadata import ArtifactMetadata

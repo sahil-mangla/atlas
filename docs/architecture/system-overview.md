@@ -26,6 +26,12 @@ In ATLAS, AI agents are tools utilized to assist in implementation, speed up exe
 
 ## Subsystem Reference
 
+### 0. Application Platform Layer (Public SDK)
+- **Purpose**: Serves as the single, canonical public interface (`atlas/`) for all external clients (CLI, IDE, Web, etc.). Enforces boundary rules, maps internal exceptions, and implements the Command-Result pattern.
+- **Inputs**: Immutable Command DTOs from first-party and third-party clients.
+- **Outputs**: Pure Result DTOs reflecting platform state or operation outcomes.
+- **Collaborators**: Coordinates across all internal engine subsystems to fulfill client requests.
+
 ### 1. Project Subsystem
 - **Purpose**: Acts as the orchestrator and entry point for the ATLAS application, managing workspace lifecycle and global states.
 - **Inputs**: User requests to create, load, pause, resume, or archive projects; context updates from child subsystems.

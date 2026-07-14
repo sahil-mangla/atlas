@@ -4,7 +4,6 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from engine.ai.exceptions import InvalidProposalException
 from engine.ai.engineering_services import ProposalCommitService
 from engine.domain.ai import AIProposal, ContextPayload, PromptTemplateMetadata
 from engine.domain.ai_drafts import CommitResult, ResearchProposalDraft
@@ -18,9 +17,8 @@ from engine.domain.enums import (
     WorkflowStage,
 )
 from engine.domain.workflow import Workflow
-from engine.workflow.exceptions import WorkflowException, WorkflowNotFoundException
+from engine.workflow.exceptions import WorkflowException
 from engine.workflow.orchestration import (
-    ResearchStageExecutor,
     StageExecutor,
     StageServiceRegistry,
     WorkflowOrchestrationService,
@@ -55,7 +53,7 @@ class DummyWorkflowRepo(WorkflowRepository):
 def test_registry_immutability() -> None:
     executor = Mock(spec=StageExecutor)
     registry = StageServiceRegistry({WorkflowStage.RESEARCH: executor})
-    
+
     assert registry.get_executor(WorkflowStage.RESEARCH) is executor
     with pytest.raises(WorkflowException):
         registry.get_executor(WorkflowStage.PLANNING)
@@ -64,7 +62,7 @@ def test_registry_immutability() -> None:
 def test_generate_proposal_delegation() -> None:
     workflow_repo = DummyWorkflowRepo()
     project_id = uuid4()
-    
+
     mock_workflow = Mock(spec=Workflow)
     mock_workflow.current_stage = WorkflowStage.RESEARCH
     workflow_repo.workflow = mock_workflow
@@ -78,9 +76,9 @@ def test_generate_proposal_delegation() -> None:
         data=ResearchProposalDraft(problem_statement="Test", objectives=[]),
     )
     executor.generate_proposal.return_value = proposal
-    
+
     registry = StageServiceRegistry({WorkflowStage.RESEARCH: executor})
-    
+
     service = WorkflowOrchestrationService(
         workflow_repo=workflow_repo,
         transition_service=Mock(),
@@ -88,7 +86,7 @@ def test_generate_proposal_delegation() -> None:
         commit_service=Mock(),
         registry=registry,
     )
-    
+
     res = service.generate_proposal(project_id, "Test instr")
     assert res is proposal
     executor.generate_proposal.assert_called_once_with(project_id, "Test instr")
@@ -238,7 +236,7 @@ def test_process_approval_success_transition() -> None:
     assert res is not None
     assert res.success
     assert proposal.status == ProposalStatus.APPROVED
-    
+
     commit_service.commit_proposal.assert_called_once_with(project_id, proposal)
     readiness_service.evaluate_readiness.assert_called_once_with(project_id)
     transition_service.transition_stage.assert_called_once_with(

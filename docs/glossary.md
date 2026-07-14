@@ -7,6 +7,18 @@ This glossary defines the canonical engineering and domain terminology used thro
 ### Project
 The top-level aggregate root representing the engineering system context. It holds metadata, status, current workflow stage, and references to other sub-aggregates by ID to remain lightweight and decoupled.
 
+### Client Adapter
+An external interface (e.g., CLI, Desktop, Web, IDE Extension, MCP Server) that interacts with ATLAS. Clients are not part of the engine; they sit above the Application Platform Layer and initiate actions using Commands.
+
+### Atlas Facade
+The canonical public API (`atlas/_service.py`) for the ATLAS platform. It encapsulates internal engine complexity and presents a unified `Atlas` class to all Client Adapters.
+
+### Command DTO
+An immutable, serializable, transport-independent Data Transfer Object that encapsulates a requested action from a Client Adapter (e.g., `ExecuteStageCommand`).
+
+### Result DTO
+A pure data structure returned by the Atlas Facade. Results do not expose internal domain entities, repository references, or engine implementations.
+
 ### Artifact
 Any versioned file, model, or metadata structure created or managed within the project workspace. Examples include design specifications, code files, and snapshot files.
 

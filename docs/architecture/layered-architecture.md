@@ -19,23 +19,26 @@ This document details the layered architecture of the ATLAS platform. It defines
 The ATLAS architecture divides responsibilities into two distinct, decoupled pipelines: the **Execution Flow** and the **Verification & Commit Flow**.
 
 ### 1. Execution Flow (State Generation)
-The Execution Flow coordinates the creation of engineering proposals without mutating system state. It flows vertically from user interface triggers down to external providers:
+The Execution Flow coordinates the creation of engineering proposals without mutating system state. It flows vertically from external clients down to external AI providers:
 
 ```
-        UI / Interface Layer
-                 ↓
+          External Clients (CLI, IDE, Web)
+                  ↓
+       Application Platform Layer (Atlas SDK)
+                  ↓
        Workflow Orchestration
-                 ↓
+                  ↓
           Stage Executors
-                 ↓
+                  ↓
        AI Engineering Services
-                 ↓
+                  ↓
           AI Orchestration
-                 ↓
+                  ↓
              Provider
 ```
 
-- **UI / Interface Layer**: The client interface (CLI, API, or IDE adapter) that registers user instructions and initiates actions.
+- **External Clients**: First-party and third-party UI/Interface clients that initiate actions via Command DTOs.
+- **Application Platform Layer** (`Atlas` Facade): The public boundary that enforces the Command-Result pattern, mapping exceptions and hiding internal engine complexity.
 - **Workflow Orchestration** (`WorkflowOrchestrationService`): Drives the pipeline by checking active stages and coordinating generation steps.
 - **Stage Executors** (`StageExecutor`): Translates stage-specific requests (e.g. Research, Planning) into engineering calls.
 - **AI Engineering Services** (`AIEngineeringService`): Stateless services that assemble context payloads and request proposals.

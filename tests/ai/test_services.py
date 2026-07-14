@@ -1,5 +1,5 @@
 from unittest.mock import Mock
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 
@@ -53,10 +53,10 @@ def test_ai_orchestration() -> None:
     provider = MockAIProvider('{"summary": "Mock output"}')
     strategy = IdentityContextStrategy()
     svc = AIOrchestrationService(provider, strategy)
-    
+
     template = ResearchPromptTemplate()
     ctx = ContextPayload(serialized_context="abc")
-    
+
     proposal = svc.generate_proposal(template, ctx)
     assert isinstance(proposal, AIProposal)
     assert proposal.status == ProposalStatus.DRAFT

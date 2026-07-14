@@ -1,6 +1,10 @@
 from uuid import UUID, uuid4
 
-from engine.domain.conversation import ConversationMessage, ConversationSession, MemoryCandidate
+from engine.domain.conversation import (
+    ConversationMessage,
+    ConversationSession,
+    MemoryCandidate,
+)
 from engine.domain.enums import ConversationRole
 
 

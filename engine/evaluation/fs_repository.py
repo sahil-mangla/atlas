@@ -11,16 +11,16 @@ import json
 from pathlib import Path
 from uuid import UUID
 
+from engine.domain.evaluation import Evaluation
 from engine.evaluation.exceptions import (
-    InvalidEvaluationException,
     EvaluationNotFoundException,
+    InvalidEvaluationException,
 )
 from engine.evaluation.repository import EvaluationRepository
 from engine.evaluation.serializers import (
     deserialize_evaluation,
     serialize_evaluation,
 )
-from engine.domain.evaluation import Evaluation
 from engine.project.exceptions import ProjectNotFoundException
 from engine.project.repository import ProjectRepository
 

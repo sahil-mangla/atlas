@@ -5,10 +5,10 @@ from typing import Any
 
 from engine.domain.ai import ContextPayload, PromptTemplateMetadata
 from engine.domain.ai_drafts import (
-    ResearchProposalDraft,
-    PlanningProposalDraft,
     ArchitectureProposalDraft,
     EvaluationProposalDraft,
+    PlanningProposalDraft,
+    ResearchProposalDraft,
 )
 from engine.domain.enums import ProposalType
 

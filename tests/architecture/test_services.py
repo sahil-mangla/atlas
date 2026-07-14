@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Any
-from uuid import UUID, uuid4
+from uuid import uuid4
+
 import pytest
 
 from engine.architecture.exceptions import (
@@ -9,40 +10,44 @@ from engine.architecture.exceptions import (
 )
 from engine.architecture.fs_repository import FilesystemArchitectureRepository
 from engine.architecture.services import (
-    ArchitectureInitializationService,
-    ArchitectureCompositionService,
     ArchitecturalDecisionService,
+    ArchitectureCompositionService,
+    ArchitectureInitializationService,
+    ArchitectureSummaryService,
     ComponentModelService,
     InterfaceContractService,
     RiskAnalysisService,
-    ArchitectureSummaryService,
 )
 from engine.domain.enums import ArchitectureStatus
 from engine.domain.metadata import ArtifactMetadata
+from engine.domain.planning import (
+    EngineeringDeliverable,
+    Planning,
+    PlanningEpic,
+    PlanningMilestone,
+    PlanningSnapshot,
+    PlanningSummary,
+    PlanningTask,
+    ScopeDefinition,
+)
 from engine.domain.project import Project
 from engine.domain.research import (
-    Research,
-    ResearchSnapshot,
-    ProblemDefinition,
-    ResearchSummary,
-    Evidence,
-    ResearchFinding,
-    Constraint as ResearchConstraint,
     Assumption as ResearchAssumption,
 )
-from engine.domain.planning import (
-    Planning,
-    PlanningSnapshot,
-    ScopeDefinition,
-    PlanningSummary,
-    EngineeringDeliverable,
-    PlanningMilestone,
-    PlanningEpic,
-    PlanningTask,
+from engine.domain.research import (
+    Constraint as ResearchConstraint,
 )
+from engine.domain.research import (
+    Evidence,
+    ProblemDefinition,
+    Research,
+    ResearchFinding,
+    ResearchSnapshot,
+    ResearchSummary,
+)
+from engine.planning.fs_repository import FilesystemPlanningRepository
 from engine.project.fs_repository import FilesystemProjectRepository
 from engine.research.fs_repository import FilesystemResearchRepository
-from engine.planning.fs_repository import FilesystemPlanningRepository
 
 
 @pytest.fixture

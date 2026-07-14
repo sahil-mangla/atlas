@@ -23,7 +23,7 @@ from engine.architecture.services import (
     ArchitectureInitializationService,
     ArchitectureSummaryService,
 )
-from engine.domain.ai import AIProposal, ContextPayload
+from engine.domain.ai import AIProposal
 from engine.domain.ai_drafts import (
     ArchitectureProposalDraft,
     CommitResult,
@@ -37,7 +37,6 @@ from engine.evaluation.services import (
     EvaluationInitializationService,
     EvaluationSummaryService,
 )
-from engine.memory.repository import MemoryRepository
 from engine.planning.repository import PlanningRepository
 from engine.planning.services import (
     MilestonePlanningService,
@@ -54,7 +53,6 @@ from engine.research.services import (
     ResearchOrganizationService,
     ResearchSummaryService,
 )
-
 
 T = TypeVar("T", bound=BaseModel)
 

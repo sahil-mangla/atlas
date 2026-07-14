@@ -9,10 +9,9 @@ from uuid import UUID, uuid4
 from pydantic import BaseModel, Field
 
 from engine.domain.enums import (
-    EvaluationStatus,
-    FindingSeverity,
     FindingCategory,
     FindingLifecycleStatus,
+    FindingSeverity,
 )
 from engine.domain.metadata import ArtifactMetadata, ArtifactStatus
 

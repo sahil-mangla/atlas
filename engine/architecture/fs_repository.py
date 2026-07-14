@@ -12,8 +12,8 @@ from pathlib import Path
 from uuid import UUID
 
 from engine.architecture.exceptions import (
-    InvalidArchitectureException,
     ArchitectureNotFoundException,
+    InvalidArchitectureException,
 )
 from engine.architecture.repository import ArchitectureRepository
 from engine.architecture.serializers import (

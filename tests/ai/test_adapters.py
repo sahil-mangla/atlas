@@ -1,4 +1,3 @@
-import pytest
 
 from engine.ai.adapters.gemini import GeminiAIProvider
 from engine.ai.provider import AIProvider

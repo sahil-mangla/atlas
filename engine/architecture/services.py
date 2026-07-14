@@ -1,28 +1,27 @@
 """Services managing the Architecture subsystem lifecycle."""
 
-from datetime import UTC, datetime
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from engine.architecture.exceptions import (
     ArchitectureNotFoundException,
     InvalidArchitectureOperationException,
 )
 from engine.architecture.repository import ArchitectureRepository
-from engine.domain.enums import ArchitectureStatus
-from engine.domain.metadata import ArtifactMetadata, ArtifactStatus
 from engine.domain.architecture import (
+    ArchitecturalDecision,
     Architecture,
     ArchitectureComponent,
     ArchitectureDriver,
-    ArchitecturalDecision,
-    InterfaceContract,
-    Risk,
-    Constraint,
-    Assumption,
-    QualityAttribute,
-    ArchitectureSummary,
     ArchitectureSnapshot,
+    ArchitectureSummary,
+    Assumption,
+    Constraint,
+    InterfaceContract,
+    QualityAttribute,
+    Risk,
 )
+from engine.domain.enums import ArchitectureStatus
+from engine.domain.metadata import ArtifactMetadata, ArtifactStatus
 from engine.planning.repository import PlanningRepository
 from engine.project.repository import ProjectRepository
 from engine.research.repository import ResearchRepository

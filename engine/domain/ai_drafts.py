@@ -1,12 +1,10 @@
 """Strongly typed AI generation draft models mirroring domain aggregates."""
 
-from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel, Field
 
 from engine.domain.enums import FindingCategory, FindingSeverity
-
 
 # ==========================================
 # Research Draft Hierarchy

@@ -15,7 +15,6 @@ from engine.ai.engineering_services import (
     ProposalCommitService,
     ResearchAIEngineeringService,
 )
-from engine.ai.exceptions import AIException
 from engine.domain.ai import AIProposal
 from engine.domain.ai_drafts import (
     ArchitectureProposalDraft,
@@ -25,7 +24,6 @@ from engine.domain.ai_drafts import (
     ResearchProposalDraft,
 )
 from engine.domain.ai_feedback import ProposalFeedback
-from engine.domain.workflow import ProposalReviewEntry
 from engine.domain.enums import (
     ApprovalStatus,
     EvaluationStatus,
@@ -33,13 +31,13 @@ from engine.domain.enums import (
     ProposalStatus,
     WorkflowStage,
 )
+from engine.domain.workflow import ProposalReviewEntry
 from engine.workflow.exceptions import WorkflowException, WorkflowNotFoundException
 from engine.workflow.repository import WorkflowRepository
 from engine.workflow.services import (
     WorkflowReadinessService,
     WorkflowTransitionService,
 )
-
 
 T = TypeVar("T")
 

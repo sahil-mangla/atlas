@@ -1,4 +1,3 @@
-import json
 from typing import Any
 from unittest.mock import Mock
 from uuid import UUID, uuid4
@@ -7,33 +6,27 @@ import pytest
 
 from engine.ai.engineering_services import (
     ArchitectureAIEngineeringService,
-    ArchitectureProposalTransformer,
     ArchitectureProposalValidator,
     EvaluationAIEngineeringService,
-    EvaluationProposalTransformer,
-    EvaluationProposalValidator,
     PlanningAIEngineeringService,
-    PlanningProposalTransformer,
-    PlanningProposalValidator,
     ProposalCommitService,
     ResearchAIEngineeringService,
     ResearchProposalTransformer,
     ResearchProposalValidator,
 )
 from engine.ai.exceptions import InvalidProposalException
-from engine.ai.unit_of_work import ProposalCommitUnitOfWork
 from engine.ai.services import ContextAssemblerService
+from engine.ai.unit_of_work import ProposalCommitUnitOfWork
 from engine.domain.ai import AIProposal, ContextPayload, PromptTemplateMetadata
 from engine.domain.ai_drafts import (
-    ArchitectureProposalDraft,
     ArchitectureComponentDraft,
+    ArchitectureProposalDraft,
     EvaluationProposalDraft,
     PlanningProposalDraft,
     ResearchFindingDraft,
     ResearchProposalDraft,
 )
 from engine.domain.enums import ProposalStatus, ProposalType
-from tests.ai.test_adapters import MockAIProvider
 
 
 # Mock repos that implement basic lookup and save for state rollback verification
@@ -145,7 +138,7 @@ def test_evaluation_ai_service(assembler: ContextAssemblerService) -> None:
 
 def test_proposal_commit_atomic_rollback() -> None:
     project_id = uuid4()
-    
+
     research_repo = MockRepo()
     planning_repo = MockRepo()
     architecture_repo = MockRepo()

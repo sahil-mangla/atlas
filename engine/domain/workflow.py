@@ -10,7 +10,12 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
-from engine.domain.enums import ApprovalStatus, EvaluationStatus, ProposalDecision, WorkflowStage
+from engine.domain.enums import (
+    ApprovalStatus,
+    EvaluationStatus,
+    ProposalDecision,
+    WorkflowStage,
+)
 
 
 class WorkflowHistoryEntry(BaseModel):

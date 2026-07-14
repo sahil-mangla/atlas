@@ -8,28 +8,28 @@ from engine.evaluation.exceptions import (
 )
 from engine.evaluation.repository import EvaluationRepository
 from engine.evaluation.services import (
-    EvaluationInitializationService,
-    RequirementCoverageService,
-    TraceabilityEvaluationService,
     ArchitectureEvaluationService,
-    RiskEvaluationService,
+    EvaluationInitializationService,
+    EvaluationSummaryService,
     QualityEvaluationService,
     ReadinessEvaluationService,
-    EvaluationSummaryService,
+    RequirementCoverageService,
+    RiskEvaluationService,
+    TraceabilityEvaluationService,
 )
 
 __all__ = [
+    "ArchitectureEvaluationService",
     "EvaluationException",
+    "EvaluationInitializationService",
     "EvaluationNotFoundException",
+    "EvaluationRepository",
+    "EvaluationSummaryService",
     "InvalidEvaluationException",
     "InvalidEvaluationOperationException",
-    "EvaluationRepository",
-    "EvaluationInitializationService",
-    "RequirementCoverageService",
-    "TraceabilityEvaluationService",
-    "ArchitectureEvaluationService",
-    "RiskEvaluationService",
     "QualityEvaluationService",
     "ReadinessEvaluationService",
-    "EvaluationSummaryService",
+    "RequirementCoverageService",
+    "RiskEvaluationService",
+    "TraceabilityEvaluationService",
 ]

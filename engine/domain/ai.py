@@ -7,7 +7,6 @@ from pydantic import BaseModel, Field
 
 from engine.domain.enums import ProposalStatus, ProposalType
 
-
 T = TypeVar("T")
 
 

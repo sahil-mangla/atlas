@@ -27,7 +27,7 @@ class GeminiAIProvider(AIProvider):
             # In a real implementation, we would construct the Gemini SDK payload
             # using request.prompt, request.context.serialized_context, request.parameters
             # and invoke the SDK.
-            
+
             # This is a stub placeholder for Stage 11 scaffolding
             return AIResponse(
                 content="[Gemini Stub Generated Content]",

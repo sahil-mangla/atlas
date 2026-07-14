@@ -1,23 +1,21 @@
 """Services managing the Evaluation subsystem assessment lifecycle."""
 
-from datetime import UTC, datetime
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from engine.architecture.repository import ArchitectureRepository
 from engine.domain.enums import (
-    FindingSeverity,
     FindingCategory,
-    FindingLifecycleStatus,
+    FindingSeverity,
 )
-from engine.domain.metadata import ArtifactStatus, ArtifactMetadata
 from engine.domain.evaluation import (
     Evaluation,
     EvaluationFinding,
-    RequirementCoverage,
-    ReadinessDecision,
-    EvaluationSummary,
     EvaluationSnapshot,
+    EvaluationSummary,
+    ReadinessDecision,
+    RequirementCoverage,
 )
+from engine.domain.metadata import ArtifactMetadata, ArtifactStatus
 from engine.evaluation.exceptions import (
     EvaluationNotFoundException,
     InvalidEvaluationOperationException,
@@ -374,7 +372,7 @@ class RiskEvaluationService:
                         EvaluationFinding(
                             severity=FindingSeverity.BLOCKING,
                             category=FindingCategory.RISK,
-                            description=f"Severe risk lacks mitigation or owner.",
+                            description="Severe risk lacks mitigation or owner.",
                             evidence=f"Risk ID: {risk.id} has severity '{risk.severity}', mitigation: '{risk.mitigation}', owner: '{risk.owner}'.",
                             recommendation="Add an explicit mitigation strategy and assign a mitigation owner to the risk.",
                             traceability_links=[risk.id],

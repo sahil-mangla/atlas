@@ -312,12 +312,18 @@ class DependencyPlanningService:
 
         # Ensure that depends_on_id actually exists in the graph globally
         all_ids = {
-            getattr(item, "id")
+            t.id
             for m in planning.milestones
             for e in m.epics
             for t in e.tasks
-            for item in [t, *t.subtasks]
         }
+        all_ids.update(
+            st.id
+            for m in planning.milestones
+            for e in m.epics
+            for t in e.tasks
+            for st in t.subtasks
+        )
         if depends_on_id not in all_ids:
             raise InvalidPlanningOperationException("Dependency target not found.")
 
