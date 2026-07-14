@@ -11,6 +11,8 @@ Canonical definitions of terminology matching the codebase.
 
 ### 2. Architecture Reference
 - **[Application Platform Layer](file:///Users/sahilmangla/atlas/docs/architecture/application-platform.md)**: The public Atlas SDK boundary, commands, results, and exception contract.
+- **[Client Adapter Layer](file:///Users/sahilmangla/atlas/docs/architecture/client-adapters.md)**: Presentation and transport bindings exposing the Atlas SDK to external execution environments.
+- **[CLI Usage Guide](file:///Users/sahilmangla/atlas/docs/usage/cli.md)**: Usage documentation for the ATLAS CLI client adapter.
 - **[Architecture Principles](file:///Users/sahilmangla/atlas/docs/architecture/architecture-principles.md)**: Core design values (e.g. Domain First, Dependency Inversion, Immutability).
 - **[System Overview](file:///Users/sahilmangla/atlas/docs/architecture/system-overview.md)**: Product vision and the 11 major subsystems' boundaries and responsibilities.
 - **[Layered Architecture](file:///Users/sahilmangla/atlas/docs/architecture/layered-architecture.md)**: Vertical execution flows and commit mutations across layers.
@@ -29,6 +31,7 @@ Canonical definitions of terminology matching the codebase.
 - **[ADR-002: Application Platform Layer](file:///Users/sahilmangla/atlas/docs/decisions/adr-002-application-platform-layer.md)**: Canonical public SDK and composition-root decision.
 
 ### 4. Architecture Diagrams
+- **[Client Adapter Layer](file:///Users/sahilmangla/atlas/docs/diagrams/client-adapter-layer.md)**
 - **[Subsystem Interactions](file:///Users/sahilmangla/atlas/docs/diagrams/system-overview.md)**
 - **[Engineering Pipeline](file:///Users/sahilmangla/atlas/docs/diagrams/engineering-pipeline.md)**
 - **[Proposal Lifecycle](file:///Users/sahilmangla/atlas/docs/diagrams/proposal-lifecycle.md)**

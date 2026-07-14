@@ -1,0 +1,211 @@
+"""CLI Application — the entry point for the ATLAS CLI adapter.
+
+Responsibilities
+----------------
+- Bootstrap the Atlas platform via ``atlas.create()``
+- Dispatch the parsed Command DTO to the appropriate Atlas method
+- Route Result DTOs through the renderer
+- Catch only ``ApplicationError`` at the boundary
+- Exit with the appropriate exit code
+
+No engineering logic lives here. The application is a thin coordinator:
+
+    Parser → Command DTO → Atlas → Result DTO → Renderer → stdout
+
+Engine packages are never imported.
+"""
+
+from __future__ import annotations
+
+import importlib.metadata
+import sys
+from typing import TYPE_CHECKING
+
+import atlas
+from atlas.commands import (
+    ApproveProposalCommand,
+    ArchiveProjectCommand,
+    CreateProjectCommand,
+    ExecuteStageCommand,
+    GetWorkflowStatusCommand,
+    ListProjectsCommand,
+    LoadProjectCommand,
+    RejectProposalCommand,
+    TransitionStageCommand,
+)
+from atlas.exceptions import ApplicationError
+from clients.cli.commands import HelpCommand, VersionCommand
+from clients.cli.parser import CLIParseError, parse_argv
+from clients.cli.renderer import CLIRenderer
+from clients.common.capabilities import CLI_CAPABILITIES
+from clients.common.rendering import RenderContext
+
+if TYPE_CHECKING:
+    from atlas import Atlas
+    from atlas.commands import Command
+
+try:
+    _VERSION = importlib.metadata.version("atlas")
+except importlib.metadata.PackageNotFoundError:
+    _VERSION = "0.0.0-dev"
+
+# Exit codes
+_EXIT_OK = 0
+_EXIT_ERROR = 1
+_EXIT_PARSE_ERROR = 2
+
+
+class CLIApplication:
+    """The ATLAS CLI application.
+
+    Bootstraps Atlas, parses argv, dispatches commands, and renders
+    output. This is the only class that calls ``atlas.create()``.
+
+    Args:
+        atlas_platform: An already-constructed Atlas facade, used
+            primarily for testing. When ``None``, ``atlas.create()``
+            is called at construction time.
+        renderer: The renderer to use. Defaults to ``CLIRenderer()``.
+    """
+
+    def __init__(
+        self,
+        atlas_platform: Atlas | None = None,
+        renderer: CLIRenderer | None = None,
+    ) -> None:
+        self._atlas = atlas_platform or atlas.create()
+        self._renderer = renderer or CLIRenderer(
+            RenderContext(
+                use_color=True,
+                use_unicode=True,
+                terminal_width=_terminal_width(),
+            )
+        )
+        self._capabilities = CLI_CAPABILITIES
+
+    def run(self, argv: list[str] | None = None) -> int:
+        """Parse argv, execute the command, and write output to stdout.
+
+        Args:
+            argv: Token list. Defaults to ``sys.argv[1:]``.
+
+        Returns:
+            An integer exit code (0 = success, 1 = error, 2 = parse error).
+        """
+        try:
+            command = parse_argv(argv)
+        except CLIParseError as exc:
+            sys.stdout.write(self._renderer.render_parse_error(str(exc)) + "\n")
+            return _EXIT_PARSE_ERROR
+
+        try:
+            output = self._dispatch(command)
+        except ApplicationError as exc:
+            sys.stdout.write(self._renderer.render_error(exc) + "\n")
+            return _EXIT_ERROR
+
+        sys.stdout.write(output + "\n")
+        return _EXIT_OK
+
+    # ------------------------------------------------------------------
+    # Command dispatch
+    # ------------------------------------------------------------------
+
+    def _dispatch(self, command: Command) -> str:  # noqa: PLR0911
+        """Route a command to the correct Atlas call.
+
+        Args:
+            command: The resolved command DTO.
+
+        Returns:
+            Rendered output string.
+
+        Raises:
+            ApplicationError: Propagated from the Atlas facade.
+        """
+        if isinstance(command, VersionCommand):
+            return self._renderer.render_version(_VERSION)
+
+        if isinstance(command, HelpCommand):
+            return self._renderer.render_help()
+
+        if isinstance(command, CreateProjectCommand):
+            proj_res = self._atlas.create_project(command)
+            return self._renderer.render_project(proj_res)
+
+        if isinstance(command, LoadProjectCommand):
+            load_res = self._atlas.load_project(command)
+            return self._renderer.render_project(load_res)
+
+        if isinstance(command, ListProjectsCommand):
+            list_res = self._atlas.list_projects(command)
+            return self._renderer.render_project_list(list_res)
+
+        if isinstance(command, ArchiveProjectCommand):
+            arch_res = self._atlas.archive_project(command)
+            return self._renderer.render_operation(arch_res)
+
+        if isinstance(command, GetWorkflowStatusCommand):
+            stat_res = self._atlas.get_workflow_status(command)
+            return self._renderer.render_workflow_status(stat_res)
+
+        if isinstance(command, TransitionStageCommand):
+            trans_res = self._atlas.transition_stage(command)
+            return self._renderer.render_workflow_status(trans_res)
+
+        if isinstance(command, ExecuteStageCommand):
+            exec_res = self._atlas.execute_stage(command)
+            return self._renderer.render_proposal(exec_res)
+
+        if isinstance(command, ApproveProposalCommand):
+            app_res = self._atlas.approve_proposal(command)
+            return self._renderer.render_commit(app_res)
+
+        if isinstance(command, RejectProposalCommand):
+            rej_res = self._atlas.reject_proposal(command)
+            return self._renderer.render_operation(rej_res)
+
+        # Defensive: this path should never be reached with a valid Command.
+        return f"Unhandled command type: {type(command).__name__}"
+
+
+# ---------------------------------------------------------------------------
+# Internal helpers
+# ---------------------------------------------------------------------------
+
+def _terminal_width() -> int:
+    """Return the current terminal width, defaulting to 80.
+
+    Returns:
+        Number of columns in the terminal.
+    """
+    try:
+        import shutil  # noqa: PLC0415
+        return shutil.get_terminal_size().columns
+    except Exception:
+        return 80
+
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
+
+def main(argv: list[str] | None = None) -> None:
+    """CLI entry point.
+
+    Constructs a ``CLIApplication`` and exits with its return code.
+
+    Args:
+        argv: Optional argv override for testing.
+    """
+    from atlas.exceptions import ApplicationError  # noqa: PLC0415
+
+    try:
+        app = CLIApplication()
+        code = app.run(argv)
+    except ApplicationError as exc:
+        # Fallback renderer for bootstrap failures before CLIApplication is alive
+        sys.stderr.write(f"[✗ error]  {type(exc).__name__}: {exc}\n")
+        code = _EXIT_ERROR
+
+    sys.exit(code)

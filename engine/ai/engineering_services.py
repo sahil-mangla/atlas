@@ -19,8 +19,8 @@ from engine.ai.services import AIOrchestrationService, ContextAssemblerService
 from engine.ai.unit_of_work import ProposalCommitUnitOfWork
 from engine.architecture.repository import ArchitectureRepository
 from engine.architecture.services import (
-    ArchitectureCompositionService,
     ArchitecturalDecisionService,
+    ArchitectureCompositionService,
     ArchitectureInitializationService,
     ArchitectureSummaryService,
     ComponentModelService,
@@ -35,8 +35,8 @@ from engine.domain.ai_drafts import (
     PlanningProposalDraft,
     ResearchProposalDraft,
 )
-from engine.domain.evaluation import EvaluationFinding
 from engine.domain.enums import ProposalStatus, ProposalType
+from engine.domain.evaluation import EvaluationFinding
 from engine.evaluation.repository import EvaluationRepository
 from engine.evaluation.services import (
     EvaluationInitializationService,

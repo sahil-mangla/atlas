@@ -10,7 +10,6 @@ from pydantic import BaseModel
 from engine.ai.exceptions import InvalidConversationException
 from engine.ai.repository import ConversationRepository, ProposalRepository
 from engine.ai.serializers import deserialize_conversation, serialize_conversation
-from engine.domain.conversation import ConversationSession
 from engine.domain.ai import AIProposal
 from engine.domain.ai_drafts import (
     ArchitectureProposalDraft,
@@ -18,6 +17,7 @@ from engine.domain.ai_drafts import (
     PlanningProposalDraft,
     ResearchProposalDraft,
 )
+from engine.domain.conversation import ConversationSession
 from engine.domain.enums import ProposalType
 from engine.project.exceptions import ProjectNotFoundException
 from engine.project.repository import ProjectRepository

@@ -1,9 +1,8 @@
 """Abstract repository interface for the Conversation aggregate."""
 
 from abc import ABC, abstractmethod
-from uuid import UUID
-
 from typing import Any
+from uuid import UUID
 
 from engine.domain.ai import AIProposal
 from engine.domain.conversation import ConversationSession

@@ -22,7 +22,9 @@ The ATLAS architecture divides responsibilities into two distinct, decoupled pip
 The Execution Flow coordinates the creation of engineering proposals without mutating system state. It flows vertically from external clients down to external AI providers:
 
 ```
-          External Clients (CLI, IDE, Web)
+          External Clients (Terminal, IDE, Web)
+                  ↓
+          Client Adapter Layer (CLI, MCP, etc.)
                   ↓
        Application Platform Layer (Atlas SDK)
                   ↓
@@ -37,7 +39,8 @@ The Execution Flow coordinates the creation of engineering proposals without mut
              Provider
 ```
 
-- **External Clients**: First-party and third-party UI/Interface clients that initiate actions via Command DTOs.
+- **External Clients**: First-party and third-party UI/Interface clients that initiate actions.
+- **Client Adapter Layer**: Translates raw client inputs (e.g. `argv`) into Command DTOs and handles presentation-specific rendering.
 - **Application Platform Layer** (`Atlas` Facade): The public boundary that enforces the Command-Result pattern, mapping exceptions and hiding internal engine complexity.
 - **Workflow Orchestration** (`WorkflowOrchestrationService`): Drives the pipeline by checking active stages and coordinating generation steps.
 - **Stage Executors** (`StageExecutor`): Translates stage-specific requests (e.g. Research, Planning) into engineering calls.

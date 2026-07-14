@@ -98,6 +98,12 @@ In ATLAS, AI agents are tools utilized to assist in implementation, speed up exe
 - **Outputs**: Completed proposal commits, readiness audits, and automated stage transitions.
 - **Collaborators**: Workflow Subsystem, AI Engineering Services, and Commit Services.
 
+### 12. Client Adapter Layer
+- **Purpose**: Translates external execution environments (CLI, MCP, IDE, REST) into actions on the public Atlas SDK. Provides presentation formatting and progress tracking.
+- **Inputs**: Raw external interactions (e.g., `sys.argv`, JSON-RPC payloads).
+- **Outputs**: Environment-specific formatted output (e.g., ANSI terminal strings, structured JSON responses).
+- **Collaborators**: Depends exclusively on the Application Platform Layer (Atlas SDK) and shared presentation utilities.
+
 ---
 
 ## Future Extensions
