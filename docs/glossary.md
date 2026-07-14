@@ -1,0 +1,56 @@
+# ATLAS Glossary
+
+This glossary defines the canonical engineering and domain terminology used throughout the ATLAS platform. These definitions correspond to the Pydantic domain models in `engine/domain/` and orchestrations in `engine/workflow/` and `engine/ai/`.
+
+---
+
+### Project
+The top-level aggregate root representing the engineering system context. It holds metadata, status, current workflow stage, and references to other sub-aggregates by ID to remain lightweight and decoupled.
+
+### Artifact
+Any versioned file, model, or metadata structure created or managed within the project workspace. Examples include design specifications, code files, and snapshot files.
+
+### Snapshot
+An immutable, versioned freeze of a subsystem's domain state. Snapshots (e.g., `ResearchSnapshot`, `PlanningSnapshot`, `ArchitectureSnapshot`, `EvaluationSnapshot`) are created, verified, and committed to disk, serving as the historical record and context baseline.
+
+### Proposal
+A stateless, generated draft of suggested domain changes (e.g., `ResearchProposalDraft`, `PlanningProposalDraft`), encapsulated in an `AIProposal` container. A proposal remains a draft until a human review approves it.
+
+### Aggregate
+A cluster of associated domain objects treated as a single transaction unit. In ATLAS, `Project` is the root aggregate, containing sub-aggregates (Research, Planning, Architecture, Workflow, Memory, Evaluation) linked by unique IDs.
+
+### ADR (Architectural Decision Record)
+A formal document within the Architecture subsystem capturing a critical design decision, including its unique status, context, description, and architectural consequences.
+
+### Evidence
+A raw technical fact, external source reference, or literature summary gathered in the Research stage (`Evidence` / `ResearchSource`).
+
+### Finding
+A synthesized insight or domain fact derived from one or more pieces of evidence (`ResearchFinding` or `EvaluationFinding`).
+
+### Opportunity
+A potential engineering path, design alternative, or feature candidate supported by research findings (`Opportunity`).
+
+### Constraint
+A mandatory technical, business, or operational limit that system designs and code modifications must respect (`Constraint` or `ArchitectureConstraint`).
+
+### Assumption
+A technical premise or hypothesis accepted during design that carries some level of risk (`Assumption` or `ArchitectureAssumption`).
+
+### Workflow
+The state machine driving the project through sequential engineering stages, tracking current status, completed stages, and pending objectives.
+
+### Context
+A frozen, immutable package of subsystem states (`ContextPayload`) containing snapshot references and serialized context dumps passed to the AI provider.
+
+### Memory Candidate
+Conversations, system variables, or tool outputs analyzed for long-term project knowledge retention (`MemoryCandidate` / `MemoryEntry`).
+
+### Engineering Review
+A formal audit evaluating code modifications or design proposals for correctness, security, and conformance.
+
+### Traceability
+The immutable lineage linking upstream requirements and research findings down to architectural designs, task roadmaps, and final commits (`TraceabilityLink`).
+
+### Readiness
+The evaluation status (`ReadinessReview`) verifying that all active objectives for the current workflow stage have been completed before a transition can occur.
