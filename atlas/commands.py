@@ -70,6 +70,8 @@ class TransitionStageCommand(Command):
     """Transition workflow to the next stage."""
 
     project_id: UUID
+    reason: str | None = None
+    actor: str = "unknown"
 
 
 class GetWorkflowStatusCommand(Command):

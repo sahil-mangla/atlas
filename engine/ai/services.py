@@ -1,6 +1,6 @@
 """AI Orchestration and Context Assembly services.
 
-These services enforce the strict boundary between AI generation and 
+These services enforce the strict boundary between AI generation and
 domain state mutation.
 """
 
@@ -61,7 +61,9 @@ class ContextAssemblerService:
         research_snapshot = latest_approved(research, "research")
         planning_snapshot = latest_approved(planning, "planning")
         architecture_snapshot = latest_approved(architecture, "architecture")
-        evaluation_snapshot = latest_approved(evaluation, "evaluation") if evaluation else None
+        evaluation_snapshot = (
+            latest_approved(evaluation, "evaluation") if evaluation else None
+        )
 
         res_snap_id = research_snapshot.metadata.id
         plan_snap_id = planning_snapshot.metadata.id

@@ -4,7 +4,7 @@ This module is an internal implementation detail and must not be imported
 by client adapters. It wires the engine subsystems and returns the public facade.
 """
 
-from atlas._service import Atlas
+from atlas._service import Atlas, _AtlasServices
 from engine.ai.adapters.gemini import GeminiAIProvider
 from engine.ai.context import IdentityContextStrategy
 from engine.ai.engineering_services import (
@@ -22,12 +22,17 @@ from engine.ai.engineering_services import (
     ResearchProposalTransformer,
     ResearchProposalValidator,
 )
+from engine.ai.fs_repository import FilesystemProposalRepository
 from engine.ai.services import AIOrchestrationService, ContextAssemblerService
 from engine.architecture.fs_repository import FilesystemArchitectureRepository
 from engine.architecture.services import (
+    ArchitecturalDecisionService,
     ArchitectureCompositionService,
     ArchitectureInitializationService,
     ArchitectureSummaryService,
+    ComponentModelService,
+    InterfaceContractService,
+    RiskAnalysisService,
 )
 from engine.config import get_settings
 from engine.domain.enums import WorkflowStage
@@ -35,6 +40,7 @@ from engine.evaluation.fs_repository import FilesystemEvaluationRepository
 from engine.evaluation.services import (
     EvaluationInitializationService,
     EvaluationSummaryService,
+    ReadinessEvaluationService,
 )
 from engine.memory.fs_repository import FilesystemMemoryRepository
 from engine.planning.fs_repository import FilesystemPlanningRepository
@@ -76,7 +82,7 @@ from engine.workflow.services import (
 )
 
 
-def _create_platform() -> Atlas:
+def _create_platform() -> Atlas:  # noqa: PLR0915
     """Construct and wire the full ATLAS platform.
 
     Returns:
@@ -87,6 +93,7 @@ def _create_platform() -> Atlas:
     # 1. Repositories
     project_repo = FilesystemProjectRepository(settings.workspace_root)
     workflow_repo = FilesystemWorkflowRepository(project_repo)
+    proposal_repo = FilesystemProposalRepository(project_repo)
 
     # 2. Project Services
     project_creation_service = ProjectCreationService(project_repo)
@@ -132,11 +139,18 @@ def _create_platform() -> Atlas:
     architecture_summary = ArchitectureSummaryService(
         architecture_repo, research_repo, planning_repo
     )
+    component_model = ComponentModelService(architecture_repo)
+    adr_service = ArchitecturalDecisionService(
+        architecture_repo, research_repo, planning_repo
+    )
+    interface_service = InterfaceContractService(architecture_repo)
+    risk_service = RiskAnalysisService(architecture_repo)
 
     evaluation_init = EvaluationInitializationService(
         project_repo, research_repo, planning_repo, architecture_repo, evaluation_repo
     )
     evaluation_summary = EvaluationSummaryService(evaluation_repo)
+    evaluation_readiness = ReadinessEvaluationService(evaluation_repo)
 
     # 5. AI Engineering Services
     ai_orchestrator = AIOrchestrationService(provider, IdentityContextStrategy())
@@ -171,6 +185,10 @@ def _create_platform() -> Atlas:
         architecture_init,
         architecture_comp,
         architecture_summary,
+        component_model,
+        adr_service,
+        interface_service,
+        risk_service,
     )
     evaluation_transformer = EvaluationProposalTransformer(
         evaluation_repo,
@@ -179,6 +197,7 @@ def _create_platform() -> Atlas:
         architecture_repo,
         evaluation_init,
         evaluation_summary,
+        evaluation_readiness,
     )
     commit_service = ProposalCommitService(
         research_repo,
@@ -220,12 +239,15 @@ def _create_platform() -> Atlas:
 
     # 8. Facade Assembly
     return Atlas(
-        project_creation_service=project_creation_service,
-        project_loading_service=project_loading_service,
-        project_listing_service=project_listing_service,
-        project_archive_service=project_archive_service,
-        workflow_initialization_service=workflow_initialization_service,
-        workflow_repo=workflow_repo,
-        workflow_transition_service=workflow_transition_service,
-        orchestration_service=orchestration_service,
+        _AtlasServices(
+            project_creation_service=project_creation_service,
+            project_loading_service=project_loading_service,
+            project_listing_service=project_listing_service,
+            project_archive_service=project_archive_service,
+            workflow_initialization_service=workflow_initialization_service,
+            workflow_repo=workflow_repo,
+            workflow_transition_service=workflow_transition_service,
+            orchestration_service=orchestration_service,
+            proposal_repo=proposal_repo,
+        )
     )

@@ -102,7 +102,9 @@ def test_architecture_ai_service(assembler: ContextAssemblerService) -> None:
         decisions=[],
     )
     orchestrator = Mock()
-    meta = PromptTemplateMetadata(version=1, supported_subsystem=ProposalType.ARCHITECTURE)
+    meta = PromptTemplateMetadata(
+        version=1, supported_subsystem=ProposalType.ARCHITECTURE
+    )
     orchestrator.generate_proposal.return_value = AIProposal[dict[str, Any]](
         proposal_type=ProposalType.ARCHITECTURE,
         status=ProposalStatus.DRAFT,
@@ -122,7 +124,9 @@ def test_evaluation_ai_service(assembler: ContextAssemblerService) -> None:
         findings=[],
     )
     orchestrator = Mock()
-    meta = PromptTemplateMetadata(version=1, supported_subsystem=ProposalType.EVALUATION)
+    meta = PromptTemplateMetadata(
+        version=1, supported_subsystem=ProposalType.EVALUATION
+    )
     orchestrator.generate_proposal.return_value = AIProposal[dict[str, Any]](
         proposal_type=ProposalType.EVALUATION,
         status=ProposalStatus.DRAFT,
@@ -177,7 +181,7 @@ def test_proposal_commit_atomic_rollback() -> None:
         data=ResearchProposalDraft(
             problem_statement="Test statement",
             objectives=["Obj 1"],
-        )
+        ),
     )
 
     res = commit_service.commit_proposal(project_id, proposal)
@@ -212,7 +216,7 @@ def test_proposal_validation_failure() -> None:
         data=ResearchProposalDraft(
             problem_statement="",  # Invalid
             objectives=[],
-        )
+        ),
     )
 
     res = commit_service.commit_proposal(uuid4(), proposal)
@@ -237,13 +241,25 @@ def test_research_validator_rejects_invalid_reference() -> None:
         ResearchProposalValidator().validate(draft)
 
 
-def test_architecture_validator_rejects_unmapped_fields() -> None:
+def test_architecture_validator_accepts_supported_components() -> None:
     draft = ArchitectureProposalDraft(
         design_summary="Summary",
         components=[ArchitectureComponentDraft(name="API", description="Boundary")],
     )
 
-    with pytest.raises(InvalidProposalException, match="not representable"):
+    ArchitectureProposalValidator().validate(draft)
+
+
+def test_architecture_validator_rejects_unknown_component_reference() -> None:
+    draft = ArchitectureProposalDraft(
+        design_summary="Summary",
+        components=[
+            ArchitectureComponentDraft(
+                name="API", description="Boundary", internal_dependencies=["Missing"]
+            )
+        ],
+    )
+    with pytest.raises(InvalidProposalException, match="unknown or self"):
         ArchitectureProposalValidator().validate(draft)
 
 

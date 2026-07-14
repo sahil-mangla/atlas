@@ -1,9 +1,14 @@
 from pathlib import Path
 from uuid import UUID, uuid4
 
-from engine.ai.fs_repository import FilesystemConversationRepository
+from engine.ai.fs_repository import (
+    FilesystemConversationRepository,
+    FilesystemProposalRepository,
+)
+from engine.domain.ai import AIProposal, ContextPayload, PromptTemplateMetadata
+from engine.domain.ai_drafts import ResearchProposalDraft
 from engine.domain.conversation import ConversationMessage, ConversationSession
-from engine.domain.enums import ConversationRole
+from engine.domain.enums import ConversationRole, ProposalStatus, ProposalType
 from engine.domain.project import Project
 from engine.project.repository import ProjectRepository
 
@@ -40,7 +45,7 @@ def test_conversation_repository(tmp_path: Path) -> None:
         title="Test Chat",
         messages=[
             ConversationMessage(role=ConversationRole.USER, content="ping"),
-        ]
+        ],
     )
 
     # Save
@@ -57,3 +62,27 @@ def test_conversation_repository(tmp_path: Path) -> None:
     sessions = repo.get_by_project_id(proj_id)
     assert len(sessions) == 1
     assert sessions[0].id == session.id
+
+
+def test_proposal_repository_survives_recreation(tmp_path: Path) -> None:
+    proj_repo = DummyProjectRepo(tmp_path)
+    proj_id = uuid4()
+    proj_repo.projects = [
+        Project(id=proj_id, name="Test", description="Desc", objective="Obj")
+    ]
+    proposal = AIProposal[ResearchProposalDraft](
+        proposal_type=ProposalType.RESEARCH,
+        status=ProposalStatus.DRAFT,
+        prompt_metadata=PromptTemplateMetadata(
+            version=1, supported_subsystem=ProposalType.RESEARCH
+        ),
+        context_used=ContextPayload(serialized_context=""),
+        data=ResearchProposalDraft(problem_statement="p", objectives=["o"]),
+    )
+    FilesystemProposalRepository(proj_repo).save(proj_id, proposal)
+
+    loaded = FilesystemProposalRepository(proj_repo).get_by_id(proposal.id)
+    assert loaded is not None
+    loaded_project, loaded_proposal = loaded
+    assert loaded_project == proj_id
+    assert loaded_proposal.data.problem_statement == "p"

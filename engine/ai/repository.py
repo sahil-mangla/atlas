@@ -3,6 +3,9 @@
 from abc import ABC, abstractmethod
 from uuid import UUID
 
+from typing import Any
+
+from engine.domain.ai import AIProposal
 from engine.domain.conversation import ConversationSession
 
 
@@ -19,7 +22,9 @@ class ConversationRepository(ABC):
         pass
 
     @abstractmethod
-    def get_by_id(self, session_id: UUID) -> ConversationSession | None:
+    def get_by_id(
+        self, session_id: UUID, project_id: UUID | None = None
+    ) -> ConversationSession | None:
         """Retrieve the ConversationSession aggregate root.
 
         Args:
@@ -40,4 +45,23 @@ class ConversationRepository(ABC):
         Returns:
             A list of ConversationSession aggregates.
         """
+        pass
+
+
+class ProposalRepository(ABC):
+    """Persistence boundary for generated AI proposals."""
+
+    @abstractmethod
+    def save(self, project_id: UUID, proposal: AIProposal[Any]) -> None:
+        """Persist a proposal and its owning project."""
+        pass
+
+    @abstractmethod
+    def get_by_id(self, proposal_id: UUID) -> tuple[UUID, AIProposal[Any]] | None:
+        """Retrieve a proposal with its owning project."""
+        pass
+
+    @abstractmethod
+    def delete(self, proposal_id: UUID) -> None:
+        """Delete a completed proposal."""
         pass

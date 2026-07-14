@@ -15,6 +15,7 @@ Canonical definitions of terminology matching the codebase.
 - **[System Overview](file:///Users/sahilmangla/atlas/docs/architecture/system-overview.md)**: Product vision and the 11 major subsystems' boundaries and responsibilities.
 - **[Layered Architecture](file:///Users/sahilmangla/atlas/docs/architecture/layered-architecture.md)**: Vertical execution flows and commit mutations across layers.
 - **[Engineering Workflow](file:///Users/sahilmangla/atlas/docs/architecture/engineering-workflow.md)**: Lifecycles, objectives, and transition state machine rules.
+- **[Workflow Stage Execution](file:///Users/sahilmangla/atlas/docs/architecture/workflow-stages.md)**: AI-assisted and human-driven stage responsibilities.
 - **[Intelligence Layer](file:///Users/sahilmangla/atlas/docs/architecture/intelligence-layer.md)**: Coordination of AI integration services under constitutional safety boundaries.
 - **[Domain Model](file:///Users/sahilmangla/atlas/docs/architecture/domain-model.md)**: The lightweight Project aggregate root and sub-aggregate boundaries.
 - **[Persistence Architecture](file:///Users/sahilmangla/atlas/docs/architecture/persistence.md)**: Filesystem storage details, path resolution inversion, and compensating transaction rollbacks.

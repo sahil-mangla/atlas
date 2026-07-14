@@ -20,8 +20,12 @@ from engine.ai.unit_of_work import ProposalCommitUnitOfWork
 from engine.architecture.repository import ArchitectureRepository
 from engine.architecture.services import (
     ArchitectureCompositionService,
+    ArchitecturalDecisionService,
     ArchitectureInitializationService,
     ArchitectureSummaryService,
+    ComponentModelService,
+    InterfaceContractService,
+    RiskAnalysisService,
 )
 from engine.domain.ai import AIProposal
 from engine.domain.ai_drafts import (
@@ -31,11 +35,13 @@ from engine.domain.ai_drafts import (
     PlanningProposalDraft,
     ResearchProposalDraft,
 )
+from engine.domain.evaluation import EvaluationFinding
 from engine.domain.enums import ProposalStatus, ProposalType
 from engine.evaluation.repository import EvaluationRepository
 from engine.evaluation.services import (
     EvaluationInitializationService,
     EvaluationSummaryService,
+    ReadinessEvaluationService,
 )
 from engine.planning.repository import PlanningRepository
 from engine.planning.services import (
@@ -61,6 +67,7 @@ T = TypeVar("T", bound=BaseModel)
 # Validator Interfaces & Implementations
 # ==========================================
 
+
 class ProposalValidator(Generic[T], ABC):
     """Protocol for checking semantic correctness of AI-generated drafts."""
 
@@ -78,15 +85,30 @@ class ResearchProposalValidator(ProposalValidator[ResearchProposalDraft]):
             raise InvalidProposalException("Research objectives list cannot be empty.")
         evidence_count = len(draft.evidence)
         for finding in draft.findings:
-            if any(index < 0 or index >= evidence_count for index in finding.evidence_indices):
-                raise InvalidProposalException("Finding references an invalid evidence index.")
+            if any(
+                index < 0 or index >= evidence_count
+                for index in finding.evidence_indices
+            ):
+                raise InvalidProposalException(
+                    "Finding references an invalid evidence index."
+                )
         finding_count = len(draft.findings)
         for constraint in draft.constraints:
-            if any(index < 0 or index >= finding_count for index in constraint.finding_indices):
-                raise InvalidProposalException("Constraint references an invalid finding index.")
+            if any(
+                index < 0 or index >= finding_count
+                for index in constraint.finding_indices
+            ):
+                raise InvalidProposalException(
+                    "Constraint references an invalid finding index."
+                )
         for opportunity in draft.opportunities:
-            if any(index < 0 or index >= finding_count for index in opportunity.finding_indices):
-                raise InvalidProposalException("Opportunity references an invalid finding index.")
+            if any(
+                index < 0 or index >= finding_count
+                for index in opportunity.finding_indices
+            ):
+                raise InvalidProposalException(
+                    "Opportunity references an invalid finding index."
+                )
 
 
 class PlanningProposalValidator(ProposalValidator[PlanningProposalDraft]):
@@ -99,16 +121,58 @@ class PlanningProposalValidator(ProposalValidator[PlanningProposalDraft]):
             for epic in milestone.epics
             for task in epic.tasks
         ):
-            raise InvalidProposalException("Task estimates are not supported by the planning aggregate.")
+            raise InvalidProposalException(
+                "Task estimates are not supported by the planning aggregate."
+            )
 
 
 class ArchitectureProposalValidator(ProposalValidator[ArchitectureProposalDraft]):
     def validate(self, draft: ArchitectureProposalDraft) -> None:
         if not draft.design_summary.strip():
             raise InvalidProposalException("Design summary cannot be empty.")
-        if draft.drivers or draft.components or draft.decisions or draft.risks:
+        component_names = [component.name.strip() for component in draft.components]
+        if len(component_names) != len(set(component_names)):
             raise InvalidProposalException(
-                "Architecture proposal contains fields not representable without invented traceability."
+                "Architecture component names must be unique."
+            )
+        if any(not name for name in component_names):
+            raise InvalidProposalException(
+                "Architecture component names cannot be empty."
+            )
+        known_components = set(component_names)
+        for component in draft.components:
+            if not component.description.strip():
+                raise InvalidProposalException(
+                    "Component descriptions cannot be empty."
+                )
+            if any(
+                dependency not in known_components or dependency == component.name
+                for dependency in component.internal_dependencies
+            ):
+                raise InvalidProposalException(
+                    "Architecture component dependency references an unknown or self component."
+                )
+        if any(
+            not value.strip()
+            for decision in draft.decisions
+            for value in (
+                decision.title,
+                decision.status,
+                decision.context,
+                decision.decision,
+                decision.consequences,
+            )
+        ):
+            raise InvalidProposalException(
+                "Architecture decisions require complete text fields."
+            )
+        if any(
+            not value.strip()
+            for risk in draft.risks
+            for value in (risk.title, risk.description, risk.severity)
+        ):
+            raise InvalidProposalException(
+                "Architecture risks require complete text fields."
             )
 
 
@@ -116,15 +180,20 @@ class EvaluationProposalValidator(ProposalValidator[EvaluationProposalDraft]):
     def validate(self, draft: EvaluationProposalDraft) -> None:
         if not draft.synthesis.strip():
             raise InvalidProposalException("Evaluation synthesis cannot be empty.")
-        if draft.findings:
+        if any(
+            not value.strip()
+            for finding in draft.findings
+            for value in (finding.title, finding.summary)
+        ):
             raise InvalidProposalException(
-                "Evaluation findings are not representable by the current evaluation service flow."
+                "Evaluation findings require title and summary."
             )
 
 
 # ==========================================
 # Transformer Interfaces & Implementations
 # ==========================================
+
 
 class ProposalTransformer(Generic[T], ABC):
     """Protocol mapping validated draft structures to subsystem domain services."""
@@ -152,7 +221,9 @@ class ResearchProposalTransformer(ProposalTransformer[ResearchProposalDraft]):
         self.opp_analysis = opp_analysis
         self.research_summary = research_summary
 
-    def transform_and_commit(self, project_id: UUID, draft: ResearchProposalDraft) -> UUID:
+    def transform_and_commit(
+        self, project_id: UUID, draft: ResearchProposalDraft
+    ) -> UUID:
         # Step 1: Initialize research
         research = self.research_init.initialize_research(
             project_id=project_id,
@@ -241,10 +312,14 @@ class PlanningProposalTransformer(ProposalTransformer[PlanningProposalDraft]):
         self.task_planning = task_planning
         self.planning_summary = planning_summary
 
-    def transform_and_commit(self, project_id: UUID, draft: PlanningProposalDraft) -> UUID:
+    def transform_and_commit(
+        self, project_id: UUID, draft: PlanningProposalDraft
+    ) -> UUID:
         research = self.research_repo.get_by_project_id(project_id)
         if not research or not research.snapshots:
-            raise InvalidProposalException("Approved research snapshot required for planning.")
+            raise InvalidProposalException(
+                "Approved research snapshot required for planning."
+            )
         research_snapshot_id = research.snapshots[-1].metadata.id
 
         # Step 1: Initialize planning
@@ -303,6 +378,10 @@ class ArchitectureProposalTransformer(ProposalTransformer[ArchitectureProposalDr
         arch_init: ArchitectureInitializationService,
         arch_comp: ArchitectureCompositionService,
         arch_summary: ArchitectureSummaryService,
+        component_model: ComponentModelService,
+        adr_service: ArchitecturalDecisionService,
+        interface_service: InterfaceContractService,
+        risk_service: RiskAnalysisService,
     ) -> None:
         self.architecture_repo = architecture_repo
         self.research_repo = research_repo
@@ -310,8 +389,14 @@ class ArchitectureProposalTransformer(ProposalTransformer[ArchitectureProposalDr
         self.arch_init = arch_init
         self.arch_comp = arch_comp
         self.arch_summary = arch_summary
+        self.component_model = component_model
+        self.adr_service = adr_service
+        self.interface_service = interface_service
+        self.risk_service = risk_service
 
-    def transform_and_commit(self, project_id: UUID, draft: ArchitectureProposalDraft) -> UUID:
+    def transform_and_commit(
+        self, project_id: UUID, draft: ArchitectureProposalDraft
+    ) -> UUID:
         research = self.research_repo.get_by_project_id(project_id)
         planning = self.planning_repo.get_by_project_id(project_id)
         if not research or not research.snapshots:
@@ -332,7 +417,7 @@ class ArchitectureProposalTransformer(ProposalTransformer[ArchitectureProposalDr
         # Step 2: Set summary
         self.arch_comp.set_design_summary(project_id, draft.design_summary)
 
-        # Step 3: Add Drivers
+        # Step 3: Add drivers and components.
         for d in draft.drivers:
             self.arch_comp.add_architecture_driver(
                 project_id=project_id,
@@ -343,7 +428,60 @@ class ArchitectureProposalTransformer(ProposalTransformer[ArchitectureProposalDr
                 source_objective_ids=[],
             )
 
+        component_ids: dict[str, UUID] = {}
+        for component in draft.components:
+            responsibilities = list(component.responsibilities)
+            if component.description not in responsibilities:
+                responsibilities.insert(0, component.description)
+            created = self.component_model.add_component(
+                project_id=project_id,
+                name=component.name,
+                responsibilities=responsibilities,
+                owned_data=component.owned_data,
+                external_dependencies=component.external_dependencies,
+            )
+            component_ids[component.name] = created.id
+            for interface in component.public_interfaces:
+                self.interface_service.add_interface_contract(
+                    project_id=project_id,
+                    component_id=created.id,
+                    name=interface,
+                    description="",
+                    protocol="unspecified",
+                    input_schema="",
+                    output_schema="",
+                )
+        for component in draft.components:
+            for dependency in component.internal_dependencies:
+                self.component_model.add_internal_dependency(
+                    project_id=project_id,
+                    component_id=component_ids[component.name],
+                    depends_on_id=component_ids[dependency],
+                )
+
+        for decision in draft.decisions:
+            self.adr_service.add_adr(
+                project_id=project_id,
+                title=decision.title,
+                context=decision.context,
+                problem_statement=decision.context,
+                decision=decision.decision,
+                rationale=f"Status: {decision.status}. {decision.decision}",
+                consequences=decision.consequences,
+            )
+        for risk in draft.risks:
+            self.risk_service.register_risk(
+                project_id=project_id,
+                description=f"{risk.title}: {risk.description}",
+                severity=risk.severity,
+                likelihood="unspecified",
+                impact=risk.description,
+                mitigation="",
+                owner="unassigned",
+            )
+
         # Step 4: Finalize snapshot
+        self.arch_summary.submit_for_review(project_id)
         snapshot = self.arch_summary.freeze_snapshot(
             project_id=project_id,
             planning_snapshot_id=plan_snap_id,
@@ -362,6 +500,7 @@ class EvaluationProposalTransformer(ProposalTransformer[EvaluationProposalDraft]
         architecture_repo: ArchitectureRepository,
         eval_init: EvaluationInitializationService,
         eval_summary: EvaluationSummaryService,
+        readiness_service: ReadinessEvaluationService,
     ) -> None:
         self.evaluation_repo = evaluation_repo
         self.research_repo = research_repo
@@ -369,8 +508,11 @@ class EvaluationProposalTransformer(ProposalTransformer[EvaluationProposalDraft]
         self.architecture_repo = architecture_repo
         self.eval_init = eval_init
         self.eval_summary = eval_summary
+        self.readiness_service = readiness_service
 
-    def transform_and_commit(self, project_id: UUID, draft: EvaluationProposalDraft) -> UUID:
+    def transform_and_commit(
+        self, project_id: UUID, draft: EvaluationProposalDraft
+    ) -> UUID:
         research = self.research_repo.get_by_project_id(project_id)
         planning = self.planning_repo.get_by_project_id(project_id)
         architecture = self.architecture_repo.get_by_project_id(project_id)
@@ -380,7 +522,9 @@ class EvaluationProposalTransformer(ProposalTransformer[EvaluationProposalDraft]
         if not planning or not planning.snapshots:
             raise InvalidProposalException("Planning snapshot required for evaluation.")
         if not architecture or not architecture.snapshots:
-            raise InvalidProposalException("Architecture snapshot required for evaluation.")
+            raise InvalidProposalException(
+                "Architecture snapshot required for evaluation."
+            )
 
         res_snap_id = research.snapshots[-1].metadata.id
         plan_snap_id = planning.snapshots[-1].metadata.id
@@ -394,6 +538,27 @@ class EvaluationProposalTransformer(ProposalTransformer[EvaluationProposalDraft]
             architecture_snapshot_id=arch_snap_id,
         )
 
+        evaluation = self.evaluation_repo.get_by_project_id(project_id)
+        if evaluation is None:
+            raise InvalidProposalException("Evaluation initialization failed.")
+        for finding in draft.findings:
+            evaluation.findings.append(
+                EvaluationFinding(
+                    severity=finding.severity,
+                    category=finding.category,
+                    description=finding.title,
+                    evidence=finding.summary,
+                    recommendation="Review and resolve this finding.",
+                )
+            )
+        self.evaluation_repo.save(evaluation)
+        self.eval_summary.submit_for_review(project_id)
+        self.readiness_service.make_readiness_decision(
+            project_id,
+            ready=not any(f.severity.value == "blocking" for f in evaluation.findings),
+            justification=draft.synthesis,
+        )
+
         # Step 2: Freeze snapshot
         snapshot = self.eval_summary.freeze_snapshot(
             project_id=project_id,
@@ -405,6 +570,7 @@ class EvaluationProposalTransformer(ProposalTransformer[EvaluationProposalDraft]
 # ==========================================
 # Standardized AI Engineering Service
 # ==========================================
+
 
 class AIEngineeringService(Generic[T], ABC):
     """Common interface for orchestrating AI generation processes."""
@@ -442,7 +608,9 @@ class AIEngineeringService(Generic[T], ABC):
             parsed_json = json.loads(raw_content)
             typed_draft = self.draft_cls.model_validate(parsed_json)
         except Exception as e:
-            raise InvalidProposalException(f"Failed to parse generation into typed draft: {e}") from e
+            raise InvalidProposalException(
+                f"Failed to parse generation into typed draft: {e}"
+            ) from e
 
         # Wrap in generic proposal structure
         return AIProposal[T](
@@ -514,6 +682,7 @@ class EvaluationAIEngineeringService(AIEngineeringService[EvaluationProposalDraf
 # Proposal Commit Service
 # ==========================================
 
+
 class ProposalCommitService:
     """Manages validated commits with deterministic filesystem rollback."""
 
@@ -552,7 +721,9 @@ class ProposalCommitService:
             ProposalType.EVALUATION: evaluation_validator,
         }
 
-    def commit_proposal(self, project_id: UUID, proposal: AIProposal[Any]) -> CommitResult:
+    def commit_proposal(
+        self, project_id: UUID, proposal: AIProposal[Any]
+    ) -> CommitResult:
         """Validate, transform, and commit a proposal with rollback on failure."""
         if proposal.status != ProposalStatus.APPROVED:
             return CommitResult(

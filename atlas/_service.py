@@ -3,6 +3,7 @@
 This module provides the primary public interface for the Application Platform Layer.
 """
 
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -48,6 +49,7 @@ from engine.ai.exceptions import (
     InvalidContextException,
     InvalidProposalException,
 )
+from engine.ai.repository import ProposalRepository
 from engine.domain.ai import AIProposal
 from engine.domain.ai_feedback import ProposalFeedback
 from engine.domain.enums import ApprovalStatus, ProposalDecision
@@ -78,32 +80,38 @@ from engine.workflow.services import (
 )
 
 
+@dataclass(frozen=True)
+class _AtlasServices:
+    """Internal dependency container for the public Atlas façade."""
+
+    project_creation_service: ProjectCreationService
+    project_loading_service: ProjectLoadingService
+    project_listing_service: ProjectRegistryService
+    project_archive_service: ProjectLifecycleService
+    workflow_initialization_service: WorkflowInitializationService
+    workflow_repo: WorkflowRepository
+    workflow_transition_service: WorkflowTransitionService
+    orchestration_service: WorkflowOrchestrationService
+    proposal_repo: ProposalRepository
+
+
 class Atlas:
     """The canonical public interface for the ATLAS engineering platform.
 
     Accepts Commands, delegates to internal engine services, and returns Results.
     """
 
-    def __init__(  # noqa: PLR0913
-        self,
-        project_creation_service: ProjectCreationService,
-        project_loading_service: ProjectLoadingService,
-        project_listing_service: ProjectRegistryService,
-        project_archive_service: ProjectLifecycleService,
-        workflow_initialization_service: WorkflowInitializationService,
-        workflow_repo: WorkflowRepository,
-        workflow_transition_service: WorkflowTransitionService,
-        orchestration_service: WorkflowOrchestrationService,
-    ) -> None:
+    def __init__(self, services: _AtlasServices) -> None:
         """Initialize the Atlas facade with required engine services."""
-        self._project_creation_service = project_creation_service
-        self._project_loading_service = project_loading_service
-        self._project_listing_service = project_listing_service
-        self._project_archive_service = project_archive_service
-        self._workflow_initialization_service = workflow_initialization_service
-        self._workflow_repo = workflow_repo
-        self._workflow_transition_service = workflow_transition_service
-        self._orchestration_service = orchestration_service
+        self._project_creation_service = services.project_creation_service
+        self._project_loading_service = services.project_loading_service
+        self._project_listing_service = services.project_listing_service
+        self._project_archive_service = services.project_archive_service
+        self._workflow_initialization_service = services.workflow_initialization_service
+        self._workflow_repo = services.workflow_repo
+        self._workflow_transition_service = services.workflow_transition_service
+        self._orchestration_service = services.orchestration_service
+        self._proposal_repo = services.proposal_repo
 
         # Proposal cache is bounded by removal after review completion.
         self._pending_proposals: dict[UUID, tuple[UUID, AIProposal[Any]]] = {}
@@ -249,7 +257,7 @@ class Atlas:
                 project_id=command.project_id,
                 new_stage=target_stage,
                 approval_status=ApprovalStatus.APPROVED,
-                reason="Manual transition via Atlas CLI.",
+                reason=command.reason or "Requested by client adapter.",
             )
 
             # Reload workflow to get updated status
@@ -291,6 +299,7 @@ class Atlas:
             proposal = self._orchestration_service.generate_proposal(
                 project_id=command.project_id, user_instructions=""
             )
+            self._proposal_repo.save(command.project_id, proposal)
             self._pending_proposals[proposal.id] = (command.project_id, proposal)
             return ProposalResult(
                 id=proposal.id,
@@ -309,6 +318,8 @@ class Atlas:
     def approve_proposal(self, command: ApproveProposalCommand) -> AppCommitResult:
         """Approve a generated AI proposal."""
         record = self._pending_proposals.get(command.proposal_id)
+        if not record:
+            record = self._proposal_repo.get_by_id(command.proposal_id)
         if not record:
             raise ProposalValidationError(
                 f"Proposal {command.proposal_id} not found or expired."
@@ -336,6 +347,7 @@ class Atlas:
                 )
                 if result.success:
                     self._pending_proposals.pop(command.proposal_id, None)
+                    self._proposal_repo.delete(command.proposal_id)
                 return result
             return AppCommitResult(
                 success=False,
@@ -350,6 +362,8 @@ class Atlas:
     def reject_proposal(self, command: RejectProposalCommand) -> OperationResult:
         """Reject a generated AI proposal with feedback."""
         record = self._pending_proposals.get(command.proposal_id)
+        if not record:
+            record = self._proposal_repo.get_by_id(command.proposal_id)
         if not record:
             raise ProposalValidationError(
                 f"Proposal {command.proposal_id} not found or expired."
@@ -374,6 +388,7 @@ class Atlas:
                 approver="Client Adapter",
             )
             self._pending_proposals.pop(command.proposal_id, None)
+            self._proposal_repo.delete(command.proposal_id)
             return OperationResult(success=True, message="Proposal rejected.")
         except AIException as e:
             raise self._map_ai_exception(e) from e
