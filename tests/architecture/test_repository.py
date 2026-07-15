@@ -14,7 +14,9 @@ from engine.project.fs_repository import FilesystemProjectRepository
 
 
 @pytest.fixture
-def repos(tmp_path: Path) -> tuple[FilesystemProjectRepository, FilesystemArchitectureRepository]:
+def repos(
+    tmp_path: Path,
+) -> tuple[FilesystemProjectRepository, FilesystemArchitectureRepository]:
     """Provide a filesystem project repo and architecture repository."""
     project_repo = FilesystemProjectRepository(tmp_path)
     architecture_repo = FilesystemArchitectureRepository(project_repo)
@@ -22,7 +24,7 @@ def repos(tmp_path: Path) -> tuple[FilesystemProjectRepository, FilesystemArchit
 
 
 def test_repository_save_and_get(
-    repos: tuple[FilesystemProjectRepository, FilesystemArchitectureRepository]
+    repos: tuple[FilesystemProjectRepository, FilesystemArchitectureRepository],
 ) -> None:
     project_repo, architecture_repo = repos
 
@@ -45,7 +47,7 @@ def test_repository_save_and_get(
 
 
 def test_repository_get_nonexistent(
-    repos: tuple[FilesystemProjectRepository, FilesystemArchitectureRepository]
+    repos: tuple[FilesystemProjectRepository, FilesystemArchitectureRepository],
 ) -> None:
     _, architecture_repo = repos
     # Project unregistered
@@ -53,7 +55,7 @@ def test_repository_get_nonexistent(
 
 
 def test_repository_save_unregistered_project(
-    repos: tuple[FilesystemProjectRepository, FilesystemArchitectureRepository]
+    repos: tuple[FilesystemProjectRepository, FilesystemArchitectureRepository],
 ) -> None:
     _, architecture_repo = repos
     arch = Architecture(project_id=uuid4())
@@ -63,7 +65,7 @@ def test_repository_save_unregistered_project(
 
 
 def test_repository_corrupt_file(
-    repos: tuple[FilesystemProjectRepository, FilesystemArchitectureRepository]
+    repos: tuple[FilesystemProjectRepository, FilesystemArchitectureRepository],
 ) -> None:
     project_repo, architecture_repo = repos
 

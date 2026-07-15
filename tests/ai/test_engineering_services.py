@@ -4,6 +4,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
+from engine.ai.context import IdentityContextStrategy
 from engine.ai.engineering_services import (
     ArchitectureAIEngineeringService,
     ArchitectureProposalValidator,
@@ -15,7 +16,7 @@ from engine.ai.engineering_services import (
     ResearchProposalValidator,
 )
 from engine.ai.exceptions import InvalidProposalException
-from engine.ai.services import ContextAssemblerService
+from engine.ai.services import AIOrchestrationService, ContextAssemblerService
 from engine.ai.unit_of_work import ProposalCommitUnitOfWork
 from engine.domain.ai import AIProposal, ContextPayload, PromptTemplateMetadata
 from engine.domain.ai_drafts import (
@@ -27,6 +28,7 @@ from engine.domain.ai_drafts import (
     ResearchProposalDraft,
 )
 from engine.domain.enums import ProposalStatus, ProposalType
+from tests.ai.test_adapters import MockAIProvider
 
 
 # Mock repos that implement basic lookup and save for state rollback verification
@@ -34,7 +36,7 @@ class MockRepo:
     def __init__(self) -> None:
         self.state: Any = None
 
-    def get_by_project_id(self, project_id: UUID) -> Any:
+    def get_by_project_id(self, _project_id: UUID) -> Any:
         return self.state
 
     def save(self, obj: Any) -> None:
@@ -56,14 +58,8 @@ def test_research_ai_service(assembler: ContextAssemblerService) -> None:
         objectives=["Speed", "Decoupling"],
         evidence=[],
     )
-    orchestrator = Mock()
-    meta = PromptTemplateMetadata(version=1, supported_subsystem=ProposalType.RESEARCH)
-    orchestrator.generate_proposal.return_value = AIProposal[dict[str, Any]](
-        proposal_type=ProposalType.RESEARCH,
-        status=ProposalStatus.DRAFT,
-        prompt_metadata=meta,
-        context_used=ContextPayload(serialized_context=""),
-        data={"raw_content": draft_data.model_dump_json()},
+    orchestrator = AIOrchestrationService(
+        MockAIProvider(draft_data.model_dump_json()), IdentityContextStrategy()
     )
 
     service = ResearchAIEngineeringService(orchestrator, assembler)
@@ -71,7 +67,7 @@ def test_research_ai_service(assembler: ContextAssemblerService) -> None:
 
     assert isinstance(proposal, AIProposal)
     assert proposal.data.problem_statement == "Build atomic engine"
-    assert len(proposal.data.objectives) == 2
+    assert len(proposal.data.objectives) == len(draft_data.objectives)
 
 
 def test_planning_ai_service(assembler: ContextAssemblerService) -> None:
@@ -80,14 +76,8 @@ def test_planning_ai_service(assembler: ContextAssemblerService) -> None:
         deliverables=[{"title": "Deliv 1", "description": ""}],
         milestones=[],
     )
-    orchestrator = Mock()
-    meta = PromptTemplateMetadata(version=1, supported_subsystem=ProposalType.PLANNING)
-    orchestrator.generate_proposal.return_value = AIProposal[dict[str, Any]](
-        proposal_type=ProposalType.PLANNING,
-        status=ProposalStatus.DRAFT,
-        prompt_metadata=meta,
-        context_used=ContextPayload(serialized_context=""),
-        data={"raw_content": draft_data.model_dump_json()},
+    orchestrator = AIOrchestrationService(
+        MockAIProvider(draft_data.model_dump_json()), IdentityContextStrategy()
     )
 
     service = PlanningAIEngineeringService(orchestrator, assembler)
@@ -101,16 +91,8 @@ def test_architecture_ai_service(assembler: ContextAssemblerService) -> None:
         components=[],
         decisions=[],
     )
-    orchestrator = Mock()
-    meta = PromptTemplateMetadata(
-        version=1, supported_subsystem=ProposalType.ARCHITECTURE
-    )
-    orchestrator.generate_proposal.return_value = AIProposal[dict[str, Any]](
-        proposal_type=ProposalType.ARCHITECTURE,
-        status=ProposalStatus.DRAFT,
-        prompt_metadata=meta,
-        context_used=ContextPayload(serialized_context=""),
-        data={"raw_content": draft_data.model_dump_json()},
+    orchestrator = AIOrchestrationService(
+        MockAIProvider(draft_data.model_dump_json()), IdentityContextStrategy()
     )
 
     service = ArchitectureAIEngineeringService(orchestrator, assembler)
@@ -123,16 +105,8 @@ def test_evaluation_ai_service(assembler: ContextAssemblerService) -> None:
         synthesis="Quality looks good",
         findings=[],
     )
-    orchestrator = Mock()
-    meta = PromptTemplateMetadata(
-        version=1, supported_subsystem=ProposalType.EVALUATION
-    )
-    orchestrator.generate_proposal.return_value = AIProposal[dict[str, Any]](
-        proposal_type=ProposalType.EVALUATION,
-        status=ProposalStatus.DRAFT,
-        prompt_metadata=meta,
-        context_used=ContextPayload(serialized_context=""),
-        data={"raw_content": draft_data.model_dump_json()},
+    orchestrator = AIOrchestrationService(
+        MockAIProvider(draft_data.model_dump_json()), IdentityContextStrategy()
     )
 
     service = EvaluationAIEngineeringService(orchestrator, assembler)

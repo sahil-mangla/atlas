@@ -117,4 +117,6 @@ class FilesystemEvaluationRepository(EvaluationRepository):
         try:
             self._evaluation_file(project_id).unlink(missing_ok=True)
         except OSError as e:
-            raise InvalidEvaluationException(f"Failed to remove evaluation data: {e}") from e
+            raise InvalidEvaluationException(
+                f"Failed to remove evaluation data: {e}"
+            ) from e

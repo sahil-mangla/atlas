@@ -26,10 +26,10 @@ The intelligence layer maps user instructions and domain context to strongly typ
                   │
         ┌─────────┴─────────┐
         ▼                   ▼
-ContextAssemblerService  AIOrchestrationService (Prompt & Strategy builder)
+ContextAssemblerService  AIEngineeringService
                             │
                             ▼
-                         AIProvider (Gemini Adapter)
+                 PromptRegistry → PromptExecutor → AIProvider (Gemini Adapter)
 ```
 
 ### 1. Workflow Orchestration
@@ -38,11 +38,12 @@ The `WorkflowOrchestrationService` coordinates the active phase. It does not per
 ### 2. AI Engineering Services
 The `AIEngineeringService` subclasses (e.g. `ResearchAIEngineeringService`) act as stateless coordinators. They:
 1. Fetch domain context using the `ContextAssemblerService`.
-2. Submit the context and prompts to the `AIOrchestrationService`.
-3. Map the raw JSON string content back to strongly typed Pydantic models (e.g. `PlanningProposalDraft`).
+2. Resolve a template from `PromptRegistry` by its draft class.
+3. Delegate provider execution and JSON/Pydantic validation to `PromptExecutor`.
+4. Construct the `AIProposal` around the resulting typed draft.
 
 ### 3. AI Orchestration
-The `AIOrchestrationService` builds prompt templates and applies context strategies (e.g. identity context mappings) to create `AIRequest` objects. It queries the `AIProvider` to receive raw, schema-enforced JSON content.
+`PromptExecutor` applies context strategies, builds a provider-independent `PromptDocument`, creates the `AIRequest`, invokes the provider, and validates its JSON into the requested draft type. `PromptRegistry` is immutable and resolves templates by draft class.
 
 ---
 

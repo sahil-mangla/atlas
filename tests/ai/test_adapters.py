@@ -1,7 +1,7 @@
-
 from engine.ai.adapters.gemini import GeminiAIProvider
 from engine.ai.provider import AIProvider
 from engine.domain.ai import AIRequest, AIResponse, ContextPayload, ProviderCapabilities
+from engine.domain.prompt_document import PromptDocument
 
 
 class MockAIProvider(AIProvider):
@@ -10,7 +10,7 @@ class MockAIProvider(AIProvider):
     def __init__(self, stubbed_response: str) -> None:
         self.stubbed_response = stubbed_response
 
-    def generate(self, request: AIRequest) -> AIResponse:
+    def generate(self, _request: AIRequest) -> AIResponse:
         return AIResponse(
             content=self.stubbed_response,
             usage_metrics={"prompt_tokens": 10},
@@ -31,7 +31,7 @@ class MockAIProvider(AIProvider):
 def test_mock_provider() -> None:
     provider = MockAIProvider(stubbed_response="Mocked Output")
     request = AIRequest(
-        prompt="Hi",
+        prompt=PromptDocument(system_prompt="System", context="", task="Hi"),
         context=ContextPayload(serialized_context=""),
     )
     resp = provider.generate(request)
@@ -41,10 +41,3 @@ def test_mock_provider() -> None:
 def test_gemini_provider() -> None:
     provider = GeminiAIProvider()
     assert provider.capabilities().context_window > 0
-    request = AIRequest(
-        prompt="Hi",
-        context=ContextPayload(serialized_context=""),
-    )
-    # Stub should return the stub message
-    resp = provider.generate(request)
-    assert "Gemini Stub Generated Content" in resp.content

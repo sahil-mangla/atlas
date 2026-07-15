@@ -9,16 +9,23 @@ from uuid import UUID
 
 from engine.ai.context import ContextStrategy
 from engine.ai.exceptions import InvalidContextException
-from engine.ai.prompts import PromptTemplate
-from engine.ai.provider import AIProvider
-from engine.architecture.repository import ArchitectureRepository
-from engine.domain.ai import (
-    AIGenerationParameters,
-    AIProposal,
-    AIRequest,
-    ContextPayload,
+from engine.ai.executor import PromptExecutor
+from engine.ai.prompts import (
+    ArchitecturePromptTemplate,
+    EvaluationPromptTemplate,
+    PlanningPromptTemplate,
+    ResearchPromptTemplate,
 )
-from engine.domain.enums import ProposalStatus
+from engine.ai.provider import AIProvider
+from engine.ai.registry import PromptRegistry
+from engine.architecture.repository import ArchitectureRepository
+from engine.domain.ai import ContextPayload
+from engine.domain.ai_drafts import (
+    ArchitectureProposalDraft,
+    EvaluationProposalDraft,
+    PlanningProposalDraft,
+    ResearchProposalDraft,
+)
 from engine.domain.metadata import ArtifactStatus
 from engine.evaluation.repository import EvaluationRepository
 from engine.memory.repository import MemoryRepository
@@ -27,7 +34,7 @@ from engine.research.repository import ResearchRepository
 
 
 class ContextAssemblerService:
-    """Collects and freezes approved domain snapshots into an immutable context payload."""
+    """Collect approved domain snapshots into an immutable context payload."""
 
     def __init__(
         self,
@@ -44,8 +51,7 @@ class ContextAssemblerService:
         self.memory_repo = memory_repo
 
     def assemble_context(self, project_id: UUID) -> ContextPayload:
-        """Query subsystems for their latest approved snapshots and stringify them."""
-        # For Stage 11, we stub the actual serialization logic but enforce the references.
+        """Query subsystems for their latest approved snapshots and serialize them."""
         research = self.research_repo.get_by_project_id(project_id)
         planning = self.planning_repo.get_by_project_id(project_id)
         architecture = self.architecture_repo.get_by_project_id(project_id)
@@ -70,13 +76,15 @@ class ContextAssemblerService:
         arch_snap_id = architecture_snapshot.metadata.id
         eval_snap_id = evaluation_snapshot.metadata.id if evaluation_snapshot else None
 
-        # Build a textual dump of the active context (mocked for now)
+        # Serialize fixed sections so prompts remain readable and deterministic.
         serialized = (
-            f"Project {project_id} Context:\n"
-            f"Research Snapshot: {research_snapshot.model_dump_json()}\n"
-            f"Planning Snapshot: {planning_snapshot.model_dump_json()}\n"
-            f"Architecture Snapshot: {architecture_snapshot.model_dump_json()}\n"
-            f"Evaluation Snapshot: {evaluation_snapshot.model_dump_json() if evaluation_snapshot else 'None'}\n"
+            f"# Engineering Context\n\n## Project\n{project_id}\n\n"
+            f"## Research\n{research_snapshot.model_dump_json(indent=2)}\n\n"
+            f"## Planning\n{planning_snapshot.model_dump_json(indent=2)}\n\n"
+            f"## Architecture\n{architecture_snapshot.model_dump_json(indent=2)}\n\n"
+            "## Evaluation\n"
+            f"{self._serialize_snapshot(evaluation_snapshot)}\n\n"
+            "## Engineering Memory\nNone\n"
         )
 
         return ContextPayload(
@@ -88,60 +96,22 @@ class ContextAssemblerService:
             serialized_context=serialized,
         )
 
+    @staticmethod
+    def _serialize_snapshot(snapshot: Any | None) -> str:
+        """Serialize an optional snapshot for a deterministic context section."""
+        return snapshot.model_dump_json(indent=2) if snapshot else "None"
+
 
 class AIOrchestrationService:
-    """Central engine that runs deterministic LLM prompts using a specific strategy.
-
-    Critically, this service has NO access to repository `.save()` methods. It can
-    only emit AIProposal objects.
-    """
+    """Expose the stateless prompt runtime to AI engineering services."""
 
     def __init__(self, provider: AIProvider, context_strategy: ContextStrategy) -> None:
-        self.provider = provider
-        self.context_strategy = context_strategy
-
-    def generate_proposal(
-        self,
-        template: PromptTemplate,
-        raw_context: ContextPayload,
-        user_instructions: str = "",
-    ) -> AIProposal[dict[str, Any]]:
-        """Generate a proposal.
-
-        Args:
-            template: The structured prompt template.
-            raw_context: The assembled deterministic context.
-            user_instructions: Optional user directions.
-
-        Returns:
-            A typed AIProposal holding the un-committed draft data.
-        """
-        # Apply the strategy (e.g. Identity compression)
-        processed_context = self.context_strategy.apply(raw_context)
-
-        # Build prompt
-        prompt = template.build(processed_context, user_instructions)
-
-        # Construct deterministic request
-        request = AIRequest(
-            prompt=prompt,
-            context=processed_context,
-            tools=[],  # Empty in Stage 11
-            response_schema=template.expected_schema,
-            parameters=AIGenerationParameters(),
-        )
-
-        # Invoke provider
-        response = self.provider.generate(request)
-
-        # For Stage 11, we stub the actual JSON parsing of `response.content`
-        # In reality, this would be json.loads() or similar.
-        parsed_data = {"raw_content": response.content}
-
-        return AIProposal[dict[str, Any]](
-            proposal_type=template.metadata.supported_subsystem,
-            status=ProposalStatus.DRAFT,
-            prompt_metadata=template.metadata,
-            context_used=processed_context,
-            data=parsed_data,
+        self.prompt_executor = PromptExecutor(provider, context_strategy)
+        self.prompt_registry = PromptRegistry(
+            {
+                ResearchProposalDraft: ResearchPromptTemplate(),
+                PlanningProposalDraft: PlanningPromptTemplate(),
+                ArchitectureProposalDraft: ArchitecturePromptTemplate(),
+                EvaluationProposalDraft: EvaluationPromptTemplate(),
+            }
         )

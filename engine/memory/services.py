@@ -53,7 +53,7 @@ class MemoryVersioningService:
 
         Returns:
             The newly added MemoryEntry.
-            
+
         Raises:
             MemoryNotFoundException: If the memory aggregate is not found.
             ValueError: If the old entry doesn't exist or is already superseded.
@@ -84,7 +84,7 @@ class MemoryRetrievalService:
 
         Returns:
             A list of active MemoryEntry instances.
-            
+
         Raises:
             MemoryNotFoundException: If the memory aggregate is not found.
         """
@@ -99,11 +99,11 @@ class MemoryRetrievalService:
         self, project_id: UUID, active_entry_id: UUID
     ) -> list[MemoryEntry]:
         """Retrieve the historical chain for a specific active entry.
-        
+
         Args:
             project_id: The UUID of the project.
             active_entry_id: The UUID of the current active entry.
-            
+
         Returns:
             A list of MemoryEntry instances representing the history,
             ordered newest to oldest.
@@ -155,10 +155,7 @@ class MemoryOrganizationService:
                 f"Memory for project {project_id} could not be found."
             )
 
-        return [
-            e for e in memory.get_active_entries()
-            if e.category == category
-        ]
+        return [e for e in memory.get_active_entries() if e.category == category]
 
     def filter_active_by_type(
         self, project_id: UUID, category: MemoryCategory, entry_type: str

@@ -10,10 +10,13 @@ from engine.domain.enums import FindingCategory, FindingSeverity
 # Research Draft Hierarchy
 # ==========================================
 
+
 class ResearchEvidenceDraft(BaseModel):
     title: str = Field(description="Title of the raw evidence.")
     type: str = Field(default="document", description="Type of evidence.")
-    origin: str = Field(default="AI Suggestion", description="Where the evidence came from.")
+    origin: str = Field(
+        default="AI Suggestion", description="Where the evidence came from."
+    )
     citation: str = Field(default="AI Generated", description="Source citation.")
     summary: str = Field(description="Summary of the evidence.")
 
@@ -28,7 +31,9 @@ class ResearchFindingDraft(BaseModel):
 
 
 class ResearchConstraintDraft(BaseModel):
-    description: str = Field(description="Technological or business constraint description.")
+    description: str = Field(
+        description="Technological or business constraint description."
+    )
     impact: str = Field(description="Determined impact of the constraint.")
     finding_indices: list[int] = Field(
         default_factory=list,
@@ -66,6 +71,7 @@ class ResearchProposalDraft(BaseModel):
 # Planning Draft Hierarchy
 # ==========================================
 
+
 class PlanningSubtaskDraft(BaseModel):
     title: str = Field(description="Subtask title.")
 
@@ -93,7 +99,9 @@ class PlanningProposalDraft(BaseModel):
     """Mirror of Planning aggregate components before freeze."""
 
     scope_statement: str = Field(description="Comprehensive project scope statement.")
-    deliverables: list[dict[str, str]] = Field(description="Key milestones deliverables.")
+    deliverables: list[dict[str, str]] = Field(
+        description="Key milestones deliverables."
+    )
     milestones: list[PlanningMilestoneDraft] = Field(default_factory=list)
 
 
@@ -101,8 +109,11 @@ class PlanningProposalDraft(BaseModel):
 # Architecture Draft Hierarchy
 # ==========================================
 
+
 class ArchitectureDriverDraft(BaseModel):
-    driver_type: str = Field(description="Type of driver (e.g. QUALITY_ATTRIBUTE, CONSTRAINT).")
+    driver_type: str = Field(
+        description="Type of driver (e.g. QUALITY_ATTRIBUTE, CONSTRAINT)."
+    )
     description: str = Field(description="Description of the driver.")
 
 
@@ -144,11 +155,14 @@ class ArchitectureProposalDraft(BaseModel):
 # Evaluation Draft Hierarchy
 # ==========================================
 
+
 class EvaluationFindingDraft(BaseModel):
     title: str = Field(description="Finding title.")
     summary: str = Field(description="Detailed finding summary.")
     severity: FindingSeverity = Field(description="Severity (e.g. BLOCKING, ADVISORY).")
-    category: FindingCategory = Field(description="Category (e.g. COMPLIANCE, QUALITY).")
+    category: FindingCategory = Field(
+        description="Category (e.g. COMPLIANCE, QUALITY)."
+    )
 
 
 class EvaluationProposalDraft(BaseModel):
@@ -162,11 +176,16 @@ class EvaluationProposalDraft(BaseModel):
 # Commit Results
 # ==========================================
 
+
 class CommitResult(BaseModel):
     """Model returning the outcome of a proposal commit."""
 
     success: bool = Field(description="True if the proposal commit succeeded.")
-    errors: list[str] = Field(default_factory=list, description="Commit validation or rollback errors.")
-    committed_snapshot_id: UUID | None = Field(default=None, description="Frozen snapshot ID if generated.")
+    errors: list[str] = Field(
+        default_factory=list, description="Commit validation or rollback errors."
+    )
+    committed_snapshot_id: UUID | None = Field(
+        default=None, description="Frozen snapshot ID if generated."
+    )
     transition_blocked: bool = Field(default=False)
     transition_errors: list[str] = Field(default_factory=list)

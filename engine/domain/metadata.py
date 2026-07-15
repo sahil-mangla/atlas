@@ -18,7 +18,7 @@ class ArtifactStatus(StrEnum):
 
 class ArtifactMetadata(BaseModel):
     """Shared metadata composed within every canonical engineering artifact.
-    
+
     Provides standardized identity, versioning, and provenance tracking
     without forcing deep inheritance hierarchies.
     """

@@ -96,7 +96,9 @@ class ScopePlanningService:
         _ensure_mutable(planning)
 
         eng_deliverables = [
-            EngineeringDeliverable(title=d["title"], description=d.get("description", ""))
+            EngineeringDeliverable(
+                title=d["title"], description=d.get("description", "")
+            )
             for d in deliverables
         ]
         scope = ScopeDefinition(statement=statement, deliverables=eng_deliverables)
@@ -311,12 +313,7 @@ class DependencyPlanningService:
             raise InvalidPlanningOperationException("Dependent item not found.")
 
         # Ensure that depends_on_id actually exists in the graph globally
-        all_ids = {
-            t.id
-            for m in planning.milestones
-            for e in m.epics
-            for t in e.tasks
-        }
+        all_ids = {t.id for m in planning.milestones for e in m.epics for t in e.tasks}
         all_ids.update(
             st.id
             for m in planning.milestones
@@ -361,9 +358,7 @@ class PlanningSummaryService:
                 "Cannot freeze without a scope definition."
             )
 
-        total_tasks = sum(
-            len(e.tasks) for m in planning.milestones for e in m.epics
-        )
+        total_tasks = sum(len(e.tasks) for m in planning.milestones for e in m.epics)
         summary = PlanningSummary(
             synthesis=synthesis,
             total_milestones=len(planning.milestones),

@@ -28,9 +28,7 @@ class WorkflowHistoryEntry(BaseModel):
     previous_stage: WorkflowStage | None = Field(
         description="The stage before the transition, or None if initializing."
     )
-    new_stage: WorkflowStage = Field(
-        description="The stage transitioned to."
-    )
+    new_stage: WorkflowStage = Field(description="The stage transitioned to.")
     timestamp: datetime = Field(
         default_factory=lambda: datetime.now(UTC),
         description="When the transition occurred (timezone-aware UTC).",
@@ -151,6 +149,7 @@ class Workflow(BaseModel):
 
         # Pending: stages not yet completed and not the current active stage.
         self.pending_stages = [
-            s for s in stages
+            s
+            for s in stages
             if s not in self.completed_stages and s != self.current_stage
         ]

@@ -13,7 +13,7 @@ from engine.project.repository import ProjectRepository
 
 class FilesystemMemoryRepository(MemoryRepository):
     """Filesystem-backed implementation of MemoryRepository.
-    
+
     Stores memory as JSON files within the project's .atlas/ directory.
     """
 

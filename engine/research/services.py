@@ -38,9 +38,7 @@ class ResearchInitializationService:
                 f"Research already exists for project {project_id}."
             )
 
-        problem = ProblemDefinition(
-            statement=problem_statement, objectives=objectives
-        )
+        problem = ProblemDefinition(statement=problem_statement, objectives=objectives)
         research = Research(
             project_id=project_id,
             status=ResearchStatus.DRAFT,
@@ -225,9 +223,7 @@ class ResearchSummaryService:
                 "Cannot freeze snapshot without a problem definition."
             )
 
-        summary = ResearchSummary(
-            synthesis=synthesis, key_takeaways=key_takeaways
-        )
+        summary = ResearchSummary(synthesis=synthesis, key_takeaways=key_takeaways)
         next_version = len(research.snapshots) + 1
 
         snapshot = ResearchSnapshot(

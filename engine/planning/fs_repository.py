@@ -119,4 +119,6 @@ class FilesystemPlanningRepository(PlanningRepository):
         try:
             self._planning_file(project_id).unlink(missing_ok=True)
         except OSError as e:
-            raise InvalidPlanningException(f"Failed to remove planning data: {e}") from e
+            raise InvalidPlanningException(
+                f"Failed to remove planning data: {e}"
+            ) from e

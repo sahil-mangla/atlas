@@ -14,7 +14,9 @@ from engine.project.fs_repository import FilesystemProjectRepository
 
 
 @pytest.fixture
-def repos(tmp_path: Path) -> tuple[FilesystemProjectRepository, FilesystemEvaluationRepository]:
+def repos(
+    tmp_path: Path,
+) -> tuple[FilesystemProjectRepository, FilesystemEvaluationRepository]:
     """Provide a filesystem project repo and evaluation repository."""
     project_repo = FilesystemProjectRepository(tmp_path)
     evaluation_repo = FilesystemEvaluationRepository(project_repo)
@@ -22,7 +24,7 @@ def repos(tmp_path: Path) -> tuple[FilesystemProjectRepository, FilesystemEvalua
 
 
 def test_repository_save_and_get(
-    repos: tuple[FilesystemProjectRepository, FilesystemEvaluationRepository]
+    repos: tuple[FilesystemProjectRepository, FilesystemEvaluationRepository],
 ) -> None:
     project_repo, evaluation_repo = repos
 
@@ -54,7 +56,7 @@ def test_repository_save_and_get(
 
 
 def test_repository_get_nonexistent(
-    repos: tuple[FilesystemProjectRepository, FilesystemEvaluationRepository]
+    repos: tuple[FilesystemProjectRepository, FilesystemEvaluationRepository],
 ) -> None:
     _, evaluation_repo = repos
     # Project unregistered
@@ -62,7 +64,7 @@ def test_repository_get_nonexistent(
 
 
 def test_repository_save_unregistered_project(
-    repos: tuple[FilesystemProjectRepository, FilesystemEvaluationRepository]
+    repos: tuple[FilesystemProjectRepository, FilesystemEvaluationRepository],
 ) -> None:
     _, evaluation_repo = repos
     eval_obj = Evaluation(
@@ -77,7 +79,7 @@ def test_repository_save_unregistered_project(
 
 
 def test_repository_corrupt_file(
-    repos: tuple[FilesystemProjectRepository, FilesystemEvaluationRepository]
+    repos: tuple[FilesystemProjectRepository, FilesystemEvaluationRepository],
 ) -> None:
     project_repo, evaluation_repo = repos
 

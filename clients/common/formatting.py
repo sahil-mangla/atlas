@@ -20,6 +20,7 @@ from typing import Any
 # Table
 # ---------------------------------------------------------------------------
 
+
 def render_table(
     headers: Sequence[str],
     rows: Sequence[Sequence[Any]],
@@ -59,6 +60,7 @@ def render_table(
 # Lists
 # ---------------------------------------------------------------------------
 
+
 def render_list(items: Sequence[Any], *, bullet: str = "•") -> str:
     """Render an unordered list.
 
@@ -92,6 +94,7 @@ def render_ordered_list(items: Sequence[Any]) -> str:
 # Key-value pairs
 # ---------------------------------------------------------------------------
 
+
 def render_key_value(pairs: dict[str, Any], *, separator: str = ": ") -> str:
     """Render a dictionary as aligned key-value pairs.
 
@@ -105,14 +108,13 @@ def render_key_value(pairs: dict[str, Any], *, separator: str = ": ") -> str:
     if not pairs:
         return "(empty)"
     max_key = max(len(k) for k in pairs)
-    return "\n".join(
-        f"{k.ljust(max_key)}{separator}{v}" for k, v in pairs.items()
-    )
+    return "\n".join(f"{k.ljust(max_key)}{separator}{v}" for k, v in pairs.items())
 
 
 # ---------------------------------------------------------------------------
 # Markdown block
 # ---------------------------------------------------------------------------
+
 
 def render_markdown_block(content: str, *, width: int = 80) -> str:
     """Wrap and clean a markdown content block for terminal display.
@@ -139,6 +141,7 @@ def render_markdown_block(content: str, *, width: int = 80) -> str:
 # ---------------------------------------------------------------------------
 # Tree
 # ---------------------------------------------------------------------------
+
 
 def render_tree(
     node: str,
@@ -182,6 +185,7 @@ def render_tree(
 # ---------------------------------------------------------------------------
 # Truncation
 # ---------------------------------------------------------------------------
+
 
 def truncate(text: str, max_length: int, *, ellipsis: str = "…") -> str:
     """Truncate text to a maximum length with an ellipsis suffix.

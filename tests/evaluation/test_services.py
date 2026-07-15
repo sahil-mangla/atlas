@@ -114,7 +114,9 @@ def setup_context(tmp_path: Path) -> dict[str, Any]:
 
     r_snap = ResearchSnapshot(
         metadata=ArtifactMetadata(id=res_snap_id, version=1),
-        problem_definition=ProblemDefinition(statement="Problem statement", objectives=["Obj 1"]),
+        problem_definition=ProblemDefinition(
+            statement="Problem statement", objectives=["Obj 1"]
+        ),
         research_sources=[],
         evidence=[evidence],
         findings=[finding],
@@ -122,7 +124,9 @@ def setup_context(tmp_path: Path) -> dict[str, Any]:
         assumptions=[res_assumption],
         opportunities=[],
         open_questions=[],
-        summary=ResearchSummary(synthesis="Research synthesized", key_takeaways=["Takeaway 1"]),
+        summary=ResearchSummary(
+            synthesis="Research synthesized", key_takeaways=["Takeaway 1"]
+        ),
         confidence=0.9,
     )
     research.snapshots.append(r_snap)
@@ -145,7 +149,9 @@ def setup_context(tmp_path: Path) -> dict[str, Any]:
         research_snapshot_id=res_snap_id,
         scope_definition=scope,
         milestones=[milestone],
-        summary=PlanningSummary(synthesis="Planning complete", total_milestones=1, total_tasks=1),
+        summary=PlanningSummary(
+            synthesis="Planning complete", total_milestones=1, total_tasks=1
+        ),
     )
     planning.snapshots.append(p_snap)
     planning_repo.save(planning)
@@ -227,7 +233,9 @@ def setup_context(tmp_path: Path) -> dict[str, Any]:
         constraints=[arch_constraint],
         assumptions=[],
         quality_attributes=[qa],
-        summary=ArchitectureSummary(synthesis="Synth", total_components=1, total_adrs=1, total_risks=1),
+        summary=ArchitectureSummary(
+            synthesis="Synth", total_components=1, total_adrs=1, total_risks=1
+        ),
     )
     architecture.drivers.append(driver)
     architecture.snapshots.append(a_snap)
@@ -380,7 +388,9 @@ def test_evaluation_subservices(setup_context: dict[str, Any]) -> None:
 
     # 7. Submit for review & freeze
     summary_svc.submit_for_review(ctx["project_id"])
-    snapshot = summary_svc.freeze_snapshot(ctx["project_id"], "Successful design evaluation pass")
+    snapshot = summary_svc.freeze_snapshot(
+        ctx["project_id"], "Successful design evaluation pass"
+    )
 
     eval_obj = evaluation_repo.get_by_project_id(ctx["project_id"])
     assert eval_obj is not None

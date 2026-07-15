@@ -34,15 +34,17 @@ def test_render_project() -> None:
 
 def test_render_project_list() -> None:
     renderer = CLIRenderer()
-    res = ProjectListResult(projects=[
-        ProjectResult(
-            id=uuid.uuid4(),
-            name="P1",
-            description="D1",
-            objective="O1",
-            status=ProjectStatus.ACTIVE,
-        )
-    ])
+    res = ProjectListResult(
+        projects=[
+            ProjectResult(
+                id=uuid.uuid4(),
+                name="P1",
+                description="D1",
+                objective="O1",
+                status=ProjectStatus.ACTIVE,
+            )
+        ]
+    )
     out = renderer.render_project_list(res)
     assert "Projects" in out
     assert "P1" in out

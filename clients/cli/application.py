@@ -173,6 +173,7 @@ class CLIApplication:
 # Internal helpers
 # ---------------------------------------------------------------------------
 
+
 def _terminal_width() -> int:
     """Return the current terminal width, defaulting to 80.
 
@@ -181,6 +182,7 @@ def _terminal_width() -> int:
     """
     try:
         import shutil  # noqa: PLC0415
+
         return shutil.get_terminal_size().columns
     except Exception:
         return 80
@@ -189,6 +191,7 @@ def _terminal_width() -> int:
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
+
 
 def main(argv: list[str] | None = None) -> None:
     """CLI entry point.

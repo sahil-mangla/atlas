@@ -97,7 +97,9 @@ def setup_context(tmp_path: Path) -> dict[str, Any]:
 
     r_snapshot = ResearchSnapshot(
         metadata=ArtifactMetadata(id=research_snapshot_id, version=1),
-        problem_definition=ProblemDefinition(statement="Problem statement", objectives=["Obj 1"]),
+        problem_definition=ProblemDefinition(
+            statement="Problem statement", objectives=["Obj 1"]
+        ),
         research_sources=[],
         evidence=[evidence],
         findings=[finding],
@@ -105,7 +107,9 @@ def setup_context(tmp_path: Path) -> dict[str, Any]:
         assumptions=[res_assumption],
         opportunities=[],
         open_questions=[],
-        summary=ResearchSummary(synthesis="Research synthesized", key_takeaways=["Takeaway 1"]),
+        summary=ResearchSummary(
+            synthesis="Research synthesized", key_takeaways=["Takeaway 1"]
+        ),
         confidence=0.9,
     )
     research.snapshots.append(r_snapshot)
@@ -128,7 +132,9 @@ def setup_context(tmp_path: Path) -> dict[str, Any]:
         research_snapshot_id=research_snapshot_id,
         scope_definition=scope,
         milestones=[milestone],
-        summary=PlanningSummary(synthesis="Planning complete", total_milestones=1, total_tasks=1),
+        summary=PlanningSummary(
+            synthesis="Planning complete", total_milestones=1, total_tasks=1
+        ),
     )
     planning.snapshots.append(p_snapshot)
     planning_repo.save(planning)
@@ -224,7 +230,9 @@ def test_composition_service(setup_context: dict[str, Any]) -> None:
     assert arch is not None
     assert len(arch.constraints) == 1
     assert arch.constraints[0].description == "Must run in docker"
-    assert arch.constraints[0].related_research_constraint_id == ctx["res_constraint_id"]
+    assert (
+        arch.constraints[0].related_research_constraint_id == ctx["res_constraint_id"]
+    )
 
     # Invalid research constraint ID raises error
     with pytest.raises(InvalidArchitectureOperationException):
@@ -246,7 +254,9 @@ def test_composition_service(setup_context: dict[str, Any]) -> None:
     assert arch is not None
     assert len(arch.assumptions) == 1
     assert arch.assumptions[0].description == "DB is local"
-    assert arch.assumptions[0].related_research_assumption_id == ctx["res_assumption_id"]
+    assert (
+        arch.assumptions[0].related_research_assumption_id == ctx["res_assumption_id"]
+    )
 
     # Invalid research assumption ID raises error
     with pytest.raises(InvalidArchitectureOperationException):
@@ -589,7 +599,9 @@ def test_summary_and_snapshot_lifecycle(setup_context: dict[str, Any]) -> None:
     adr = adr_svc.add_adr(ctx["project_id"], "ADR-1", "ctx", "prob", "dec", "rat")
 
     risk_svc = RiskAnalysisService(architecture_repo)
-    risk = risk_svc.register_risk(ctx["project_id"], "R1", "low", "low", "low", "mit", "own")
+    risk = risk_svc.register_risk(
+        ctx["project_id"], "R1", "low", "low", "low", "mit", "own"
+    )
 
     summary_svc = ArchitectureSummaryService(
         architecture_repo,

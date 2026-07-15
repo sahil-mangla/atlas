@@ -18,7 +18,8 @@ graph TD
 
     subgraph Stateless AI Integration Layer
         CA[Context Assembler Service]
-        Orch[AI Orchestration Service]
+        Executor[Prompt Executor]
+        Registry[Prompt Registry]
         Prompt[Prompt Template]
         Provider[AI Provider Adapter]
         Model[External LLM / Gemini]
@@ -28,13 +29,15 @@ graph TD
     WO -->|Requests context| CA
     CA -->|Reads Approved Snapshots| Repo
     CA -->|Compiles| Context[ContextPayload]:::safety
-    WO -->|Invokes| Orch
-    Orch -->|Injects Context & Template| Prompt
-    Orch -->|Submits stateless AIRequest| Provider
+    WO -->|Invokes| Executor
+    Executor -->|Resolves Template| Registry
+    Registry --> Prompt
+    Executor -->|Injects Context & Template| Prompt
+    Executor -->|Submits stateless AIRequest| Provider
     Provider -->|Queries API| Model
     Model -->|Returns JSON| Provider
-    Provider -->|Translates to AIResponse| Orch
-    Orch -->|Emits stateless AIProposal| WO
+    Provider -->|Translates to AIResponse| Executor
+    Executor -->|Returns typed draft| WO
     
     WO -->|Review Gate| User
     

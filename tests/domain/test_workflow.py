@@ -45,6 +45,7 @@ def test_workflow_record_transition() -> None:
 # S-01: Timestamp consistency — P-03: Backward transition accounting
 # ---------------------------------------------------------------------------
 
+
 def test_workflow_history_entry_timestamp_is_utc_aware() -> None:
     """S-01: WorkflowHistoryEntry.timestamp must be timezone-aware UTC."""
     entry = WorkflowHistoryEntry(
@@ -121,16 +122,18 @@ def test_workflow_forward_then_backward_then_forward_again() -> None:
     workflow = Workflow(project_id=uuid4())
 
     def _transition(prev: WorkflowStage, nxt: WorkflowStage) -> None:
-        workflow.record_transition(WorkflowHistoryEntry(
-            previous_stage=prev,
-            new_stage=nxt,
-            approval_status=ApprovalStatus.APPROVED,
-            reason="test",
-        ))
+        workflow.record_transition(
+            WorkflowHistoryEntry(
+                previous_stage=prev,
+                new_stage=nxt,
+                approval_status=ApprovalStatus.APPROVED,
+                reason="test",
+            )
+        )
 
-    _transition(WorkflowStage.IDEA, WorkflowStage.RESEARCH)        # forward
-    _transition(WorkflowStage.RESEARCH, WorkflowStage.IDEA)        # backward
-    _transition(WorkflowStage.IDEA, WorkflowStage.RESEARCH)        # forward again
+    _transition(WorkflowStage.IDEA, WorkflowStage.RESEARCH)  # forward
+    _transition(WorkflowStage.RESEARCH, WorkflowStage.IDEA)  # backward
+    _transition(WorkflowStage.IDEA, WorkflowStage.RESEARCH)  # forward again
 
     # After second forward IDEA→RESEARCH:
     # IDEA should be in completed_stages exactly once

@@ -119,4 +119,6 @@ class FilesystemResearchRepository(ResearchRepository):
         try:
             self._research_file(project_id).unlink(missing_ok=True)
         except OSError as e:
-            raise InvalidResearchException(f"Failed to remove research data: {e}") from e
+            raise InvalidResearchException(
+                f"Failed to remove research data: {e}"
+            ) from e

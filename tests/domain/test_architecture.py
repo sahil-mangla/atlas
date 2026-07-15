@@ -49,7 +49,11 @@ def test_architecture_driver() -> None:
 
 def test_architecture_component() -> None:
     contract = InterfaceContract(
-        name="API", description="d", protocol="REST", input_schema="in", output_schema="out"
+        name="API",
+        description="d",
+        protocol="REST",
+        input_schema="in",
+        output_schema="out",
     )
     adr_id = uuid4()
     risk_id = uuid4()

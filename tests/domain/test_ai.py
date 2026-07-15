@@ -9,10 +9,13 @@ from engine.domain.ai import (
     PromptTemplateMetadata,
 )
 from engine.domain.enums import ProposalStatus, ProposalType
+from engine.domain.prompt_document import PromptDocument
 
 
 def test_ai_tool_schema() -> None:
-    schema = AIToolSchema(name="search", description="Search tool", parameters={"type": "object"})
+    schema = AIToolSchema(
+        name="search", description="Search tool", parameters={"type": "object"}
+    )
     assert schema.name == "search"
     assert schema.description == "Search tool"
 
@@ -20,11 +23,11 @@ def test_ai_tool_schema() -> None:
 def test_ai_request_response() -> None:
     context = ContextPayload(serialized_context="abc")
     request = AIRequest(
-        prompt="hello",
+        prompt=PromptDocument(system_prompt="System", context="abc", task="hello"),
         context=context,
         response_schema={"type": "string"},
     )
-    assert request.prompt == "hello"
+    assert request.prompt.task == "hello"
 
     response = AIResponse(content="world", finish_reason="stop")
     assert response.content == "world"

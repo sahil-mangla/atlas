@@ -257,9 +257,7 @@ class ArchitectureSummary(BaseModel):
     """Synthesis of the technical architecture definition."""
 
     synthesis: str = Field(description="Overall synthesis of the architecture.")
-    total_components: int = Field(
-        default=0, description="Total components defined."
-    )
+    total_components: int = Field(default=0, description="Total components defined.")
     total_adrs: int = Field(default=0, description="Total ADRs recorded.")
     total_risks: int = Field(default=0, description="Total risks registered.")
 
@@ -277,9 +275,7 @@ class ArchitectureSnapshot(BaseModel):
     research_snapshot_id: UUID = Field(
         description="Approved ResearchSnapshot used as baseline."
     )
-    drivers: list[ArchitectureDriver] = Field(
-        description="Architecture drivers."
-    )
+    drivers: list[ArchitectureDriver] = Field(description="Architecture drivers.")
     components: list[ArchitectureComponent] = Field(
         description="Architecture components."
     )

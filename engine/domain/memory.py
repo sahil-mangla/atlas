@@ -98,11 +98,11 @@ class Memory(BaseModel):
 
     def version_entry(self, old_entry_id: UUID, new_entry: MemoryEntry) -> None:
         """Version an entry by marking the old as superseded and linking the new.
-        
+
         Args:
             old_entry_id: The UUID of the entry being superseded.
             new_entry: The new MemoryEntry replacing it.
-            
+
         Raises:
             ValueError: If old_entry_id is not found, or if it is already superseded.
         """

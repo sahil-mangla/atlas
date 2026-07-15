@@ -11,6 +11,7 @@ from engine.domain.ai_drafts import (
     ResearchProposalDraft,
 )
 from engine.domain.enums import ProposalType
+from engine.domain.prompt_document import PromptDocument
 
 
 class PromptTemplate(ABC):
@@ -29,7 +30,9 @@ class PromptTemplate(ABC):
         pass
 
     @abstractmethod
-    def build(self, context: ContextPayload, user_instructions: str = "") -> str:
+    def build(
+        self, context: ContextPayload, user_instructions: str = ""
+    ) -> PromptDocument:
         """Assemble the complete prompt payload.
 
         Args:
@@ -37,7 +40,7 @@ class PromptTemplate(ABC):
             user_instructions: Optional specific directions from the user.
 
         Returns:
-            The raw text prompt to be submitted to the AIProvider.
+            A structured, provider-independent prompt document.
         """
         pass
 
@@ -59,11 +62,19 @@ class ResearchPromptTemplate(PromptTemplate):
     def expected_schema(self) -> dict[str, Any] | None:
         return ResearchProposalDraft.model_json_schema()
 
-    def build(self, context: ContextPayload, user_instructions: str = "") -> str:
-        return (
-            "You are acting as a Principal Engineer doing Research.\n"
-            f"Context: {context.serialized_context}\n"
-            f"Instructions: {user_instructions}\n"
+    def build(
+        self, context: ContextPayload, user_instructions: str = ""
+    ) -> PromptDocument:
+        return PromptDocument(
+            system_prompt=(
+                "You are a Principal Engineer producing a research proposal. "
+                "Return only JSON that conforms to the supplied schema."
+            ),
+            context=context.serialized_context,
+            task=(
+                "Produce a research proposal using this JSON schema:\n"
+                f"{self.expected_schema}\n\nUser instructions: {user_instructions}"
+            ),
         )
 
 
@@ -84,11 +95,19 @@ class PlanningPromptTemplate(PromptTemplate):
     def expected_schema(self) -> dict[str, Any] | None:
         return PlanningProposalDraft.model_json_schema()
 
-    def build(self, context: ContextPayload, user_instructions: str = "") -> str:
-        return (
-            "You are acting as a Principal Engineer writing a Plan.\n"
-            f"Context: {context.serialized_context}\n"
-            f"Instructions: {user_instructions}\n"
+    def build(
+        self, context: ContextPayload, user_instructions: str = ""
+    ) -> PromptDocument:
+        return PromptDocument(
+            system_prompt=(
+                "You are a Principal Engineer producing an implementation plan. "
+                "Return only JSON that conforms to the supplied schema."
+            ),
+            context=context.serialized_context,
+            task=(
+                "Produce a planning proposal using this JSON schema:\n"
+                f"{self.expected_schema}\n\nUser instructions: {user_instructions}"
+            ),
         )
 
 
@@ -109,11 +128,19 @@ class ArchitecturePromptTemplate(PromptTemplate):
     def expected_schema(self) -> dict[str, Any] | None:
         return ArchitectureProposalDraft.model_json_schema()
 
-    def build(self, context: ContextPayload, user_instructions: str = "") -> str:
-        return (
-            "You are acting as a Principal Engineer defining Architecture.\n"
-            f"Context: {context.serialized_context}\n"
-            f"Instructions: {user_instructions}\n"
+    def build(
+        self, context: ContextPayload, user_instructions: str = ""
+    ) -> PromptDocument:
+        return PromptDocument(
+            system_prompt=(
+                "You are a Principal Engineer producing an architecture proposal. "
+                "Return only JSON that conforms to the supplied schema."
+            ),
+            context=context.serialized_context,
+            task=(
+                "Produce an architecture proposal using this JSON schema:\n"
+                f"{self.expected_schema}\n\nUser instructions: {user_instructions}"
+            ),
         )
 
 
@@ -134,11 +161,19 @@ class EvaluationPromptTemplate(PromptTemplate):
     def expected_schema(self) -> dict[str, Any] | None:
         return EvaluationProposalDraft.model_json_schema()
 
-    def build(self, context: ContextPayload, user_instructions: str = "") -> str:
-        return (
-            "You are acting as a Principal Engineer evaluating design against constraints.\n"
-            f"Context: {context.serialized_context}\n"
-            f"Instructions: {user_instructions}\n"
+    def build(
+        self, context: ContextPayload, user_instructions: str = ""
+    ) -> PromptDocument:
+        return PromptDocument(
+            system_prompt=(
+                "You are a Principal Engineer evaluating engineering readiness. "
+                "Return only JSON that conforms to the supplied schema."
+            ),
+            context=context.serialized_context,
+            task=(
+                "Produce an evaluation proposal using this JSON schema:\n"
+                f"{self.expected_schema}\n\nUser instructions: {user_instructions}"
+            ),
         )
 
 
@@ -159,9 +194,16 @@ class SummaryPromptTemplate(PromptTemplate):
     def expected_schema(self) -> dict[str, Any] | None:
         return {"type": "object", "properties": {"summary": {"type": "string"}}}
 
-    def build(self, context: ContextPayload, user_instructions: str = "") -> str:
-        return (
-            "Summarize the provided context into an engineering memory.\n"
-            f"Context: {context.serialized_context}\n"
-            f"Instructions: {user_instructions}\n"
+    def build(
+        self, context: ContextPayload, user_instructions: str = ""
+    ) -> PromptDocument:
+        return PromptDocument(
+            system_prompt=(
+                "Summarize engineering context. Return only JSON matching the schema."
+            ),
+            context=context.serialized_context,
+            task=(
+                f"Schema: {self.expected_schema}\n\n"
+                f"User instructions: {user_instructions}"
+            ),
         )

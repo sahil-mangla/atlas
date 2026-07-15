@@ -71,7 +71,9 @@ def test_generate_proposal_delegation() -> None:
     proposal = AIProposal[ResearchProposalDraft](
         proposal_type=ProposalType.RESEARCH,
         status=ProposalStatus.DRAFT,
-        prompt_metadata=PromptTemplateMetadata(version=1, supported_subsystem=ProposalType.RESEARCH),
+        prompt_metadata=PromptTemplateMetadata(
+            version=1, supported_subsystem=ProposalType.RESEARCH
+        ),
         context_used=ContextPayload(serialized_context=""),
         data=ResearchProposalDraft(problem_statement="Test", objectives=[]),
     )
@@ -114,7 +116,9 @@ def test_process_rejection_flow() -> None:
     proposal = AIProposal[ResearchProposalDraft](
         proposal_type=ProposalType.RESEARCH,
         status=ProposalStatus.PENDING_REVIEW,
-        prompt_metadata=PromptTemplateMetadata(version=1, supported_subsystem=ProposalType.RESEARCH),
+        prompt_metadata=PromptTemplateMetadata(
+            version=1, supported_subsystem=ProposalType.RESEARCH
+        ),
         context_used=ContextPayload(serialized_context=""),
         data=ResearchProposalDraft(problem_statement="Test", objectives=[]),
     )
@@ -169,7 +173,9 @@ def test_process_approval_readiness_block() -> None:
     proposal = AIProposal[ResearchProposalDraft](
         proposal_type=ProposalType.RESEARCH,
         status=ProposalStatus.PENDING_REVIEW,
-        prompt_metadata=PromptTemplateMetadata(version=1, supported_subsystem=ProposalType.RESEARCH),
+        prompt_metadata=PromptTemplateMetadata(
+            version=1, supported_subsystem=ProposalType.RESEARCH
+        ),
         context_used=ContextPayload(serialized_context=""),
         data=ResearchProposalDraft(problem_statement="Test", objectives=[]),
     )
@@ -221,7 +227,9 @@ def test_process_approval_success_transition() -> None:
     proposal = AIProposal[ResearchProposalDraft](
         proposal_type=ProposalType.RESEARCH,
         status=ProposalStatus.PENDING_REVIEW,
-        prompt_metadata=PromptTemplateMetadata(version=1, supported_subsystem=ProposalType.RESEARCH),
+        prompt_metadata=PromptTemplateMetadata(
+            version=1, supported_subsystem=ProposalType.RESEARCH
+        ),
         context_used=ContextPayload(serialized_context=""),
         data=ResearchProposalDraft(problem_statement="Test", objectives=[]),
     )

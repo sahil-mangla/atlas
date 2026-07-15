@@ -5,6 +5,7 @@ description = "ATLAS is an AI-native engineering operating system that transform
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "google-genai>=1.0.0",
     "pydantic>=2.7.0",
     "pydantic-settings>=2.2.0",
 ]

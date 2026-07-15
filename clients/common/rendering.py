@@ -15,6 +15,7 @@ from dataclasses import dataclass
 # Render context
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class RenderContext:
     """Immutable rendering preferences for a specific adapter execution.
@@ -36,7 +37,10 @@ class RenderContext:
 # Shared output helpers
 # ---------------------------------------------------------------------------
 
-def render_heading(title: str, *, level: int = 1, width: int = 80, use_unicode: bool = True) -> str:  # noqa: E501
+
+def render_heading(
+    title: str, *, level: int = 1, width: int = 80, use_unicode: bool = True
+) -> str:  # noqa: E501
     """Render a section heading.
 
     Args:
@@ -57,7 +61,9 @@ def render_heading(title: str, *, level: int = 1, width: int = 80, use_unicode: 
     return f"{prefix} {title}"
 
 
-def render_divider(*, char: str | None = None, width: int = 80, use_unicode: bool = True) -> str:  # noqa: E501
+def render_divider(
+    *, char: str | None = None, width: int = 80, use_unicode: bool = True
+) -> str:  # noqa: E501
     """Render a horizontal divider.
 
     Args:
@@ -73,7 +79,9 @@ def render_divider(*, char: str | None = None, width: int = 80, use_unicode: boo
     return char * width
 
 
-def render_section(title: str, body: str, *, width: int = 80, use_unicode: bool = True) -> str:  # noqa: E501
+def render_section(
+    title: str, body: str, *, width: int = 80, use_unicode: bool = True
+) -> str:  # noqa: E501
     """Render a labeled section with a sub-heading and body.
 
     Args:

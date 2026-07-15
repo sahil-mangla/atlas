@@ -17,6 +17,7 @@ from typing import ClassVar
 # Progress bar
 # ---------------------------------------------------------------------------
 
+
 def render_progress_bar(  # noqa: PLR0913
     current: int,
     total: int,
@@ -57,6 +58,7 @@ def render_progress_bar(  # noqa: PLR0913
 # ---------------------------------------------------------------------------
 # Step tracker
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class ProgressTracker:
@@ -116,6 +118,7 @@ class ProgressTracker:
 # ---------------------------------------------------------------------------
 # Spinner
 # ---------------------------------------------------------------------------
+
 
 class Spinner:
     """Provides spinner frames for animated terminal progress.

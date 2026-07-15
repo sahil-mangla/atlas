@@ -46,6 +46,7 @@ class CLIParseError(ValueError):
 # Parser
 # ---------------------------------------------------------------------------
 
+
 class CommandParser:
     """Translate a flat argv token list into a typed Atlas Command DTO.
 
@@ -75,9 +76,7 @@ class CommandParser:
             CLIParseError: When tokens cannot be resolved.
         """
         if not argv:
-            raise CLIParseError(
-                "No command given. Run 'atlas help' for usage."
-            )
+            raise CLIParseError("No command given. Run 'atlas help' for usage.")
 
         group = argv[0]
         dispatch: dict[str, Callable[[list[str]], Command]] = {
@@ -92,8 +91,7 @@ class CommandParser:
         handler = dispatch.get(group)
         if handler is None:
             raise CLIParseError(
-                f"Unknown command group '{group}'. "
-                "Run 'atlas help' for usage."
+                f"Unknown command group '{group}'. Run 'atlas help' for usage."
             )
         return handler(argv[1:])
 
@@ -119,15 +117,13 @@ class CommandParser:
         if sub == "archive":
             return self._project_archive(args)
         raise CLIParseError(
-            f"Unknown project sub-command '{sub}'. "
-            "Valid: create, load, list, archive."
+            f"Unknown project sub-command '{sub}'. Valid: create, load, list, archive."
         )
 
     def _parse_workflow(self, rest: list[str]) -> Command:
         if not rest:
             raise CLIParseError(
-                "Missing workflow sub-command. "
-                "Valid sub-commands: status, transition."
+                "Missing workflow sub-command. Valid sub-commands: status, transition."
             )
         sub = rest[0]
         args = rest[1:]
@@ -137,30 +133,25 @@ class CommandParser:
         if sub == "transition":
             return self._workflow_transition(args)
         raise CLIParseError(
-            f"Unknown workflow sub-command '{sub}'. "
-            "Valid: status, transition."
+            f"Unknown workflow sub-command '{sub}'. Valid: status, transition."
         )
 
     def _parse_stage(self, rest: list[str]) -> Command:
         if not rest:
             raise CLIParseError(
-                "Missing stage sub-command. "
-                "Valid sub-commands: execute."
+                "Missing stage sub-command. Valid sub-commands: execute."
             )
         sub = rest[0]
         args = rest[1:]
 
         if sub == "execute":
             return self._stage_execute(args)
-        raise CLIParseError(
-            f"Unknown stage sub-command '{sub}'. Valid: execute."
-        )
+        raise CLIParseError(f"Unknown stage sub-command '{sub}'. Valid: execute.")
 
     def _parse_proposal(self, rest: list[str]) -> Command:
         if not rest:
             raise CLIParseError(
-                "Missing proposal sub-command. "
-                "Valid sub-commands: approve, reject."
+                "Missing proposal sub-command. Valid sub-commands: approve, reject."
             )
         sub = rest[0]
         args = rest[1:]
@@ -176,10 +167,12 @@ class CommandParser:
     def _parse_version(self, _rest: list[str]) -> Command:
         # Sentinel command — CLIApplication handles display directly.
         from clients.cli.commands import VersionCommand  # noqa: PLC0415
+
         return VersionCommand()
 
     def _parse_help(self, _rest: list[str]) -> Command:
         from clients.cli.commands import HelpCommand  # noqa: PLC0415
+
         return HelpCommand()
 
     # ------------------------------------------------------------------
@@ -189,8 +182,9 @@ class CommandParser:
     @staticmethod
     def _project_create(args: list[str]) -> CreateProjectCommand:
         parsed = _parse_flags(
-            args, required=["--name", "--description", "--objective"],
-            optional=["--path"]
+            args,
+            required=["--name", "--description", "--objective"],
+            optional=["--path"],
         )
         return CreateProjectCommand(
             name=parsed["--name"],
@@ -273,6 +267,7 @@ class CommandParser:
 # Internal helpers
 # ---------------------------------------------------------------------------
 
+
 def _parse_flags(
     tokens: list[str],
     *,
@@ -311,9 +306,7 @@ def _parse_flags(
 
     missing = [f for f in required if f not in result]
     if missing:
-        raise CLIParseError(
-            f"Missing required flags: {', '.join(missing)}."
-        )
+        raise CLIParseError(f"Missing required flags: {', '.join(missing)}.")
     return result
 
 

@@ -7,7 +7,9 @@ from engine.domain.traceability import TraceabilityLink
 
 def test_traceability_link_creation() -> None:
     source_id = uuid4()
-    link = TraceabilityLink(source_id=source_id, description="Based on research finding.")
+    link = TraceabilityLink(
+        source_id=source_id, description="Based on research finding."
+    )
 
     assert link.source_id == source_id
     assert link.description == "Based on research finding."

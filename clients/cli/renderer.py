@@ -69,7 +69,11 @@ class CLIRenderer:
         Returns:
             Formatted project card string.
         """
-        heading = render_heading(result.name, width=self._ctx.terminal_width, use_unicode=self._ctx.use_unicode)  # noqa: E501
+        heading = render_heading(
+            result.name,
+            width=self._ctx.terminal_width,
+            use_unicode=self._ctx.use_unicode,
+        )  # noqa: E501
         pairs: dict[str, Any] = {
             "ID": str(result.id),
             "Status": result.status.value,
@@ -90,7 +94,11 @@ class CLIRenderer:
         """
         if not result.projects:
             return "No projects found."
-        heading = render_heading("Projects", width=self._ctx.terminal_width, use_unicode=self._ctx.use_unicode)  # noqa: E501
+        heading = render_heading(
+            "Projects",
+            width=self._ctx.terminal_width,
+            use_unicode=self._ctx.use_unicode,
+        )  # noqa: E501
         rows = [
             [
                 str(p.id)[:8] + "…",
@@ -120,7 +128,9 @@ class CLIRenderer:
             Formatted workflow status string.
         """
         heading = render_heading(
-            "Workflow Status", width=self._ctx.terminal_width, use_unicode=self._ctx.use_unicode  # noqa: E501
+            "Workflow Status",
+            width=self._ctx.terminal_width,
+            use_unicode=self._ctx.use_unicode,  # noqa: E501
         )
         ready_badge = render_status_badge(
             "ready" if result.is_ready_for_transition else "not ready",
@@ -166,7 +176,11 @@ class CLIRenderer:
         Returns:
             Formatted proposal string.
         """
-        heading = render_heading("Proposal", width=self._ctx.terminal_width, use_unicode=self._ctx.use_unicode)  # noqa: E501
+        heading = render_heading(
+            "Proposal",
+            width=self._ctx.terminal_width,
+            use_unicode=self._ctx.use_unicode,
+        )  # noqa: E501
         pairs: dict[str, Any] = {
             "ID": str(result.id),
             "Project": str(result.project_id),
@@ -197,7 +211,11 @@ class CLIRenderer:
         Returns:
             A short status line.
         """
-        badge = render_status_badge("ok" if result.success else "failed", ok=result.success, use_unicode=self._ctx.use_unicode)  # noqa: E501
+        badge = render_status_badge(
+            "ok" if result.success else "failed",
+            ok=result.success,
+            use_unicode=self._ctx.use_unicode,
+        )  # noqa: E501
         msg = f"  {result.message}" if result.message else ""
         return f"{badge}{msg}"
 
@@ -211,7 +229,9 @@ class CLIRenderer:
             A formatted commit summary.
         """
         badge = render_status_badge(
-            "committed" if result.success else "failed", ok=result.success, use_unicode=self._ctx.use_unicode  # noqa: E501
+            "committed" if result.success else "failed",
+            ok=result.success,
+            use_unicode=self._ctx.use_unicode,  # noqa: E501
         )
         pairs: dict[str, Any] = {
             "Proposal": str(result.proposal_id),
@@ -232,7 +252,9 @@ class CLIRenderer:
         Returns:
             A formatted error string.
         """
-        badge = render_status_badge("error", ok=False, use_unicode=self._ctx.use_unicode)  # noqa: E501
+        badge = render_status_badge(
+            "error", ok=False, use_unicode=self._ctx.use_unicode
+        )  # noqa: E501
         kind = type(error).__name__
         return f"{badge}  {kind}: {error}"
 
@@ -245,7 +267,9 @@ class CLIRenderer:
         Returns:
             A formatted error string.
         """
-        badge = render_status_badge("parse error", ok=False, use_unicode=self._ctx.use_unicode)  # noqa: E501
+        badge = render_status_badge(
+            "parse error", ok=False, use_unicode=self._ctx.use_unicode
+        )  # noqa: E501
         return f"{badge}  {message}"
 
     # ------------------------------------------------------------------
@@ -290,6 +314,7 @@ class CLIRenderer:
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
+
 
 def _format_content(content: dict[str, Any]) -> str:
     """Format a content dictionary as a human-readable string.

@@ -7,8 +7,8 @@ from engine.ai.context import IdentityContextStrategy
 from engine.ai.exceptions import InvalidContextException
 from engine.ai.prompts import ResearchPromptTemplate
 from engine.ai.services import AIOrchestrationService, ContextAssemblerService
-from engine.domain.ai import AIProposal, ContextPayload
-from engine.domain.enums import ProposalStatus
+from engine.domain.ai import ContextPayload
+from engine.domain.ai_drafts import ResearchProposalDraft
 from engine.domain.metadata import ArtifactMetadata, ArtifactStatus
 from tests.ai.test_adapters import MockAIProvider
 
@@ -50,15 +50,12 @@ def test_context_assembler_rejects_missing_approved_snapshot() -> None:
 
 
 def test_ai_orchestration() -> None:
-    provider = MockAIProvider('{"summary": "Mock output"}')
+    provider = MockAIProvider('{"problem_statement": "Problem", "objectives": []}')
     strategy = IdentityContextStrategy()
     svc = AIOrchestrationService(provider, strategy)
 
     template = ResearchPromptTemplate()
     ctx = ContextPayload(serialized_context="abc")
 
-    proposal = svc.generate_proposal(template, ctx)
-    assert isinstance(proposal, AIProposal)
-    assert proposal.status == ProposalStatus.DRAFT
-    assert proposal.proposal_type == template.metadata.supported_subsystem
-    assert proposal.data["raw_content"] == '{"summary": "Mock output"}'
+    draft = svc.prompt_executor.execute(template, ctx, ResearchProposalDraft)
+    assert isinstance(draft, ResearchProposalDraft)

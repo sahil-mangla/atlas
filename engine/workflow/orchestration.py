@@ -46,6 +46,7 @@ T = TypeVar("T")
 # Stage Executor Boundary
 # ==========================================
 
+
 class StageExecutor(Generic[T], ABC):
     """Encapsulates proposal generation and validation for a single stage."""
 
@@ -123,6 +124,7 @@ class EvaluationStageExecutor(StageExecutor[EvaluationProposalDraft]):
 # Immutable Service Registry
 # ==========================================
 
+
 class StageServiceRegistry:
     """Registry mapping WorkflowStages to their corresponding StageExecutors.
 
@@ -152,6 +154,7 @@ class StageServiceRegistry:
 # ==========================================
 # Workflow Orchestration Service
 # ==========================================
+
 
 class WorkflowOrchestrationService:
     """Orchestrator driving complete AI-assisted engineering lifecycles.
@@ -257,7 +260,8 @@ class WorkflowOrchestrationService:
                 project_id=project_id,
                 new_stage=target_stage,
                 approval_status=ApprovalStatus.APPROVED,
-                reason=transition_reason or f"Transitioning to {target_stage} after proposal commit.",
+                reason=transition_reason
+                or f"Transitioning to {target_stage} after proposal commit.",
             )
         except Exception as e:
             return CommitResult(

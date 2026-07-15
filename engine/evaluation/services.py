@@ -60,9 +60,7 @@ class EvaluationInitializationService:
     ) -> Evaluation:
         """Create a new evaluation context based on approved baseline snapshots."""
         if not self.project_repo.get_by_id(project_id):
-            raise EvaluationNotFoundException(
-                f"Project {project_id} does not exist."
-            )
+            raise EvaluationNotFoundException(f"Project {project_id} does not exist.")
 
         if self.evaluation_repo.exists(project_id):
             raise InvalidEvaluationOperationException(
@@ -71,21 +69,27 @@ class EvaluationInitializationService:
 
         # Validate research snapshot is approved and exists
         research = self.research_repo.get_by_project_id(project_id)
-        if not research or not any(s.metadata.id == research_snapshot_id for s in research.snapshots):
+        if not research or not any(
+            s.metadata.id == research_snapshot_id for s in research.snapshots
+        ):
             raise InvalidEvaluationOperationException(
                 f"Approved research snapshot {research_snapshot_id} not found."
             )
 
         # Validate planning snapshot is approved and exists
         planning = self.planning_repo.get_by_project_id(project_id)
-        if not planning or not any(s.metadata.id == planning_snapshot_id for s in planning.snapshots):
+        if not planning or not any(
+            s.metadata.id == planning_snapshot_id for s in planning.snapshots
+        ):
             raise InvalidEvaluationOperationException(
                 f"Approved planning snapshot {planning_snapshot_id} not found."
             )
 
         # Validate architecture snapshot is approved and exists
         architecture = self.architecture_repo.get_by_project_id(project_id)
-        if not architecture or not any(s.metadata.id == architecture_snapshot_id for s in architecture.snapshots):
+        if not architecture or not any(
+            s.metadata.id == architecture_snapshot_id for s in architecture.snapshots
+        ):
             raise InvalidEvaluationOperationException(
                 f"Approved architecture snapshot {architecture_snapshot_id} not found."
             )
@@ -128,11 +132,25 @@ class RequirementCoverageService:
         architecture = self.architecture_repo.get_by_project_id(project_id)
 
         if not research or not planning or not architecture:
-            raise InvalidEvaluationOperationException("Snapshots missing from repository.")
+            raise InvalidEvaluationOperationException(
+                "Snapshots missing from repository."
+            )
 
-        r_snap = next(s for s in research.snapshots if s.metadata.id == evaluation.research_snapshot_id)
-        p_snap = next(s for s in planning.snapshots if s.metadata.id == evaluation.planning_snapshot_id)
-        a_snap = next(s for s in architecture.snapshots if s.metadata.id == evaluation.architecture_snapshot_id)
+        r_snap = next(
+            s
+            for s in research.snapshots
+            if s.metadata.id == evaluation.research_snapshot_id
+        )
+        p_snap = next(
+            s
+            for s in planning.snapshots
+            if s.metadata.id == evaluation.planning_snapshot_id
+        )
+        a_snap = next(
+            s
+            for s in architecture.snapshots
+            if s.metadata.id == evaluation.architecture_snapshot_id
+        )
 
         coverage_list: list[RequirementCoverage] = []
 
@@ -178,7 +196,9 @@ class RequirementCoverageService:
         # 2. Evaluate Research Constraints
         for c in r_snap.constraints:
             matching_constraints = [
-                ac for ac in a_snap.constraints if ac.related_research_constraint_id == c.id
+                ac
+                for ac in a_snap.constraints
+                if ac.related_research_constraint_id == c.id
             ]
             if not matching_constraints:
                 coverage_list.append(
@@ -251,17 +271,35 @@ class TraceabilityEvaluationService:
         architecture = self.architecture_repo.get_by_project_id(project_id)
 
         if not research or not planning or not architecture:
-            raise InvalidEvaluationOperationException("Snapshots missing from repository.")
+            raise InvalidEvaluationOperationException(
+                "Snapshots missing from repository."
+            )
 
-        r_snap = next(s for s in research.snapshots if s.metadata.id == evaluation.research_snapshot_id)
-        p_snap = next(s for s in planning.snapshots if s.metadata.id == evaluation.planning_snapshot_id)
-        a_snap = next(s for s in architecture.snapshots if s.metadata.id == evaluation.architecture_snapshot_id)
+        r_snap = next(
+            s
+            for s in research.snapshots
+            if s.metadata.id == evaluation.research_snapshot_id
+        )
+        p_snap = next(
+            s
+            for s in planning.snapshots
+            if s.metadata.id == evaluation.planning_snapshot_id
+        )
+        a_snap = next(
+            s
+            for s in architecture.snapshots
+            if s.metadata.id == evaluation.architecture_snapshot_id
+        )
 
         new_findings: list[EvaluationFinding] = []
 
         # Audit ADR Traceability
         for adr in a_snap.decisions:
-            if not adr.supporting_evidence and not adr.related_research_findings and not adr.related_planning_tasks:
+            if (
+                not adr.supporting_evidence
+                and not adr.related_research_findings
+                and not adr.related_planning_tasks
+            ):
                 new_findings.append(
                     EvaluationFinding(
                         severity=FindingSeverity.BLOCKING,
@@ -290,7 +328,9 @@ class TraceabilityEvaluationService:
                     )
 
         # Filter out existing findings of the same description/evidence and extend
-        evaluation.findings = [f for f in evaluation.findings if f.category != FindingCategory.TRACEABILITY]
+        evaluation.findings = [
+            f for f in evaluation.findings if f.category != FindingCategory.TRACEABILITY
+        ]
         evaluation.findings.extend(new_findings)
         self.repository.save(evaluation)
         return new_findings
@@ -318,7 +358,11 @@ class ArchitectureEvaluationService:
         if not architecture:
             raise InvalidEvaluationOperationException("Architecture missing.")
 
-        a_snap = next(s for s in architecture.snapshots if s.metadata.id == evaluation.architecture_snapshot_id)
+        a_snap = next(
+            s
+            for s in architecture.snapshots
+            if s.metadata.id == evaluation.architecture_snapshot_id
+        )
         new_findings: list[EvaluationFinding] = []
 
         for comp in a_snap.components:
@@ -334,7 +378,9 @@ class ArchitectureEvaluationService:
                     )
                 )
 
-        evaluation.findings = [f for f in evaluation.findings if f.category != FindingCategory.ARCHITECTURE]
+        evaluation.findings = [
+            f for f in evaluation.findings if f.category != FindingCategory.ARCHITECTURE
+        ]
         evaluation.findings.extend(new_findings)
         self.repository.save(evaluation)
         return new_findings
@@ -362,7 +408,11 @@ class RiskEvaluationService:
         if not architecture:
             raise InvalidEvaluationOperationException("Architecture missing.")
 
-        a_snap = next(s for s in architecture.snapshots if s.metadata.id == evaluation.architecture_snapshot_id)
+        a_snap = next(
+            s
+            for s in architecture.snapshots
+            if s.metadata.id == evaluation.architecture_snapshot_id
+        )
         new_findings: list[EvaluationFinding] = []
 
         for risk in a_snap.risks:
@@ -379,7 +429,9 @@ class RiskEvaluationService:
                         )
                     )
 
-        evaluation.findings = [f for f in evaluation.findings if f.category != FindingCategory.RISK]
+        evaluation.findings = [
+            f for f in evaluation.findings if f.category != FindingCategory.RISK
+        ]
         evaluation.findings.extend(new_findings)
         self.repository.save(evaluation)
         return new_findings
@@ -407,7 +459,11 @@ class QualityEvaluationService:
         if not architecture:
             raise InvalidEvaluationOperationException("Architecture missing.")
 
-        a_snap = next(s for s in architecture.snapshots if s.metadata.id == evaluation.architecture_snapshot_id)
+        a_snap = next(
+            s
+            for s in architecture.snapshots
+            if s.metadata.id == evaluation.architecture_snapshot_id
+        )
         new_findings: list[EvaluationFinding] = []
 
         for qa in a_snap.quality_attributes:
@@ -423,7 +479,9 @@ class QualityEvaluationService:
                     )
                 )
 
-        evaluation.findings = [f for f in evaluation.findings if f.category != FindingCategory.QUALITY]
+        evaluation.findings = [
+            f for f in evaluation.findings if f.category != FindingCategory.QUALITY
+        ]
         evaluation.findings.extend(new_findings)
         self.repository.save(evaluation)
         return new_findings
@@ -490,7 +548,9 @@ class EvaluationSummaryService:
         partially_satisfied_count = sum(
             1 for c in evaluation.coverage if c.status == "partially_satisfied"
         )
-        unsatisfied_count = sum(1 for c in evaluation.coverage if c.status == "unsatisfied")
+        unsatisfied_count = sum(
+            1 for c in evaluation.coverage if c.status == "unsatisfied"
+        )
 
         summary = EvaluationSummary(
             synthesis=synthesis,

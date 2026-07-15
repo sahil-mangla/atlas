@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 class EngineeringReview(BaseModel):
     """The canonical schema for engineering reviews in ATLAS.
-    
+
     This schema defines the language and structure of reviews.
     Execution behavior is handled by the Evaluation subsystem.
     """

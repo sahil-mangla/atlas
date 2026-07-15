@@ -286,9 +286,7 @@ class WorkflowTransitionService:
         workflow.record_transition(entry)
 
         # Set default objectives for the new stage
-        workflow.active_objectives = list(
-            DEFAULT_STAGE_OBJECTIVES.get(new_stage, [])
-        )
+        workflow.active_objectives = list(DEFAULT_STAGE_OBJECTIVES.get(new_stage, []))
 
         self.repository.save(workflow)
         return workflow

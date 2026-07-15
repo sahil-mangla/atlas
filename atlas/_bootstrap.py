@@ -102,7 +102,7 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
     project_archive_service = ProjectLifecycleService(project_repo)
 
     # 3. AI Components
-    provider = GeminiAIProvider()
+    provider = GeminiAIProvider(settings)
     research_repo = FilesystemResearchRepository(project_repo)
     planning_repo = FilesystemPlanningRepository(project_repo)
     architecture_repo = FilesystemArchitectureRepository(project_repo)

@@ -76,7 +76,6 @@ class ArchitectureStatus(StrEnum):
     ARCHIVED = "archived"
 
 
-
 class TaskStatus(StrEnum):
     """Execution state of an implementation task."""
 
@@ -110,7 +109,6 @@ class FindingLifecycleStatus(StrEnum):
     ACTIVE = "active"
     RESOLVED = "resolved"
     WAIVED = "waived"
-
 
 
 class MemoryCategory(StrEnum):

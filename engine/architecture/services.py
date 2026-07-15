@@ -29,7 +29,10 @@ from engine.research.repository import ResearchRepository
 
 def _ensure_mutable(architecture: Architecture) -> None:
     """Ensure that the technical design is in a editable state."""
-    if architecture.status in (ArchitectureStatus.APPROVED, ArchitectureStatus.ARCHIVED):
+    if architecture.status in (
+        ArchitectureStatus.APPROVED,
+        ArchitectureStatus.ARCHIVED,
+    ):
         raise InvalidArchitectureOperationException(
             "Cannot mutate architecture that is APPROVED or ARCHIVED."
         )
@@ -58,9 +61,7 @@ class ArchitectureInitializationService:
     ) -> Architecture:
         """Create a new technical design context based on approved inputs."""
         if not self.project_repo.get_by_id(project_id):
-            raise ArchitectureNotFoundException(
-                f"Project {project_id} does not exist."
-            )
+            raise ArchitectureNotFoundException(f"Project {project_id} does not exist.")
 
         if self.architecture_repo.exists(project_id):
             raise InvalidArchitectureOperationException(
@@ -241,7 +242,9 @@ class ArchitectureCompositionService:
             if not planning:
                 raise InvalidArchitectureOperationException("Planning not found.")
             all_deliverables = {
-                d.id for s in planning.snapshots for d in s.scope_definition.deliverables
+                d.id
+                for s in planning.snapshots
+                for d in s.scope_definition.deliverables
             }
             if planning.scope_definition:
                 all_deliverables.update(
@@ -437,7 +440,9 @@ class ComponentModelService:
             )
 
         # Check for cycles
-        graph: dict[UUID, list[UUID]] = {c.id: list(c.internal_dependencies) for c in architecture.components}
+        graph: dict[UUID, list[UUID]] = {
+            c.id: list(c.internal_dependencies) for c in architecture.components
+        }
         graph[component_id].append(depends_on_id)
 
         visited: set[UUID] = set()
@@ -564,9 +569,7 @@ class RiskAnalysisService:
 
         if related_decision_id:
             if not any(adr.id == related_decision_id for adr in architecture.decisions):
-                raise InvalidArchitectureOperationException(
-                    "Referenced ADR not found."
-                )
+                raise InvalidArchitectureOperationException("Referenced ADR not found.")
 
         risk = Risk(
             description=description,

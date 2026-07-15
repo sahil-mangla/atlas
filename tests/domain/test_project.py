@@ -24,7 +24,7 @@ def test_project_defaults() -> None:
     assert project.status == ProjectStatus.INITIALIZED
     assert project.current_stage == WorkflowStage.IDEA
     assert project.workspace_id is None
-    assert project.planning_id is None          # P-01: new field defaults to None
+    assert project.planning_id is None  # P-01: new field defaults to None
     assert project.architecture_id is None
     assert project.research_id is None
     assert project.memory_id is None
@@ -36,9 +36,7 @@ def test_project_defaults() -> None:
 
 def test_project_has_no_roadmap_id() -> None:
     """S-04: roadmap_id must not exist on Project; Planning is now canonical."""
-    project = Project(
-        name="P", description="d", objective="o"
-    )
+    project = Project(name="P", description="d", objective="o")
     assert not hasattr(project, "roadmap_id"), (
         "roadmap_id was removed in S-04 — the Planning subsystem is now canonical"
     )

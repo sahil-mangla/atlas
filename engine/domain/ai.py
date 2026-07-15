@@ -6,6 +6,7 @@ from uuid import UUID, uuid4
 from pydantic import BaseModel, Field
 
 from engine.domain.enums import ProposalStatus, ProposalType
+from engine.domain.prompt_document import PromptDocument
 
 T = TypeVar("T")
 
@@ -23,9 +24,15 @@ class AIToolSchema(BaseModel):
 class AIGenerationParameters(BaseModel):
     """Configuration for LLM generation parameters."""
 
-    temperature: float | None = Field(default=None, description="Generation temperature.")
-    top_p: float | None = Field(default=None, description="Nucleus sampling probability.")
-    max_output_tokens: int | None = Field(default=None, description="Max generated tokens.")
+    temperature: float | None = Field(
+        default=None, description="Generation temperature."
+    )
+    top_p: float | None = Field(
+        default=None, description="Nucleus sampling probability."
+    )
+    max_output_tokens: int | None = Field(
+        default=None, description="Max generated tokens."
+    )
 
 
 class ProviderCapabilities(BaseModel):
@@ -35,28 +42,46 @@ class ProviderCapabilities(BaseModel):
     streaming_support: bool = Field(description="Supports streaming responses.")
     tool_calling: bool = Field(description="Supports tool calling / function calling.")
     image_input: bool = Field(description="Supports multimodal image inputs.")
-    reasoning_support: bool = Field(description="Exposes raw reasoning/scratchpad traces.")
+    reasoning_support: bool = Field(
+        description="Exposes raw reasoning/scratchpad traces."
+    )
     context_window: int = Field(description="Maximum context window size in tokens.")
 
 
 class ContextPayload(BaseModel):
     """Immutable freeze of subsystem context and traceability metadata."""
 
-    planning_snapshot_id: UUID | None = Field(default=None, description="Approved planning snapshot.")
-    research_snapshot_id: UUID | None = Field(default=None, description="Approved research snapshot.")
-    architecture_snapshot_id: UUID | None = Field(default=None, description="Approved architecture snapshot.")
-    evaluation_snapshot_id: UUID | None = Field(default=None, description="Approved evaluation snapshot.")
-    memory_entries: list[UUID] = Field(default_factory=list, description="Relevant memory entries.")
-    serialized_context: str = Field(description="Stringified context payload provided to LLM.")
+    planning_snapshot_id: UUID | None = Field(
+        default=None, description="Approved planning snapshot."
+    )
+    research_snapshot_id: UUID | None = Field(
+        default=None, description="Approved research snapshot."
+    )
+    architecture_snapshot_id: UUID | None = Field(
+        default=None, description="Approved architecture snapshot."
+    )
+    evaluation_snapshot_id: UUID | None = Field(
+        default=None, description="Approved evaluation snapshot."
+    )
+    memory_entries: list[UUID] = Field(
+        default_factory=list, description="Relevant memory entries."
+    )
+    serialized_context: str = Field(
+        description="Stringified context payload provided to LLM."
+    )
 
 
 class AIRequest(BaseModel):
     """Deterministic payload sent to the AI provider."""
 
-    prompt: str = Field(description="The primary instructional prompt.")
+    prompt: PromptDocument = Field(description="The structured prompt document.")
     context: ContextPayload = Field(description="Immutable snapshot context.")
-    tools: list[AIToolSchema] = Field(default_factory=list, description="Tools available.")
-    response_schema: dict[str, Any] | None = Field(default=None, description="Target JSON schema.")
+    tools: list[AIToolSchema] = Field(
+        default_factory=list, description="Tools available."
+    )
+    response_schema: dict[str, Any] | None = Field(
+        default=None, description="Target JSON schema."
+    )
     parameters: AIGenerationParameters = Field(default_factory=AIGenerationParameters)
 
 
@@ -64,8 +89,12 @@ class AIResponse(BaseModel):
     """Provider-agnostic normalized response from the AI."""
 
     content: str = Field(description="Generated string content.")
-    usage_metrics: dict[str, int] = Field(default_factory=dict, description="Token usage stats.")
-    finish_reason: str = Field(description="Reason for termination (e.g. stop, length).")
+    usage_metrics: dict[str, int] = Field(
+        default_factory=dict, description="Token usage stats."
+    )
+    finish_reason: str = Field(
+        description="Reason for termination (e.g. stop, length)."
+    )
 
 
 class PromptTemplateMetadata(BaseModel):
@@ -73,7 +102,9 @@ class PromptTemplateMetadata(BaseModel):
 
     id: UUID = Field(default_factory=uuid4, description="Unique template identifier.")
     version: int = Field(description="Version number of this prompt.")
-    supported_subsystem: ProposalType = Field(description="Subsystem this prompt targets.")
+    supported_subsystem: ProposalType = Field(
+        description="Subsystem this prompt targets."
+    )
 
 
 class AIProposal(BaseModel, Generic[T]):
@@ -84,7 +115,13 @@ class AIProposal(BaseModel, Generic[T]):
     status: ProposalStatus = Field(
         default=ProposalStatus.DRAFT, description="Current lifecycle state."
     )
-    prompt_metadata: PromptTemplateMetadata = Field(description="Metadata of the prompt used.")
+    prompt_metadata: PromptTemplateMetadata = Field(
+        description="Metadata of the prompt used."
+    )
     context_used: ContextPayload = Field(description="The exact context snapshot used.")
-    data: T = Field(description="The generic payload, typed to the target subsystem draft.")
-    human_feedback: str | None = Field(default=None, description="Feedback from human review.")
+    data: T = Field(
+        description="The generic payload, typed to the target subsystem draft."
+    )
+    human_feedback: str | None = Field(
+        default=None, description="Feedback from human review."
+    )

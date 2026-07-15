@@ -1,6 +1,5 @@
 """AI Engineering Services coordinating generation, validation, and commits."""
 
-import json
 from abc import ABC, abstractmethod
 from typing import Any, Generic, TypeVar
 from uuid import UUID
@@ -8,13 +7,6 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from engine.ai.exceptions import InvalidProposalException
-from engine.ai.prompts import (
-    ArchitecturePromptTemplate,
-    EvaluationPromptTemplate,
-    PlanningPromptTemplate,
-    PromptTemplate,
-    ResearchPromptTemplate,
-)
 from engine.ai.services import AIOrchestrationService, ContextAssemblerService
 from engine.ai.unit_of_work import ProposalCommitUnitOfWork
 from engine.architecture.repository import ArchitectureRepository
@@ -579,12 +571,10 @@ class AIEngineeringService(Generic[T], ABC):
         self,
         orchestrator: AIOrchestrationService,
         context_assembler: ContextAssemblerService,
-        template: PromptTemplate,
         draft_cls: type[T],
     ) -> None:
         self.orchestrator = orchestrator
         self.context_assembler = context_assembler
-        self.template = template
         self.draft_cls = draft_cls
 
     def generate(self, project_id: UUID, user_instructions: str = "") -> AIProposal[T]:
@@ -592,32 +582,16 @@ class AIEngineeringService(Generic[T], ABC):
 
         Retrieves deterministic context, triggers generation, and parses outcomes.
         """
-        # Assemble immutable context
         context = self.context_assembler.assemble_context(project_id)
-
-        # Generate proposal dictionary via underlying orchestrator
-        raw_proposal = self.orchestrator.generate_proposal(
-            template=self.template,
-            raw_context=context,
-            user_instructions=user_instructions,
+        template = self.orchestrator.prompt_registry.resolve(self.draft_cls)
+        typed_draft = self.orchestrator.prompt_executor.execute(
+            template, context, self.draft_cls, user_instructions
         )
-
-        # Parse string output into strongly-typed draft
-        raw_content = raw_proposal.data.get("raw_content", "{}")
-        try:
-            parsed_json = json.loads(raw_content)
-            typed_draft = self.draft_cls.model_validate(parsed_json)
-        except Exception as e:
-            raise InvalidProposalException(
-                f"Failed to parse generation into typed draft: {e}"
-            ) from e
-
-        # Wrap in generic proposal structure
         return AIProposal[T](
-            proposal_type=raw_proposal.proposal_type,
-            status=raw_proposal.status,
-            prompt_metadata=raw_proposal.prompt_metadata,
-            context_used=raw_proposal.context_used,
+            proposal_type=template.metadata.supported_subsystem,
+            status=ProposalStatus.DRAFT,
+            prompt_metadata=template.metadata,
+            context_used=context,
             data=typed_draft,
         )
 
@@ -631,7 +605,6 @@ class ResearchAIEngineeringService(AIEngineeringService[ResearchProposalDraft]):
         super().__init__(
             orchestrator=orchestrator,
             context_assembler=context_assembler,
-            template=ResearchPromptTemplate(),
             draft_cls=ResearchProposalDraft,
         )
 
@@ -645,7 +618,6 @@ class PlanningAIEngineeringService(AIEngineeringService[PlanningProposalDraft]):
         super().__init__(
             orchestrator=orchestrator,
             context_assembler=context_assembler,
-            template=PlanningPromptTemplate(),
             draft_cls=PlanningProposalDraft,
         )
 
@@ -659,7 +631,6 @@ class ArchitectureAIEngineeringService(AIEngineeringService[ArchitectureProposal
         super().__init__(
             orchestrator=orchestrator,
             context_assembler=context_assembler,
-            template=ArchitecturePromptTemplate(),
             draft_cls=ArchitectureProposalDraft,
         )
 
@@ -673,7 +644,6 @@ class EvaluationAIEngineeringService(AIEngineeringService[EvaluationProposalDraf
         super().__init__(
             orchestrator=orchestrator,
             context_assembler=context_assembler,
-            template=EvaluationPromptTemplate(),
             draft_cls=EvaluationProposalDraft,
         )
 

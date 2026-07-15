@@ -42,18 +42,25 @@ def test_parse_version() -> None:
 
 # -- Project group -------------------------------------------------------------
 
+
 def test_parse_project_missing_sub() -> None:
     with pytest.raises(CLIParseError, match="Missing project sub-command"):
         parse_argv(["project"])
 
 
 def test_parse_project_create() -> None:
-    cmd = parse_argv([
-        "project", "create",
-        "--name", "Test",
-        "--description", "Desc",
-        "--objective", "Obj"
-    ])
+    cmd = parse_argv(
+        [
+            "project",
+            "create",
+            "--name",
+            "Test",
+            "--description",
+            "Desc",
+            "--objective",
+            "Obj",
+        ]
+    )
     assert isinstance(cmd, CreateProjectCommand)
     assert cmd.name == "Test"
     assert cmd.description == "Desc"
@@ -62,7 +69,9 @@ def test_parse_project_create() -> None:
 
 
 def test_parse_project_create_missing_flags() -> None:
-    with pytest.raises(CLIParseError, match="Missing required flags: --description, --objective"):  # noqa: E501
+    with pytest.raises(
+        CLIParseError, match="Missing required flags: --description, --objective"
+    ):  # noqa: E501
         parse_argv(["project", "create", "--name", "Test"])
 
 
@@ -92,6 +101,7 @@ def test_parse_project_archive() -> None:
 
 # -- Workflow group ------------------------------------------------------------
 
+
 def test_parse_workflow_missing_sub() -> None:
     with pytest.raises(CLIParseError, match="Missing workflow sub-command"):
         parse_argv(["workflow"])
@@ -106,11 +116,9 @@ def test_parse_workflow_status() -> None:
 
 def test_parse_workflow_transition() -> None:
     pid = str(uuid.uuid4())
-    cmd = parse_argv([
-        "workflow", "transition",
-        "--project-id", pid,
-        "--reason", "Test reason"
-    ])
+    cmd = parse_argv(
+        ["workflow", "transition", "--project-id", pid, "--reason", "Test reason"]
+    )
     assert isinstance(cmd, TransitionStageCommand)
     assert str(cmd.project_id) == pid
     assert cmd.reason == "Test reason"
@@ -118,6 +126,7 @@ def test_parse_workflow_transition() -> None:
 
 
 # -- Stage group ---------------------------------------------------------------
+
 
 def test_parse_stage_missing_sub() -> None:
     with pytest.raises(CLIParseError, match="Missing stage sub-command"):
@@ -140,6 +149,7 @@ def test_parse_stage_execute_invalid_stage() -> None:
 
 # -- Proposal group ------------------------------------------------------------
 
+
 def test_parse_proposal_missing_sub() -> None:
     with pytest.raises(CLIParseError, match="Missing proposal sub-command"):
         parse_argv(["proposal"])
@@ -148,12 +158,18 @@ def test_parse_proposal_missing_sub() -> None:
 def test_parse_proposal_approve() -> None:
     pid = str(uuid.uuid4())
     propid = str(uuid.uuid4())
-    cmd = parse_argv([
-        "proposal", "approve",
-        "--project-id", pid,
-        "--proposal-id", propid,
-        "--actor", "user"
-    ])
+    cmd = parse_argv(
+        [
+            "proposal",
+            "approve",
+            "--project-id",
+            pid,
+            "--proposal-id",
+            propid,
+            "--actor",
+            "user",
+        ]
+    )
     assert isinstance(cmd, ApproveProposalCommand)
     assert str(cmd.project_id) == pid
     assert str(cmd.proposal_id) == propid
@@ -163,12 +179,18 @@ def test_parse_proposal_approve() -> None:
 def test_parse_proposal_reject() -> None:
     pid = str(uuid.uuid4())
     propid = str(uuid.uuid4())
-    cmd = parse_argv([
-        "proposal", "reject",
-        "--project-id", pid,
-        "--proposal-id", propid,
-        "--feedback", "Too slow"
-    ])
+    cmd = parse_argv(
+        [
+            "proposal",
+            "reject",
+            "--project-id",
+            pid,
+            "--proposal-id",
+            propid,
+            "--feedback",
+            "Too slow",
+        ]
+    )
     assert isinstance(cmd, RejectProposalCommand)
     assert str(cmd.project_id) == pid
     assert str(cmd.proposal_id) == propid
@@ -177,6 +199,7 @@ def test_parse_proposal_reject() -> None:
 
 
 # -- Flag parsing logic --------------------------------------------------------
+
 
 def test_parse_unexpected_token() -> None:
     with pytest.raises(CLIParseError, match="Unexpected token 'bad'"):

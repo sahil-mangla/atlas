@@ -45,6 +45,13 @@ class Settings(BaseSettings):
         description="Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
     )
 
+    gemini_api_key: str | None = Field(
+        default=None, description="API key used by the Gemini provider."
+    )
+    gemini_model: str | None = Field(
+        default=None, description="Gemini model name used for prompt execution."
+    )
+
 
 def get_settings() -> Settings:
     """Load and return the ATLAS settings.
