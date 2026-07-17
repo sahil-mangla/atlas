@@ -12,7 +12,8 @@ ATLAS is an AI-native engineering operating system that transforms ideas into pr
   immutable command/result DTOs, and application exceptions.
 - **`engine/domain/`**: Strongly-typed, framework-independent Pydantic models representing the ubiquitous domain language of ATLAS, including the Engineering Design Language (EDL) components (TraceabilityLink, ArtifactMetadata composition, and EngineeringReview contracts), as well as AI proposal drafts (`ai_drafts.py`) and review feedback (`ai_feedback.py`).
 - **`engine/project/`**: Project Subsystem governing workspace initialization (`.atlas/`), loading, metadata discovery, and lifecycle states (initialized, active, paused, archived).
-- **`engine/memory/`**: Memory Subsystem managing persistent architectural decisions and engineering knowledge.
+- **`engine/memory/`**: Memory Subsystem managing dialogue context and dialogue history.
+- **`engine/knowledge/`**: Knowledge Subsystem governed by the Engineering Knowledge Layer to collect, deduplicate, retrieve, and manage reviewed project-scoped engineering knowledge.
 - **`engine/workflow/`**: Workflow Subsystem governing execution readiness, phase transitions, and lifecycle orchestration (`orchestration.py`).
 - **`engine/research/`**: Research Subsystem handling problem definition, evidence gathering, snapshotting, and hypothesis validation.
 - **`engine/planning/`**: Planning Subsystem decomposing research into scopes, milestones, epics, tasks, subtasks, and dependency management.
