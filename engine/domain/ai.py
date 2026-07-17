@@ -3,7 +3,7 @@
 from typing import Any, Generic, TypeVar
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from engine.domain.enums import ProposalStatus, ProposalType
 from engine.domain.prompt_document import PromptDocument
@@ -99,6 +99,8 @@ class AIResponse(BaseModel):
 
 class PromptTemplateMetadata(BaseModel):
     """Metadata describing a prompt template."""
+
+    model_config = ConfigDict(frozen=True)
 
     id: UUID = Field(default_factory=uuid4, description="Unique template identifier.")
     version: int = Field(description="Version number of this prompt.")

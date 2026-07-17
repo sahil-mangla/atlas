@@ -32,11 +32,15 @@ The Execution Flow coordinates the creation of engineering proposals without mut
                   ↓
           Stage Executors
                   ↓
-       AI Engineering Services
+          AI Engineering Services
+                  ↓
+        Prompt Management (Registry)
                   ↓
           AI Orchestration
                   ↓
-             Provider
+          Prompt Executor
+                  ↓
+             AI Provider
 ```
 
 - **External Clients**: First-party and third-party UI/Interface clients that initiate actions.
@@ -45,8 +49,10 @@ The Execution Flow coordinates the creation of engineering proposals without mut
 - **Workflow Orchestration** (`WorkflowOrchestrationService`): Drives the pipeline by checking active stages and coordinating generation steps.
 - **Stage Executors** (`StageExecutor`): Translates stage-specific requests (e.g. Research, Planning) into engineering calls.
 - **AI Engineering Services** (`AIEngineeringService`): Stateless services that assemble context payloads and request proposals.
-- **AI Orchestration** (`AIOrchestrationService`): Constructs prompts, applies context strategy compressions, and validates schema parameters.
-- **Provider** (`AIProvider`): The dependency inversion boundary wrapping model calls (e.g. `GeminiAIProvider`).
+- **Prompt Management** (`PromptLoader`, `PromptRegistry`): Owns immutable, versioned prompt definitions and exposes passive template lookup.
+- **AI Orchestration** (`AIOrchestrationService`): Receives injected prompt runtime dependencies and coordinates their use for engineering services.
+- **Prompt Executor** (`PromptExecutor`): Applies context strategy, executes a resolved template, invokes the provider, and validates the response schema.
+- **AI Provider** (`AIProvider`): The dependency inversion boundary wrapping model calls. Protocol adapters implement this interface. `ProtocolFactory` resolves the selected protocol only during bootstrap.
 
 ---
 

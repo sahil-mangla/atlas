@@ -5,7 +5,7 @@ by client adapters. It wires the engine subsystems and returns the public facade
 """
 
 from atlas._service import Atlas, _AtlasServices
-from engine.ai.adapters.gemini import GeminiAIProvider
+from engine.ai.config import ProviderConfig
 from engine.ai.context import IdentityContextStrategy
 from engine.ai.engineering_services import (
     ArchitectureAIEngineeringService,
@@ -22,6 +22,8 @@ from engine.ai.engineering_services import (
     ResearchProposalTransformer,
     ResearchProposalValidator,
 )
+from engine.ai.executor import PromptExecutor
+from engine.ai.factory import ProtocolFactory
 from engine.ai.fs_repository import FilesystemProposalRepository
 from engine.ai.services import AIOrchestrationService, ContextAssemblerService
 from engine.architecture.fs_repository import FilesystemArchitectureRepository
@@ -58,6 +60,7 @@ from engine.project.services import (
     ProjectLoadingService,
     ProjectRegistryService,
 )
+from engine.prompt.loader import PromptLoader
 from engine.research.fs_repository import FilesystemResearchRepository
 from engine.research.services import (
     OpportunityAnalysisService,
@@ -102,7 +105,13 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
     project_archive_service = ProjectLifecycleService(project_repo)
 
     # 3. AI Components
-    provider = GeminiAIProvider(settings)
+    provider_config = ProviderConfig(
+        protocol=settings.ai_protocol,
+        endpoint=settings.ai_endpoint,
+        model=settings.ai_model,
+        api_key=settings.ai_api_key,
+    )
+    provider = ProtocolFactory().resolve(provider_config, settings)
     research_repo = FilesystemResearchRepository(project_repo)
     planning_repo = FilesystemPlanningRepository(project_repo)
     architecture_repo = FilesystemArchitectureRepository(project_repo)
@@ -153,7 +162,9 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
     evaluation_readiness = ReadinessEvaluationService(evaluation_repo)
 
     # 5. AI Engineering Services
-    ai_orchestrator = AIOrchestrationService(provider, IdentityContextStrategy())
+    prompt_registry = PromptLoader.load_registry()
+    prompt_executor = PromptExecutor(provider, IdentityContextStrategy())
+    ai_orchestrator = AIOrchestrationService(prompt_executor, prompt_registry)
     research_ai = ResearchAIEngineeringService(ai_orchestrator, context_assembler)
     planning_ai = PlanningAIEngineeringService(ai_orchestrator, context_assembler)
     architecture_ai = ArchitectureAIEngineeringService(

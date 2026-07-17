@@ -16,6 +16,7 @@ from engine.ai.engineering_services import (
     ResearchProposalValidator,
 )
 from engine.ai.exceptions import InvalidProposalException
+from engine.ai.executor import PromptExecutor
 from engine.ai.services import AIOrchestrationService, ContextAssemblerService
 from engine.ai.unit_of_work import ProposalCommitUnitOfWork
 from engine.domain.ai import AIProposal, ContextPayload, PromptTemplateMetadata
@@ -28,6 +29,7 @@ from engine.domain.ai_drafts import (
     ResearchProposalDraft,
 )
 from engine.domain.enums import ProposalStatus, ProposalType
+from engine.prompt.loader import PromptLoader
 from tests.ai.test_adapters import MockAIProvider
 
 
@@ -58,9 +60,12 @@ def test_research_ai_service(assembler: ContextAssemblerService) -> None:
         objectives=["Speed", "Decoupling"],
         evidence=[],
     )
-    orchestrator = AIOrchestrationService(
-        MockAIProvider(draft_data.model_dump_json()), IdentityContextStrategy()
+    registry = PromptLoader.load_registry()
+    executor = PromptExecutor(
+        MockAIProvider(draft_data.model_dump_json()),
+        IdentityContextStrategy(),
     )
+    orchestrator = AIOrchestrationService(executor, registry)
 
     service = ResearchAIEngineeringService(orchestrator, assembler)
     proposal = service.generate(uuid4())
@@ -76,9 +81,12 @@ def test_planning_ai_service(assembler: ContextAssemblerService) -> None:
         deliverables=[{"title": "Deliv 1", "description": ""}],
         milestones=[],
     )
-    orchestrator = AIOrchestrationService(
-        MockAIProvider(draft_data.model_dump_json()), IdentityContextStrategy()
+    registry = PromptLoader.load_registry()
+    executor = PromptExecutor(
+        MockAIProvider(draft_data.model_dump_json()),
+        IdentityContextStrategy(),
     )
+    orchestrator = AIOrchestrationService(executor, registry)
 
     service = PlanningAIEngineeringService(orchestrator, assembler)
     proposal = service.generate(uuid4())
@@ -91,9 +99,12 @@ def test_architecture_ai_service(assembler: ContextAssemblerService) -> None:
         components=[],
         decisions=[],
     )
-    orchestrator = AIOrchestrationService(
-        MockAIProvider(draft_data.model_dump_json()), IdentityContextStrategy()
+    registry = PromptLoader.load_registry()
+    executor = PromptExecutor(
+        MockAIProvider(draft_data.model_dump_json()),
+        IdentityContextStrategy(),
     )
+    orchestrator = AIOrchestrationService(executor, registry)
 
     service = ArchitectureAIEngineeringService(orchestrator, assembler)
     proposal = service.generate(uuid4())
@@ -105,9 +116,12 @@ def test_evaluation_ai_service(assembler: ContextAssemblerService) -> None:
         synthesis="Quality looks good",
         findings=[],
     )
-    orchestrator = AIOrchestrationService(
-        MockAIProvider(draft_data.model_dump_json()), IdentityContextStrategy()
+    registry = PromptLoader.load_registry()
+    executor = PromptExecutor(
+        MockAIProvider(draft_data.model_dump_json()),
+        IdentityContextStrategy(),
     )
+    orchestrator = AIOrchestrationService(executor, registry)
 
     service = EvaluationAIEngineeringService(orchestrator, assembler)
     proposal = service.generate(uuid4())

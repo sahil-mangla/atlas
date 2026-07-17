@@ -12,6 +12,7 @@ from engine.ai.engineering_services import (
     ProposalCommitService,
     ResearchAIEngineeringService,
 )
+from engine.ai.executor import PromptExecutor
 from engine.ai.fs_repository import FilesystemProposalRepository
 from engine.ai.services import AIOrchestrationService, ContextAssemblerService
 from engine.architecture.fs_repository import FilesystemArchitectureRepository
@@ -26,6 +27,7 @@ from engine.project.services import (
     ProjectLoadingService,
     ProjectRegistryService,
 )
+from engine.prompt.loader import PromptLoader
 from engine.research.fs_repository import FilesystemResearchRepository
 from engine.workflow.fs_repository import FilesystemWorkflowRepository
 from engine.workflow.orchestration import (
@@ -64,9 +66,12 @@ def create_test_platform(tmp_path: Path) -> Atlas:
         evaluation_repo=evaluation_repo,
         memory_repo=memory_repo,
     )
-    orchestrator = AIOrchestrationService(
-        MockAIProvider(stubbed_response="{}"), IdentityContextStrategy()
+    prompt_registry = PromptLoader.load_registry()
+    prompt_executor = PromptExecutor(
+        MockAIProvider(stubbed_response="{}"),
+        IdentityContextStrategy(),
     )
+    orchestrator = AIOrchestrationService(prompt_executor, prompt_registry)
     research_ai = ResearchAIEngineeringService(orchestrator, context_assembler)
     planning_ai = PlanningAIEngineeringService(orchestrator, context_assembler)
     architecture_ai = ArchitectureAIEngineeringService(orchestrator, context_assembler)

@@ -19,6 +19,7 @@ Canonical definitions of terminology matching the codebase.
 - **[Engineering Workflow](file:///Users/sahilmangla/atlas/docs/architecture/engineering-workflow.md)**: Lifecycles, objectives, and transition state machine rules.
 - **[Workflow Stage Execution](file:///Users/sahilmangla/atlas/docs/architecture/workflow-stages.md)**: AI-assisted and human-driven stage responsibilities.
 - **[Intelligence Layer](file:///Users/sahilmangla/atlas/docs/architecture/intelligence-layer.md)**: Coordination of AI integration services under constitutional safety boundaries.
+- **[Multi-Protocol AI Runtime](file:///Users/sahilmangla/atlas/docs/architecture/multi-protocol-ai-runtime.md)**: Protocol factory, protocol adapters, and protocol-independent prompt execution.
 - **[Domain Model](file:///Users/sahilmangla/atlas/docs/architecture/domain-model.md)**: The lightweight Project aggregate root and sub-aggregate boundaries.
 - **[Persistence Architecture](file:///Users/sahilmangla/atlas/docs/architecture/persistence.md)**: Filesystem storage details, path resolution inversion, and compensating transaction rollbacks.
 - **[Traceability](file:///Users/sahilmangla/atlas/docs/architecture/traceability.md)**: Immutable provenance chains connecting evidence down to commits.
@@ -39,3 +40,4 @@ Canonical definitions of terminology matching the codebase.
 - **[Repository & Rollback Flow](file:///Users/sahilmangla/atlas/docs/diagrams/repository-flow.md)**
 - **[Domain & Traceability Links](file:///Users/sahilmangla/atlas/docs/diagrams/domain-relations.md)**
 - **[Runtime Request Lifecycle](file:///Users/sahilmangla/atlas/docs/diagrams/request-lifecycle.md)**
+- **[Multi-Protocol AI Runtime](file:///Users/sahilmangla/atlas/docs/diagrams/multi-protocol-ai-runtime.md)**

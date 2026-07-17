@@ -51,6 +51,10 @@ class Settings(BaseSettings):
     gemini_model: str | None = Field(
         default=None, description="Gemini model name used for prompt execution."
     )
+    ai_protocol: str = Field(default="GEMINI", description="Configured AI protocol.")
+    ai_endpoint: str | None = Field(default=None, description="AI protocol endpoint.")
+    ai_model: str | None = Field(default=None, description="AI protocol model.")
+    ai_api_key: str | None = Field(default=None, description="AI protocol credential.")
 
 
 def get_settings() -> Settings:

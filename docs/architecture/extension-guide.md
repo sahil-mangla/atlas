@@ -34,23 +34,35 @@ To add a new stage to ATLAS, follow this structured progression across the layer
 - Create `engine/custom_stage/services.py` with initialization, composition, and summary services.
 - These services must interact only with abstract repository contracts.
 
-### 4. AI/Prompting Layer
-- **Prompt Template**: Define a template class in `engine/ai/prompts.py` that inherits from `PromptTemplate`. Override `expected_schema` to return the new draft schema.
+### 4. Prompt Management and AI Runtime
+- **Prompt Template**: Define a template class in `engine/prompt/templates.py` that inherits from `PromptTemplate`. Override `expected_schema` to return the new draft schema. Register it through `PromptLoader`.
 - **Validator**: Add a `ProposalValidator` subclass in `engine/ai/engineering_services.py` to validate semantic constraints (raising `InvalidProposalException` on errors).
 - **Transformer**: Add a `ProposalTransformer` subclass in `engine/ai/engineering_services.py` mapping draft models to calls on the new stage services.
 - **Engineering Service**: Create the `CustomStageAIEngineeringService` inheriting from `AIEngineeringService[CustomDraftClass]`.
 - **Registration**: Inject the new validator, transformer, and repository into `ProposalCommitService`'s mapping dictionary in `engine/ai/engineering_services.py`.
+- Prompt Management owns template definitions; the Multi-Protocol AI Runtime (`PromptExecutor` → `AIProvider`) owns execution and remains protocol-agnostic.
 
-### 5. Workflow/Orchestration Layer
+### 5. Adding a Protocol Adapter
+To introduce a new AI protocol without changing the engineering workflow:
+
+1. Implement an `AIProvider` adapter under `engine/ai/adapters/` that normalizes requests and responses and reports only capabilities it implements.
+2. Register the adapter constructor in the `ProtocolFactory` protocol registry.
+
+To use a new vendor that already speaks a registered protocol (for example OpenAI-compatible), change only `ATLAS_AI_PROTOCOL`, `ATLAS_AI_ENDPOINT`, `ATLAS_AI_MODEL`, and `ATLAS_AI_API_KEY`. No adapter or workflow code changes are required.
+
+See [Multi-Protocol AI Runtime](multi-protocol-ai-runtime.md).
+
+### 6. Workflow/Orchestration Layer
 - **Objectives**: Register the default objectives for the new stage in `DEFAULT_STAGE_OBJECTIVES` inside `engine/workflow/services.py`.
 - **Transitions**: Define valid transition paths for the new stage in `WorkflowTransitionService.VALID_TRANSITIONS` state machine registry.
 - **Executor**: Create a `StageExecutor` subclass for the new stage in `engine/workflow/orchestration.py`.
 - **Registry**: Register the executor mapping in the `StageServiceRegistry`.
 
-### 6. Testing Layer
+### 7. Testing Layer
 - Write unit tests for repositories under `tests/custom_stage/test_repository.py`.
 - Write unit tests for services under `tests/custom_stage/test_services.py`.
 - Add integration tests in `tests/workflow/test_orchestration.py` to verify prompt delegation, validation, commit success, and stage transition flow.
+- When adding a protocol adapter, extend `tests/ai/test_protocol_runtime.py` for request/response normalization, capability truthfulness, and factory registration.
 
 ---
 

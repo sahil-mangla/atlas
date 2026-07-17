@@ -7,29 +7,15 @@ domain state mutation.
 from typing import Any
 from uuid import UUID
 
-from engine.ai.context import ContextStrategy
 from engine.ai.exceptions import InvalidContextException
 from engine.ai.executor import PromptExecutor
-from engine.ai.prompts import (
-    ArchitecturePromptTemplate,
-    EvaluationPromptTemplate,
-    PlanningPromptTemplate,
-    ResearchPromptTemplate,
-)
-from engine.ai.provider import AIProvider
-from engine.ai.registry import PromptRegistry
 from engine.architecture.repository import ArchitectureRepository
 from engine.domain.ai import ContextPayload
-from engine.domain.ai_drafts import (
-    ArchitectureProposalDraft,
-    EvaluationProposalDraft,
-    PlanningProposalDraft,
-    ResearchProposalDraft,
-)
 from engine.domain.metadata import ArtifactStatus
 from engine.evaluation.repository import EvaluationRepository
 from engine.memory.repository import MemoryRepository
 from engine.planning.repository import PlanningRepository
+from engine.prompt.registry import PromptRegistry
 from engine.research.repository import ResearchRepository
 
 
@@ -105,13 +91,10 @@ class ContextAssemblerService:
 class AIOrchestrationService:
     """Expose the stateless prompt runtime to AI engineering services."""
 
-    def __init__(self, provider: AIProvider, context_strategy: ContextStrategy) -> None:
-        self.prompt_executor = PromptExecutor(provider, context_strategy)
-        self.prompt_registry = PromptRegistry(
-            {
-                ResearchProposalDraft: ResearchPromptTemplate(),
-                PlanningProposalDraft: PlanningPromptTemplate(),
-                ArchitectureProposalDraft: ArchitecturePromptTemplate(),
-                EvaluationProposalDraft: EvaluationPromptTemplate(),
-            }
-        )
+    def __init__(
+        self,
+        prompt_executor: PromptExecutor,
+        prompt_registry: PromptRegistry,
+    ) -> None:
+        self.prompt_executor = prompt_executor
+        self.prompt_registry = prompt_registry

@@ -80,25 +80,31 @@ In ATLAS, AI agents are tools utilized to assist in implementation, speed up exe
 - **Outputs**: Code quality reviews, compliance reports, and readiness decisions.
 - **Collaborators**: Architecture Subsystem (verifies designs) and AI Integration (receives agent output).
 
-### 9. AI Integration Subsystem
-- **Purpose**: Manages communication, API formatting, and capability discovery for LLM providers.
+### 9. Prompt Management Layer
+- **Purpose**: Owns versioned prompt definitions, prompt metadata, deterministic template construction, loading, and registration.
+- **Inputs**: Immutable approved context and user instructions supplied at execution time.
+- **Outputs**: Provider-independent `PromptDocument` values and immutable template lookups.
+- **Collaborators**: `PromptLoader` constructs templates during bootstrap; `PromptRegistry` resolves them for the AI runtime.
+
+### 10. AI Integration Subsystem
+- **Purpose**: Owns the Multi-Protocol AI Runtime: protocol-independent prompt execution, protocol adapters, and capability discovery.
 - **Inputs**: Prompt templates, context payloads, and tool schema lists.
 - **Outputs**: Formatted LLM requests and normalized provider-agnostic response schemas.
-- **Collaborators**: Connects AI Orchestration with external model providers (e.g. Gemini).
+- **Collaborators**: `PromptExecutor`, `AIProvider` protocol adapters, and bootstrap-only `ProtocolFactory`.
 
-### 10. AI Engineering Services
+### 11. AI Engineering Services
 - **Purpose**: Provides stateless services for generating, validating, and committing proposal drafts.
 - **Inputs**: User instructions, project identifiers, and approved snapshots.
 - **Outputs**: Strongly typed proposal drafts and commit results.
 - **Collaborators**: Repositories, Domain Services, and AI Orchestration.
 
-### 11. Workflow Orchestration
+### 12. Workflow Orchestration
 - **Purpose**: Orchestrates the sequential pipeline of proposal generation, validation, and human-in-the-loop sign-off.
 - **Inputs**: User instructions and human review decisions.
 - **Outputs**: Completed proposal commits, readiness audits, and automated stage transitions.
 - **Collaborators**: Workflow Subsystem, AI Engineering Services, and Commit Services.
 
-### 12. Client Adapter Layer
+### 13. Client Adapter Layer
 - **Purpose**: Translates external execution environments (CLI, MCP, IDE, REST) into actions on the public Atlas SDK. Provides presentation formatting and progress tracking.
 - **Inputs**: Raw external interactions (e.g., `sys.argv`, JSON-RPC payloads).
 - **Outputs**: Environment-specific formatted output (e.g., ANSI terminal strings, structured JSON responses).

@@ -11,15 +11,16 @@ graph TD
     WO -->|2. Identifies stage executor| SE[Stage Executor]:::step
     SE -->|3. Requests proposal draft| AES[AI Engineering Service]:::step
     AES -->|4. Assembles context & builds request| AO[AI Orchestration]:::step
-    AO -->|5. Invokes adapter API| AP[AI Provider]:::step
-    AP -->|6. Emits generated draft| Prop[Proposal]:::step
-    Prop -->|7. Evaluated by human| HR[Human Review]:::gate
+    AO -->|5. Invokes PromptExecutor| PE[Prompt Executor]:::step
+    PE -->|6. Invokes protocol adapter| AP[AIProvider / Protocol Adapter]:::step
+    AP -->|7. Emits generated draft| Prop[Proposal]:::step
+    Prop -->|8. Evaluated by human| HR[Human Review]:::gate
     
     HR -->|Approved| PC[Proposal Commit]:::step
     HR -->|Rejected| WO
     
-    PC -->|8. Mutates state| DS[Domain Services]:::step
-    DS -->|9. Persists JSON files| Repos[Repositories]:::step
-    Repos -->|10. Evaluates objectives checklist| WR[Workflow Readiness]:::gate
-    WR -->|11. Transitions stage| WT[Workflow Transition]:::step
+    PC -->|9. Mutates state| DS[Domain Services]:::step
+    DS -->|10. Persists JSON files| Repos[Repositories]:::step
+    Repos -->|11. Evaluates objectives checklist| WR[Workflow Readiness]:::gate
+    WR -->|12. Transitions stage| WT[Workflow Transition]:::step
 ```

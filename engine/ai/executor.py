@@ -6,10 +6,10 @@ from typing import TypeVar
 from pydantic import BaseModel, ValidationError
 
 from engine.ai.context import ContextStrategy
-from engine.ai.exceptions import InvalidProposalException
-from engine.ai.prompts import PromptTemplate
+from engine.ai.exceptions import AIProviderException, InvalidProposalException
 from engine.ai.provider import AIProvider
 from engine.domain.ai import AIGenerationParameters, AIRequest, ContextPayload
+from engine.prompt.templates import PromptTemplate
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -38,6 +38,7 @@ class PromptExecutor:
             response_schema=template.expected_schema,
             parameters=parameters or AIGenerationParameters(),
         )
+        self._require_supported_capabilities(request)
         response = self._provider.generate(request)
         try:
             return draft_cls.model_validate(json.loads(response.content))
@@ -45,3 +46,15 @@ class PromptExecutor:
             raise InvalidProposalException(
                 f"Failed to parse generation into {draft_cls.__name__}: {error}"
             ) from error
+
+    def _require_supported_capabilities(self, request: AIRequest) -> None:
+        """Fail explicitly when the request needs an unimplemented capability."""
+        capabilities = self._provider.capabilities()
+        if request.response_schema is not None and not capabilities.structured_output:
+            raise AIProviderException(
+                "Provider does not support structured_output required by this request."
+            )
+        if request.tools and not capabilities.tool_calling:
+            raise AIProviderException(
+                "Provider does not support tool_calling required by this request."
+            )

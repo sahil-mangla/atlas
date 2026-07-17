@@ -16,13 +16,16 @@ graph TD
         DomainServ[Subsystem Domain Services]
     end
 
-    subgraph Stateless AI Integration Layer
-        CA[Context Assembler Service]
-        Executor[Prompt Executor]
+    subgraph Prompt Management
         Registry[Prompt Registry]
         Prompt[Prompt Template]
-        Provider[AI Provider Adapter]
-        Model[External LLM / Gemini]
+    end
+
+    subgraph Multi-Protocol AI Runtime
+        CA[Context Assembler Service]
+        Executor[Prompt Executor]
+        Provider[Protocol Adapter]
+        Model[External Model Endpoint]
     end
 
     User -->|Triggers| WO[Workflow Orchestration]

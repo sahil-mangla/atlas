@@ -9,6 +9,7 @@ from typing import Any
 from google import genai
 from google.genai import types
 
+from engine.ai.config import ProviderConfig
 from engine.ai.exceptions import AIProviderException
 from engine.ai.provider import AIProvider
 from engine.config import Settings, get_settings
@@ -18,11 +19,21 @@ from engine.domain.ai import AIRequest, AIResponse, ProviderCapabilities
 class GeminiAIProvider(AIProvider):
     """Adapter bridging ATLAS AIProvider protocol with Google's Gemini SDK."""
 
-    def __init__(self, settings: Settings | None = None) -> None:
+    def __init__(
+        self,
+        config: ProviderConfig | Settings | None = None,
+        settings: Settings | None = None,
+    ) -> None:
         """Initialize the adapter from injected application settings."""
-        configured = settings or get_settings()
-        self._api_key = configured.gemini_api_key
-        self._model = configured.gemini_model
+        legacy_settings = config if isinstance(config, Settings) else None
+        configured = settings or legacy_settings or get_settings()
+        protocol_config = config if isinstance(config, ProviderConfig) else None
+        self._api_key = (
+            protocol_config.api_key if protocol_config else None
+        ) or configured.gemini_api_key
+        self._model = (
+            protocol_config.model if protocol_config else None
+        ) or configured.gemini_model
 
     def generate(self, request: AIRequest) -> AIResponse:
         """Process an AIRequest via Gemini.
@@ -77,12 +88,12 @@ class GeminiAIProvider(AIProvider):
             raise AIProviderException(f"Gemini provider error: {error}") from error
 
     def capabilities(self) -> ProviderCapabilities:
-        """Describe Gemini's capabilities."""
+        """Describe capabilities implemented by this adapter today."""
         return ProviderCapabilities(
             structured_output=True,
-            streaming_support=True,
-            tool_calling=True,
-            image_input=True,
-            reasoning_support=False,  # Update when applicable
+            streaming_support=False,
+            tool_calling=False,
+            image_input=False,
+            reasoning_support=False,
             context_window=2_000_000,
         )

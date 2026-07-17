@@ -17,6 +17,18 @@ from engine.domain.prompt_document import PromptDocument
 class PromptTemplate(ABC):
     """Abstract template definition for generating LLM prompts."""
 
+    def __setattr__(self, name: str, value: object) -> None:
+        """Allow prompt-definition state to be assigned exactly once."""
+        if name != "_metadata" or hasattr(self, name):
+            raise AttributeError(
+                "Prompt definitions are immutable after initialization."
+            )
+        object.__setattr__(self, name, value)
+
+    def __delattr__(self, name: str) -> None:
+        """Prevent deletion of immutable prompt-definition state."""
+        raise AttributeError("Prompt definitions are immutable after initialization.")
+
     @property
     @abstractmethod
     def metadata(self) -> PromptTemplateMetadata:

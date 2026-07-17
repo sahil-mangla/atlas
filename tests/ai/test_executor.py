@@ -7,10 +7,10 @@ import pytest
 from engine.ai.context import ContextStrategy, IdentityContextStrategy
 from engine.ai.exceptions import AIProviderException, InvalidProposalException
 from engine.ai.executor import PromptExecutor
-from engine.ai.prompts import ResearchPromptTemplate
-from engine.ai.registry import PromptRegistry
-from engine.domain.ai import AIResponse, ContextPayload
+from engine.domain.ai import ContextPayload
 from engine.domain.ai_drafts import ResearchProposalDraft
+from engine.prompt.registry import PromptRegistry
+from engine.prompt.templates import ResearchPromptTemplate
 from tests.ai.test_adapters import MockAIProvider
 
 

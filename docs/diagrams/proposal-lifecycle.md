@@ -9,7 +9,7 @@ sequenceDiagram
     participant WO as Workflow Orchestration
     participant ES as AI Engineering Service
     participant CA as Context Assembler
-    participant Prov as AI Provider (Gemini)
+    participant Prov as Protocol Adapter / AIProvider
     participant CS as Commit Service
     participant UOW as Unit of Work
     participant Repo as Filesystem Repository

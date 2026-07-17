@@ -1,10 +1,10 @@
 # ATLAS Intelligence Layer
 
 ## Purpose
-This document details the architecture of the ATLAS Intelligence Layer. It explains the interactions between workflow orchestration, stateless AI engineering services, and model providers while demonstrating how the AI Constitution boundaries are enforced.
+This document details the architecture of the ATLAS Intelligence Layer. It explains the interactions between Prompt Management, stateless AI engineering services, and model providers while demonstrating how the AI Constitution boundaries are enforced.
 
 ## Responsibilities
-- Define the structural boundaries between AI prompt generation and repository state mutations.
+- Define the ownership boundary between prompt definitions and AI prompt execution.
 - Detail the coordination of `AI Integration`, `AI Engineering Services`, and `Workflow Orchestration`.
 - Document how context is assembled and how provider responses are parsed.
 
@@ -29,7 +29,10 @@ The intelligence layer maps user instructions and domain context to strongly typ
 ContextAssemblerService  AIEngineeringService
                             │
                             ▼
-                 PromptRegistry → PromptExecutor → AIProvider (Gemini Adapter)
+ Prompt Management: PromptLoader → PromptRegistry
+                            │
+                            ▼
+                 AI Runtime: PromptExecutor → AIProvider
 ```
 
 ### 1. Workflow Orchestration
@@ -42,8 +45,26 @@ The `AIEngineeringService` subclasses (e.g. `ResearchAIEngineeringService`) act 
 3. Delegate provider execution and JSON/Pydantic validation to `PromptExecutor`.
 4. Construct the `AIProposal` around the resulting typed draft.
 
-### 3. AI Orchestration
-`PromptExecutor` applies context strategies, builds a provider-independent `PromptDocument`, creates the `AIRequest`, invokes the provider, and validates its JSON into the requested draft type. `PromptRegistry` is immutable and resolves templates by draft class.
+### 3. Prompt Management Layer
+`engine.prompt` exclusively owns prompt definitions, metadata, versioned prompt
+construction, loading, and registration. `PromptLoader` explicitly constructs the
+known templates and creates one immutable `PromptRegistry` during bootstrap. The
+registry is a passive lookup by draft class; it neither builds nor loads templates.
+
+### 4. AI Runtime
+`engine.ai` owns provider-independent execution. Bootstrap constructs and injects
+`PromptExecutor` into `AIOrchestrationService`; the executor applies context,
+asks the selected template to produce a provider-independent `PromptDocument`,
+creates the `AIRequest`, invokes the provider, and validates JSON into the
+requested draft type. The runtime does not instantiate, register, or version
+prompt templates.
+
+### 5. Protocol Factory
+`ProtocolFactory` is a registry-based bootstrap dependency that resolves the
+configured protocol adapter (`AIProvider`). It is not consulted during prompt
+execution. New protocols are supplied by implementing an adapter and registering
+it with the factory while `PromptExecutor` and Prompt Management remain
+protocol-agnostic. See [Multi-Protocol AI Runtime](multi-protocol-ai-runtime.md).
 
 ---
 

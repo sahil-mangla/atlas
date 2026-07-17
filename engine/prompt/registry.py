@@ -2,13 +2,10 @@
 
 from collections.abc import Mapping
 from types import MappingProxyType
-from typing import TypeVar
 
 from pydantic import BaseModel
 
-from engine.ai.prompts import PromptTemplate
-
-T = TypeVar("T", bound=BaseModel)
+from engine.prompt.templates import PromptTemplate
 
 
 class PromptRegistry:
@@ -17,7 +14,7 @@ class PromptRegistry:
     def __init__(self, templates: Mapping[type[BaseModel], PromptTemplate]) -> None:
         self._templates = MappingProxyType(dict(templates))
 
-    def resolve(self, draft_cls: type[T]) -> PromptTemplate:
+    def resolve(self, draft_cls: type[BaseModel]) -> PromptTemplate:
         """Return the template registered for ``draft_cls``.
 
         Raises:
