@@ -64,6 +64,16 @@ See [Multi-Protocol AI Runtime](multi-protocol-ai-runtime.md).
 - Add integration tests in `tests/workflow/test_orchestration.py` to verify prompt delegation, validation, commit success, and stage transition flow.
 - When adding a protocol adapter, extend `tests/ai/test_protocol_runtime.py` for request/response normalization, capability truthfulness, and factory registration.
 
+### 8. Extending the Knowledge Subsystem
+To extend or customize the knowledge extraction and retrieval behavior:
+- **Custom Knowledge Extractor**:
+  1. Implement a new class inheriting from `KnowledgeExtractor` in `engine/knowledge/extractors/`.
+  2. Implement the `source_type` property and `extract` method, reading from your subsystem repository deterministically.
+  3. Register your new extractor explicitly in `atlas/_bootstrap.py`'s `ExtractorRegistry` instantiation.
+- **Custom Retrieval Profile**:
+  1. Define a new `KnowledgeRetrievalProfile` instance in `engine/knowledge/profiles.py` with stage, default categories, default tags, and maximum entries count.
+  2. Register this profile in the static `STAGE_PROFILES` dictionary.
+
 ---
 
 ## Future Extensions

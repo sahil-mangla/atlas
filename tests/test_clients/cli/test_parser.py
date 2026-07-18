@@ -71,7 +71,7 @@ def test_parse_project_create() -> None:
 def test_parse_project_create_missing_flags() -> None:
     with pytest.raises(
         CLIParseError, match="Missing required flags: --description, --objective"
-    ):  # noqa: E501
+    ):
         parse_argv(["project", "create", "--name", "Test"])
 
 

@@ -46,6 +46,7 @@ ATLAS decomposes engineering concerns into independent sub-aggregates, each with
 - **Workflow**: Manages the active objectives checklist, state validations, and the immutable transition history.
 - **Memory**: Tracks conversation dialogue logs, memory entries, and session contexts.
 - **Evaluation**: Performs functional reviews, checks requirements coverage, and logs compliance findings.
+- **Knowledge**: Governs reviewed engineering knowledge (principles, standards, constraints, and lessons learned) via `KnowledgeCandidate` and `PublishedKnowledge` entities, using `KnowledgeActor` for clear human/AI/system attribution.
 
 ---
 

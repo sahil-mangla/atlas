@@ -73,7 +73,7 @@ class CLIRenderer:
             result.name,
             width=self._ctx.terminal_width,
             use_unicode=self._ctx.use_unicode,
-        )  # noqa: E501
+        )
         pairs: dict[str, Any] = {
             "ID": str(result.id),
             "Status": result.status.value,
@@ -98,7 +98,7 @@ class CLIRenderer:
             "Projects",
             width=self._ctx.terminal_width,
             use_unicode=self._ctx.use_unicode,
-        )  # noqa: E501
+        )
         rows = [
             [
                 str(p.id)[:8] + "…",
@@ -130,7 +130,7 @@ class CLIRenderer:
         heading = render_heading(
             "Workflow Status",
             width=self._ctx.terminal_width,
-            use_unicode=self._ctx.use_unicode,  # noqa: E501
+            use_unicode=self._ctx.use_unicode,
         )
         ready_badge = render_status_badge(
             "ready" if result.is_ready_for_transition else "not ready",
@@ -180,7 +180,7 @@ class CLIRenderer:
             "Proposal",
             width=self._ctx.terminal_width,
             use_unicode=self._ctx.use_unicode,
-        )  # noqa: E501
+        )
         pairs: dict[str, Any] = {
             "ID": str(result.id),
             "Project": str(result.project_id),
@@ -215,7 +215,7 @@ class CLIRenderer:
             "ok" if result.success else "failed",
             ok=result.success,
             use_unicode=self._ctx.use_unicode,
-        )  # noqa: E501
+        )
         msg = f"  {result.message}" if result.message else ""
         return f"{badge}{msg}"
 
@@ -231,7 +231,7 @@ class CLIRenderer:
         badge = render_status_badge(
             "committed" if result.success else "failed",
             ok=result.success,
-            use_unicode=self._ctx.use_unicode,  # noqa: E501
+            use_unicode=self._ctx.use_unicode,
         )
         pairs: dict[str, Any] = {
             "Proposal": str(result.proposal_id),
@@ -254,7 +254,7 @@ class CLIRenderer:
         """
         badge = render_status_badge(
             "error", ok=False, use_unicode=self._ctx.use_unicode
-        )  # noqa: E501
+        )
         kind = type(error).__name__
         return f"{badge}  {kind}: {error}"
 
@@ -269,7 +269,7 @@ class CLIRenderer:
         """
         badge = render_status_badge(
             "parse error", ok=False, use_unicode=self._ctx.use_unicode
-        )  # noqa: E501
+        )
         return f"{badge}  {message}"
 
     # ------------------------------------------------------------------

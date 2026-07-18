@@ -51,6 +51,7 @@ class WorkflowStatusResult(Result):
     is_ready_for_transition: bool
     readiness_status: EvaluationStatus
     blocking_issues: list[str] = Field(default_factory=list)
+    pending_knowledge_candidates: list[UUID] = Field(default_factory=list)
 
 
 class ProposalResult(Result):

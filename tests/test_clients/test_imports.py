@@ -27,9 +27,9 @@ def test_clients_do_not_import_engine() -> None:
             elif isinstance(node, ast.ImportFrom):  # noqa: SIM102
                 if node.module and (
                     node.module == "engine" or node.module.startswith("engine.")
-                ):  # noqa: E501
+                ):
                     violations.append(f"{py_file.name}: imports from {node.module}")
 
     assert not violations, "Found boundary violations in clients:\n" + "\n".join(
         violations
-    )  # noqa: E501
+    )

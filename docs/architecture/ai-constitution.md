@@ -22,7 +22,7 @@ This document establishes the ATLAS AI Constitution. It outlines the architectur
 
 ### Rule 2: No Direct Mutation
 **Requirement**: AI components must never have direct write or delete permissions on the repository filesystem. They cannot modify system configurations or codebase files.
-- *Implementation*: The `AIOrchestrationService` has no access to repository `.save()` or `.delete()` methods. It can only emit a read-only `AIProposal` holding the uncommitted draft data.
+- *Implementation*: The `AIOrchestrationService` has no access to repository `.save()` or `.delete()` methods. It can only emit a read-only `AIProposal` holding the uncommitted draft data. Published knowledge is strictly immutable once written, preventing any modification of existing published records.
 
 ### Rule 3: Deterministic Context Boundary
 **Requirement**: The information provided to the AI must be constrained to a verifiable, approved snapshot context. Speculative or unapproved states must be excluded.
@@ -30,7 +30,7 @@ This document establishes the ATLAS AI Constitution. It outlines the architectur
 
 ### Rule 4: Human-in-the-Loop Validation Gate
 **Requirement**: AI-generated proposals cannot bypass human judgment. Every change must go through a formal approval gate before persistence.
-- *Implementation*: Proposals are generated in `ProposalStatus.DRAFT`. To commit, they must move through `process_review_decision` with a `ProposalDecision.APPROVE` resulting in `ProposalStatus.APPROVED` from a human reviewer.
+- *Implementation*: Proposals are generated in `ProposalStatus.DRAFT`. To commit, they must move through `process_review_decision` with a `ProposalDecision.APPROVE` resulting in `ProposalStatus.APPROVED` from a human reviewer. Similarly, AI-suggested `KnowledgeCandidate` drafts must be reviewed and approved by a human actor (`KnowledgeActorType.HUMAN`) to be published. Approval by any non-human actor (AI or SYSTEM) is rejected.
 
 ### Rule 5: Atomic Commit & Fail-Safe Rollback
 **Requirement**: Committing an approved proposal must be an atomic operation. If the commit, translation, or validation fails, the workspace must be returned to its exact pre-mutation state.

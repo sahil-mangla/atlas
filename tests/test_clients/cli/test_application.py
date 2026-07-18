@@ -92,13 +92,12 @@ def test_cli_app_bootstrap_failure(capsys: pytest.CaptureFixture[str]) -> None:
     with patch(
         "clients.cli.application.atlas.create",
         side_effect=BootstrapError("Failed to init"),
-    ):  # noqa: E501, SIM117
-        with patch("sys.exit") as mock_exit:
-            main(["version"])
-            mock_exit.assert_called_once_with(_EXIT_ERROR)
-            _, err = capsys.readouterr()
-            assert "BootstrapError" in err
-            assert "Failed to init" in err
+    ), patch("sys.exit") as mock_exit:
+        main(["version"])
+        mock_exit.assert_called_once_with(_EXIT_ERROR)
+        _, err = capsys.readouterr()
+        assert "BootstrapError" in err
+        assert "Failed to init" in err
 
 
 @patch("sys.exit")
@@ -106,7 +105,7 @@ def test_main(mock_exit: MagicMock) -> None:
     # Use patch to avoid actually hitting atlas.create() or sys.exit
     with patch(
         "clients.cli.application.CLIApplication.run", return_value=_EXIT_OK
-    ) as mock_run:  # noqa: E501, SIM117
+    ) as mock_run:
         with patch("clients.cli.application.atlas.create", return_value=MagicMock()):
             main(["version"])
             mock_run.assert_called_once_with(["version"])

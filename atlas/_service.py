@@ -17,6 +17,7 @@ from atlas.commands import (
     ListProjectsCommand,
     LoadProjectCommand,
     RejectProposalCommand,
+    ReviewKnowledgeCandidateCommand,
     TransitionStageCommand,
 )
 from atlas.exceptions import (
@@ -54,6 +55,7 @@ from engine.domain.ai import AIProposal
 from engine.domain.ai_feedback import ProposalFeedback
 from engine.domain.enums import ApprovalStatus, ProposalDecision
 from engine.domain.enums import EvaluationStatus as EngineEvaluationStatus
+from engine.knowledge.exceptions import KnowledgeException
 from engine.project.exceptions import (
     InvalidProjectException,
     ProjectAlreadyExistsException,
@@ -237,6 +239,10 @@ class Atlas:
                 != EngineEvaluationStatus.FAILED,
                 readiness_status=EvaluationStatus(readiness.status.value),
                 blocking_issues=readiness.blocking_issues,
+                pending_knowledge_candidates=[
+                    candidate.id
+                    for candidate in self._orchestration_service.knowledge_orchestration.list_pending_candidates(command.project_id)
+                ] if self._orchestration_service.knowledge_orchestration else [],
             )
         except WorkflowException as e:
             raise self._map_workflow_exception(e) from e
@@ -280,6 +286,10 @@ class Atlas:
                 != EngineEvaluationStatus.FAILED,
                 readiness_status=EvaluationStatus(readiness.status.value),
                 blocking_issues=readiness.blocking_issues,
+                pending_knowledge_candidates=[
+                    candidate.id
+                    for candidate in self._orchestration_service.knowledge_orchestration.list_pending_candidates(command.project_id)
+                ] if self._orchestration_service.knowledge_orchestration else [],
             )
         except WorkflowException as e:
             raise self._map_workflow_exception(e) from e
@@ -358,6 +368,22 @@ class Atlas:
             raise self._map_ai_exception(e) from e
         except WorkflowException as e:
             raise self._map_workflow_exception(e) from e
+
+    def review_knowledge_candidate(
+        self, command: ReviewKnowledgeCandidateCommand
+    ) -> OperationResult:
+        """Apply a human review decision to one pending knowledge candidate."""
+        try:
+            self._orchestration_service.process_knowledge_review(
+                command.project_id,
+                command.candidate_id,
+                command.decision,
+                command.actor,
+                command.feedback,
+            )
+            return OperationResult(success=True, message="Knowledge candidate reviewed.")
+        except (WorkflowException, KnowledgeException) as exc:
+            raise ApplicationError(str(exc)) from exc
 
     def reject_proposal(self, command: RejectProposalCommand) -> OperationResult:
         """Reject a generated AI proposal with feedback."""

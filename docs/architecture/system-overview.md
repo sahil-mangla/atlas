@@ -110,6 +110,12 @@ In ATLAS, AI agents are tools utilized to assist in implementation, speed up exe
 - **Outputs**: Environment-specific formatted output (e.g., ANSI terminal strings, structured JSON responses).
 - **Collaborators**: Depends exclusively on the Application Platform Layer (Atlas SDK) and shared presentation utilities.
 
+### 14. Knowledge Subsystem
+- **Purpose**: Captures, reviews, publishes, retrieves, and lifecycle-manages project-scoped engineering knowledge derived from approved artifacts and human submissions.
+- **Inputs**: Approved snapshots from Research, Planning, Architecture, and Evaluation; human submissions; AI-suggested drafts.
+- **Outputs**: Reviewed knowledge candidates, immutable published engineering knowledge context sections.
+- **Collaborators**: Workflow Orchestration (for pre-generation retrieval and post-commit extraction) and Filesystem Repository (for persistence).
+
 ---
 
 ## Future Extensions

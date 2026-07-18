@@ -154,6 +154,7 @@ class ProposalType(StrEnum):
     ARCHITECTURE = "architecture"
     EVALUATION = "evaluation"
     MEMORY_CANDIDATE = "memory_candidate"
+    KNOWLEDGE_CANDIDATE = "knowledge_candidate"
 
 
 class ProposalDecision(StrEnum):
@@ -161,3 +162,52 @@ class ProposalDecision(StrEnum):
 
     APPROVE = "approve"
     REJECT = "reject"
+
+
+class KnowledgeCategory(StrEnum):
+    PRINCIPLE = "principle"
+    PATTERN = "pattern"
+    STANDARD = "standard"
+    CONVENTION = "convention"
+    DECISION_SUMMARY = "decision_summary"
+    CONSTRAINT = "constraint"
+    LESSON_LEARNED = "lesson_learned"
+
+
+class KnowledgeSourceType(StrEnum):
+    RESEARCH_SNAPSHOT = "research_snapshot"
+    PLANNING_SNAPSHOT = "planning_snapshot"
+    ARCHITECTURE_SNAPSHOT = "architecture_snapshot"
+    EVALUATION_SNAPSHOT = "evaluation_snapshot"
+    HUMAN_SUBMISSION = "human_submission"
+    ORGANIZATIONAL_IMPORT = "organizational_import"
+    AI_PROPOSAL = "ai_proposal"
+
+
+class KnowledgeCandidateStatus(StrEnum):
+    PENDING_REVIEW = "pending_review"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+    WITHDRAWN = "withdrawn"
+
+
+class PublishedKnowledgeStatus(StrEnum):
+    ACTIVE = "active"
+    SUPERSEDED = "superseded"
+    DEPRECATED = "deprecated"
+
+
+class KnowledgeActorType(StrEnum):
+    HUMAN = "human"
+    AI = "ai"
+    SYSTEM = "system"
+    WORKFLOW = "workflow"
+    PLUGIN = "plugin"
+    IMPORT = "import"
+    EXTERNAL = "external"
+
+
+class KnowledgeScope(StrEnum):
+    PROJECT = "project"
+    WORKSPACE = "workspace"
+    ORGANIZATION = "organization"

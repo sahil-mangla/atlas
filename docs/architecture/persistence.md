@@ -40,7 +40,8 @@ Under the hybrid local model, all engineering data is persisted in a hidden `.at
 │   ├── architecture.json  # Subsystem blueprints, constraints, and ADRs
 │   ├── workflow.json      # Stage state, active checklists, and transition logs
 │   ├── memory.json        # Dialogue histories and context logs
-│   └── evaluation.json    # Review reports and compliance results
+│   ├── evaluation.json    # Review reports and compliance results
+│   └── knowledge.json     # Reviewed candidates and active published knowledge
 └── [Project Code Files]   # Application source code
 ```
 
@@ -59,6 +60,9 @@ Since local filesystems do not support standard ACID database transactions, ATLA
   1. The unit of work iterates through the backup copies.
   2. For aggregates that existed prior to the change, it invokes `repository.save(backup)` to overwrite mutations and restore the original files.
   3. For aggregates that did not exist (newly created during the flow), it calls `repository.delete(project_id)` to remove the newly created JSON files, returning the directory to its exact pre-mutation state.
+
+### 3. Published Knowledge Immutability Invariant
+To preserve absolute traceability and engineering integrity, published knowledge content (title, content, category, tags) is strictly immutable once written. The `KnowledgeRepository` enforces this persistence invariant at the serialization boundary. Any attempt to modify the contents of an existing published entry raises a `ValueError`. Changes must be made by publishing a new version that formally supersedes the previous entry via version and backlink pointers.
 
 ---
 

@@ -40,7 +40,7 @@ class RenderContext:
 
 def render_heading(
     title: str, *, level: int = 1, width: int = 80, use_unicode: bool = True
-) -> str:  # noqa: E501
+) -> str:
     """Render a section heading.
 
     Args:
@@ -63,7 +63,7 @@ def render_heading(
 
 def render_divider(
     *, char: str | None = None, width: int = 80, use_unicode: bool = True
-) -> str:  # noqa: E501
+) -> str:
     """Render a horizontal divider.
 
     Args:
@@ -81,7 +81,7 @@ def render_divider(
 
 def render_section(
     title: str, body: str, *, width: int = 80, use_unicode: bool = True
-) -> str:  # noqa: E501
+) -> str:
     """Render a labeled section with a sub-heading and body.
 
     Args:

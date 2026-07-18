@@ -9,6 +9,8 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 
 from atlas.types import WorkflowStage
+from engine.domain.enums import ProposalDecision
+from engine.domain.knowledge import KnowledgeActor
 
 
 class Command(BaseModel):
@@ -78,3 +80,13 @@ class GetWorkflowStatusCommand(Command):
     """Get current workflow state for a project."""
 
     project_id: UUID
+
+
+class ReviewKnowledgeCandidateCommand(Command):
+    """Approve or reject a pending engineering-knowledge candidate."""
+
+    project_id: UUID
+    candidate_id: UUID
+    decision: ProposalDecision
+    actor: KnowledgeActor
+    feedback: str | None = None

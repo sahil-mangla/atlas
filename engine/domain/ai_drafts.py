@@ -4,7 +4,12 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from engine.domain.enums import FindingCategory, FindingSeverity
+from engine.domain.enums import (
+    FindingCategory,
+    FindingSeverity,
+    KnowledgeCategory,
+    KnowledgeSourceType,
+)
 
 # ==========================================
 # Research Draft Hierarchy
@@ -189,3 +194,22 @@ class CommitResult(BaseModel):
     )
     transition_blocked: bool = Field(default=False)
     transition_errors: list[str] = Field(default_factory=list)
+
+
+# ==========================================
+# Knowledge Draft Hierarchy
+# ==========================================
+
+
+class KnowledgeCandidateDraft(BaseModel):
+    title: str = Field(description="Title of the knowledge candidate.")
+    content: str = Field(description="Content of the engineering knowledge.")
+    category: KnowledgeCategory = Field(description="Category of the knowledge.")
+    tags: list[str] = Field(description="Tags for the knowledge.")
+    rationale: str = Field(description="Why this knowledge is important.")
+    source_snapshot_type: KnowledgeSourceType | None = Field(
+        default=None, description="The type of the snapshot that sourced this knowledge."
+    )
+    source_snapshot_id: UUID | None = Field(
+        default=None, description="The UUID of the snapshot that sourced this knowledge."
+    )

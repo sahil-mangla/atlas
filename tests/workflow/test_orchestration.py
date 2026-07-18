@@ -11,6 +11,7 @@ from engine.domain.ai_feedback import ProposalFeedback
 from engine.domain.enums import (
     ApprovalStatus,
     EvaluationStatus,
+    KnowledgeSourceType,
     ProposalDecision,
     ProposalStatus,
     ProposalType,
@@ -34,16 +35,16 @@ class DummyWorkflowRepo(WorkflowRepository):
     def __init__(self) -> None:
         self.workflow: Any = None
 
-    def get_by_project_id(self, project_id: UUID) -> Any:
+    def get_by_project_id(self, project_id: UUID) -> Any:  # noqa: ARG002
         return self.workflow
 
     def save(self, workflow: Any) -> None:
         self.workflow = workflow
 
-    def exists(self, project_id: UUID) -> bool:
+    def exists(self, project_id: UUID) -> bool:  # noqa: ARG002
         return self.workflow is not None
 
-    def get_by_id(self, workflow_id: UUID) -> Any:
+    def get_by_id(self, workflow_id: UUID) -> Any:  # noqa: ARG002
         return None
 
     def discover(self) -> list[Any]:
@@ -253,3 +254,107 @@ def test_process_approval_success_transition() -> None:
         approval_status=ApprovalStatus.APPROVED,
         reason="All verified",
     )
+
+
+def test_generate_proposal_with_knowledge_orchestration() -> None:
+    workflow_repo = DummyWorkflowRepo()
+    project_id = uuid4()
+
+    mock_workflow = Mock(spec=Workflow)
+    mock_workflow.current_stage = WorkflowStage.RESEARCH
+    workflow_repo.workflow = mock_workflow
+
+    executor = Mock(spec=StageExecutor)
+    # The executor's service is expected to have a context_assembler
+    mock_service = Mock()
+    mock_assembler = Mock()
+    mock_service.context_assembler = mock_assembler
+    executor.service = mock_service
+
+    knowledge_mock = Mock()
+    mock_assembler.assemble_context.return_value = "assembled_context"
+
+    knowledge_orchestration = Mock()
+    knowledge_orchestration.retrieve_for_stage.return_value = knowledge_mock
+
+    registry = StageServiceRegistry({WorkflowStage.RESEARCH: executor})
+
+    service = WorkflowOrchestrationService(
+        workflow_repo=workflow_repo,
+        transition_service=Mock(),
+        readiness_service=Mock(),
+        commit_service=Mock(),
+        registry=registry,
+        knowledge_orchestration=knowledge_orchestration,
+    )
+
+    service.generate_proposal(project_id, "Instructions")
+
+    # Verify retrieval occurs before assembly and generation
+    knowledge_orchestration.retrieve_for_stage.assert_called_once_with(
+        project_id, WorkflowStage.RESEARCH
+    )
+    mock_assembler.assemble_context.assert_called_once_with(project_id, knowledge_mock)
+    executor.generate_proposal.assert_called_once_with(
+        project_id, "Instructions", "assembled_context"
+    )
+
+
+def test_process_approval_triggers_extraction() -> None:
+    workflow_repo = DummyWorkflowRepo()
+    project_id = uuid4()
+    mock_workflow = Mock(spec=Workflow)
+    mock_workflow.current_stage = WorkflowStage.RESEARCH
+    mock_workflow.pending_stages = []
+    workflow_repo.workflow = mock_workflow
+
+    executor = Mock(spec=StageExecutor)
+    registry = StageServiceRegistry({WorkflowStage.RESEARCH: executor})
+
+    commit_service = Mock(spec=ProposalCommitService)
+    committed_id = uuid4()
+    commit_service.commit_proposal.return_value = CommitResult(
+        success=True, committed_snapshot_id=committed_id
+    )
+
+    readiness_service = Mock(spec=WorkflowReadinessService)
+    mock_review = Mock()
+    mock_review.status = EvaluationStatus.PASSED
+    readiness_service.evaluate_readiness.return_value = mock_review
+
+    knowledge_orchestration = Mock()
+
+    service = WorkflowOrchestrationService(
+        workflow_repo=workflow_repo,
+        transition_service=Mock(),
+        readiness_service=readiness_service,
+        commit_service=commit_service,
+        registry=registry,
+        knowledge_orchestration=knowledge_orchestration,
+    )
+
+    proposal = AIProposal[ResearchProposalDraft](
+        proposal_type=ProposalType.RESEARCH,
+        status=ProposalStatus.PENDING_REVIEW,
+        prompt_metadata=PromptTemplateMetadata(
+            version=1, supported_subsystem=ProposalType.RESEARCH
+        ),
+        context_used=ContextPayload(serialized_context=""),
+        data=ResearchProposalDraft(problem_statement="Test", objectives=[]),
+    )
+
+    res = service.process_review_decision(
+        project_id=project_id,
+        proposal=proposal,
+        decision=ProposalDecision.APPROVE,
+    )
+
+    assert res is not None
+    assert res.success
+    # Verify post-commit extraction occurs exactly once with the correct parameters
+    knowledge_orchestration.extract_candidate_from_artifact.assert_called_once_with(
+        project_id=project_id,
+        source_type=KnowledgeSourceType.RESEARCH_SNAPSHOT,
+        source_id=committed_id,
+    )
+

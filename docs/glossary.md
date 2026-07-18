@@ -66,3 +66,18 @@ The immutable lineage linking upstream requirements and research findings down t
 
 ### Readiness
 The evaluation status (`ReadinessReview`) verifying that all active objectives for the current workflow stage have been completed before a transition can occur.
+
+### KnowledgeCandidate
+A proposed unit of engineering knowledge (principle, pattern, standard, constraint, or lesson learned) extracted from approved snapshots or submitted by a human, pending human review and approval.
+
+### PublishedKnowledge
+An approved, versioned, immutable engineering knowledge entry active in the project context. It is frozen and content cannot be mutated.
+
+### KnowledgeActor
+A value object representing the identity and type (human, AI, workflow, system, import) of the actor associated with a knowledge action.
+
+### KnowledgeProvenance
+The metadata tracing the origin of a knowledge entry (e.g. the source snapshot type, ID, extraction time, and extracting actor).
+
+### Deduplication Fingerprint
+A deterministic SHA-256 hash computed from normalized title, content, category, and tags to identify and block exact duplicates during candidate submission.

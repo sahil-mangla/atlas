@@ -51,6 +51,8 @@ class ProviderCapabilities(BaseModel):
 class ContextPayload(BaseModel):
     """Immutable freeze of subsystem context and traceability metadata."""
 
+    model_config = ConfigDict(frozen=True)
+
     planning_snapshot_id: UUID | None = Field(
         default=None, description="Approved planning snapshot."
     )
@@ -63,8 +65,11 @@ class ContextPayload(BaseModel):
     evaluation_snapshot_id: UUID | None = Field(
         default=None, description="Approved evaluation snapshot."
     )
-    memory_entries: list[UUID] = Field(
+    memory_entries: tuple[UUID, ...] = Field(
         default_factory=list, description="Relevant memory entries."
+    )
+    knowledge_entry_ids: tuple[UUID, ...] = Field(
+        default_factory=list, description="Relevant published engineering knowledge."
     )
     serialized_context: str = Field(
         description="Stringified context payload provided to LLM."

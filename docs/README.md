@@ -1,6 +1,6 @@
-# ATLAS Architecture Documentation (v1.0 Baseline)
+# ATLAS Architecture Documentation (v1.0 Baseline & Phase 13)
 
-Welcome to the official ATLAS Architecture Baseline documentation. This reference captures the canonical architecture and design patterns of the ATLAS platform after the completion and stabilization of Phase 1–8.5.
+Welcome to the official ATLAS Architecture Baseline documentation. This reference captures the canonical architecture and design patterns of the ATLAS platform after the completion and stabilization of Phase 1–13.
 
 ---
 
@@ -19,6 +19,7 @@ Canonical definitions of terminology matching the codebase.
 - **[Engineering Workflow](file:///Users/sahilmangla/atlas/docs/architecture/engineering-workflow.md)**: Lifecycles, objectives, and transition state machine rules.
 - **[Workflow Stage Execution](file:///Users/sahilmangla/atlas/docs/architecture/workflow-stages.md)**: AI-assisted and human-driven stage responsibilities.
 - **[Intelligence Layer](file:///Users/sahilmangla/atlas/docs/architecture/intelligence-layer.md)**: Coordination of AI integration services under constitutional safety boundaries.
+- **[Engineering Knowledge Layer](file:///Users/sahilmangla/atlas/docs/architecture/engineering-knowledge-layer.md)**: Phase 13 knowledge boundaries, lifecycle, retrieval, and persistence.
 - **[Multi-Protocol AI Runtime](file:///Users/sahilmangla/atlas/docs/architecture/multi-protocol-ai-runtime.md)**: Protocol factory, protocol adapters, and protocol-independent prompt execution.
 - **[Domain Model](file:///Users/sahilmangla/atlas/docs/architecture/domain-model.md)**: The lightweight Project aggregate root and sub-aggregate boundaries.
 - **[Persistence Architecture](file:///Users/sahilmangla/atlas/docs/architecture/persistence.md)**: Filesystem storage details, path resolution inversion, and compensating transaction rollbacks.
@@ -41,3 +42,5 @@ Canonical definitions of terminology matching the codebase.
 - **[Domain & Traceability Links](file:///Users/sahilmangla/atlas/docs/diagrams/domain-relations.md)**
 - **[Runtime Request Lifecycle](file:///Users/sahilmangla/atlas/docs/diagrams/request-lifecycle.md)**
 - **[Multi-Protocol AI Runtime](file:///Users/sahilmangla/atlas/docs/diagrams/multi-protocol-ai-runtime.md)**
+- **[Knowledge Lifecycle](file:///Users/sahilmangla/atlas/docs/diagrams/knowledge-lifecycle.md)**
+- **[Knowledge Workflow Integration](file:///Users/sahilmangla/atlas/docs/diagrams/knowledge-workflow-integration.md)**

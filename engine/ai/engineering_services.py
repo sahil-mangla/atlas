@@ -19,7 +19,7 @@ from engine.architecture.services import (
     InterfaceContractService,
     RiskAnalysisService,
 )
-from engine.domain.ai import AIProposal
+from engine.domain.ai import AIProposal, ContextPayload
 from engine.domain.ai_drafts import (
     ArchitectureProposalDraft,
     CommitResult,
@@ -577,12 +577,17 @@ class AIEngineeringService(Generic[T], ABC):
         self.context_assembler = context_assembler
         self.draft_cls = draft_cls
 
-    def generate(self, project_id: UUID, user_instructions: str = "") -> AIProposal[T]:
+    def generate(
+        self,
+        project_id: UUID,
+        user_instructions: str = "",
+        context: ContextPayload | None = None,
+    ) -> AIProposal[T]:
         """Generate a strongly typed proposal.
 
         Retrieves deterministic context, triggers generation, and parses outcomes.
         """
-        context = self.context_assembler.assemble_context(project_id)
+        context = context or self.context_assembler.assemble_context(project_id)
         template = self.orchestrator.prompt_registry.resolve(self.draft_cls)
         typed_draft = self.orchestrator.prompt_executor.execute(
             template, context, self.draft_cls, user_instructions

@@ -15,7 +15,7 @@ from engine.ai.engineering_services import (
     ProposalCommitService,
     ResearchAIEngineeringService,
 )
-from engine.domain.ai import AIProposal
+from engine.domain.ai import AIProposal, ContextPayload
 from engine.domain.ai_drafts import (
     ArchitectureProposalDraft,
     CommitResult,
@@ -27,11 +27,13 @@ from engine.domain.ai_feedback import ProposalFeedback
 from engine.domain.enums import (
     ApprovalStatus,
     EvaluationStatus,
+    KnowledgeSourceType,
     ProposalDecision,
     ProposalStatus,
     WorkflowStage,
 )
 from engine.domain.workflow import ProposalReviewEntry
+from engine.knowledge.orchestration import KnowledgeOrchestrationService
 from engine.workflow.exceptions import WorkflowException, WorkflowNotFoundException
 from engine.workflow.repository import WorkflowRepository
 from engine.workflow.services import (
@@ -58,7 +60,7 @@ class StageExecutor(Generic[T], ABC):
 
     @abstractmethod
     def generate_proposal(
-        self, project_id: UUID, user_instructions: str = ""
+        self, project_id: UUID, user_instructions: str = "", context: ContextPayload | None = None
     ) -> AIProposal[T]:
         """Trigger AI generation and validation, returning the typed proposal."""
         pass
@@ -73,9 +75,9 @@ class ResearchStageExecutor(StageExecutor[ResearchProposalDraft]):
         return WorkflowStage.RESEARCH
 
     def generate_proposal(
-        self, project_id: UUID, user_instructions: str = ""
+        self, project_id: UUID, user_instructions: str = "", context: ContextPayload | None = None
     ) -> AIProposal[ResearchProposalDraft]:
-        return self.service.generate(project_id, user_instructions)
+        return self.service.generate(project_id, user_instructions, context)
 
 
 class PlanningStageExecutor(StageExecutor[PlanningProposalDraft]):
@@ -87,9 +89,9 @@ class PlanningStageExecutor(StageExecutor[PlanningProposalDraft]):
         return WorkflowStage.PLANNING
 
     def generate_proposal(
-        self, project_id: UUID, user_instructions: str = ""
+        self, project_id: UUID, user_instructions: str = "", context: ContextPayload | None = None
     ) -> AIProposal[PlanningProposalDraft]:
-        return self.service.generate(project_id, user_instructions)
+        return self.service.generate(project_id, user_instructions, context)
 
 
 class ArchitectureStageExecutor(StageExecutor[ArchitectureProposalDraft]):
@@ -101,9 +103,9 @@ class ArchitectureStageExecutor(StageExecutor[ArchitectureProposalDraft]):
         return WorkflowStage.ARCHITECTURE
 
     def generate_proposal(
-        self, project_id: UUID, user_instructions: str = ""
+        self, project_id: UUID, user_instructions: str = "", context: ContextPayload | None = None
     ) -> AIProposal[ArchitectureProposalDraft]:
-        return self.service.generate(project_id, user_instructions)
+        return self.service.generate(project_id, user_instructions, context)
 
 
 class EvaluationStageExecutor(StageExecutor[EvaluationProposalDraft]):
@@ -115,9 +117,9 @@ class EvaluationStageExecutor(StageExecutor[EvaluationProposalDraft]):
         return WorkflowStage.REVIEW
 
     def generate_proposal(
-        self, project_id: UUID, user_instructions: str = ""
+        self, project_id: UUID, user_instructions: str = "", context: ContextPayload | None = None
     ) -> AIProposal[EvaluationProposalDraft]:
-        return self.service.generate(project_id, user_instructions)
+        return self.service.generate(project_id, user_instructions, context)
 
 
 # ==========================================
@@ -170,12 +172,14 @@ class WorkflowOrchestrationService:
         readiness_service: WorkflowReadinessService,
         commit_service: ProposalCommitService,
         registry: StageServiceRegistry,
+        knowledge_orchestration: KnowledgeOrchestrationService | None = None,
     ) -> None:
         self.workflow_repo = workflow_repo
         self.transition_service = transition_service
         self.readiness_service = readiness_service
         self.commit_service = commit_service
         self.registry = registry
+        self.knowledge_orchestration = knowledge_orchestration
 
     def generate_proposal(
         self, project_id: UUID, user_instructions: str = ""
@@ -193,7 +197,26 @@ class WorkflowOrchestrationService:
             )
 
         executor = self.registry.get_executor(workflow.current_stage)
-        return executor.generate_proposal(project_id, user_instructions)
+        if not self.knowledge_orchestration:
+            return executor.generate_proposal(project_id, user_instructions)
+        knowledge = self.knowledge_orchestration.retrieve_for_stage(
+            project_id, workflow.current_stage
+        )
+        service = getattr(executor, "service", None)
+        context = None
+        if service and hasattr(service, "context_assembler"):
+            context = service.context_assembler.assemble_context(project_id, knowledge)
+        return executor.generate_proposal(project_id, user_instructions, context)
+
+    def process_knowledge_review(
+        self, project_id: UUID, candidate_id: UUID, decision: ProposalDecision,
+        actor: Any, feedback: str | None = None,
+    ) -> Any:
+        if not self.knowledge_orchestration:
+            raise WorkflowException("Knowledge subsystem is not configured.")
+        return self.knowledge_orchestration.process_candidate_review(
+            project_id, candidate_id, decision, actor, feedback
+        )
 
     def process_review_decision(
         self,
@@ -237,6 +260,16 @@ class WorkflowOrchestrationService:
         if not commit_res.success:
             return commit_res
 
+        # Extract knowledge candidate post-commit
+        if commit_res.success and commit_res.committed_snapshot_id and self.knowledge_orchestration:
+            source_type = self._source_type_for_stage(workflow.current_stage)
+            if source_type:
+                self.knowledge_orchestration.extract_candidate_from_artifact(
+                    project_id=project_id,
+                    source_type=source_type,
+                    source_id=commit_res.committed_snapshot_id,
+                )
+
         # 2. Workflow Readiness Review
         readiness = self.readiness_service.evaluate_readiness(project_id)
         if readiness.status == EvaluationStatus.FAILED:
@@ -272,3 +305,11 @@ class WorkflowOrchestrationService:
             )
 
         return commit_res
+
+    def _source_type_for_stage(self, stage: WorkflowStage) -> KnowledgeSourceType | None:
+        return {
+            WorkflowStage.RESEARCH: KnowledgeSourceType.RESEARCH_SNAPSHOT,
+            WorkflowStage.PLANNING: KnowledgeSourceType.PLANNING_SNAPSHOT,
+            WorkflowStage.ARCHITECTURE: KnowledgeSourceType.ARCHITECTURE_SNAPSHOT,
+            WorkflowStage.REVIEW: KnowledgeSourceType.EVALUATION_SNAPSHOT,
+        }.get(stage)

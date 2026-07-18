@@ -36,7 +36,10 @@ class ConversationSession(BaseModel):
 
 
 class MemoryCandidate(BaseModel):
-    """A formal recommendation by the AI to persist information into Engineering Memory."""
+    """A formal recommendation by the AI to persist information into Engineering Memory.
+    
+    DEPRECATED: Use engine.domain.knowledge.KnowledgeCandidate instead.
+    """
 
     id: UUID = Field(default_factory=uuid4, description="Candidate ID.")
     project_id: UUID = Field(description="The project this candidate targets.")

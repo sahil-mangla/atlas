@@ -87,6 +87,7 @@ The Verification & Commit Flow processes generated proposals, enforces domain bo
 - **Interface-Driven Design**: Services depend on abstractions. For example, `ProposalCommitService` coordinates validation via `ProposalValidator` interfaces without knowing what drafts are being validated.
 - **Stateless AI Services**: All prompt building and generation services are completely stateless and hold no references to repository write paths (`save` or `delete`). They can only return proposals.
 - **Compensating Transactions**: Since ATLAS runs on the local filesystem, transaction guarantees are achieved using compensating unit-of-work boundaries that back up and restore file contents on failure.
+- **Knowledge Layer Separation**: The Engineering Knowledge Layer (`engine/knowledge`) is strictly separated from the AI Runtime (`engine/ai`) and Memory (`engine/memory`). Retrieval is orchestrated by Workflow before generation, while `ContextAssemblerService` remains a passive serializer. Published knowledge is immutable and guarded at the persistence boundary.
 
 ---
 

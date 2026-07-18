@@ -1,4 +1,7 @@
-from uuid import UUID
+from uuid import UUID, uuid4
+
+import pytest
+from pydantic import ValidationError
 
 from engine.domain.ai import (
     AIProposal,
@@ -31,6 +34,16 @@ def test_ai_request_response() -> None:
 
     response = AIResponse(content="world", finish_reason="stop")
     assert response.content == "world"
+
+
+def test_context_payload_is_immutable() -> None:
+    context = ContextPayload(serialized_context="abc")
+
+    with pytest.raises(ValidationError):
+        context.serialized_context = "changed"
+
+    with pytest.raises(ValidationError):
+        context.knowledge_entry_ids += (uuid4(),)
 
 
 def test_ai_proposal() -> None:

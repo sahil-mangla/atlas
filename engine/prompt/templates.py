@@ -7,6 +7,7 @@ from engine.domain.ai import ContextPayload, PromptTemplateMetadata
 from engine.domain.ai_drafts import (
     ArchitectureProposalDraft,
     EvaluationProposalDraft,
+    KnowledgeCandidateDraft,
     PlanningProposalDraft,
     ResearchProposalDraft,
 )
@@ -212,6 +213,40 @@ class SummaryPromptTemplate(PromptTemplate):
         return PromptDocument(
             system_prompt=(
                 "Summarize engineering context. Return only JSON matching the schema."
+            ),
+            context=context.serialized_context,
+            task=(
+                f"Schema: {self.expected_schema}\n\n"
+                f"User instructions: {user_instructions}"
+            ),
+        )
+
+
+class KnowledgeCandidatePromptTemplate(PromptTemplate):
+    """Template for generating a new Knowledge Candidate."""
+
+    def __init__(self) -> None:
+        self._metadata = PromptTemplateMetadata(
+            version=1,
+            supported_subsystem=ProposalType.KNOWLEDGE_CANDIDATE,
+        )
+
+    @property
+    def metadata(self) -> PromptTemplateMetadata:
+        return self._metadata
+
+    @property
+    def expected_schema(self) -> dict[str, Any] | None:
+        return KnowledgeCandidateDraft.model_json_schema()
+
+    def build(
+        self, context: ContextPayload, user_instructions: str = ""
+    ) -> PromptDocument:
+        return PromptDocument(
+            system_prompt=(
+                "You are an expert Engineering Knowledge Extractor.\n"
+                "Your task is to identify and summarize key engineering principles, patterns, standards, or constraints from the provided context.\n"
+                "Propose a formal Knowledge Candidate that captures this information. Return only JSON matching the schema."
             ),
             context=context.serialized_context,
             task=(

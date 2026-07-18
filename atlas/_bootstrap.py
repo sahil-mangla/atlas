@@ -44,6 +44,22 @@ from engine.evaluation.services import (
     EvaluationSummaryService,
     ReadinessEvaluationService,
 )
+from engine.knowledge.extractors import (
+    ArchitectureKnowledgeExtractor,
+    EvaluationKnowledgeExtractor,
+    ExtractorRegistry,
+    PlanningKnowledgeExtractor,
+    ResearchKnowledgeExtractor,
+)
+from engine.knowledge.fs_repository import FilesystemKnowledgeRepository
+from engine.knowledge.orchestration import KnowledgeOrchestrationService
+from engine.knowledge.services import (
+    KnowledgeApprovalService,
+    KnowledgeCandidateService,
+    KnowledgeDeduplicationService,
+    KnowledgeLifecycleService,
+    KnowledgeRetrievalService,
+)
 from engine.memory.fs_repository import FilesystemMemoryRepository
 from engine.planning.fs_repository import FilesystemPlanningRepository
 from engine.planning.services import (
@@ -117,6 +133,7 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
     architecture_repo = FilesystemArchitectureRepository(project_repo)
     evaluation_repo = FilesystemEvaluationRepository(project_repo)
     memory_repo = FilesystemMemoryRepository(project_repo)
+    knowledge_repo = FilesystemKnowledgeRepository(project_repo)
 
     context_assembler = ContextAssemblerService(
         research_repo=research_repo,
@@ -132,7 +149,6 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
     research_org = ResearchOrganizationService(research_repo)
     opportunity_analysis = OpportunityAnalysisService(research_repo)
     research_summary = ResearchSummaryService(research_repo)
-
     planning_init = PlanningInitializationService(planning_repo, research_repo)
     scope_planning = ScopePlanningService(planning_repo)
     milestone_planning = MilestonePlanningService(planning_repo)
@@ -239,6 +255,22 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
     workflow_initialization_service = WorkflowInitializationService(workflow_repo)
     workflow_transition_service = WorkflowTransitionService(workflow_repo)
     workflow_readiness_service = WorkflowReadinessService(workflow_repo)
+    knowledge_lifecycle = KnowledgeLifecycleService(knowledge_repo)
+
+    extractor_registry = ExtractorRegistry(
+        ResearchKnowledgeExtractor(research_repo),
+        PlanningKnowledgeExtractor(planning_repo),
+        ArchitectureKnowledgeExtractor(architecture_repo),
+        EvaluationKnowledgeExtractor(evaluation_repo),
+    )
+
+    knowledge_orchestration = KnowledgeOrchestrationService(
+        KnowledgeCandidateService(knowledge_repo, KnowledgeDeduplicationService()),
+        KnowledgeApprovalService(knowledge_repo, knowledge_lifecycle),
+        KnowledgeRetrievalService(knowledge_repo),
+        knowledge_lifecycle,
+        extractor_registry,
+    )
 
     orchestration_service = WorkflowOrchestrationService(
         workflow_repo=workflow_repo,
@@ -246,6 +278,7 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
         readiness_service=workflow_readiness_service,
         commit_service=commit_service,
         registry=registry,
+        knowledge_orchestration=knowledge_orchestration,
     )
 
     # 8. Facade Assembly

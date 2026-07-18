@@ -11,6 +11,7 @@ from engine.ai.exceptions import InvalidContextException
 from engine.ai.executor import PromptExecutor
 from engine.architecture.repository import ArchitectureRepository
 from engine.domain.ai import ContextPayload
+from engine.domain.knowledge import EngineeringKnowledgeContext
 from engine.domain.metadata import ArtifactStatus
 from engine.evaluation.repository import EvaluationRepository
 from engine.memory.repository import MemoryRepository
@@ -36,7 +37,11 @@ class ContextAssemblerService:
         self.evaluation_repo = evaluation_repo
         self.memory_repo = memory_repo
 
-    def assemble_context(self, project_id: UUID) -> ContextPayload:
+    def assemble_context(
+        self,
+        project_id: UUID,
+        engineering_knowledge: EngineeringKnowledgeContext | None = None,
+    ) -> ContextPayload:
         """Query subsystems for their latest approved snapshots and serialize them."""
         research = self.research_repo.get_by_project_id(project_id)
         planning = self.planning_repo.get_by_project_id(project_id)
@@ -70,7 +75,8 @@ class ContextAssemblerService:
             f"## Architecture\n{architecture_snapshot.model_dump_json(indent=2)}\n\n"
             "## Evaluation\n"
             f"{self._serialize_snapshot(evaluation_snapshot)}\n\n"
-            "## Engineering Memory\nNone\n"
+            "## Engineering Memory\nNone\n\n"
+            f"{(engineering_knowledge or EngineeringKnowledgeContext()).serialized_section}"
         )
 
         return ContextPayload(
@@ -79,6 +85,7 @@ class ContextAssemblerService:
             architecture_snapshot_id=arch_snap_id,
             evaluation_snapshot_id=eval_snap_id,
             memory_entries=[],
+            knowledge_entry_ids=(engineering_knowledge or EngineeringKnowledgeContext()).entry_ids,
             serialized_context=serialized,
         )
 
