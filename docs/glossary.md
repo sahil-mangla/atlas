@@ -81,3 +81,27 @@ The metadata tracing the origin of a knowledge entry (e.g. the source snapshot t
 
 ### Deduplication Fingerprint
 A deterministic SHA-256 hash computed from normalized title, content, category, and tags to identify and block exact duplicates during candidate submission.
+
+### Presentation Layer
+The Phase 14 `presentation/` package: an upper, non-engine layer that composes typed, immutable Views from the Atlas facade's read-model API and renders them to concrete output formats. See [Presentation Layer Architecture](architecture/presentation-layer.md).
+
+### Atlas Read Model
+An immutable, frozen Pydantic DTO (`presentation/read_models/models.py`) returned by an `Atlas.get_*_read_model` method, sourced from existing Phase 1-13 services and never exposing engine entities or repositories. The sole data source for presentation Collectors.
+
+### Collector (Presentation)
+A Phase 14 class (`presentation/collectors/collectors.py`) that calls one or more Atlas read-model methods and aggregates the results into a single immutable View. Collectors own presentation aggregation and derived values; they never render, call repositories, call engine services directly, perform AI work, or mutate engineering state.
+
+### View (Presentation)
+A deeply immutable, frozen Pydantic model (`presentation/views/models.py`) composed from Components, representing a fully computed, ephemeral, renderer-independent presentation surface (e.g. `ProjectDashboardView`). Views contain no business logic and no engine models.
+
+### Component (Presentation)
+An immutable leaf presentation object (`StatusBadge`, `Metric`, `Section` in `presentation/components/models.py`) with no rendering logic, no Atlas dependency, and no business logic. Views assemble Components; Components never assemble Views.
+
+### PlatformOrchestrationService
+The Phase 14 orchestration service (`presentation/orchestration/platform.py`) that selects a Collector and delegates to it. It receives all Collectors via constructor injection and never constructs them itself; it contains no business rules, does not render, and owns no persistence or repositories.
+
+### Renderer
+A Phase 14 class (`presentation/renderers/base.py`) implementing the `Renderer` protocol that formats an immutable View into a `RenderResult` for one output format (JSON, Markdown, or CLI text). Renderers perform formatting only -- they never call Atlas, never compute business meaning, and never mutate their input view.
+
+### RenderResult
+The frozen dataclass (`presentation/renderers/result.py`) returned by every Renderer, carrying rendered `content`, `media_type`, `renderer` identity, and an immutable (`MappingProxyType`) `metadata` mapping.

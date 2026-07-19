@@ -23,6 +23,7 @@ from atlas.commands import (
 from atlas.exceptions import (
     AIProviderError,
     ApplicationError,
+    BootstrapError,
     ContextAssemblyError,
     InvalidProjectError,
     InvalidTransitionError,
@@ -51,11 +52,20 @@ from engine.ai.exceptions import (
     InvalidProposalException,
 )
 from engine.ai.repository import ProposalRepository
+from engine.architecture.repository import ArchitectureRepository
 from engine.domain.ai import AIProposal
 from engine.domain.ai_feedback import ProposalFeedback
-from engine.domain.enums import ApprovalStatus, ProposalDecision
+from engine.domain.enums import (
+    ApprovalStatus,
+    KnowledgeCandidateStatus,
+    ProposalDecision,
+    PublishedKnowledgeStatus,
+)
 from engine.domain.enums import EvaluationStatus as EngineEvaluationStatus
+from engine.evaluation.repository import EvaluationRepository
 from engine.knowledge.exceptions import KnowledgeException
+from engine.knowledge.repository import KnowledgeRepository
+from engine.planning.repository import PlanningRepository
 from engine.project.exceptions import (
     InvalidProjectException,
     ProjectAlreadyExistsException,
@@ -69,6 +79,7 @@ from engine.project.services import (
     ProjectLoadingService,
     ProjectRegistryService,
 )
+from engine.research.repository import ResearchRepository
 from engine.workflow.exceptions import (
     InvalidTransitionException,
     WorkflowException,
@@ -79,6 +90,22 @@ from engine.workflow.repository import WorkflowRepository
 from engine.workflow.services import (
     WorkflowInitializationService,
     WorkflowTransitionService,
+)
+from presentation.orchestration import PlatformOrchestrationService
+from presentation.read_models import (
+    DiagnosticsReadModel,
+    KnowledgeReadModel,
+    ProjectReadModel,
+    ResearchReadModel,
+    WorkflowReadModel,
+)
+from presentation.renderers import RenderContract, RendererRegistry, RenderResult
+from presentation.views import (
+    DiagnosticsView,
+    KnowledgeSummaryView,
+    ProjectDashboardView,
+    ResearchSummaryView,
+    WorkflowStatusView,
 )
 
 
@@ -95,6 +122,14 @@ class _AtlasServices:
     workflow_transition_service: WorkflowTransitionService
     orchestration_service: WorkflowOrchestrationService
     proposal_repo: ProposalRepository
+    # Read-only repositories backing the Phase 14 presentation read-model API.
+    # Optional so existing test fixtures that don't exercise read models are
+    # unaffected; the production bootstrap always supplies all of them.
+    research_repo: ResearchRepository | None = None
+    planning_repo: PlanningRepository | None = None
+    architecture_repo: ArchitectureRepository | None = None
+    evaluation_repo: EvaluationRepository | None = None
+    knowledge_repo: KnowledgeRepository | None = None
 
 
 class Atlas:
@@ -114,9 +149,41 @@ class Atlas:
         self._workflow_transition_service = services.workflow_transition_service
         self._orchestration_service = services.orchestration_service
         self._proposal_repo = services.proposal_repo
+        self._research_repo = services.research_repo
+        self._planning_repo = services.planning_repo
+        self._architecture_repo = services.architecture_repo
+        self._evaluation_repo = services.evaluation_repo
+        self._knowledge_repo = services.knowledge_repo
 
         # Proposal cache is bounded by removal after review completion.
         self._pending_proposals: dict[UUID, tuple[UUID, AIProposal[Any]]] = {}
+
+        # Presentation wiring (PlatformOrchestrationService, RendererRegistry) is
+        # attached by the composition root after this instance is constructed,
+        # because the orchestration service's collectors require a live Atlas
+        # reference. See atlas/_bootstrap.py and Atlas._bind_presentation.
+        self._platform_orchestration: PlatformOrchestrationService | None = None
+        self._renderer_registry: RendererRegistry | None = None
+
+    def _bind_presentation(
+        self,
+        platform_orchestration: PlatformOrchestrationService,
+        renderer_registry: RendererRegistry,
+    ) -> None:
+        """Attach presentation wiring built by the composition root.
+
+        Internal hook. Only atlas/_bootstrap.py may call this, exactly once,
+        during platform construction.
+        """
+        self._platform_orchestration = platform_orchestration
+        self._renderer_registry = renderer_registry
+
+    def _require_presentation(self) -> PlatformOrchestrationService:
+        if self._platform_orchestration is None:
+            raise BootstrapError(
+                "Presentation layer is not configured on this Atlas instance."
+            )
+        return self._platform_orchestration
 
     def _map_project_exception(self, e: Exception) -> ApplicationError:
         """Map internal project exceptions to application errors."""
@@ -241,8 +308,12 @@ class Atlas:
                 blocking_issues=readiness.blocking_issues,
                 pending_knowledge_candidates=[
                     candidate.id
-                    for candidate in self._orchestration_service.knowledge_orchestration.list_pending_candidates(command.project_id)
-                ] if self._orchestration_service.knowledge_orchestration else [],
+                    for candidate in self._orchestration_service.knowledge_orchestration.list_pending_candidates(
+                        command.project_id
+                    )
+                ]
+                if self._orchestration_service.knowledge_orchestration
+                else [],
             )
         except WorkflowException as e:
             raise self._map_workflow_exception(e) from e
@@ -288,8 +359,12 @@ class Atlas:
                 blocking_issues=readiness.blocking_issues,
                 pending_knowledge_candidates=[
                     candidate.id
-                    for candidate in self._orchestration_service.knowledge_orchestration.list_pending_candidates(command.project_id)
-                ] if self._orchestration_service.knowledge_orchestration else [],
+                    for candidate in self._orchestration_service.knowledge_orchestration.list_pending_candidates(
+                        command.project_id
+                    )
+                ]
+                if self._orchestration_service.knowledge_orchestration
+                else [],
             )
         except WorkflowException as e:
             raise self._map_workflow_exception(e) from e
@@ -381,7 +456,9 @@ class Atlas:
                 command.actor,
                 command.feedback,
             )
-            return OperationResult(success=True, message="Knowledge candidate reviewed.")
+            return OperationResult(
+                success=True, message="Knowledge candidate reviewed."
+            )
         except (WorkflowException, KnowledgeException) as exc:
             raise ApplicationError(str(exc)) from exc
 
@@ -420,3 +497,177 @@ class Atlas:
             raise self._map_ai_exception(e) from e
         except WorkflowException as e:
             raise self._map_workflow_exception(e) from e
+
+    # -- Phase 14: typed read models --------------------------------------
+    #
+    # These methods are the sole data source for presentation collectors.
+    # Each returns an immutable DTO sourced from existing Phase 1-13
+    # services/repositories. No engine entities or repositories are ever
+    # exposed to callers.
+
+    def get_project_read_model(self, project_id: UUID) -> ProjectReadModel:
+        """Return the typed read model for a project's identity and status."""
+        try:
+            project = self._project_loading_service.load_project(project_id)
+        except ProjectException as e:
+            raise self._map_project_exception(e) from e
+        return ProjectReadModel(
+            id=project.id,
+            name=project.name,
+            description=project.description,
+            objective=project.objective,
+            status=project.status.value,
+        )
+
+    def get_workflow_read_model(self, project_id: UUID) -> WorkflowReadModel:
+        """Return the typed read model for a project's workflow state."""
+        workflow = self._workflow_repo.get_by_project_id(project_id)
+        if not workflow:
+            raise WorkflowNotReadyError(f"Workflow for project {project_id} not found.")
+        readiness = self._orchestration_service.readiness_service.evaluate_readiness(
+            project_id
+        )
+        knowledge_orchestration = self._orchestration_service.knowledge_orchestration
+        pending_candidates = (
+            tuple(
+                candidate.id
+                for candidate in knowledge_orchestration.list_pending_candidates(
+                    project_id
+                )
+            )
+            if knowledge_orchestration
+            else ()
+        )
+        return WorkflowReadModel(
+            project_id=project_id,
+            current_stage=workflow.current_stage.value,
+            readiness_status=readiness.status.value,
+            is_ready=readiness.status != EngineEvaluationStatus.FAILED,
+            objectives=tuple(workflow.active_objectives),
+            blocking_issues=tuple(readiness.blocking_issues),
+            pending_knowledge_candidates=pending_candidates,
+        )
+
+    def get_research_read_model(self, project_id: UUID) -> ResearchReadModel:
+        """Return the typed read model for a project's research context."""
+        if self._research_repo is None:
+            raise BootstrapError("Research repository is not configured.")
+        research = self._research_repo.get_by_project_id(project_id)
+        if research is None:
+            return ResearchReadModel(project_id=project_id, exists=False)
+        latest_summary = (
+            research.snapshots[-1].summary.synthesis if research.snapshots else ""
+        )
+        return ResearchReadModel(
+            project_id=project_id,
+            exists=True,
+            source_count=len(research.sources),
+            finding_count=len(research.findings),
+            opportunity_count=len(research.opportunities),
+            open_question_count=len(research.open_questions),
+            latest_summary=latest_summary,
+        )
+
+    def get_knowledge_read_model(self, project_id: UUID) -> KnowledgeReadModel:
+        """Return the typed read model for a project's engineering knowledge."""
+        if self._knowledge_repo is None:
+            raise BootstrapError("Knowledge repository is not configured.")
+        candidates = self._knowledge_repo.list_candidates(project_id)
+        pending_candidates = self._knowledge_repo.list_candidates(
+            project_id, KnowledgeCandidateStatus.PENDING_REVIEW
+        )
+        published = self._knowledge_repo.list_published(project_id)
+        active_published = self._knowledge_repo.list_published(
+            project_id, PublishedKnowledgeStatus.ACTIVE
+        )
+        return KnowledgeReadModel(
+            project_id=project_id,
+            candidate_count=len(candidates),
+            pending_candidate_count=len(pending_candidates),
+            published_count=len(published),
+            active_published_count=len(active_published),
+            published_titles=tuple(entry.title for entry in active_published),
+        )
+
+    def get_diagnostics_read_model(self, project_id: UUID) -> DiagnosticsReadModel:
+        """Return the typed read model summarizing subsystem health for a project."""
+        try:
+            self._project_loading_service.load_project(project_id)
+        except ProjectException as e:
+            raise self._map_project_exception(e) from e
+
+        workflow_exists = self._workflow_repo.exists(project_id)
+        research_exists = bool(
+            self._research_repo and self._research_repo.exists(project_id)
+        )
+        planning_exists = bool(
+            self._planning_repo and self._planning_repo.exists(project_id)
+        )
+        architecture_exists = bool(
+            self._architecture_repo and self._architecture_repo.exists(project_id)
+        )
+        evaluation_exists = bool(
+            self._evaluation_repo and self._evaluation_repo.exists(project_id)
+        )
+        knowledge_exists = bool(
+            self._knowledge_repo
+            and self._knowledge_repo.load_document(project_id) is not None
+        )
+
+        issues: list[str] = []
+        if not workflow_exists:
+            issues.append("Workflow not initialized.")
+        if not research_exists:
+            issues.append("Research not started.")
+        if not planning_exists:
+            issues.append("Planning not started.")
+        if not architecture_exists:
+            issues.append("Architecture not started.")
+        if not evaluation_exists:
+            issues.append("Evaluation not started.")
+
+        return DiagnosticsReadModel(
+            project_id=project_id,
+            workflow_exists=workflow_exists,
+            research_exists=research_exists,
+            planning_exists=planning_exists,
+            architecture_exists=architecture_exists,
+            evaluation_exists=evaluation_exists,
+            knowledge_exists=knowledge_exists,
+            issues=tuple(issues),
+        )
+
+    # -- Phase 14: presentation views and rendering -------------------------
+
+    def get_project_dashboard_view(self, project_id: UUID) -> ProjectDashboardView:
+        """Return the composed project dashboard view."""
+        return self._require_presentation().get_project_dashboard_view(project_id)
+
+    def get_workflow_status_view(self, project_id: UUID) -> WorkflowStatusView:
+        """Return the composed workflow status view."""
+        return self._require_presentation().get_workflow_status_view(project_id)
+
+    def get_research_summary_view(self, project_id: UUID) -> ResearchSummaryView:
+        """Return the composed research summary view."""
+        return self._require_presentation().get_research_summary_view(project_id)
+
+    def get_knowledge_summary_view(self, project_id: UUID) -> KnowledgeSummaryView:
+        """Return the composed knowledge summary view."""
+        return self._require_presentation().get_knowledge_summary_view(project_id)
+
+    def get_diagnostics_view(self, project_id: UUID) -> DiagnosticsView:
+        """Return the composed diagnostics view."""
+        return self._require_presentation().get_diagnostics_view(project_id)
+
+    def render(
+        self,
+        view: Any,
+        renderer: str,
+        contract: RenderContract | None = None,
+    ) -> RenderResult:
+        """Render an immutable presentation view using the named renderer."""
+        if self._renderer_registry is None:
+            raise BootstrapError("Presentation renderers are not configured.")
+        return self._renderer_registry.resolve(renderer).render(
+            view, contract or RenderContract()
+        )

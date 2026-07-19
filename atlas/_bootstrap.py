@@ -99,6 +99,16 @@ from engine.workflow.services import (
     WorkflowReadinessService,
     WorkflowTransitionService,
 )
+from presentation.collectors.collectors import (
+    DiagnosticsCollector,
+    KnowledgeSummaryCollector,
+    ProjectDashboardCollector,
+    ResearchSummaryCollector,
+    WorkflowStatusCollector,
+)
+from presentation.orchestration import PlatformOrchestrationService
+from presentation.renderers import RendererRegistry
+from presentation.renderers.base import CliRenderer, JsonRenderer, MarkdownRenderer
 
 
 def _create_platform() -> Atlas:  # noqa: PLR0915
@@ -282,7 +292,7 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
     )
 
     # 8. Facade Assembly
-    return Atlas(
+    atlas = Atlas(
         _AtlasServices(
             project_creation_service=project_creation_service,
             project_loading_service=project_loading_service,
@@ -293,5 +303,32 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
             workflow_transition_service=workflow_transition_service,
             orchestration_service=orchestration_service,
             proposal_repo=proposal_repo,
+            research_repo=research_repo,
+            planning_repo=planning_repo,
+            architecture_repo=architecture_repo,
+            evaluation_repo=evaluation_repo,
+            knowledge_repo=knowledge_repo,
         )
     )
+
+    # 9. Presentation Layer (Phase 14)
+    #
+    # Collectors depend on the live `atlas` facade constructed above (they
+    # call its typed read-model API); PlatformOrchestrationService depends on
+    # the collectors. This is why presentation wiring happens after facade
+    # assembly rather than as another _AtlasServices field, and why Atlas
+    # exposes a dedicated bootstrap-only attachment hook instead of a service
+    # locator.
+    platform_orchestration = PlatformOrchestrationService(
+        project_dashboard=ProjectDashboardCollector(atlas),
+        workflow_status=WorkflowStatusCollector(atlas),
+        research_summary=ResearchSummaryCollector(atlas),
+        knowledge_summary=KnowledgeSummaryCollector(atlas),
+        diagnostics=DiagnosticsCollector(atlas),
+    )
+    renderer_registry = RendererRegistry(
+        (JsonRenderer(), MarkdownRenderer(), CliRenderer())
+    )
+    atlas._bind_presentation(platform_orchestration, renderer_registry)
+
+    return atlas

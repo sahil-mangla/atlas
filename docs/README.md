@@ -1,6 +1,6 @@
-# ATLAS Architecture Documentation (v1.0 Baseline & Phase 13)
+# ATLAS Architecture Documentation (v1.0 Baseline, Phase 13 & Phase 14)
 
-Welcome to the official ATLAS Architecture Baseline documentation. This reference captures the canonical architecture and design patterns of the ATLAS platform after the completion and stabilization of Phase 1–13.
+Welcome to the official ATLAS Architecture Baseline documentation. This reference captures the canonical architecture and design patterns of the ATLAS platform after the completion and stabilization of Phase 1–13, and the Phase 14 Presentation Layer.
 
 ---
 
@@ -27,6 +27,8 @@ Canonical definitions of terminology matching the codebase.
 - **[Engineering Constitution](file:///Users/sahilmangla/atlas/docs/architecture/engineering-constitution.md)**: Coding quality rules and review compliance policies.
 - **[AI Constitution](file:///Users/sahilmangla/atlas/docs/architecture/ai-constitution.md)**: Core rules (e.g. statelessness, no direct mutations, schema checks) governing AI generation safety.
 - **[Subsystem Extension Guide](file:///Users/sahilmangla/atlas/docs/architecture/extension-guide.md)**: Walkthrough for adding a new engineering lifecycle stage.
+- **[Presentation Layer (Phase 14)](file:///Users/sahilmangla/atlas/docs/architecture/presentation-layer.md)**: The upper, non-engine layer composing typed immutable Views from the Atlas read-model API and rendering them to JSON/Markdown/CLI.
+- **[Presentation Extension Guide](file:///Users/sahilmangla/atlas/docs/guides/presentation-extension-guide.md)**: Walkthrough for adding a new View kind to the presentation layer.
 
 ### 3. Architecture Decisions (ADRs)
 - **[ADR-001: Architecture Baseline v1.0](file:///Users/sahilmangla/atlas/docs/decisions/architecture-baseline-v1.md)**: Initial ADR locking the v1.0 design baseline.
@@ -44,3 +46,4 @@ Canonical definitions of terminology matching the codebase.
 - **[Multi-Protocol AI Runtime](file:///Users/sahilmangla/atlas/docs/diagrams/multi-protocol-ai-runtime.md)**
 - **[Knowledge Lifecycle](file:///Users/sahilmangla/atlas/docs/diagrams/knowledge-lifecycle.md)**
 - **[Knowledge Workflow Integration](file:///Users/sahilmangla/atlas/docs/diagrams/knowledge-workflow-integration.md)**
+- **[Presentation Flow (Phase 14)](file:///Users/sahilmangla/atlas/docs/diagrams/presentation-flow.md)**: Atlas Facade to PlatformOrchestrationService to Collectors to Read Models to Views to Renderers to RenderResult.

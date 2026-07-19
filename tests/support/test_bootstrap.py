@@ -18,6 +18,7 @@ from engine.ai.services import AIOrchestrationService, ContextAssemblerService
 from engine.architecture.fs_repository import FilesystemArchitectureRepository
 from engine.domain.enums import WorkflowStage
 from engine.evaluation.fs_repository import FilesystemEvaluationRepository
+from engine.knowledge.fs_repository import FilesystemKnowledgeRepository
 from engine.memory.fs_repository import FilesystemMemoryRepository
 from engine.planning.fs_repository import FilesystemPlanningRepository
 from engine.project.fs_repository import FilesystemProjectRepository
@@ -43,6 +44,16 @@ from engine.workflow.services import (
     WorkflowReadinessService,
     WorkflowTransitionService,
 )
+from presentation.collectors.collectors import (
+    DiagnosticsCollector,
+    KnowledgeSummaryCollector,
+    ProjectDashboardCollector,
+    ResearchSummaryCollector,
+    WorkflowStatusCollector,
+)
+from presentation.orchestration import PlatformOrchestrationService
+from presentation.renderers import RendererRegistry
+from presentation.renderers.base import CliRenderer, JsonRenderer, MarkdownRenderer
 from tests.ai.test_adapters import MockAIProvider
 
 
@@ -59,6 +70,7 @@ def create_test_platform(tmp_path: Path) -> Atlas:
     architecture_repo = FilesystemArchitectureRepository(project_repo)
     evaluation_repo = FilesystemEvaluationRepository(project_repo)
     memory_repo = FilesystemMemoryRepository(project_repo)
+    knowledge_repo = FilesystemKnowledgeRepository(project_repo)
     context_assembler = ContextAssemblerService(
         research_repo=research_repo,
         planning_repo=planning_repo,
@@ -94,7 +106,7 @@ def create_test_platform(tmp_path: Path) -> Atlas:
         commit_service=Mock(spec=ProposalCommitService),
         registry=registry,
     )
-    return Atlas(
+    atlas = Atlas(
         _AtlasServices(
             project_creation_service=ProjectCreationService(project_repo),
             project_loading_service=ProjectLoadingService(project_repo),
@@ -105,5 +117,24 @@ def create_test_platform(tmp_path: Path) -> Atlas:
             workflow_transition_service=workflow_transition,
             orchestration_service=orchestration,
             proposal_repo=proposal_repo,
+            research_repo=research_repo,
+            planning_repo=planning_repo,
+            architecture_repo=architecture_repo,
+            evaluation_repo=evaluation_repo,
+            knowledge_repo=knowledge_repo,
         )
     )
+
+    platform_orchestration = PlatformOrchestrationService(
+        project_dashboard=ProjectDashboardCollector(atlas),
+        workflow_status=WorkflowStatusCollector(atlas),
+        research_summary=ResearchSummaryCollector(atlas),
+        knowledge_summary=KnowledgeSummaryCollector(atlas),
+        diagnostics=DiagnosticsCollector(atlas),
+    )
+    renderer_registry = RendererRegistry(
+        (JsonRenderer(), MarkdownRenderer(), CliRenderer())
+    )
+    atlas._bind_presentation(platform_orchestration, renderer_registry)
+
+    return atlas
