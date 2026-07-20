@@ -22,6 +22,12 @@ import sys
 from typing import TYPE_CHECKING
 
 import atlas
+from atlas.adapters.protocol import (
+    AdapterContext,
+    AdapterKind,
+    PlatformCapabilityManifest,
+)
+from atlas.capabilities.base import CapabilityName
 from atlas.commands import (
     ApproveProposalCommand,
     ArchiveProjectCommand,
@@ -33,6 +39,7 @@ from atlas.commands import (
     RejectProposalCommand,
     TransitionStageCommand,
 )
+from atlas.contracts.version import PLATFORM_API_VERSION
 from atlas.exceptions import ApplicationError
 from clients.cli.commands import HelpCommand, VersionCommand
 from clients.cli.parser import CLIParseError, parse_argv
@@ -82,6 +89,36 @@ class CLIApplication:
             )
         )
         self._capabilities = CLI_CAPABILITIES
+        self._adapter_context = AdapterContext(
+            kind=AdapterKind.CLI, name="atlas-cli", version=_VERSION
+        )
+
+    @property
+    def context(self) -> AdapterContext:
+        """Return this adapter's identity for the platform's adapter boundary.
+
+        Structurally satisfies ``atlas.adapters.protocol.PlatformAdapter``.
+        """
+        return self._adapter_context
+
+    def negotiate(self, atlas_platform: Atlas) -> PlatformCapabilityManifest:  # noqa: ARG002
+        """Return the capability manifest this adapter negotiates against.
+
+        Static in Phase 15 -- all five platform capabilities are always
+        present. The CLI continues to dispatch through named Atlas methods
+        (see ``_dispatch`` below), not ``Atlas.handle()`` -- this method only
+        proves structural conformance with ``PlatformAdapter``.
+        """
+        return PlatformCapabilityManifest(
+            api_version=PLATFORM_API_VERSION,
+            capabilities=(
+                CapabilityName.PROJECT,
+                CapabilityName.WORKFLOW,
+                CapabilityName.WORKFLOW_EXECUTION,
+                CapabilityName.KNOWLEDGE,
+                CapabilityName.PRESENTATION,
+            ),
+        )
 
     def run(self, argv: list[str] | None = None) -> int:
         """Parse argv, execute the command, and write output to stdout.

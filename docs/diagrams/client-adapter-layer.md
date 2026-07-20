@@ -40,12 +40,14 @@ graph TD
         Atlas --> Engine
     end
     
-    CLI -->|Command DTO| Atlas
-    IDEAdapter -->|Command DTO| Atlas
-    MCPAdapter -->|Command DTO| Atlas
-    RESTAdapter -->|Command DTO| Atlas
+    CLI -->|"Command DTO (named method, permanent)"| Atlas
+    IDEAdapter -->|"RequestEnvelope (Atlas.handle(), preferred)"| Atlas
+    MCPAdapter -->|"RequestEnvelope (Atlas.handle(), preferred)"| Atlas
+    RESTAdapter -->|"RequestEnvelope (Atlas.handle(), preferred)"| Atlas
     DesktopAdapter -->|Command DTO| Atlas
     
     Atlas -.->|Result DTO| CLI
-    Atlas -.->|Result DTO| IDEAdapter
+    Atlas -.->|ResponseEnvelope| IDEAdapter
 ```
+
+Since Phase 15, every adapter above negotiates a `PlatformCapabilityManifest` via `negotiate(atlas)` and presents an `AdapterContext` identity, structurally satisfying `atlas.adapters.protocol.PlatformAdapter`. Only the CLI (in-process) uses named Command DTOs directly; out-of-process/protocol adapters use `Atlas.handle(RequestEnvelope)`. See [Platform Request Dispatch Diagram](platform-request-dispatch.md).

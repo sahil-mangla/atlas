@@ -96,3 +96,6 @@ def test_atlas_class_has_no_service_locator() -> None:
     assert "ServiceLocator" not in source
     assert "get_service(" not in source
     assert "container.resolve(" not in source
+    # Phase 15: Atlas.handle()'s _dispatch table must stay an explicit literal
+    # dict built once in __init__ -- never dynamic getattr-by-name lookup.
+    assert 'getattr(self, f"' not in source

@@ -14,6 +14,10 @@ flowchart TD
         Commands["Commands DTOs"]
         Results["Results DTOs"]
         Exceptions["Public Exceptions"]
+        Handle["Atlas.handle() (Phase 15, preferred for MCP/REST/IDE/AI)"]
+        Capabilities["Capability Layer (atlas/capabilities/)"]
+        Handle --> Capabilities
+        AtlasFacade --> Capabilities
     end
 
     subgraph Engine["Engine (Hidden Internal Implementation)"]
@@ -40,3 +44,5 @@ flowchart TD
     style AtlasSDK fill:#f9f,stroke:#333,stroke-width:2px
     style Engine fill:#eef,stroke:#333,stroke-dasharray: 5 5
 ```
+
+See [Platform Request Dispatch Diagram](platform-request-dispatch.md) for the full Phase 15 dispatch flow, including the envelope path and the five-capability breakdown.

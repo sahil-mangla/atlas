@@ -105,3 +105,36 @@ A Phase 14 class (`presentation/renderers/base.py`) implementing the `Renderer` 
 
 ### RenderResult
 The frozen dataclass (`presentation/renderers/result.py`) returned by every Renderer, carrying rendered `content`, `media_type`, `renderer` identity, and an immutable (`MappingProxyType`) `metadata` mapping.
+
+### Platform Capability
+A Phase 15 `atlas/capabilities/` class (`ProjectCapability`, `WorkflowCapability`, `WorkflowExecutionCapability`, `KnowledgeCapability`, `PresentationCapability`) that owns one cohesive slice of the `Atlas` facade's public surface. A thin delegation layer -- see the [Capability Responsibility Rule](architecture/platform-layer.md#capability-responsibility-rule-architectural-invariant).
+
+### Capability Layer
+The Phase 15 `atlas/capabilities/` package decomposing `Atlas` into five Platform Capabilities, internal to `Atlas` and never imported by clients directly.
+
+### CapabilityName
+The single `StrEnum` (`atlas/capabilities/base.py`) naming all five Platform Capabilities, reused by the adapter negotiation manifest so no raw capability-name strings exist anywhere in the platform.
+
+### WorkflowExecutionCapability
+The Phase 15 capability owning AI proposal generation (`execute_stage`) and the two proposal review decisions (`approve_proposal`, `reject_proposal`). Named narrower than a generic "execution" concept to reflect its actual, limited scope.
+
+### Request Envelope
+`atlas.contracts.envelope.RequestEnvelope[TCommand]` -- a Phase 15 versioned, adapter-attributed wrapper around an existing Command DTO, carrying `api_version`, `request_id`, and the calling `AdapterContext`.
+
+### Response Envelope
+`atlas.contracts.envelope.ResponseEnvelope[TResult]` -- a Phase 15 versioned wrapper around an existing Result DTO or an Error Envelope, enforcing exactly one of `result` / `error` via a model validator.
+
+### Error Envelope
+`atlas.contracts.errors.ErrorEnvelope` -- a Phase 15 stable, serializable representation of a platform-level error, carrying a `PlatformErrorCode`, `message`, and `retryable` flag.
+
+### UNKNOWN_ERROR
+The one `PlatformErrorCode` member that exists only as a defensive fallback for an unmapped `ApplicationError` subclass. Reaching it at runtime signals a programming defect, never routine application behavior -- see [Platform Layer](architecture/platform-layer.md#error-contract).
+
+### Platform API Version
+`atlas.contracts.version.PLATFORM_API_VERSION` -- the semver wire-contract version clients negotiate against. Commands/Results may only gain optional fields within a major version.
+
+### Adapter Context
+`atlas.adapters.protocol.AdapterContext` -- the identity (`kind`, `name`, `version`) a Phase 15 client adapter presents to the platform on every request.
+
+### Capability Manifest
+`atlas.adapters.protocol.PlatformCapabilityManifest` -- what the platform tells an adapter it exposes, as a strongly-typed `tuple[CapabilityName, ...]`. Static in Phase 15 (all five capabilities always present); the seam for future capability-based authorization scoping.

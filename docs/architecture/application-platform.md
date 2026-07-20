@@ -60,3 +60,13 @@ assuming that a stage is ready.
 ## Future Extensions
 - Subscribable event streams for clients to receive real-time updates on workflow progression and AI execution.
 - Capability-based authorization scopes to restrict what operations specific clients are allowed to perform.
+
+---
+
+## Phase 15: Platform Layer
+
+Phase 15 adds three internal/public sub-layers inside `atlas/` -- the Capability Layer (`atlas/capabilities/`), the Contract Layer (`atlas/contracts/`), and the Adapter Boundary (`atlas/adapters/`) -- plus a new `Atlas.handle(RequestEnvelope) -> ResponseEnvelope` method. These formalize, but do not replace, everything above: the `Atlas` Facade, the Command-Result pattern, exception mapping, and the composition root are all unchanged in shape and behavior.
+
+The "capability-based authorization scopes" future extension listed above now has a concrete seam: `PlatformCapabilityManifest` (typed via the `CapabilityName` enum) is what an adapter negotiates against. Authorization enforcement itself remains unimplemented -- Phase 15 only introduces the manifest a future authorization layer would gate.
+
+See the full design in [Platform Layer](platform-layer.md) and [ADR-004](../decisions/adr-004-platform-capability-contract-layer.md).
