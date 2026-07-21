@@ -197,7 +197,15 @@ class WorkflowTransitionService:
     # Define the valid transitions in the state machine
     VALID_TRANSITIONS: ClassVar[dict[WorkflowStage, set[WorkflowStage]]] = {
         WorkflowStage.IDEA: {WorkflowStage.RESEARCH},
-        WorkflowStage.RESEARCH: {WorkflowStage.PROBLEM_DEFINITION, WorkflowStage.IDEA},
+        # PLANNING and REVIEW are also direct, legal targets from RESEARCH and
+        # ARCHITECTURE respectively: PROBLEM_DEFINITION and IMPLEMENTATION have
+        # no AI-generation support (no StageExecutor is registered for either),
+        # so they are optional manual detours rather than mandatory waypoints.
+        WorkflowStage.RESEARCH: {
+            WorkflowStage.PROBLEM_DEFINITION,
+            WorkflowStage.PLANNING,
+            WorkflowStage.IDEA,
+        },
         WorkflowStage.PROBLEM_DEFINITION: {
             WorkflowStage.PLANNING,
             WorkflowStage.RESEARCH,
@@ -208,6 +216,7 @@ class WorkflowTransitionService:
         },
         WorkflowStage.ARCHITECTURE: {
             WorkflowStage.IMPLEMENTATION,
+            WorkflowStage.REVIEW,
             WorkflowStage.PLANNING,
         },
         WorkflowStage.IMPLEMENTATION: {

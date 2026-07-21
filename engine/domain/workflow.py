@@ -135,15 +135,23 @@ class Workflow(BaseModel):
         self.history.append(entry)
         self.current_stage = entry.new_stage
 
-        # Only mark the previous stage as completed on a genuine forward move.
+        # On a genuine forward move, mark every stage strictly between the
+        # previous and new stage as completed -- not just the immediate
+        # previous one. A direct transition may legally skip stages that have
+        # no AI-generation support (e.g. RESEARCH -> PLANNING skips
+        # PROBLEM_DEFINITION); those skipped stages must not linger in
+        # pending_stages forever, or a later automatic "next stage" lookup
+        # would incorrectly select one of them.
         stages = list(WorkflowStage)
         if entry.previous_stage is not None:
             try:
                 prev_idx = stages.index(entry.previous_stage)
                 new_idx = stages.index(entry.new_stage)
                 is_forward = new_idx > prev_idx
-                if is_forward and entry.previous_stage not in self.completed_stages:
-                    self.completed_stages.append(entry.previous_stage)
+                if is_forward:
+                    for skipped in stages[prev_idx:new_idx]:
+                        if skipped not in self.completed_stages:
+                            self.completed_stages.append(skipped)
             except ValueError:
                 pass
 

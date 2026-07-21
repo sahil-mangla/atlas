@@ -146,6 +146,50 @@ def test_workflow_transition_service_illegal_move(repo: FakeWorkflowRepository) 
         )
 
 
+def test_workflow_transition_service_allows_skipping_stages_with_no_executor(
+    repo: FakeWorkflowRepository,
+) -> None:
+    """Regression test (Finding-009): RESEARCH -> PLANNING and
+    ARCHITECTURE -> REVIEW must be legal direct transitions, since
+    PROBLEM_DEFINITION and IMPLEMENTATION have no registered AI executor and
+    are not mandatory waypoints."""
+    init = WorkflowInitializationService(repo)
+    transition_srv = WorkflowTransitionService(repo)
+    project_id = uuid4()
+
+    init.initialize_workflow(project_id)
+    transition_srv.transition_stage(
+        project_id=project_id,
+        new_stage=WorkflowStage.RESEARCH,
+        approval_status=ApprovalStatus.APPROVED,
+        reason="test",
+    )
+
+    workflow = transition_srv.transition_stage(
+        project_id=project_id,
+        new_stage=WorkflowStage.PLANNING,
+        approval_status=ApprovalStatus.APPROVED,
+        reason="Skipping problem_definition -- no AI executor for it.",
+    )
+    assert workflow.current_stage == WorkflowStage.PLANNING
+
+    workflow = transition_srv.transition_stage(
+        project_id=project_id,
+        new_stage=WorkflowStage.ARCHITECTURE,
+        approval_status=ApprovalStatus.APPROVED,
+        reason="test",
+    )
+    assert workflow.current_stage == WorkflowStage.ARCHITECTURE
+
+    workflow = transition_srv.transition_stage(
+        project_id=project_id,
+        new_stage=WorkflowStage.REVIEW,
+        approval_status=ApprovalStatus.APPROVED,
+        reason="Skipping implementation -- no AI executor for it.",
+    )
+    assert workflow.current_stage == WorkflowStage.REVIEW
+
+
 def test_workflow_transition_service_unapproved(repo: FakeWorkflowRepository) -> None:
     init = WorkflowInitializationService(repo)
     transition_srv = WorkflowTransitionService(repo)

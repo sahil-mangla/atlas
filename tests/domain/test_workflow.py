@@ -142,6 +142,37 @@ def test_workflow_forward_then_backward_then_forward_again() -> None:
     assert len(workflow.history) == 3
 
 
+def test_workflow_skipped_stage_marked_completed_and_not_left_pending() -> None:
+    """Regression test (Finding-009): a direct transition that legally skips
+    a stage (e.g. RESEARCH -> PLANNING, skipping PROBLEM_DEFINITION, since
+    PROBLEM_DEFINITION has no AI-generation support) must mark the skipped
+    stage completed too -- otherwise it lingers in pending_stages forever
+    and a later automatic "next stage" lookup would incorrectly select it."""
+    workflow = Workflow(project_id=uuid4())
+
+    def _transition(prev: WorkflowStage, nxt: WorkflowStage) -> None:
+        workflow.record_transition(
+            WorkflowHistoryEntry(
+                previous_stage=prev,
+                new_stage=nxt,
+                approval_status=ApprovalStatus.APPROVED,
+                reason="test",
+            )
+        )
+
+    _transition(WorkflowStage.IDEA, WorkflowStage.RESEARCH)
+    _transition(
+        WorkflowStage.RESEARCH, WorkflowStage.PLANNING
+    )  # skips PROBLEM_DEFINITION -- no AI executor for it.
+
+    assert workflow.current_stage == WorkflowStage.PLANNING
+    assert WorkflowStage.IDEA in workflow.completed_stages
+    assert WorkflowStage.RESEARCH in workflow.completed_stages
+    assert WorkflowStage.PROBLEM_DEFINITION in workflow.completed_stages
+    assert WorkflowStage.PROBLEM_DEFINITION not in workflow.pending_stages
+    assert workflow.pending_stages[0] == WorkflowStage.ARCHITECTURE
+
+
 def test_readiness_review_defaults() -> None:
     review = ReadinessReview(
         stage=WorkflowStage.RESEARCH,
