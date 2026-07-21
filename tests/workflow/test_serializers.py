@@ -27,7 +27,7 @@ def test_serialize_and_deserialize_history_entry() -> None:
     assert data["new_stage"] == "research"
     assert data["approval_status"] == "approved"
     assert data["reason"] == "Looks good"
-    assert data["confidence"] == 0.9  # noqa: PLR2004
+    assert data["confidence"] == 0.9
 
     deserialized = deserialize_history_entry(data)
 

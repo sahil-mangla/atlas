@@ -73,7 +73,8 @@ def test_presentation_module_only_imports_atlas_publicly(path: Path) -> None:
         m for m in modules if m == "atlas._service" or m.startswith("atlas._")
     }
     assert not private_atlas_imports, (
-        f"{path} imports Atlas via a private module: {private_atlas_imports}. Import `from atlas import Atlas` instead."
+        f"{path} imports Atlas via a private module: {private_atlas_imports}. "
+        "Import `from atlas import Atlas` instead."
     )
 
 

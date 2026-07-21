@@ -71,3 +71,5 @@ class CommitResult(Result):
     success: bool
     proposal_id: UUID
     patch_summary: str
+    transition_blocked: bool = False
+    blocking_issues: tuple[str, ...] = ()

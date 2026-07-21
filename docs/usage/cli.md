@@ -40,4 +40,4 @@ Review AI-generated drafts.
 - `atlas proposal reject --project-id <uuid> --proposal-id <uuid> --feedback <f>`: Reject a draft and provide feedback.
 
 ## Configuration
-The CLI respects the terminal width and capabilities (like Unicode support and ANSI colors). No extra configuration is needed.
+The CLI adapts to the terminal's width and detected Unicode support automatically. No extra configuration is needed.

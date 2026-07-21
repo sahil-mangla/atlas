@@ -9,13 +9,15 @@ actually wired and functional, not just unit-correct in isolation.
 
 import json
 from pathlib import Path
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import pytest
 
+import atlas as atlas_pkg
 from atlas._service import Atlas
 from atlas.commands import CreateProjectCommand
 from atlas.exceptions import ProjectNotFoundError
+from engine.config import Settings
 from presentation.renderers import RenderContract
 from presentation.views import DiagnosticsView, ProjectDashboardView
 from tests.support.test_bootstrap import create_test_platform
@@ -126,8 +128,6 @@ def test_render_unknown_renderer_raises(atlas_with_project: AtlasWithProject) ->
 
 def test_get_project_dashboard_view_for_unknown_project_raises(tmp_path: Path) -> None:
     atlas = create_test_platform(tmp_path)
-    from uuid import uuid4
-
     with pytest.raises(ProjectNotFoundError):
         atlas.get_project_dashboard_view(uuid4())
 
@@ -137,8 +137,6 @@ def test_atlas_created_via_atlas_create_has_working_presentation(
 ) -> None:
     """The real public entrypoint (atlas.create()) -- not just the test
     helper -- must also have presentation fully wired."""
-    import atlas as atlas_pkg
-    from engine.config import Settings
 
     def fake_get_settings() -> Settings:
         return Settings(

@@ -1,4 +1,5 @@
 import json
+import re
 from typing import Any
 
 from presentation.renderers.contract import RenderContract
@@ -74,13 +75,22 @@ def _strip_markdown_headers(content: str) -> str:
     return "\n".join(lines)
 
 
+_BOLD_MARKER_RE = re.compile(r"\*\*(.*?)\*\*")
+
+
+def _strip_bold_markers(content: str) -> str:
+    """Strip `**bold**` markers so `text/plain` output has no literal asterisks."""
+    return _BOLD_MARKER_RE.sub(r"\1", content)
+
+
 class CliRenderer(MarkdownRenderer):
     name = "cli"
 
     def render(self, view: Any, contract: RenderContract) -> RenderResult:
         result = super().render(view, contract)
+        content = _strip_bold_markers(_strip_markdown_headers(result.content))
         return RenderResult(
-            content=_strip_markdown_headers(result.content),
+            content=content,
             media_type="text/plain",
             renderer=self.name,
             metadata=result.metadata,

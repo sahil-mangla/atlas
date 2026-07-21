@@ -16,6 +16,7 @@ from atlas.exceptions import (
     ContextAssemblyError,
     InvalidProjectError,
     InvalidTransitionError,
+    KnowledgeReviewError,
     ProjectAlreadyExistsError,
     ProjectLifecycleError,
     ProjectNotFoundError,
@@ -52,6 +53,7 @@ class PlatformErrorCode(StrEnum):
     CONTEXT_ASSEMBLY_ERROR = "context_assembly_error"
     AI_PROVIDER_ERROR = "ai_provider_error"
     BOOTSTRAP_ERROR = "bootstrap_error"
+    KNOWLEDGE_REVIEW_ERROR = "knowledge_review_error"
     UNKNOWN_ERROR = "unknown_error"
 
 
@@ -78,6 +80,7 @@ _ERROR_CODE_MAP: dict[type[ApplicationError], PlatformErrorCode] = {
     ContextAssemblyError: PlatformErrorCode.CONTEXT_ASSEMBLY_ERROR,
     AIProviderError: PlatformErrorCode.AI_PROVIDER_ERROR,
     BootstrapError: PlatformErrorCode.BOOTSTRAP_ERROR,
+    KnowledgeReviewError: PlatformErrorCode.KNOWLEDGE_REVIEW_ERROR,
 }
 
 #: Failure modes considered transient and safe to retry.

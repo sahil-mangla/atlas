@@ -1,7 +1,7 @@
 """AI Engineering Services coordinating generation, validation, and commits."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Generic, TypeVar
+from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -52,15 +52,12 @@ from engine.research.services import (
     ResearchSummaryService,
 )
 
-T = TypeVar("T", bound=BaseModel)
-
-
 # ==========================================
 # Validator Interfaces & Implementations
 # ==========================================
 
 
-class ProposalValidator(Generic[T], ABC):
+class ProposalValidator[T: BaseModel](ABC):
     """Protocol for checking semantic correctness of AI-generated drafts."""
 
     @abstractmethod
@@ -142,7 +139,8 @@ class ArchitectureProposalValidator(ProposalValidator[ArchitectureProposalDraft]
                 for dependency in component.internal_dependencies
             ):
                 raise InvalidProposalException(
-                    "Architecture component dependency references an unknown or self component."
+                    "Architecture component dependency references an unknown "
+                    "or self component."
                 )
         if any(
             not value.strip()
@@ -187,7 +185,7 @@ class EvaluationProposalValidator(ProposalValidator[EvaluationProposalDraft]):
 # ==========================================
 
 
-class ProposalTransformer(Generic[T], ABC):
+class ProposalTransformer[T: BaseModel](ABC):
     """Protocol mapping validated draft structures to subsystem domain services."""
 
     @abstractmethod
@@ -197,7 +195,7 @@ class ProposalTransformer(Generic[T], ABC):
 
 
 class ResearchProposalTransformer(ProposalTransformer[ResearchProposalDraft]):
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         research_repo: ResearchRepository,
         research_init: ResearchInitializationService,
@@ -217,7 +215,7 @@ class ResearchProposalTransformer(ProposalTransformer[ResearchProposalDraft]):
         self, project_id: UUID, draft: ResearchProposalDraft
     ) -> UUID:
         # Step 1: Initialize research
-        research = self.research_init.initialize_research(
+        self.research_init.initialize_research(
             project_id=project_id,
             problem_statement=draft.problem_statement,
             objectives=draft.objectives,
@@ -286,7 +284,7 @@ class ResearchProposalTransformer(ProposalTransformer[ResearchProposalDraft]):
 
 
 class PlanningProposalTransformer(ProposalTransformer[PlanningProposalDraft]):
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         planning_repo: PlanningRepository,
         research_repo: ResearchRepository,
@@ -362,7 +360,7 @@ class PlanningProposalTransformer(ProposalTransformer[PlanningProposalDraft]):
 
 
 class ArchitectureProposalTransformer(ProposalTransformer[ArchitectureProposalDraft]):
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         architecture_repo: ArchitectureRepository,
         research_repo: ResearchRepository,
@@ -484,7 +482,7 @@ class ArchitectureProposalTransformer(ProposalTransformer[ArchitectureProposalDr
 
 
 class EvaluationProposalTransformer(ProposalTransformer[EvaluationProposalDraft]):
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         evaluation_repo: EvaluationRepository,
         research_repo: ResearchRepository,
@@ -564,8 +562,13 @@ class EvaluationProposalTransformer(ProposalTransformer[EvaluationProposalDraft]
 # ==========================================
 
 
-class AIEngineeringService(Generic[T], ABC):
-    """Common interface for orchestrating AI generation processes."""
+class AIEngineeringService[T: BaseModel](ABC):  # noqa: B024
+    """Common interface for orchestrating AI generation processes.
+
+    Marked ABC as a "do not instantiate directly, parameterize via subclass"
+    convention -- subclasses only bind ``draft_cls``, none override behavior --
+    not because any method here is actually abstract.
+    """
 
     def __init__(
         self,
@@ -661,7 +664,7 @@ class EvaluationAIEngineeringService(AIEngineeringService[EvaluationProposalDraf
 class ProposalCommitService:
     """Manages validated commits with deterministic filesystem rollback."""
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         research_repo: ResearchRepository,
         planning_repo: PlanningRepository,

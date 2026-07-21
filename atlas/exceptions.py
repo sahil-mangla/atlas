@@ -45,5 +45,9 @@ class AIProviderError(ApplicationError):
     """Raised when the underlying AI Provider encounters an error."""
 
 
+class KnowledgeReviewError(ApplicationError):
+    """Raised when a human review of an engineering-knowledge candidate fails."""
+
+
 class BootstrapError(ApplicationError):
     """Raised when the platform fails to initialize correctly."""

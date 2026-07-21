@@ -34,7 +34,9 @@ class ExtractorRegistry:
             extractor.source_type: extractor for extractor in extractors
         }
 
-    def extract(self, project_id: UUID, source_type: KnowledgeSourceType, source_id: UUID) -> list[KnowledgeCandidate]:
+    def extract(
+        self, project_id: UUID, source_type: KnowledgeSourceType, source_id: UUID
+    ) -> list[KnowledgeCandidate]:
         """Delegate extraction to the appropriate extractor."""
         extractor = self._registry.get(source_type)
         if not extractor:

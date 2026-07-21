@@ -294,7 +294,9 @@ def test_generate_proposal_with_knowledge_orchestration() -> None:
     knowledge_orchestration.retrieve_for_stage.assert_called_once_with(
         project_id, WorkflowStage.RESEARCH
     )
-    mock_assembler.assemble_context.assert_called_once_with(project_id, knowledge_mock)
+    mock_assembler.assemble_context.assert_called_once_with(
+        project_id, knowledge_mock, stage=WorkflowStage.RESEARCH
+    )
     executor.generate_proposal.assert_called_once_with(
         project_id, "Instructions", "assembled_context"
     )
@@ -357,4 +359,3 @@ def test_process_approval_triggers_extraction() -> None:
         source_type=KnowledgeSourceType.RESEARCH_SNAPSHOT,
         source_id=committed_id,
     )
-

@@ -75,7 +75,7 @@ class ResearchCaptureService:
         self.repository.save(research)
         return source
 
-    def add_evidence(
+    def add_evidence(  # noqa: PLR0913
         self,
         project_id: UUID,
         type_: str,

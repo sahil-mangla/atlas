@@ -9,6 +9,7 @@ from engine.ai.executor import PromptExecutor
 from engine.ai.services import AIOrchestrationService, ContextAssemblerService
 from engine.domain.ai import ContextPayload
 from engine.domain.ai_drafts import ResearchProposalDraft
+from engine.domain.enums import WorkflowStage
 from engine.domain.metadata import ArtifactMetadata, ArtifactStatus
 from engine.prompt.loader import PromptLoader
 from tests.ai.test_adapters import MockAIProvider
@@ -38,6 +39,7 @@ def test_context_assembler() -> None:
 
 
 def test_context_assembler_rejects_missing_approved_snapshot() -> None:
+    """Planning requires an approved Research snapshot to exist first."""
     svc = ContextAssemblerService(Mock(), Mock(), Mock(), Mock(), Mock())
     aggregate = Mock()
     aggregate.snapshots = [Mock(metadata=ArtifactMetadata(status=ArtifactStatus.DRAFT))]
@@ -47,7 +49,24 @@ def test_context_assembler_rejects_missing_approved_snapshot() -> None:
     svc.evaluation_repo.get_by_project_id.return_value = None  # type: ignore
 
     with pytest.raises(InvalidContextException):
-        svc.assemble_context(uuid4())
+        svc.assemble_context(uuid4(), stage=WorkflowStage.PLANNING)
+
+
+def test_context_assembler_research_stage_requires_no_prior_snapshot() -> None:
+    """Research is the pipeline's first stage: it must not require any
+    subsystem's approved snapshot to already exist (regression test for the
+    bug where assemble_context unconditionally required all four snapshots,
+    making it impossible to ever generate the first Research proposal)."""
+    svc = ContextAssemblerService(Mock(), Mock(), Mock(), Mock(), Mock())
+    svc.research_repo.get_by_project_id.return_value = None  # type: ignore
+    svc.planning_repo.get_by_project_id.return_value = None  # type: ignore
+    svc.architecture_repo.get_by_project_id.return_value = None  # type: ignore
+    svc.evaluation_repo.get_by_project_id.return_value = None  # type: ignore
+
+    ctx = svc.assemble_context(uuid4(), stage=WorkflowStage.RESEARCH)
+
+    assert ctx.research_snapshot_id is None
+    assert "None" in ctx.serialized_context
 
 
 def test_ai_orchestration() -> None:

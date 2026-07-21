@@ -162,7 +162,7 @@ class TaskPlanningService:
     def __init__(self, repository: PlanningRepository) -> None:
         self.repository = repository
 
-    def add_task(
+    def add_task(  # noqa: PLR0913
         self,
         project_id: UUID,
         epic_id: UUID,
@@ -194,7 +194,7 @@ class TaskPlanningService:
 
         raise InvalidPlanningOperationException("Epic not found.")
 
-    def add_subtask(
+    def add_subtask(  # noqa: PLR0913
         self,
         project_id: UUID,
         task_id: UUID,

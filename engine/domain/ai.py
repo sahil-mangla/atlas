@@ -1,14 +1,12 @@
 """AI domain models and abstract orchestrator contracts."""
 
-from typing import Any, Generic, TypeVar
+from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from engine.domain.enums import ProposalStatus, ProposalType
 from engine.domain.prompt_document import PromptDocument
-
-T = TypeVar("T")
 
 
 class AIToolSchema(BaseModel):
@@ -66,10 +64,10 @@ class ContextPayload(BaseModel):
         default=None, description="Approved evaluation snapshot."
     )
     memory_entries: tuple[UUID, ...] = Field(
-        default_factory=list, description="Relevant memory entries."
+        default_factory=tuple, description="Relevant memory entries."
     )
     knowledge_entry_ids: tuple[UUID, ...] = Field(
-        default_factory=list, description="Relevant published engineering knowledge."
+        default_factory=tuple, description="Relevant published engineering knowledge."
     )
     serialized_context: str = Field(
         description="Stringified context payload provided to LLM."
@@ -114,7 +112,7 @@ class PromptTemplateMetadata(BaseModel):
     )
 
 
-class AIProposal(BaseModel, Generic[T]):
+class AIProposal[T](BaseModel):
     """Generic wrapper for LLM generated drafts."""
 
     id: UUID = Field(default_factory=uuid4, description="Unique proposal identifier.")

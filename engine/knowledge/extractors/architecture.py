@@ -27,7 +27,9 @@ class ArchitectureKnowledgeExtractor(KnowledgeExtractor):
         architecture = self.architecture_repo.get_by_project_id(project_id)
         if not architecture:
             return []
-        snapshot = next((s for s in architecture.snapshots if s.metadata.id == source_id), None)
+        snapshot = next(
+            (s for s in architecture.snapshots if s.metadata.id == source_id), None
+        )
         if not snapshot:
             return []
 
@@ -66,7 +68,11 @@ class ArchitectureKnowledgeExtractor(KnowledgeExtractor):
                     id=uuid4(),
                     project_id=project_id,
                     title=f"ADR: {decision.title}",
-                    content=f"**Context:** {decision.context}\n\n**Decision:** {decision.decision}\n\n**Consequences:** {decision.consequences}",
+                    content=(
+                        f"**Context:** {decision.context}\n\n"
+                        f"**Decision:** {decision.decision}\n\n"
+                        f"**Consequences:** {decision.consequences}"
+                    ),
                     category=KnowledgeCategory.DECISION_SUMMARY,
                     rationale="Extracted from architecture decision (ADR)",
                     provenance=provenance,
@@ -81,7 +87,8 @@ class ArchitectureKnowledgeExtractor(KnowledgeExtractor):
                     id=uuid4(),
                     project_id=project_id,
                     title=f"Component: {component.name}",
-                    content="**Responsibilities:**\n" + "\n".join(f"- {r}" for r in component.responsibilities),
+                    content="**Responsibilities:**\n"
+                    + "\n".join(f"- {r}" for r in component.responsibilities),
                     category=KnowledgeCategory.PATTERN,
                     rationale="Extracted from architecture component",
                     provenance=provenance,

@@ -1,7 +1,7 @@
 """Exceptions for the Research subsystem."""
 
 
-class ResearchException(Exception):
+class ResearchException(Exception):  # noqa: N818
     """Base exception for Research subsystem errors."""
 
 

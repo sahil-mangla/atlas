@@ -141,7 +141,7 @@ def test_summary_service(
         project_id, synthesis="Synth", key_takeaways=["TK1"], confidence=0.95
     )
     assert snapshot.metadata.version == 1
-    assert snapshot.confidence == 0.95  # noqa: PLR2004
+    assert snapshot.confidence == 0.95
     assert len(snapshot.evidence) == 1
 
     research = repo.get_by_project_id(project_id)

@@ -42,6 +42,7 @@ def test_knowledge_candidate_is_pending() -> None:
     )
     assert candidate.id is not None
 
+
 def test_published_knowledge_terminal_status() -> None:
     pub = PublishedKnowledge(
         id=uuid4(),
@@ -70,6 +71,7 @@ def test_published_knowledge_terminal_status() -> None:
         candidate_id=uuid4(),
         deduplication_fingerprint="fingerprint",
     )
-    # The domain model does not explicitly define is_terminal on PublishedKnowledge in this simplified test,
-    # but we can verify the enum is assigned correctly
+    # The domain model does not explicitly define is_terminal on
+    # PublishedKnowledge in this simplified test, but we can verify the
+    # enum is assigned correctly
     assert pub.status == PublishedKnowledgeStatus.DEPRECATED

@@ -5,7 +5,7 @@ into sequential pipeline executions.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Generic, TypeVar
+from typing import Any
 from uuid import UUID
 
 from engine.ai.engineering_services import (
@@ -41,15 +41,12 @@ from engine.workflow.services import (
     WorkflowTransitionService,
 )
 
-T = TypeVar("T")
-
-
 # ==========================================
 # Stage Executor Boundary
 # ==========================================
 
 
-class StageExecutor(Generic[T], ABC):
+class StageExecutor[T](ABC):
     """Encapsulates proposal generation and validation for a single stage."""
 
     @property
@@ -60,7 +57,10 @@ class StageExecutor(Generic[T], ABC):
 
     @abstractmethod
     def generate_proposal(
-        self, project_id: UUID, user_instructions: str = "", context: ContextPayload | None = None
+        self,
+        project_id: UUID,
+        user_instructions: str = "",
+        context: ContextPayload | None = None,
     ) -> AIProposal[T]:
         """Trigger AI generation and validation, returning the typed proposal."""
         pass
@@ -75,7 +75,10 @@ class ResearchStageExecutor(StageExecutor[ResearchProposalDraft]):
         return WorkflowStage.RESEARCH
 
     def generate_proposal(
-        self, project_id: UUID, user_instructions: str = "", context: ContextPayload | None = None
+        self,
+        project_id: UUID,
+        user_instructions: str = "",
+        context: ContextPayload | None = None,
     ) -> AIProposal[ResearchProposalDraft]:
         return self.service.generate(project_id, user_instructions, context)
 
@@ -89,7 +92,10 @@ class PlanningStageExecutor(StageExecutor[PlanningProposalDraft]):
         return WorkflowStage.PLANNING
 
     def generate_proposal(
-        self, project_id: UUID, user_instructions: str = "", context: ContextPayload | None = None
+        self,
+        project_id: UUID,
+        user_instructions: str = "",
+        context: ContextPayload | None = None,
     ) -> AIProposal[PlanningProposalDraft]:
         return self.service.generate(project_id, user_instructions, context)
 
@@ -103,7 +109,10 @@ class ArchitectureStageExecutor(StageExecutor[ArchitectureProposalDraft]):
         return WorkflowStage.ARCHITECTURE
 
     def generate_proposal(
-        self, project_id: UUID, user_instructions: str = "", context: ContextPayload | None = None
+        self,
+        project_id: UUID,
+        user_instructions: str = "",
+        context: ContextPayload | None = None,
     ) -> AIProposal[ArchitectureProposalDraft]:
         return self.service.generate(project_id, user_instructions, context)
 
@@ -117,7 +126,10 @@ class EvaluationStageExecutor(StageExecutor[EvaluationProposalDraft]):
         return WorkflowStage.REVIEW
 
     def generate_proposal(
-        self, project_id: UUID, user_instructions: str = "", context: ContextPayload | None = None
+        self,
+        project_id: UUID,
+        user_instructions: str = "",
+        context: ContextPayload | None = None,
     ) -> AIProposal[EvaluationProposalDraft]:
         return self.service.generate(project_id, user_instructions, context)
 
@@ -165,7 +177,7 @@ class WorkflowOrchestrationService:
     without maintaining any duplicate execution state.
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         workflow_repo: WorkflowRepository,
         transition_service: WorkflowTransitionService,
@@ -205,12 +217,18 @@ class WorkflowOrchestrationService:
         service = getattr(executor, "service", None)
         context = None
         if service and hasattr(service, "context_assembler"):
-            context = service.context_assembler.assemble_context(project_id, knowledge)
+            context = service.context_assembler.assemble_context(
+                project_id, knowledge, stage=workflow.current_stage
+            )
         return executor.generate_proposal(project_id, user_instructions, context)
 
     def process_knowledge_review(
-        self, project_id: UUID, candidate_id: UUID, decision: ProposalDecision,
-        actor: Any, feedback: str | None = None,
+        self,
+        project_id: UUID,
+        candidate_id: UUID,
+        decision: ProposalDecision,
+        actor: Any,
+        feedback: str | None = None,
     ) -> Any:
         if not self.knowledge_orchestration:
             raise WorkflowException("Knowledge subsystem is not configured.")
@@ -218,7 +236,7 @@ class WorkflowOrchestrationService:
             project_id, candidate_id, decision, actor, feedback
         )
 
-    def process_review_decision(
+    def process_review_decision(  # noqa: PLR0913
         self,
         project_id: UUID,
         proposal: AIProposal[Any],
@@ -261,7 +279,11 @@ class WorkflowOrchestrationService:
             return commit_res
 
         # Extract knowledge candidate post-commit
-        if commit_res.success and commit_res.committed_snapshot_id and self.knowledge_orchestration:
+        if (
+            commit_res.success
+            and commit_res.committed_snapshot_id
+            and self.knowledge_orchestration
+        ):
             source_type = self._source_type_for_stage(workflow.current_stage)
             if source_type:
                 self.knowledge_orchestration.extract_candidate_from_artifact(
@@ -278,7 +300,8 @@ class WorkflowOrchestrationService:
                 committed_snapshot_id=commit_res.committed_snapshot_id,
                 transition_blocked=True,
                 transition_errors=[
-                    f"Readiness review failed. Blocking issues: {readiness.blocking_issues}"
+                    "Readiness review failed. "
+                    f"Blocking issues: {readiness.blocking_issues}"
                 ],
             )
 
@@ -306,7 +329,9 @@ class WorkflowOrchestrationService:
 
         return commit_res
 
-    def _source_type_for_stage(self, stage: WorkflowStage) -> KnowledgeSourceType | None:
+    def _source_type_for_stage(
+        self, stage: WorkflowStage
+    ) -> KnowledgeSourceType | None:
         return {
             WorkflowStage.RESEARCH: KnowledgeSourceType.RESEARCH_SNAPSHOT,
             WorkflowStage.PLANNING: KnowledgeSourceType.PLANNING_SNAPSHOT,

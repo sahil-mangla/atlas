@@ -39,7 +39,9 @@ def test_knowledge_document_serializer_round_trip() -> None:
         candidate_id=uuid4(),
         deduplication_fingerprint="fingerprint",
     )
-    document = KnowledgePersistenceDocument(project_id=project_id, published=[published])
+    document = KnowledgePersistenceDocument(
+        project_id=project_id, published=[published]
+    )
 
     serialized = serialize_knowledge_document(document)
     restored = deserialize_knowledge_document(serialized)

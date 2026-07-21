@@ -14,10 +14,19 @@ review *action* (a command handler, like ``execute_stage`` or
 """
 
 from atlas.commands import ReviewKnowledgeCandidateCommand
-from atlas.exceptions import ApplicationError
+from atlas.exceptions import (
+    ApplicationError,
+    InvalidTransitionError,
+    KnowledgeReviewError,
+    WorkflowNotReadyError,
+)
 from atlas.results import OperationResult
 from engine.knowledge.exceptions import KnowledgeException
-from engine.workflow.exceptions import WorkflowException
+from engine.workflow.exceptions import (
+    InvalidTransitionException,
+    WorkflowException,
+    WorkflowNotFoundException,
+)
 from engine.workflow.orchestration import WorkflowOrchestrationService
 
 
@@ -26,6 +35,27 @@ class KnowledgeCapability:
 
     def __init__(self, orchestration_service: WorkflowOrchestrationService) -> None:
         self._orchestration_service = orchestration_service
+
+    def _map_workflow_exception(self, e: Exception) -> ApplicationError:
+        """Map internal workflow exceptions to application errors.
+
+        Duplicated from WorkflowCapability rather than shared, matching the
+        "no cross-capability coupling" rule the other capabilities already
+        follow (see PresentationCapability._map_project_exception).
+        """
+        if isinstance(e, WorkflowNotFoundException):
+            return WorkflowNotReadyError(str(e))
+        if isinstance(e, InvalidTransitionException):
+            return InvalidTransitionError(str(e))
+        if isinstance(e, WorkflowException):
+            return ApplicationError(str(e))
+        raise e
+
+    def _map_knowledge_exception(self, e: Exception) -> ApplicationError:
+        """Map internal knowledge exceptions to application errors."""
+        if isinstance(e, KnowledgeException):
+            return KnowledgeReviewError(str(e))
+        raise e
 
     def review_knowledge_candidate(
         self, command: ReviewKnowledgeCandidateCommand
@@ -42,5 +72,7 @@ class KnowledgeCapability:
             return OperationResult(
                 success=True, message="Knowledge candidate reviewed."
             )
-        except (WorkflowException, KnowledgeException) as exc:
-            raise ApplicationError(str(exc)) from exc
+        except WorkflowException as exc:
+            raise self._map_workflow_exception(exc) from exc
+        except KnowledgeException as exc:
+            raise self._map_knowledge_exception(exc) from exc

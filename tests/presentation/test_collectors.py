@@ -1,4 +1,4 @@
-"""Collector tests: call only Atlas read APIs, aggregate correctly, return immutable views."""
+"""Collector tests: Atlas read APIs only, aggregate correctly, immutable views."""
 
 from uuid import UUID, uuid4
 

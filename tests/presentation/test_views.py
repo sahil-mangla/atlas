@@ -1,10 +1,12 @@
 """View tests: deep immutability, component composition, no engine leakage."""
 
+from pathlib import Path
 from uuid import uuid4
 
 import pytest
 from pydantic import ValidationError
 
+import presentation.views.models as mod
 from presentation.components import Metric, Section, StatusBadge
 from presentation.views import (
     DiagnosticsView,
@@ -88,11 +90,9 @@ def test_views_discriminated_by_kind() -> None:
 
 
 def test_view_module_has_no_atlas_or_engine_symbols() -> None:
-    import presentation.views.models as mod
-
     source = mod.__file__
     assert source is not None
-    with open(source) as f:
+    with Path(source).open() as f:
         content = f.read()
     assert "atlas" not in content.lower()
     assert "engine" not in content.lower()

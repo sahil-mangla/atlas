@@ -44,7 +44,9 @@ def test_deduplication_exact_match() -> None:
         created_at=datetime.now(UTC),
     )
 
-    fingerprint = dedup.compute_fingerprint(candidate.title, candidate.content, candidate.category, candidate.tags)
+    fingerprint = dedup.compute_fingerprint(
+        candidate.title, candidate.content, candidate.category, candidate.tags
+    )
     published = PublishedKnowledge(
         id=uuid4(),
         project_id=candidate.project_id,
@@ -63,6 +65,7 @@ def test_deduplication_exact_match() -> None:
     result = dedup.check(candidate, [published], [])
     assert result.is_exact_duplicate
     assert result.matching_published_id == published.id
+
 
 def test_deduplication_near_match() -> None:
     dedup = KnowledgeDeduplicationService()
@@ -91,7 +94,12 @@ def test_deduplication_near_match() -> None:
         created_at=datetime.now(UTC),
     )
 
-    fingerprint = dedup.compute_fingerprint("Near match", "This is a slightly different content.", KnowledgeCategory.LESSON_LEARNED, [])
+    fingerprint = dedup.compute_fingerprint(
+        "Near match",
+        "This is a slightly different content.",
+        KnowledgeCategory.LESSON_LEARNED,
+        [],
+    )
     published = PublishedKnowledge(
         id=uuid4(),
         project_id=candidate.project_id,

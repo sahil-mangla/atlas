@@ -36,6 +36,7 @@ class ProposalCommitUnitOfWork:
                 delete = getattr(repository, "delete", None)
                 if delete is None:
                     raise RuntimeError(
-                        "Repository cannot remove a newly-created aggregate during rollback."
+                        "Repository cannot remove a newly-created aggregate "
+                        "during rollback."
                     )
                 delete(self.project_id)

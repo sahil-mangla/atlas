@@ -21,16 +21,12 @@ class RenderContext:
     """Immutable rendering preferences for a specific adapter execution.
 
     Attributes:
-        use_color: Whether ANSI color codes are supported.
         use_unicode: Whether Unicode box-drawing characters are supported.
         terminal_width: Maximum line width for the output medium.
-        verbose: Whether verbose/debug output should be included.
     """
 
-    use_color: bool = True
     use_unicode: bool = True
     terminal_width: int = 80
-    verbose: bool = False
 
 
 # ---------------------------------------------------------------------------

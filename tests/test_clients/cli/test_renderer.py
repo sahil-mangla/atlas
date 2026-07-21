@@ -2,7 +2,7 @@
 
 import uuid
 
-from atlas.exceptions import InvalidProjectError
+from atlas.exceptions import ApplicationError, InvalidProjectError
 from atlas.results import (
     CommitResult,
     OperationResult,
@@ -12,7 +12,7 @@ from atlas.results import (
     WorkflowStatusResult,
 )
 from atlas.types import EvaluationStatus, ProjectStatus, ProposalStatus, WorkflowStage
-from clients.cli.renderer import CLIRenderer
+from clients.cli.renderer import _RECOVERY_HINTS, CLIRenderer
 from clients.common.progress import ProgressTracker
 from clients.common.rendering import RenderContext
 
@@ -116,6 +116,24 @@ def test_render_error() -> None:
     assert "[✗ error]" in out
     assert "InvalidProjectError" in out
     assert "Bad project" in out
+
+
+def test_render_error_includes_recovery_hint() -> None:
+    renderer = CLIRenderer()
+    err = InvalidProjectError("Bad project")
+    out = renderer.render_error(err)
+    assert _RECOVERY_HINTS[InvalidProjectError] in out
+
+
+def test_all_application_errors_have_recovery_hints() -> None:
+    """Every concrete ApplicationError subclass must have a recovery hint,
+    so the CLI's error output always states not just what happened but what
+    to try next -- not just for the subclasses covered by other unit tests."""
+    concrete_subclasses = {
+        cls for cls in ApplicationError.__subclasses__() if cls is not ApplicationError
+    }
+    missing = concrete_subclasses - set(_RECOVERY_HINTS.keys())
+    assert not missing, f"ApplicationError subclasses missing recovery hints: {missing}"
 
 
 def test_render_parse_error() -> None:

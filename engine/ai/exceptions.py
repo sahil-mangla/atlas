@@ -1,7 +1,7 @@
 """AI Integration subsystem exceptions."""
 
 
-class AIException(Exception):
+class AIException(Exception):  # noqa: N818
     """Base exception for AI Integration subsystem errors."""
 
 

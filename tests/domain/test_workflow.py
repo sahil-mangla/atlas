@@ -114,7 +114,7 @@ def test_workflow_backward_transition_preserves_completed_stages() -> None:
     # RESEARCH was not forward-completed — must not be in completed_stages
     assert WorkflowStage.RESEARCH not in workflow.completed_stages
     # Both transitions are in history
-    assert len(workflow.history) == 2  # noqa: PLR2004
+    assert len(workflow.history) == 2
 
 
 def test_workflow_forward_then_backward_then_forward_again() -> None:
@@ -139,7 +139,7 @@ def test_workflow_forward_then_backward_then_forward_again() -> None:
     # IDEA should be in completed_stages exactly once
     assert workflow.completed_stages.count(WorkflowStage.IDEA) == 1
     assert workflow.current_stage == WorkflowStage.RESEARCH
-    assert len(workflow.history) == 3  # noqa: PLR2004
+    assert len(workflow.history) == 3
 
 
 def test_readiness_review_defaults() -> None:
@@ -157,5 +157,5 @@ def test_readiness_review_defaults() -> None:
     assert review.completed_objectives == ["Review literature"]
     assert review.blocking_issues == []
     assert review.optional_improvements == ["Check more citations"]
-    assert review.confidence == 0.95  # noqa: PLR2004
+    assert review.confidence == 0.95
     assert isinstance(review.generated_at, datetime)

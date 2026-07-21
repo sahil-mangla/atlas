@@ -37,7 +37,7 @@ class ConversationSession(BaseModel):
 
 class MemoryCandidate(BaseModel):
     """A formal recommendation by the AI to persist information into Engineering Memory.
-    
+
     DEPRECATED: Use engine.domain.knowledge.KnowledgeCandidate instead.
     """
 

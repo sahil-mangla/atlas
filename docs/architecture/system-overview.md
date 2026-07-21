@@ -5,7 +5,7 @@ This document provides a high-level overview of the ATLAS system architecture. I
 
 ## Responsibilities
 - Serve as the entry point to understanding the ATLAS system topology.
-- Define boundaries and clear areas of concern for all 11 core subsystems.
+- Define boundaries and clear areas of concern for all 17 core subsystems.
 - Articulate the human-centered automation paradigm where AI acts as an assistant rather than an authority.
 
 ## Non-Responsibilities
@@ -107,7 +107,7 @@ In ATLAS, AI agents are tools utilized to assist in implementation, speed up exe
 ### 13. Client Adapter Layer
 - **Purpose**: Translates external execution environments (CLI, MCP, IDE, REST) into actions on the public Atlas SDK. Provides presentation formatting and progress tracking.
 - **Inputs**: Raw external interactions (e.g., `sys.argv`, JSON-RPC payloads).
-- **Outputs**: Environment-specific formatted output (e.g., ANSI terminal strings, structured JSON responses).
+- **Outputs**: Environment-specific formatted output (e.g., plain terminal text, structured JSON responses).
 - **Collaborators**: Depends exclusively on the Application Platform Layer (Atlas SDK) and shared presentation utilities.
 
 ### 14. Knowledge Subsystem
@@ -115,6 +115,18 @@ In ATLAS, AI agents are tools utilized to assist in implementation, speed up exe
 - **Inputs**: Approved snapshots from Research, Planning, Architecture, and Evaluation; human submissions; AI-suggested drafts.
 - **Outputs**: Reviewed knowledge candidates, immutable published engineering knowledge context sections.
 - **Collaborators**: Workflow Orchestration (for pre-generation retrieval and post-commit extraction) and Filesystem Repository (for persistence).
+
+### 15. Presentation Layer
+- **Purpose**: Composes typed, immutable Views from the Atlas facade's read-model API and renders them to concrete output formats (JSON, Markdown, CLI text). See [Presentation Layer Architecture](presentation-layer.md).
+- **Inputs**: Atlas read models (`Atlas.get_*_read_model`).
+- **Outputs**: Renderer-independent Views, and rendered `RenderResult` content per output format.
+- **Collaborators**: Depends exclusively on the Application Platform Layer's read-model API; never calls repositories or engine services directly.
+
+### 16. Platform Layer
+- **Purpose**: Formalizes the single doorway every client (CLI, IDE, MCP, AI/agent) goes through before reaching an engine subsystem: the Capability Layer (`atlas/capabilities/`), the versioned Contract Layer (`atlas/contracts/`), and the structural Adapter Boundary (`atlas/adapters/`). See [Platform Layer Architecture](platform-layer.md).
+- **Inputs**: Existing Command DTOs, wrapped in a versioned `RequestEnvelope`.
+- **Outputs**: Existing Result DTOs or a stable `ErrorEnvelope`, wrapped in a versioned `ResponseEnvelope`.
+- **Collaborators**: Decomposes the Atlas facade; introduces no new engine dependencies.
 
 ---
 

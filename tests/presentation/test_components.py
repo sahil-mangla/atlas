@@ -1,8 +1,11 @@
 """Component tests: immutability, renderer independence, no Atlas dependency."""
 
+from pathlib import Path
+
 import pytest
 from pydantic import ValidationError
 
+import presentation.components.models as mod
 from presentation.components import Metric, Section, StatusBadge
 
 
@@ -31,11 +34,9 @@ def test_metric_accepts_int_float_or_str_value() -> None:
 
 
 def test_components_module_has_no_atlas_or_engine_symbols() -> None:
-    import presentation.components.models as mod
-
     source = mod.__file__
     assert source is not None
-    with open(source) as f:
+    with Path(source).open() as f:
         content = f.read()
     assert "atlas" not in content.lower()
     assert "engine" not in content.lower()

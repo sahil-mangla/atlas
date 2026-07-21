@@ -1,4 +1,3 @@
-# ruff: noqa: E501
 from unittest.mock import ANY, Mock
 from uuid import uuid4
 
@@ -20,7 +19,9 @@ def test_orchestration_delegation() -> None:
 
     # test extract
     extractors.extract.return_value = ["c1"]
-    orchestration.extract_candidate_from_artifact(uuid4(), KnowledgeSourceType.RESEARCH_SNAPSHOT, uuid4())
+    orchestration.extract_candidate_from_artifact(
+        uuid4(), KnowledgeSourceType.RESEARCH_SNAPSHOT, uuid4()
+    )
     candidates.create.assert_called_with("c1")
 
     # test supersede

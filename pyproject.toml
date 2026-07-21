@@ -1,6 +1,6 @@
 [project]
 name = "atlas"
-version = "0.1.0"
+version = "1.0.0"
 description = "ATLAS is an AI-native engineering operating system that transforms ideas into production-ready software through structured research, architecture, planning, implementation, verification, and persistent project intelligence."
 readme = "README.md"
 requires-python = ">=3.13"
@@ -27,7 +27,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["atlas", "engine", "interfaces", "shared", "clients"]
+packages = ["atlas", "engine", "interfaces", "shared", "clients", "presentation"]
 
 [tool.ruff]
 line-length = 88
@@ -54,6 +54,12 @@ select = [
     "RUF", # Ruff-specific rules
 ]
 ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+# Magic-value comparisons (e.g. `assert len(x) == 2`) are the normal, readable
+# way to write test assertions; extracting a named constant per literal adds
+# indirection without improving clarity.
+"tests/**" = ["PLR2004"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

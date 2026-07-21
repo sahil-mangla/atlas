@@ -12,6 +12,7 @@ def test_stage_profiles_completeness() -> None:
     for stage in expected_stages:
         assert stage in STAGE_PROFILES, f"Missing profile for {stage}"
 
+
 def test_profile_attributes() -> None:
     profile = STAGE_PROFILES[WorkflowStage.RESEARCH]
     assert profile.default_categories

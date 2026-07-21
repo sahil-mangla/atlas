@@ -31,7 +31,7 @@ def test_all_application_errors_mapped() -> None:
     assert not unmapped, f"ApplicationError subclasses missing error codes: {unmapped}"
 
 
-_EXPECTED_ERROR_CODE_COUNT = 11
+_EXPECTED_ERROR_CODE_COUNT = 12
 
 
 def test_error_code_map_has_eleven_entries() -> None:

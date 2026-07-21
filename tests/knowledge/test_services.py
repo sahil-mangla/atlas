@@ -1,4 +1,4 @@
-# ruff: noqa: E501, PLR2004
+# ruff: noqa: E501
 from datetime import UTC, datetime
 from unittest.mock import Mock
 from uuid import uuid4
@@ -46,7 +46,9 @@ def test_candidate_service_create_from_ai_draft() -> None:
         source_snapshot_type=KnowledgeSourceType.RESEARCH_SNAPSHOT,
         source_snapshot_id=uuid4(),
     )
-    actor = KnowledgeActor(actor_type=KnowledgeActorType.SYSTEM, actor_id="sys", display_name="sys")
+    actor = KnowledgeActor(
+        actor_type=KnowledgeActorType.SYSTEM, actor_id="sys", display_name="sys"
+    )
 
     candidate = svc.create_from_ai_draft(uuid4(), draft, actor)
     assert candidate is not None
@@ -58,16 +60,20 @@ def test_candidate_service_create_from_ai_draft() -> None:
 def test_candidate_service_create_from_submission() -> None:
     repo = Mock()
     dedup = Mock()
-    dedup.check.return_value = Mock(is_exact_duplicate=False, normalized_fingerprint="fp1")
+    dedup.check.return_value = Mock(
+        is_exact_duplicate=False, normalized_fingerprint="fp1"
+    )
 
     svc = KnowledgeCandidateService(repo, dedup)
-    actor = KnowledgeActor(actor_type=KnowledgeActorType.HUMAN, actor_id="user1", display_name="User One")
+    actor = KnowledgeActor(
+        actor_type=KnowledgeActorType.HUMAN, actor_id="user1", display_name="User One"
+    )
     sub = HumanKnowledgeSubmission(
         title="Human Submission",
         content="Interesting findings.",
         category=KnowledgeCategory.LESSON_LEARNED,
         tags=["lessons"],
-        actor=actor
+        actor=actor,
     )
     candidate = svc.create_from_submission(uuid4(), sub)
     assert candidate is not None
@@ -97,11 +103,11 @@ def test_candidate_service_withdraw() -> None:
             source_type=KnowledgeSourceType.HUMAN_SUBMISSION,
             source_id=uuid4(),
             extracted_at=datetime.now(UTC),
-            actor=actor
+            actor=actor,
         ),
         author=actor,
         status=KnowledgeCandidateStatus.PENDING_REVIEW,
-        created_at=datetime.now(UTC)
+        created_at=datetime.now(UTC),
     )
     repo.get_candidate.return_value = pending_candidate
 
@@ -112,7 +118,9 @@ def test_candidate_service_withdraw() -> None:
 
     # 2. Withdraw fails if status is not pending
     pending_candidate.status = KnowledgeCandidateStatus.APPROVED
-    with pytest.raises(KnowledgeReviewException, match="Only pending candidates may be withdrawn"):
+    with pytest.raises(
+        KnowledgeReviewException, match="Only pending candidates may be withdrawn"
+    ):
         svc.withdraw(project_id, candidate_id, actor)
 
 
@@ -128,15 +136,21 @@ def test_approval_service_approve_and_publish() -> None:
     system_actor = KnowledgeActor(actor_type=KnowledgeActorType.SYSTEM, actor_id="sys")
 
     # 1. Non-human approves: raises exception
-    with pytest.raises(KnowledgeReviewException, match="Only a human actor may approve"):
+    with pytest.raises(
+        KnowledgeReviewException, match="Only a human actor may approve"
+    ):
         svc.approve_and_publish(project_id, candidate_id, ai_actor)
 
-    with pytest.raises(KnowledgeReviewException, match="Only a human actor may approve"):
+    with pytest.raises(
+        KnowledgeReviewException, match="Only a human actor may approve"
+    ):
         svc.approve_and_publish(project_id, candidate_id, system_actor)
 
     # 2. Candidate not pending review: raises exception
     repo.get_candidate.return_value = None
-    with pytest.raises(KnowledgeReviewException, match="Candidate is not pending review"):
+    with pytest.raises(
+        KnowledgeReviewException, match="Candidate is not pending review"
+    ):
         svc.approve_and_publish(project_id, candidate_id, human_actor)
 
     pending_candidate = KnowledgeCandidate(
@@ -149,11 +163,11 @@ def test_approval_service_approve_and_publish() -> None:
             source_type=KnowledgeSourceType.HUMAN_SUBMISSION,
             source_id=uuid4(),
             extracted_at=datetime.now(UTC),
-            actor=human_actor
+            actor=human_actor,
         ),
         author=human_actor,
         status=KnowledgeCandidateStatus.PENDING_REVIEW,
-        created_at=datetime.now(UTC)
+        created_at=datetime.now(UTC),
     )
     repo.get_candidate.return_value = pending_candidate
 
@@ -161,13 +175,17 @@ def test_approval_service_approve_and_publish() -> None:
     published_mock = Mock(spec=PublishedKnowledge)
     lifecycle.publish_from_candidate.return_value = published_mock
 
-    res = svc.approve_and_publish(project_id, candidate_id, human_actor, comment="Approved indeed!")
+    res = svc.approve_and_publish(
+        project_id, candidate_id, human_actor, comment="Approved indeed!"
+    )
     assert pending_candidate.status == KnowledgeCandidateStatus.APPROVED
     assert pending_candidate.reviewed_by == human_actor
     assert pending_candidate.review_comment == "Approved indeed!"
     assert res == published_mock
     repo.save_candidate.assert_called_with(pending_candidate)
-    lifecycle.publish_from_candidate.assert_called_once_with(pending_candidate, human_actor)
+    lifecycle.publish_from_candidate.assert_called_once_with(
+        pending_candidate, human_actor
+    )
 
 
 def test_approval_service_reject() -> None:
@@ -194,16 +212,18 @@ def test_approval_service_reject() -> None:
             source_type=KnowledgeSourceType.HUMAN_SUBMISSION,
             source_id=uuid4(),
             extracted_at=datetime.now(UTC),
-            actor=human_actor
+            actor=human_actor,
         ),
         author=human_actor,
         status=KnowledgeCandidateStatus.PENDING_REVIEW,
-        created_at=datetime.now(UTC)
+        created_at=datetime.now(UTC),
     )
     repo.get_candidate.return_value = pending_candidate
 
     # 2. Successful rejection
-    res = svc.reject(project_id, candidate_id, human_actor, comment="Not standard compliance.")
+    res = svc.reject(
+        project_id, candidate_id, human_actor, comment="Not standard compliance."
+    )
     assert pending_candidate.status == KnowledgeCandidateStatus.REJECTED
     assert pending_candidate.reviewed_by == human_actor
     assert pending_candidate.review_comment == "Not standard compliance."
@@ -222,7 +242,7 @@ def test_lifecycle_service_supersede_and_deprecate() -> None:
         source_type=KnowledgeSourceType.HUMAN_SUBMISSION,
         source_id=uuid4(),
         extracted_at=datetime.now(UTC),
-        actor=actor
+        actor=actor,
     )
 
     candidate = KnowledgeCandidate(
@@ -235,7 +255,7 @@ def test_lifecycle_service_supersede_and_deprecate() -> None:
         author=actor,
         status=KnowledgeCandidateStatus.APPROVED,
         created_at=datetime.now(UTC),
-        deduplication_fingerprint="fp1"
+        deduplication_fingerprint="fp1",
     )
 
     # 1. publish_from_candidate
@@ -263,7 +283,7 @@ def test_lifecycle_service_supersede_and_deprecate() -> None:
         published_at=datetime.now(UTC),
         version=2,
         candidate_id=uuid4(),
-        deduplication_fingerprint="fp2"
+        deduplication_fingerprint="fp2",
     )
 
     superseded_entry = svc.supersede(project_id, published.id, new_published)
@@ -298,7 +318,7 @@ def test_retrieval_service() -> None:
         source_type=KnowledgeSourceType.HUMAN_SUBMISSION,
         source_id=uuid4(),
         extracted_at=datetime.now(UTC),
-        actor=actor
+        actor=actor,
     )
 
     # Empty retrieval behavior
@@ -322,7 +342,7 @@ def test_retrieval_service() -> None:
             published_at=datetime(2026, 7, 1, tzinfo=UTC),
             version=1,
             candidate_id=uuid4(),
-            deduplication_fingerprint="fp1"
+            deduplication_fingerprint="fp1",
         ),
         PublishedKnowledge(
             id=uuid4(),
@@ -337,7 +357,7 @@ def test_retrieval_service() -> None:
             published_at=datetime(2026, 7, 2, tzinfo=UTC),
             version=1,
             candidate_id=uuid4(),
-            deduplication_fingerprint="fp2"
+            deduplication_fingerprint="fp2",
         ),
         PublishedKnowledge(
             id=uuid4(),
@@ -352,7 +372,7 @@ def test_retrieval_service() -> None:
             published_at=datetime(2026, 7, 3, tzinfo=UTC),
             version=1,
             candidate_id=uuid4(),
-            deduplication_fingerprint="fp3"
+            deduplication_fingerprint="fp3",
         ),
     ]
     repo.list_published.return_value = published_items
@@ -361,11 +381,17 @@ def test_retrieval_service() -> None:
     # Constraint 1 (July 3) should come first, then Lesson 1 (July 1)
     res_ctx = svc.retrieve_for_stage(project_id, WorkflowStage.RESEARCH)
     assert len(res_ctx.entry_ids) == 2
-    assert res_ctx.entry_ids[0] == published_items[2].id  # Constraint 1 (published_at July 3)
-    assert res_ctx.entry_ids[1] == published_items[0].id  # Lesson 1 (published_at July 1)
+    assert (
+        res_ctx.entry_ids[0] == published_items[2].id
+    )  # Constraint 1 (published_at July 3)
+    assert (
+        res_ctx.entry_ids[1] == published_items[0].id
+    )  # Lesson 1 (published_at July 1)
     assert "Constraint 1" in res_ctx.serialized_section
     assert "Lesson 1" in res_ctx.serialized_section
-    assert "Standard 1" not in res_ctx.serialized_section  # Category not matches RESEARCH profile defaults
+    assert (
+        "Standard 1" not in res_ctx.serialized_section
+    )  # Category not matches RESEARCH profile defaults
 
     # Custom Query with Category and Tag filters
     query = KnowledgeRetrievalQuery(
@@ -373,7 +399,7 @@ def test_retrieval_service() -> None:
         stage=WorkflowStage.RESEARCH,
         categories=[KnowledgeCategory.LESSON_LEARNED, KnowledgeCategory.STANDARD],
         tags=["style"],
-        max_entries=5
+        max_entries=5,
     )
     custom_ctx = svc.retrieve(query)
     # Only Standard 1 has category in [LESSON_LEARNED, STANDARD] AND tags intersecting ['style']
@@ -386,7 +412,7 @@ def test_retrieval_service() -> None:
         project_id=project_id,
         stage=WorkflowStage.RESEARCH,
         categories=[KnowledgeCategory.LESSON_LEARNED, KnowledgeCategory.CONSTRAINT],
-        max_entries=1
+        max_entries=1,
     )
     limit_ctx = svc.retrieve(query_limit)
     assert len(limit_ctx.entry_ids) == 1

@@ -2,11 +2,13 @@
 
 import dataclasses
 import json
+from pathlib import Path
 from types import MappingProxyType
 from uuid import UUID
 
 import pytest
 
+import presentation.renderers.base as mod
 from presentation.components import Metric, Section, StatusBadge
 from presentation.renderers import RenderContract, RendererRegistry, RenderResult
 from presentation.renderers.base import CliRenderer, JsonRenderer, MarkdownRenderer
@@ -99,11 +101,9 @@ def test_cli_renderer_is_deterministic() -> None:
 
 
 def test_renderers_never_reference_atlas_or_engine() -> None:
-    import presentation.renderers.base as mod
-
     source = mod.__file__
     assert source is not None
-    with open(source) as f:
+    with Path(source).open() as f:
         content = f.read()
     assert "atlas" not in content.lower()
     assert "engine" not in content.lower()

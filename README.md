@@ -21,6 +21,7 @@ ATLAS is an AI-native engineering operating system that transforms ideas into pr
 - **`engine/research/`**: Research Subsystem handling problem definition, evidence gathering, snapshotting, and hypothesis validation.
 - **`engine/planning/`**: Planning Subsystem decomposing research into scopes, milestones, epics, tasks, subtasks, and dependency management.
 - **`engine/ai/`**: AI Integration Subsystem providing providers, context assembly, orchestration, and stateless engineering proposal services.
+- **`presentation/`**: Presentation Layer (Phase 14) -- composes typed, immutable Views from the Atlas read-model API and renders them to JSON/Markdown/CLI, independent of any client adapter.
 - **`clients/`**: Client adapters (CLI, MCP, IDE, REST) translating external execution environments to the public Atlas SDK.
 - **`shared/`**: Common utilities and shared cross-cutting concerns.
 

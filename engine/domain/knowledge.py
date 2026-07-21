@@ -91,7 +91,10 @@ class KnowledgeCandidate(BaseModel):
         return self.status == KnowledgeCandidateStatus.PENDING_REVIEW
 
     def is_terminal(self) -> bool:
-        return self.status in {KnowledgeCandidateStatus.REJECTED, KnowledgeCandidateStatus.WITHDRAWN}
+        return self.status in {
+            KnowledgeCandidateStatus.REJECTED,
+            KnowledgeCandidateStatus.WITHDRAWN,
+        }
 
 
 class PublishedKnowledge(BaseModel):
@@ -117,6 +120,7 @@ class PublishedKnowledge(BaseModel):
 
 class KnowledgePersistenceDocument(BaseModel):
     """Serialization-only envelope for ``.atlas/knowledge.json``."""
+
     project_id: UUID
     candidates: list[KnowledgeCandidate] = Field(default_factory=list)
     published: list[PublishedKnowledge] = Field(default_factory=list)

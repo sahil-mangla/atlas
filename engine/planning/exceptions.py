@@ -1,7 +1,7 @@
 """Exceptions for the Planning subsystem."""
 
 
-class PlanningException(Exception):
+class PlanningException(Exception):  # noqa: N818
     """Base exception for Planning subsystem errors."""
 
 
@@ -10,7 +10,7 @@ class PlanningNotFoundException(PlanningException):
 
 
 class InvalidPlanningOperationException(PlanningException):
-    """Raised when an operation violates planning business rules (e.g. cycles, frozen state)."""
+    """Raised when an operation violates planning rules (e.g. cycles, frozen state)."""
 
 
 class InvalidPlanningException(PlanningException):

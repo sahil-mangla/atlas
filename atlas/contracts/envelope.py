@@ -8,7 +8,6 @@ can serialize, log, and trace requests uniformly.
 
 from __future__ import annotations
 
-from typing import Generic, TypeVar
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -19,11 +18,8 @@ from atlas.contracts.errors import ErrorEnvelope
 from atlas.contracts.version import PLATFORM_API_VERSION
 from atlas.results import Result
 
-TCommand = TypeVar("TCommand", bound=Command)
-TResult = TypeVar("TResult", bound=Result)
 
-
-class RequestEnvelope(BaseModel, Generic[TCommand]):
+class RequestEnvelope[TCommand: Command](BaseModel):
     """Versioned, adapter-attributed wrapper around an existing Command DTO."""
 
     model_config = ConfigDict(frozen=True)
@@ -34,7 +30,7 @@ class RequestEnvelope(BaseModel, Generic[TCommand]):
     command: TCommand
 
 
-class ResponseEnvelope(BaseModel, Generic[TResult]):
+class ResponseEnvelope[TResult: Result](BaseModel):
     """Versioned wrapper around an existing Result DTO or an ErrorEnvelope.
 
     Exactly one of ``result`` / ``error`` is populated per response.

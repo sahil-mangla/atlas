@@ -124,15 +124,15 @@ GOLDEN_MARKDOWN = {
 GOLDEN_CLI = {
     "project_dashboard": (
         "Project Dashboard\n"
-        "- **Project Id**: 11111111-1111-1111-1111-111111111111\n"
-        "- **Title**: Atlas\n"
+        "- Project Id: 11111111-1111-1111-1111-111111111111\n"
+        "- Title: Atlas\n"
         "\nStatus\n"
-        "- **label**: initialized\n"
-        "- **positive**: True\n"
+        "- label: initialized\n"
+        "- positive: True\n"
         "\nSections\n"
-        "- **title**: Objective, **body**: Ship it\n"
+        "- title: Objective, body: Ship it\n"
         "\nMetrics\n"
-        "- **label**: Workflow stage, **value**: idea\n"
+        "- label: Workflow stage, value: idea\n"
     ),
 }
 
@@ -184,6 +184,14 @@ def test_cli_renderer_does_not_corrupt_h2_markers() -> None:
     assert "#Sections" not in result.content
     assert "#Metrics" not in result.content
     assert "\nStatus\n" in result.content
+
+
+def test_cli_renderer_strips_bold_markers() -> None:
+    """The "cli" renderer advertises media_type="text/plain" -- it must not
+    leak literal "**" markdown emphasis markers into terminal output."""
+    result = CliRenderer().render(VIEWS["project_dashboard"], CONTRACT)
+    assert "**" not in result.content
+    assert "- Project Id: 11111111-1111-1111-1111-111111111111" in result.content
 
 
 def test_every_view_kind_renders_without_error_on_every_renderer() -> None:

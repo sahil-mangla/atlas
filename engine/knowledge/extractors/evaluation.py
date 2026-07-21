@@ -28,7 +28,9 @@ class EvaluationKnowledgeExtractor(KnowledgeExtractor):
         evaluation = self.evaluation_repo.get_by_project_id(project_id)
         if not evaluation:
             return []
-        snapshot = next((s for s in evaluation.snapshots if s.metadata.id == source_id), None)
+        snapshot = next(
+            (s for s in evaluation.snapshots if s.metadata.id == source_id), None
+        )
         if not snapshot:
             return []
 

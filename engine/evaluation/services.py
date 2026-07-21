@@ -106,7 +106,7 @@ class EvaluationInitializationService:
 
 
 class RequirementCoverageService:
-    """Evaluates whether planning deliverables and research constraints are met in design."""
+    """Evaluates whether planning/research requirements are met in the design."""
 
     def __init__(
         self,
@@ -121,7 +121,7 @@ class RequirementCoverageService:
         self.architecture_repo = architecture_repo
 
     def evaluate_coverage(self, project_id: UUID) -> list[RequirementCoverage]:
-        """Audit the architecture against research constraints and planning deliverables."""
+        """Audit architecture coverage of research and planning requirements."""
         evaluation = self.repository.get_by_project_id(project_id)
         if not evaluation:
             raise EvaluationNotFoundException()
@@ -167,7 +167,9 @@ class RequirementCoverageService:
                         requirement_type="deliverable",
                         description=d.title,
                         status="unsatisfied",
-                        justification="No architecture driver maps to this deliverable.",
+                        justification=(
+                            "No architecture driver maps to this deliverable."
+                        ),
                     )
                 )
             else:
@@ -179,7 +181,10 @@ class RequirementCoverageService:
                             requirement_type="deliverable",
                             description=d.title,
                             status="satisfied",
-                            justification="Deliverable addressed by architecture drivers and implementing ADRs.",
+                            justification=(
+                                "Deliverable addressed by architecture drivers "
+                                "and implementing ADRs."
+                            ),
                         )
                     )
                 else:
@@ -189,7 +194,10 @@ class RequirementCoverageService:
                             requirement_type="deliverable",
                             description=d.title,
                             status="partially_satisfied",
-                            justification="Mapped to architecture drivers but lacks concrete ADR design decisions.",
+                            justification=(
+                                "Mapped to architecture drivers but lacks "
+                                "concrete ADR design decisions."
+                            ),
                         )
                     )
 
@@ -207,7 +215,10 @@ class RequirementCoverageService:
                         requirement_type="constraint",
                         description=c.description,
                         status="unsatisfied",
-                        justification="No architectural constraint addresses this research constraint.",
+                        justification=(
+                            "No architectural constraint addresses this "
+                            "research constraint."
+                        ),
                     )
                 )
             else:
@@ -225,7 +236,10 @@ class RequirementCoverageService:
                             requirement_type="constraint",
                             description=c.description,
                             status="satisfied",
-                            justification="Research constraint mapped to architectural constraints and enforced in ADR decisions.",
+                            justification=(
+                                "Research constraint mapped to architectural "
+                                "constraints and enforced in ADR decisions."
+                            ),
                         )
                     )
                 else:
@@ -235,7 +249,10 @@ class RequirementCoverageService:
                             requirement_type="constraint",
                             description=c.description,
                             status="partially_satisfied",
-                            justification="Mapped to architectural constraints but lacks concrete enforcement in ADR decisions.",
+                            justification=(
+                                "Mapped to architectural constraints but lacks "
+                                "concrete enforcement in ADR decisions."
+                            ),
                         )
                     )
 
@@ -245,7 +262,7 @@ class RequirementCoverageService:
 
 
 class TraceabilityEvaluationService:
-    """Audits design trace lineage and registers findings for broken/missing relationships."""
+    """Audits design trace lineage; flags broken or missing relationships."""
 
     def __init__(
         self,
@@ -280,11 +297,6 @@ class TraceabilityEvaluationService:
             for s in research.snapshots
             if s.metadata.id == evaluation.research_snapshot_id
         )
-        p_snap = next(
-            s
-            for s in planning.snapshots
-            if s.metadata.id == evaluation.planning_snapshot_id
-        )
         a_snap = next(
             s
             for s in architecture.snapshots
@@ -305,8 +317,14 @@ class TraceabilityEvaluationService:
                         severity=FindingSeverity.BLOCKING,
                         category=FindingCategory.TRACEABILITY,
                         description=f"ADR {adr.title} lacks all upstream lineage.",
-                        evidence=f"ADR ID: {adr.id} contains empty supporting_evidence, research_findings, and planning_tasks.",
-                        recommendation="Map this design decision to the corresponding research evidence, finding, or planning task.",
+                        evidence=(
+                            f"ADR ID: {adr.id} contains empty supporting_evidence, "
+                            "research_findings, and planning_tasks."
+                        ),
+                        recommendation=(
+                            "Map this design decision to the corresponding "
+                            "research evidence, finding, or planning task."
+                        ),
                         traceability_links=[adr.id],
                     )
                 )
@@ -320,9 +338,18 @@ class TraceabilityEvaluationService:
                         EvaluationFinding(
                             severity=FindingSeverity.BLOCKING,
                             category=FindingCategory.TRACEABILITY,
-                            description=f"Driver '{drv.name}' references invalid research finding.",
-                            evidence=f"Driver ID: {drv.id} references non-existent finding ID: {f_id}.",
-                            recommendation="Ensure driver points to a valid, approved research finding in the active baseline snapshot.",
+                            description=(
+                                f"Driver '{drv.name}' references invalid "
+                                "research finding."
+                            ),
+                            evidence=(
+                                f"Driver ID: {drv.id} references non-existent "
+                                f"finding ID: {f_id}."
+                            ),
+                            recommendation=(
+                                "Ensure driver points to a valid, approved "
+                                "research finding in the active baseline snapshot."
+                            ),
                             traceability_links=[drv.id, f_id],
                         )
                     )
@@ -371,9 +398,17 @@ class ArchitectureEvaluationService:
                     EvaluationFinding(
                         severity=FindingSeverity.WARNING,
                         category=FindingCategory.ARCHITECTURE,
-                        description=f"Component '{comp.name}' lacks defined responsibilities.",
-                        evidence=f"Component ID: {comp.id} contains empty responsibilities list.",
-                        recommendation=f"Define explicit domain responsibilities for component '{comp.name}'.",
+                        description=(
+                            f"Component '{comp.name}' lacks defined responsibilities."
+                        ),
+                        evidence=(
+                            f"Component ID: {comp.id} contains empty "
+                            "responsibilities list."
+                        ),
+                        recommendation=(
+                            "Define explicit domain responsibilities for "
+                            f"component '{comp.name}'."
+                        ),
                         traceability_links=[comp.id],
                     )
                 )
@@ -416,18 +451,25 @@ class RiskEvaluationService:
         new_findings: list[EvaluationFinding] = []
 
         for risk in a_snap.risks:
-            if risk.severity in ("critical", "high"):
-                if not risk.mitigation or not risk.owner:
-                    new_findings.append(
-                        EvaluationFinding(
-                            severity=FindingSeverity.BLOCKING,
-                            category=FindingCategory.RISK,
-                            description="Severe risk lacks mitigation or owner.",
-                            evidence=f"Risk ID: {risk.id} has severity '{risk.severity}', mitigation: '{risk.mitigation}', owner: '{risk.owner}'.",
-                            recommendation="Add an explicit mitigation strategy and assign a mitigation owner to the risk.",
-                            traceability_links=[risk.id],
-                        )
+            if risk.severity in ("critical", "high") and (
+                not risk.mitigation or not risk.owner
+            ):
+                new_findings.append(
+                    EvaluationFinding(
+                        severity=FindingSeverity.BLOCKING,
+                        category=FindingCategory.RISK,
+                        description="Severe risk lacks mitigation or owner.",
+                        evidence=(
+                            f"Risk ID: {risk.id} has severity '{risk.severity}', "
+                            f"mitigation: '{risk.mitigation}', owner: '{risk.owner}'."
+                        ),
+                        recommendation=(
+                            "Add an explicit mitigation strategy and assign a "
+                            "mitigation owner to the risk."
+                        ),
+                        traceability_links=[risk.id],
                     )
+                )
 
         evaluation.findings = [
             f for f in evaluation.findings if f.category != FindingCategory.RISK
@@ -438,7 +480,7 @@ class RiskEvaluationService:
 
 
 class QualityEvaluationService:
-    """Reviews whether specified non-functional quality drivers contain implementing decisions."""
+    """Reviews non-functional quality drivers for implementing decisions."""
 
     def __init__(
         self,
@@ -472,9 +514,18 @@ class QualityEvaluationService:
                     EvaluationFinding(
                         severity=FindingSeverity.WARNING,
                         category=FindingCategory.QUALITY,
-                        description=f"Quality attribute '{qa.name}' contains no implementing decisions.",
-                        evidence=f"Quality Attribute ID: {qa.id} contains empty related_adrs.",
-                        recommendation="Link this quality attribute to the relevant ADR decisions implementing it.",
+                        description=(
+                            f"Quality attribute '{qa.name}' contains no "
+                            "implementing decisions."
+                        ),
+                        evidence=(
+                            f"Quality Attribute ID: {qa.id} contains empty "
+                            "related_adrs."
+                        ),
+                        recommendation=(
+                            "Link this quality attribute to the relevant ADR "
+                            "decisions implementing it."
+                        ),
                         traceability_links=[qa.id],
                     )
                 )
@@ -508,7 +559,7 @@ class ReadinessEvaluationService:
 
 
 class EvaluationSummaryService:
-    """Orchestrates quality assessment workflow reviews and freezes immutable snapshots."""
+    """Orchestrates quality review workflow and freezes immutable snapshots."""
 
     def __init__(self, repository: EvaluationRepository) -> None:
         self.repository = repository

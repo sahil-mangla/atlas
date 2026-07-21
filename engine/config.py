@@ -30,19 +30,9 @@ class Settings(BaseSettings):
         description="Application environment (development, testing, production)",
     )
 
-    debug: bool = Field(
-        default=False,
-        description="Enable debug logging and verbose error outputs",
-    )
-
     workspace_root: Path = Field(
         default=Path("./workspace"),
         description="Path to the active engineering workspace",
-    )
-
-    log_level: str = Field(
-        default="INFO",
-        description="Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
     )
 
     gemini_api_key: str | None = Field(

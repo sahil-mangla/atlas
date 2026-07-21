@@ -9,7 +9,7 @@ from engine.domain.conversation import ConversationSession
 
 
 class ConversationRepository(ABC):
-    """Abstract interface governing the persistence of ConversationSession aggregates."""
+    """Abstract interface governing persistence of ConversationSession aggregates."""
 
     @abstractmethod
     def save(self, session: ConversationSession) -> None:

@@ -53,7 +53,10 @@ class RequirementCoverage(BaseModel):
     )
     description: str = Field(description="Summary of the requirement.")
     status: str = Field(
-        description="Coverage classification ('satisfied', 'partially_satisfied', 'unsatisfied').",
+        description=(
+            "Coverage classification "
+            "('satisfied', 'partially_satisfied', 'unsatisfied')."
+        ),
     )
     justification: str = Field(
         description="Reasoning explaining this status allocation.",

@@ -100,11 +100,11 @@ def test_filesystem_knowledge_repository_lifecycle(tmp_path: Path) -> None:
             source_type=KnowledgeSourceType.HUMAN_SUBMISSION,
             source_id=uuid4(),
             extracted_at=datetime.now(UTC),
-            actor=actor
+            actor=actor,
         ),
         author=actor,
         status=KnowledgeCandidateStatus.PENDING_REVIEW,
-        created_at=datetime.now(UTC)
+        created_at=datetime.now(UTC),
     )
 
     repo.save_candidate(candidate)
@@ -146,7 +146,7 @@ def test_filesystem_knowledge_repository_lifecycle(tmp_path: Path) -> None:
         published_at=datetime.now(UTC),
         version=1,
         candidate_id=candidate.id,
-        deduplication_fingerprint="fp1"
+        deduplication_fingerprint="fp1",
     )
 
     repo.save_published(published)
@@ -169,7 +169,7 @@ def test_filesystem_knowledge_repository_lifecycle(tmp_path: Path) -> None:
         published_at=published.published_at,
         version=published.version,
         candidate_id=published.candidate_id,
-        deduplication_fingerprint=published.deduplication_fingerprint
+        deduplication_fingerprint=published.deduplication_fingerprint,
     )
 
     with pytest.raises(ValueError, match="Published knowledge content is immutable"):
@@ -177,7 +177,9 @@ def test_filesystem_knowledge_repository_lifecycle(tmp_path: Path) -> None:
 
     # 8. Corrupted JSON file handling
     expected_path.write_text("invalid json content", encoding="utf-8")
-    with pytest.raises(InvalidKnowledgeException, match="Failed to parse knowledge data"):
+    with pytest.raises(
+        InvalidKnowledgeException, match="Failed to parse knowledge data"
+    ):
         repo.load_document(project_id)
 
     # 9. Clean deletion

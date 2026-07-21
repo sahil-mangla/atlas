@@ -82,7 +82,9 @@ class ArchitectureComponent(BaseModel):
     )
     owned_data: list[str] = Field(
         default_factory=list,
-        description="Databases, schemas, or storage partitions owned by this component.",
+        description=(
+            "Databases, schemas, or storage partitions owned by this component."
+        ),
     )
     internal_dependencies: list[UUID] = Field(
         default_factory=list,

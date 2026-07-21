@@ -1,7 +1,7 @@
+import json
 from pathlib import Path
 from uuid import UUID
 
-import json
 from pydantic import ValidationError
 
 from engine.domain.knowledge import KnowledgePersistenceDocument
@@ -19,7 +19,9 @@ class FilesystemKnowledgeRepository(KnowledgeRepository):
         self.project_repo = project_repo
 
     def _path(self, project_id: UUID) -> Path:
-        return self.project_repo.get_project_path(project_id) / ".atlas" / "knowledge.json"
+        return (
+            self.project_repo.get_project_path(project_id) / ".atlas" / "knowledge.json"
+        )
 
     def load_document(self, project_id: UUID) -> KnowledgePersistenceDocument | None:
         path = self._path(project_id)
@@ -29,7 +31,9 @@ class FilesystemKnowledgeRepository(KnowledgeRepository):
             data = json.loads(path.read_text(encoding="utf-8"))
             return deserialize_knowledge_document(data)
         except (OSError, json.JSONDecodeError, ValidationError, ValueError) as exc:
-            raise InvalidKnowledgeException(f"Failed to parse knowledge data at {path}: {exc}") from exc
+            raise InvalidKnowledgeException(
+                f"Failed to parse knowledge data at {path}: {exc}"
+            ) from exc
 
     def save_document(self, document: KnowledgePersistenceDocument) -> None:
         path = self._path(document.project_id)
@@ -40,7 +44,9 @@ class FilesystemKnowledgeRepository(KnowledgeRepository):
                 encoding="utf-8",
             )
         except OSError as exc:
-            raise InvalidKnowledgeException(f"Failed to write knowledge data at {path}: {exc}") from exc
+            raise InvalidKnowledgeException(
+                f"Failed to write knowledge data at {path}: {exc}"
+            ) from exc
 
     def delete_all(self, project_id: UUID) -> None:
         path = self._path(project_id)

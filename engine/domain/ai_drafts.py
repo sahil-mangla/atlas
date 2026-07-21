@@ -31,7 +31,10 @@ class ResearchFindingDraft(BaseModel):
     summary: str = Field(description="Synthesized details of the finding.")
     evidence_indices: list[int] = Field(
         default_factory=list,
-        description="0-based indices of evidence from the proposal's evidence list that support this finding.",
+        description=(
+            "0-based indices of evidence from the proposal's evidence "
+            "list that support this finding."
+        ),
     )
 
 
@@ -42,7 +45,10 @@ class ResearchConstraintDraft(BaseModel):
     impact: str = Field(description="Determined impact of the constraint.")
     finding_indices: list[int] = Field(
         default_factory=list,
-        description="0-based indices of findings from the proposal's findings list that support this constraint.",
+        description=(
+            "0-based indices of findings from the proposal's findings "
+            "list that support this constraint."
+        ),
     )
 
 
@@ -56,7 +62,10 @@ class ResearchOpportunityDraft(BaseModel):
     description: str = Field(description="Description of the opportunity.")
     finding_indices: list[int] = Field(
         default_factory=list,
-        description="0-based indices of findings from the proposal's findings list that support this opportunity.",
+        description=(
+            "0-based indices of findings from the proposal's findings "
+            "list that support this opportunity."
+        ),
     )
 
 
@@ -208,8 +217,10 @@ class KnowledgeCandidateDraft(BaseModel):
     tags: list[str] = Field(description="Tags for the knowledge.")
     rationale: str = Field(description="Why this knowledge is important.")
     source_snapshot_type: KnowledgeSourceType | None = Field(
-        default=None, description="The type of the snapshot that sourced this knowledge."
+        default=None,
+        description="The type of the snapshot that sourced this knowledge.",
     )
     source_snapshot_id: UUID | None = Field(
-        default=None, description="The UUID of the snapshot that sourced this knowledge."
+        default=None,
+        description="The UUID of the snapshot that sourced this knowledge.",
     )

@@ -199,7 +199,7 @@ def test_workflow_history_service(repo: FakeWorkflowRepository) -> None:
     )
 
     history = history_srv.get_history(project_id)
-    assert len(history) == 2  # noqa: PLR2004
+    assert len(history) == 2
     assert history[0].new_stage == WorkflowStage.RESEARCH
     assert history[1].new_stage == WorkflowStage.IDEA
 

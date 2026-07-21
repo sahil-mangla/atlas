@@ -1,6 +1,6 @@
-# ATLAS Architecture Documentation (v1.0 Baseline, Phase 13 & Phase 14)
+# ATLAS Architecture Documentation (v1.0 Baseline, Phase 13–15)
 
-Welcome to the official ATLAS Architecture Baseline documentation. This reference captures the canonical architecture and design patterns of the ATLAS platform after the completion and stabilization of Phase 1–13, and the Phase 14 Presentation Layer.
+Welcome to the official ATLAS Architecture Baseline documentation. This reference captures the canonical architecture and design patterns of the ATLAS platform after the completion and stabilization of Phase 1–13, the Phase 14 Presentation Layer, and the Phase 15 Platform Layer.
 
 ---
 
@@ -29,12 +29,16 @@ Canonical definitions of terminology matching the codebase.
 - **[Subsystem Extension Guide](file:///Users/sahilmangla/atlas/docs/architecture/extension-guide.md)**: Walkthrough for adding a new engineering lifecycle stage.
 - **[Presentation Layer (Phase 14)](file:///Users/sahilmangla/atlas/docs/architecture/presentation-layer.md)**: The upper, non-engine layer composing typed immutable Views from the Atlas read-model API and rendering them to JSON/Markdown/CLI.
 - **[Presentation Extension Guide](file:///Users/sahilmangla/atlas/docs/guides/presentation-extension-guide.md)**: Walkthrough for adding a new View kind to the presentation layer.
+- **[Platform Layer (Phase 15)](file:///Users/sahilmangla/atlas/docs/architecture/platform-layer.md)**: The Capability Layer, Contract Layer, and Adapter Boundary formalizing the single doorway every client goes through before reaching an engine subsystem.
 
 ### 3. Architecture Decisions (ADRs)
-- **[ADR-001: Architecture Baseline v1.0](file:///Users/sahilmangla/atlas/docs/decisions/architecture-baseline-v1.md)**: Initial ADR locking the v1.0 design baseline.
+- **[ADR-001: Architecture Baseline v1.0](file:///Users/sahilmangla/atlas/docs/decisions/adr-001-architecture-baseline-v1.md)**: Initial ADR locking the v1.0 design baseline.
 - **[ADR-002: Application Platform Layer](file:///Users/sahilmangla/atlas/docs/decisions/adr-002-application-platform-layer.md)**: Canonical public SDK and composition-root decision.
+- **[ADR-003: Engineering Knowledge Layer](file:///Users/sahilmangla/atlas/docs/decisions/adr-003-engineering-knowledge-layer.md)**: Phase 13 knowledge boundaries, review, and immutability rules.
+- **[ADR-004: Platform Capability & Contract Layer](file:///Users/sahilmangla/atlas/docs/decisions/adr-004-platform-capability-contract-layer.md)**: Phase 15 Capability Layer, Contract Layer, and Adapter Boundary decision.
 
 ### 4. Architecture Diagrams
+- **[Application Platform Layer](file:///Users/sahilmangla/atlas/docs/diagrams/application-platform.md)**
 - **[Client Adapter Layer](file:///Users/sahilmangla/atlas/docs/diagrams/client-adapter-layer.md)**
 - **[Subsystem Interactions](file:///Users/sahilmangla/atlas/docs/diagrams/system-overview.md)**
 - **[Engineering Pipeline](file:///Users/sahilmangla/atlas/docs/diagrams/engineering-pipeline.md)**
@@ -47,3 +51,4 @@ Canonical definitions of terminology matching the codebase.
 - **[Knowledge Lifecycle](file:///Users/sahilmangla/atlas/docs/diagrams/knowledge-lifecycle.md)**
 - **[Knowledge Workflow Integration](file:///Users/sahilmangla/atlas/docs/diagrams/knowledge-workflow-integration.md)**
 - **[Presentation Flow (Phase 14)](file:///Users/sahilmangla/atlas/docs/diagrams/presentation-flow.md)**: Atlas Facade to PlatformOrchestrationService to Collectors to Read Models to Views to Renderers to RenderResult.
+- **[Platform Request Dispatch (Phase 15)](file:///Users/sahilmangla/atlas/docs/diagrams/platform-request-dispatch.md)**: `Atlas.handle(RequestEnvelope)` through Capability dispatch to `ResponseEnvelope`.

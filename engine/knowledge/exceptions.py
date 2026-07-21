@@ -1,4 +1,4 @@
-class KnowledgeException(Exception):
+class KnowledgeException(Exception):  # noqa: N818
     """Base exception for the engineering knowledge subsystem."""
 
 

@@ -18,7 +18,5 @@ def mock_settings() -> Settings:
     """
     return Settings(
         environment=Environment.TESTING,
-        debug=True,
         workspace_root=Path("/tmp/atlas_test_workspace"),
-        log_level="DEBUG",
     )

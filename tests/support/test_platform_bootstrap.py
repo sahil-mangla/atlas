@@ -6,8 +6,10 @@ renderer registry, and PlatformOrchestrationService onto the Atlas facade --
 with constructor injection throughout and no service locator.
 """
 
+import inspect
 from pathlib import Path
 
+import atlas._bootstrap as bootstrap_module
 from atlas._service import Atlas
 from presentation.collectors.collectors import (
     DiagnosticsCollector,
@@ -57,8 +59,6 @@ def test_bootstrap_wires_collectors_via_constructor_injection(tmp_path: Path) ->
 def test_platform_orchestration_service_does_not_construct_collectors_itself() -> None:
     """PlatformOrchestrationService.__init__ only assigns; it must not import
     or instantiate any Collector class."""
-    import inspect
-
     source = inspect.getsource(PlatformOrchestrationService.__init__)
     for collector_name in (
         "ProjectDashboardCollector(",
@@ -75,10 +75,6 @@ def test_platform_orchestration_service_does_not_construct_collectors_itself() -
 def test_production_bootstrap_module_wires_presentation() -> None:
     """Static check that atlas/_bootstrap.py (the real composition root, not
     just the test helper) performs the same wiring."""
-    import inspect
-
-    import atlas._bootstrap as bootstrap_module
-
     source = inspect.getsource(bootstrap_module)
     assert "PlatformOrchestrationService(" in source
     assert "RendererRegistry(" in source
@@ -90,8 +86,6 @@ def test_atlas_class_has_no_service_locator() -> None:
     """Atlas resolves presentation dependencies through explicit attributes
     set once at construction/bind time, not through a runtime registry or
     locator pattern that presentation classes could pull from."""
-    import inspect
-
     source = inspect.getsource(Atlas)
     assert "ServiceLocator" not in source
     assert "get_service(" not in source

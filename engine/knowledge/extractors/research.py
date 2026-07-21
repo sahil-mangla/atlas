@@ -27,7 +27,9 @@ class ResearchKnowledgeExtractor(KnowledgeExtractor):
         research = self.research_repo.get_by_project_id(project_id)
         if not research:
             return []
-        snapshot = next((s for s in research.snapshots if s.metadata.id == source_id), None)
+        snapshot = next(
+            (s for s in research.snapshots if s.metadata.id == source_id), None
+        )
         if not snapshot:
             return []
 

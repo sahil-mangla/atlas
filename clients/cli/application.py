@@ -83,8 +83,7 @@ class CLIApplication:
         self._atlas = atlas_platform or atlas.create()
         self._renderer = renderer or CLIRenderer(
             RenderContext(
-                use_color=True,
-                use_unicode=True,
+                use_unicode=_supports_unicode(),
                 terminal_width=_terminal_width(),
             )
         )
@@ -223,6 +222,22 @@ def _terminal_width() -> int:
         return shutil.get_terminal_size().columns
     except Exception:
         return 80
+
+
+def _supports_unicode() -> bool:
+    """Best-effort detection of whether stdout can safely render Unicode.
+
+    Returns:
+        True if stdout's encoding can represent a sample Unicode symbol.
+    """
+    encoding = getattr(sys.stdout, "encoding", None)
+    if not encoding:
+        return False
+    try:
+        "✓".encode(encoding)
+    except (LookupError, UnicodeEncodeError):
+        return False
+    return True
 
 
 # ---------------------------------------------------------------------------

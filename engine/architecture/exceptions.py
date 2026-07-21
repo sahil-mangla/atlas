@@ -1,7 +1,7 @@
 """Exceptions for the Architecture subsystem."""
 
 
-class ArchitectureException(Exception):
+class ArchitectureException(Exception):  # noqa: N818
     """Base exception for Architecture subsystem errors."""
 
 

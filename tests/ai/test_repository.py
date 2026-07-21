@@ -24,7 +24,7 @@ class DummyProjectRepo(ProjectRepository):
     def save(self, project: Project) -> None:
         pass
 
-    def get_by_id(self, project_id: UUID) -> Project | None:
+    def get_by_id(self, _project_id: UUID) -> Project | None:
         return None
 
     def discover(self) -> list[Project]:

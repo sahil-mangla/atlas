@@ -245,8 +245,11 @@ class KnowledgeCandidatePromptTemplate(PromptTemplate):
         return PromptDocument(
             system_prompt=(
                 "You are an expert Engineering Knowledge Extractor.\n"
-                "Your task is to identify and summarize key engineering principles, patterns, standards, or constraints from the provided context.\n"
-                "Propose a formal Knowledge Candidate that captures this information. Return only JSON matching the schema."
+                "Your task is to identify and summarize key engineering "
+                "principles, patterns, standards, or constraints from the "
+                "provided context.\n"
+                "Propose a formal Knowledge Candidate that captures this "
+                "information. Return only JSON matching the schema."
             ),
             context=context.serialized_context,
             task=(

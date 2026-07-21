@@ -27,7 +27,9 @@ class PlanningKnowledgeExtractor(KnowledgeExtractor):
         planning = self.planning_repo.get_by_project_id(project_id)
         if not planning:
             return []
-        snapshot = next((s for s in planning.snapshots if s.metadata.id == source_id), None)
+        snapshot = next(
+            (s for s in planning.snapshots if s.metadata.id == source_id), None
+        )
         if not snapshot:
             return []
 

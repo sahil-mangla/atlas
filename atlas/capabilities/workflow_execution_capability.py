@@ -100,7 +100,7 @@ class WorkflowExecutionCapability:
                     f"Workflow for project {command.project_id} not found."
                 )
             if workflow.current_stage.value != command.stage.value:
-                raise InvalidTransitionError(
+                raise InvalidTransitionException(
                     "Requested stage does not match the active workflow stage."
                 )
             proposal = self._orchestration_service.generate_proposal(
@@ -151,6 +151,8 @@ class WorkflowExecutionCapability:
                     patch_summary=(
                         f"Snapshot {commit_res.committed_snapshot_id} committed."
                     ),
+                    transition_blocked=commit_res.transition_blocked,
+                    blocking_issues=tuple(commit_res.transition_errors),
                 )
                 if result.success:
                     self._pending_proposals.pop(command.proposal_id, None)

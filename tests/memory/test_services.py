@@ -74,7 +74,7 @@ def test_memory_versioning_service(repo: FakeMemoryRepository) -> None:
     )
 
     versioned = versioning.supersede_entry(project_id, entry_v1.id, entry_v2)
-    assert versioned.version == 2  # noqa: PLR2004
+    assert versioned.version == 2
     assert versioned.is_active is True
     assert versioned.supersedes_id == entry_v1.id
 
@@ -131,7 +131,7 @@ def test_memory_retrieval_service(repo: FakeMemoryRepository) -> None:
 
     # History
     history = retrieval.get_entry_history(project_id, entry_v2.id)
-    assert len(history) == 2  # noqa: PLR2004
+    assert len(history) == 2
     assert history[0].id == entry_v2.id
     assert history[1].id == entry_v1.id
 

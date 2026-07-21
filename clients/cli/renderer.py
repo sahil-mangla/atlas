@@ -18,7 +18,21 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from atlas.exceptions import ApplicationError
+from atlas.exceptions import (
+    AIProviderError,
+    ApplicationError,
+    BootstrapError,
+    ContextAssemblyError,
+    InvalidProjectError,
+    InvalidTransitionError,
+    KnowledgeReviewError,
+    ProjectAlreadyExistsError,
+    ProjectLifecycleError,
+    ProjectNotFoundError,
+    ProposalValidationError,
+    StageExecutionError,
+    WorkflowNotReadyError,
+)
 from atlas.results import (
     CommitResult,
     OperationResult,
@@ -45,6 +59,41 @@ from clients.common.rendering import (
 # Default terminal width when none is provided
 _DEFAULT_WIDTH = 80
 
+#: Recovery guidance per ApplicationError subclass, appended by render_error()
+#: so every public error states not just what happened but a next step to try.
+#: Every concrete ApplicationError subclass has an entry (enforced by
+#: tests/test_clients/cli/test_renderer.py,
+#: test_all_application_errors_have_recovery_hints).
+_RECOVERY_HINTS: dict[type[ApplicationError], str] = {
+    ProjectNotFoundError: "Run 'atlas project list' to see known projects.",
+    ProjectAlreadyExistsError: (
+        "Run 'atlas project load --project-id <uuid>' to load it instead."
+    ),
+    InvalidProjectError: (
+        "The project's stored metadata may be corrupt; check its workspace directory."
+    ),
+    ProjectLifecycleError: "Archived projects are read-only and cannot be modified.",
+    WorkflowNotReadyError: (
+        "Run 'atlas project list' to confirm the project ID is correct."
+    ),
+    InvalidTransitionError: (
+        "Run 'atlas workflow status --project-id <uuid>' to see the current "
+        "stage and any blocking issues."
+    ),
+    StageExecutionError: "Check the configured AI provider settings and retry.",
+    ProposalValidationError: (
+        "Run 'atlas workflow status --project-id <uuid>' to check the "
+        "proposal is still pending."
+    ),
+    ContextAssemblyError: "Complete the prior workflow stage before retrying.",
+    AIProviderError: "This is often transient; retrying may succeed.",
+    BootstrapError: "Check your ATLAS configuration (.env / environment) and retry.",
+    KnowledgeReviewError: (
+        "Run 'atlas workflow status --project-id <uuid>' to see pending "
+        "knowledge candidates."
+    ),
+}
+
 
 class CLIRenderer:
     """Render Atlas Result DTOs to terminal-safe strings.
@@ -55,6 +104,11 @@ class CLIRenderer:
 
     def __init__(self, context: RenderContext | None = None) -> None:
         self._ctx = context or RenderContext()
+
+    @property
+    def _ellipsis(self) -> str:
+        """The truncation suffix, respecting this context's Unicode support."""
+        return "…" if self._ctx.use_unicode else "..."
 
     # ------------------------------------------------------------------
     # Project results
@@ -77,8 +131,8 @@ class CLIRenderer:
         pairs: dict[str, Any] = {
             "ID": str(result.id),
             "Status": result.status.value,
-            "Description": truncate(result.description, 60),
-            "Objective": truncate(result.objective, 60),
+            "Description": truncate(result.description, 60, ellipsis=self._ellipsis),
+            "Objective": truncate(result.objective, 60, ellipsis=self._ellipsis),
         }
         body = render_key_value(pairs)
         return f"{heading}\n{body}"
@@ -101,10 +155,10 @@ class CLIRenderer:
         )
         rows = [
             [
-                str(p.id)[:8] + "…",
+                str(p.id)[:8] + self._ellipsis,
                 p.name,
                 p.status.value,
-                truncate(p.objective, 40),
+                truncate(p.objective, 40, ellipsis=self._ellipsis),
             ]
             for p in result.projects
         ]
@@ -237,7 +291,16 @@ class CLIRenderer:
             "Proposal": str(result.proposal_id),
             "Summary": result.patch_summary,
         }
-        return f"{badge}\n{render_key_value(pairs)}"
+        body = f"{badge}\n{render_key_value(pairs)}"
+        if result.transition_blocked:
+            issues_section = render_section(
+                "Stage Not Advanced",
+                render_list(result.blocking_issues),
+                width=self._ctx.terminal_width,
+                use_unicode=self._ctx.use_unicode,
+            )
+            return f"{body}\n\n{issues_section}"
+        return body
 
     # ------------------------------------------------------------------
     # Error rendering
@@ -245,6 +308,9 @@ class CLIRenderer:
 
     def render_error(self, error: ApplicationError) -> str:
         """Render an AtlasError for terminal display.
+
+        Includes a recovery hint (see ``_RECOVERY_HINTS``) so the message
+        communicates not just what happened but what to try next.
 
         Args:
             error: The application error.
@@ -256,7 +322,9 @@ class CLIRenderer:
             "error", ok=False, use_unicode=self._ctx.use_unicode
         )
         kind = type(error).__name__
-        return f"{badge}  {kind}: {error}"
+        hint = _RECOVERY_HINTS.get(type(error))
+        suffix = f"\n  {hint}" if hint else ""
+        return f"{badge}  {kind}: {error}{suffix}"
 
     def render_parse_error(self, message: str) -> str:
         """Render a parse error for terminal display.

@@ -44,6 +44,7 @@ def test_review_knowledge_candidate_command_approve() -> None:
         cmd.feedback,
     )
 
+
 def test_review_knowledge_candidate_command_reject() -> None:
     orch = Mock(spec=WorkflowOrchestrationService)
     services = _AtlasServices(

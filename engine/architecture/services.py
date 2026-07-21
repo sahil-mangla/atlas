@@ -209,7 +209,7 @@ class ArchitectureCompositionService:
         self.repository.save(architecture)
         return qa
 
-    def add_architecture_driver(
+    def add_architecture_driver(  # noqa: PLR0913
         self,
         project_id: UUID,
         name: str,
@@ -218,7 +218,7 @@ class ArchitectureCompositionService:
         source_finding_ids: list[UUID],
         source_objective_ids: list[UUID],
     ) -> ArchitectureDriver:
-        """Add an architecture driver, validating all linked research/planning source IDs."""
+        """Add an architecture driver, validating linked research/planning IDs."""
         architecture = self.repository.get_by_project_id(project_id)
         if not architecture:
             raise ArchitectureNotFoundException()
@@ -281,7 +281,7 @@ class ArchitecturalDecisionService:
         self.research_repo = research_repo
         self.planning_repo = planning_repo
 
-    def add_adr(
+    def add_adr(  # noqa: PLR0913, PLR0912
         self,
         project_id: UUID,
         title: str,
@@ -514,7 +514,7 @@ class InterfaceContractService:
     def __init__(self, repository: ArchitectureRepository) -> None:
         self.repository = repository
 
-    def add_interface_contract(
+    def add_interface_contract(  # noqa: PLR0913
         self,
         project_id: UUID,
         component_id: UUID,
@@ -551,7 +551,7 @@ class RiskAnalysisService:
     def __init__(self, repository: ArchitectureRepository) -> None:
         self.repository = repository
 
-    def register_risk(
+    def register_risk(  # noqa: PLR0913
         self,
         project_id: UUID,
         description: str,
@@ -567,9 +567,10 @@ class RiskAnalysisService:
             raise ArchitectureNotFoundException()
         _ensure_mutable(architecture)
 
-        if related_decision_id:
-            if not any(adr.id == related_decision_id for adr in architecture.decisions):
-                raise InvalidArchitectureOperationException("Referenced ADR not found.")
+        if related_decision_id and not any(
+            adr.id == related_decision_id for adr in architecture.decisions
+        ):
+            raise InvalidArchitectureOperationException("Referenced ADR not found.")
 
         risk = Risk(
             description=description,

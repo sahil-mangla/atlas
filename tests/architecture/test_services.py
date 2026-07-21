@@ -220,7 +220,7 @@ def test_composition_service(setup_context: dict[str, Any]) -> None:
     assert arch.design_summary == "Microservices architecture"
 
     # Add constraints
-    c1 = comp_svc.add_constraint(
+    comp_svc.add_constraint(
         ctx["project_id"],
         "Must run in docker",
         "Local deployment constraint",
@@ -244,7 +244,7 @@ def test_composition_service(setup_context: dict[str, Any]) -> None:
         )
 
     # Add assumptions
-    a1 = comp_svc.add_assumption(
+    comp_svc.add_assumption(
         ctx["project_id"],
         "DB is local",
         "No network delay expected",
@@ -280,7 +280,7 @@ def test_composition_service(setup_context: dict[str, Any]) -> None:
     assert arch.quality_attributes[0].name == "Scalability"
 
     # Add driver
-    driver = comp_svc.add_architecture_driver(
+    comp_svc.add_architecture_driver(
         ctx["project_id"],
         "Database Choice Driver",
         "Requires reliable SQL",
@@ -348,7 +348,7 @@ def test_adr_service(setup_context: dict[str, Any]) -> None:
     )
 
     # Add ADR success
-    adr = adr_svc.add_adr(
+    adr_svc.add_adr(
         ctx["project_id"],
         "ADR-1: Use PG",
         "We need reliable SQL",
@@ -482,7 +482,7 @@ def test_component_and_interface_service(setup_context: dict[str, Any]) -> None:
     assert arch is not None
     assert arch.components[1].internal_dependencies == [c1.id]
 
-    # Try introducing cycle: c1 -> c2 (since c2 already depends on c1, this creates a cycle)
+    # Try introducing cycle: c1 -> c2 (c2 already depends on c1, so this is a cycle)
     with pytest.raises(InvalidArchitectureOperationException):
         comp_svc.add_internal_dependency(ctx["project_id"], c1.id, c2.id)
 
@@ -491,7 +491,7 @@ def test_component_and_interface_service(setup_context: dict[str, Any]) -> None:
         comp_svc.add_internal_dependency(ctx["project_id"], c1.id, c1.id)
 
     # Add interface contract
-    contract = int_svc.add_interface_contract(
+    int_svc.add_interface_contract(
         ctx["project_id"],
         c1.id,
         "ValidateToken",
@@ -589,19 +589,17 @@ def test_summary_and_snapshot_lifecycle(setup_context: dict[str, Any]) -> None:
     )
 
     comp_svc = ComponentModelService(architecture_repo)
-    comp = comp_svc.add_component(ctx["project_id"], "C1", [], [], [])
+    comp_svc.add_component(ctx["project_id"], "C1", [], [], [])
 
     adr_svc = ArchitecturalDecisionService(
         architecture_repo,
         ctx["research_repo"],
         ctx["planning_repo"],
     )
-    adr = adr_svc.add_adr(ctx["project_id"], "ADR-1", "ctx", "prob", "dec", "rat")
+    adr_svc.add_adr(ctx["project_id"], "ADR-1", "ctx", "prob", "dec", "rat")
 
     risk_svc = RiskAnalysisService(architecture_repo)
-    risk = risk_svc.register_risk(
-        ctx["project_id"], "R1", "low", "low", "low", "mit", "own"
-    )
+    risk_svc.register_risk(ctx["project_id"], "R1", "low", "low", "low", "mit", "own")
 
     summary_svc = ArchitectureSummaryService(
         architecture_repo,

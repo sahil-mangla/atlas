@@ -1,7 +1,7 @@
 """Exceptions for the Evaluation subsystem."""
 
 
-class EvaluationException(Exception):
+class EvaluationException(Exception):  # noqa: N818
     """Base exception for Evaluation subsystem errors."""
 
 

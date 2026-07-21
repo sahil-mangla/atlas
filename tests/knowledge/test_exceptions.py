@@ -1,4 +1,3 @@
-
 from engine.knowledge.exceptions import (
     InvalidKnowledgeException,
     KnowledgeException,

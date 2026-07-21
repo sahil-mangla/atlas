@@ -79,7 +79,7 @@ class FilesystemArchitectureRepository(ArchitectureRepository):
         """Retrieve the Architecture aggregate for a specific project.
 
         Returns:
-            The Architecture domain model if an architecture file exists, otherwise None.
+            The Architecture domain model if a file exists, otherwise None.
 
         Raises:
             InvalidArchitectureException: If the file is corrupt or cannot be read.
