@@ -138,6 +138,7 @@ def create_test_platform(  # noqa: PLR0915
         architecture_repo=architecture_repo,
         evaluation_repo=evaluation_repo,
         memory_repo=memory_repo,
+        project_repo=project_repo,
     )
 
     # Subsystem services used by the proposal transformers (mirrors _bootstrap.py).

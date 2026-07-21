@@ -17,6 +17,7 @@ from engine.domain.metadata import ArtifactStatus
 from engine.evaluation.repository import EvaluationRepository
 from engine.memory.repository import MemoryRepository
 from engine.planning.repository import PlanningRepository
+from engine.project.repository import ProjectRepository
 from engine.prompt.registry import PromptRegistry
 from engine.research.repository import ResearchRepository
 
@@ -35,19 +36,21 @@ _STAGE_PREREQUISITES: dict[WorkflowStage, tuple[str, ...]] = {
 class ContextAssemblerService:
     """Collect approved domain snapshots into an immutable context payload."""
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         research_repo: ResearchRepository,
         planning_repo: PlanningRepository,
         architecture_repo: ArchitectureRepository,
         evaluation_repo: EvaluationRepository,
         memory_repo: MemoryRepository,
+        project_repo: ProjectRepository,
     ) -> None:
         self.research_repo = research_repo
         self.planning_repo = planning_repo
         self.architecture_repo = architecture_repo
         self.evaluation_repo = evaluation_repo
         self.memory_repo = memory_repo
+        self.project_repo = project_repo
 
     def assemble_context(
         self,
@@ -95,8 +98,17 @@ class ContextAssemblerService:
         knowledge_section = (
             engineering_knowledge or EngineeringKnowledgeContext()
         ).serialized_section
+        project = self.project_repo.get_by_id(project_id)
+        project_definition = (
+            f"Name: {project.name}\n"
+            f"Description: {project.description}\n"
+            f"Objective: {project.objective}"
+            if project
+            else "Unknown -- project record not found."
+        )
         serialized = (
             f"# Engineering Context\n\n## Project\n{project_id}\n\n"
+            f"## Project Definition\n{project_definition}\n\n"
             f"## Research\n{self._serialize_snapshot(research_snapshot)}\n\n"
             f"## Planning\n{self._serialize_snapshot(planning_snapshot)}\n\n"
             f"## Architecture\n{self._serialize_snapshot(architecture_snapshot)}\n\n"

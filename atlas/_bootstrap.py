@@ -152,6 +152,7 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
         architecture_repo=architecture_repo,
         evaluation_repo=evaluation_repo,
         memory_repo=memory_repo,
+        project_repo=project_repo,
     )
 
     # 4. Subsystem services used by proposal transformers
