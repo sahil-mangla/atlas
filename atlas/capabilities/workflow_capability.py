@@ -17,6 +17,7 @@ from atlas.results import WorkflowStatusResult
 from atlas.types import EvaluationStatus, WorkflowStage
 from engine.domain.enums import ApprovalStatus
 from engine.domain.enums import EvaluationStatus as EngineEvaluationStatus
+from engine.project.services import ProjectLifecycleService
 from engine.workflow.exceptions import (
     InvalidTransitionException,
     WorkflowException,
@@ -35,10 +36,12 @@ class WorkflowCapability:
         workflow_repo: WorkflowRepository,
         workflow_transition_service: WorkflowTransitionService,
         orchestration_service: WorkflowOrchestrationService,
+        project_lifecycle_service: ProjectLifecycleService,
     ) -> None:
         self._workflow_repo = workflow_repo
         self._workflow_transition_service = workflow_transition_service
         self._orchestration_service = orchestration_service
+        self._project_lifecycle_service = project_lifecycle_service
 
     def _map_workflow_exception(self, e: Exception) -> ApplicationError:
         """Map internal workflow exceptions to application errors."""
@@ -104,6 +107,9 @@ class WorkflowCapability:
                 new_stage=target_stage,
                 approval_status=ApprovalStatus.APPROVED,
                 reason=command.reason or "Requested by client adapter.",
+            )
+            self._project_lifecycle_service.sync_workflow_state(
+                command.project_id, target_stage
             )
 
             # Reload workflow to get updated status

@@ -291,6 +291,7 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
         commit_service=commit_service,
         registry=registry,
         knowledge_orchestration=knowledge_orchestration,
+        project_lifecycle_service=project_archive_service,
     )
 
     # 8. Facade Assembly

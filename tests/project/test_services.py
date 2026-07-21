@@ -168,6 +168,57 @@ def test_lifecycle_service_archived_locks(
         lifecycle.update_status(project.id, ProjectStatus.ACTIVE)
 
 
+def test_lifecycle_service_sync_workflow_state(
+    repo: FilesystemProjectRepository,
+) -> None:
+    """Regression test (Finding-016): Project.status/current_stage must
+    mirror a real Workflow transition, or `project list`/`project.json`
+    never reflect actual progress."""
+    creation = ProjectCreationService(repo)
+    lifecycle = ProjectLifecycleService(repo)
+
+    project = creation.create_project(name="Sync Test", description="d", objective="o")
+    assert project.status == ProjectStatus.INITIALIZED
+    assert project.current_stage == WorkflowStage.IDEA
+
+    synced = lifecycle.sync_workflow_state(project.id, WorkflowStage.RESEARCH)
+    assert synced is not None
+    assert synced.current_stage == WorkflowStage.RESEARCH
+    assert synced.status == ProjectStatus.ACTIVE
+
+    # Further transitions keep tracking current_stage without downgrading
+    # an already-ACTIVE project's status.
+    synced = lifecycle.sync_workflow_state(project.id, WorkflowStage.PLANNING)
+    assert synced is not None
+    assert synced.current_stage == WorkflowStage.PLANNING
+    assert synced.status == ProjectStatus.ACTIVE
+
+
+def test_lifecycle_service_sync_workflow_state_ignores_archived_project(
+    repo: FilesystemProjectRepository,
+) -> None:
+    """Archival is a terminal, explicit decision -- a later workflow sync
+    must not silently revive an archived project."""
+    creation = ProjectCreationService(repo)
+    lifecycle = ProjectLifecycleService(repo)
+
+    project = creation.create_project(name="Archived", description="d", objective="o")
+    lifecycle.archive_project(project.id)
+
+    result = lifecycle.sync_workflow_state(project.id, WorkflowStage.RESEARCH)
+    assert result is not None
+    assert result.status == ProjectStatus.ARCHIVED
+    assert result.current_stage == WorkflowStage.IDEA
+
+
+def test_lifecycle_service_sync_workflow_state_missing_project(
+    repo: FilesystemProjectRepository,
+) -> None:
+    """A missing project is tolerated (best-effort mirror), not raised."""
+    lifecycle = ProjectLifecycleService(repo)
+    assert lifecycle.sync_workflow_state(uuid4(), WorkflowStage.RESEARCH) is None
+
+
 def test_lifecycle_service_not_found(repo: FilesystemProjectRepository) -> None:
     lifecycle = ProjectLifecycleService(repo)
     missing_id = uuid4()

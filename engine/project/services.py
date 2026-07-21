@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from uuid import UUID
 
-from engine.domain.enums import ProjectStatus
+from engine.domain.enums import ProjectStatus, WorkflowStage
 from engine.domain.project import Project
 from engine.project.exceptions import (
     ProjectException,
@@ -207,6 +207,45 @@ class ProjectLifecycleService:
 
         if project.status != status:
             project.status = status
+            project.updated_at = datetime.now(UTC)
+            self.repository.save(project)
+
+        return project
+
+    def sync_workflow_state(
+        self, project_id: UUID, stage: WorkflowStage
+    ) -> Project | None:
+        """Mirror a successful Workflow stage transition onto its Project.
+
+        Project and Workflow are separate aggregates; this keeps
+        Project.current_stage (what ``project list``/``project.json``
+        report) consistent with the real Workflow.current_stage after every
+        transition. A project already ARCHIVED is left untouched -- archival
+        is a terminal, explicit user decision this must not override. A
+        missing project is tolerated (returns None) rather than raised,
+        since this is a best-effort mirror called after the transition that
+        actually matters has already succeeded.
+
+        Args:
+            project_id: The UUID of the project.
+            stage: The Workflow's new current stage.
+
+        Returns:
+            The updated Project domain model, or None if not found.
+        """
+        project = self.repository.get_by_id(project_id)
+        if not project or project.status == ProjectStatus.ARCHIVED:
+            return project
+
+        modified = False
+        if project.current_stage != stage:
+            project.current_stage = stage
+            modified = True
+        if project.status == ProjectStatus.INITIALIZED:
+            project.status = ProjectStatus.ACTIVE
+            modified = True
+
+        if modified:
             project.updated_at = datetime.now(UTC)
             self.repository.save(project)
 

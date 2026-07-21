@@ -19,11 +19,12 @@ from atlas.commands import (
     ApproveProposalCommand,
     CreateProjectCommand,
     ExecuteStageCommand,
+    ListProjectsCommand,
     RejectProposalCommand,
     TransitionStageCommand,
 )
 from atlas.exceptions import ProjectNotFoundError, ProposalValidationError
-from atlas.types import ProposalStatus, WorkflowStage
+from atlas.types import ProjectStatus, ProposalStatus, WorkflowStage
 from engine.domain.ai_drafts import ResearchProposalDraft
 from tests.ai.test_adapters import MockAIProvider
 from tests.support.test_bootstrap import create_test_platform
@@ -80,6 +81,13 @@ def test_research_stage_proposal_commits_successfully_end_to_end(
 
     dashboard = platform.get_project_dashboard_view(proj.id)
     assert dashboard.project_id == proj.id
+
+    # Regression test (Finding-016): the Project aggregate -- what
+    # `atlas project list` reports -- must reflect the real progress just
+    # made, not remain stuck at its creation-time "initialized" status.
+    listed = platform.list_projects(ListProjectsCommand())
+    project_entry = next(p for p in listed.projects if p.id == proj.id)
+    assert project_entry.status == ProjectStatus.ACTIVE
 
 
 def test_reject_then_retry_recovery_flow(

@@ -124,6 +124,7 @@ class Atlas:
             workflow_repo=services.workflow_repo,
             workflow_transition_service=services.workflow_transition_service,
             orchestration_service=services.orchestration_service,
+            project_lifecycle_service=services.project_archive_service,
         )
         self._workflow_execution = WorkflowExecutionCapability(
             workflow_repo=services.workflow_repo,

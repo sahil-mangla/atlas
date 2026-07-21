@@ -264,6 +264,7 @@ def create_test_platform(  # noqa: PLR0915
         extractor_registry,
     )
 
+    project_archive_service = ProjectLifecycleService(project_repo)
     orchestration = WorkflowOrchestrationService(
         workflow_repo=workflow_repo,
         transition_service=workflow_transition,
@@ -271,13 +272,14 @@ def create_test_platform(  # noqa: PLR0915
         commit_service=commit_service,
         registry=registry,
         knowledge_orchestration=knowledge_orchestration,
+        project_lifecycle_service=project_archive_service,
     )
     atlas = Atlas(
         _AtlasServices(
             project_creation_service=ProjectCreationService(project_repo),
             project_loading_service=ProjectLoadingService(project_repo),
             project_listing_service=ProjectRegistryService(project_repo),
-            project_archive_service=ProjectLifecycleService(project_repo),
+            project_archive_service=project_archive_service,
             workflow_initialization_service=workflow_initialization,
             workflow_repo=workflow_repo,
             workflow_transition_service=workflow_transition,

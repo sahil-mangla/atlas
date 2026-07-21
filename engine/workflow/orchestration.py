@@ -34,6 +34,7 @@ from engine.domain.enums import (
 )
 from engine.domain.workflow import ProposalReviewEntry
 from engine.knowledge.orchestration import KnowledgeOrchestrationService
+from engine.project.services import ProjectLifecycleService
 from engine.workflow.exceptions import WorkflowException, WorkflowNotFoundException
 from engine.workflow.repository import WorkflowRepository
 from engine.workflow.services import (
@@ -185,6 +186,7 @@ class WorkflowOrchestrationService:
         commit_service: ProposalCommitService,
         registry: StageServiceRegistry,
         knowledge_orchestration: KnowledgeOrchestrationService | None = None,
+        project_lifecycle_service: ProjectLifecycleService | None = None,
     ) -> None:
         self.workflow_repo = workflow_repo
         self.transition_service = transition_service
@@ -192,6 +194,7 @@ class WorkflowOrchestrationService:
         self.commit_service = commit_service
         self.registry = registry
         self.knowledge_orchestration = knowledge_orchestration
+        self.project_lifecycle_service = project_lifecycle_service
 
     def generate_proposal(
         self, project_id: UUID, user_instructions: str = ""
@@ -331,6 +334,9 @@ class WorkflowOrchestrationService:
                 transition_blocked=True,
                 transition_errors=[f"Stage transition failed: {e}"],
             )
+
+        if self.project_lifecycle_service:
+            self.project_lifecycle_service.sync_workflow_state(project_id, target_stage)
 
         return commit_res
 
