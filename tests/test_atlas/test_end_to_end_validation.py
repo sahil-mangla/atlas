@@ -4,9 +4,9 @@ Drives real project scenarios through the public Atlas facade with the
 production dependency shape (real ``ProposalCommitService``, real
 transformers/validators, real ``KnowledgeOrchestrationService``) and only the
 AI provider itself replaced by a deterministic stub -- exercising the
-generate -> approve -> commit -> (blocked) transition path that, before this
-sprint, was hidden behind ``Mock(spec=ProposalCommitService)`` in the shared
-test fixture and never actually run.
+generate -> approve -> commit -> transition path that, before this sprint,
+was hidden behind ``Mock(spec=ProposalCommitService)`` in the shared test
+fixture and never actually run.
 """
 
 import uuid
@@ -68,11 +68,12 @@ def test_research_stage_proposal_commits_successfully_end_to_end(
         ApproveProposalCommand(project_id=proj.id, proposal_id=proposal.id)
     )
     assert commit.success
-    # Objectives are not auto-completed by proposal approval, so readiness
-    # correctly blocks the automatic stage transition -- and the public
-    # CommitResult now says so explicitly (Sprint 5 fix; previously silent).
-    assert commit.transition_blocked
-    assert commit.blocking_issues
+    # Approving the stage's one required proposal satisfies its objectives,
+    # so readiness passes and the transition proceeds automatically
+    # (Finding-008 fix; previously this was permanently blocked for every
+    # stage of every project, regardless of proposal quality).
+    assert not commit.transition_blocked
+    assert not commit.blocking_issues
 
     research_view = platform.get_research_summary_view(proj.id)
     assert research_view.exists is True

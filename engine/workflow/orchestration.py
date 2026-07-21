@@ -278,6 +278,11 @@ class WorkflowOrchestrationService:
         if not commit_res.success:
             return commit_res
 
+        # The stage's objectives are satisfied by its one required proposal
+        # being committed -- clear them so readiness can actually pass.
+        workflow.active_objectives = []
+        self.workflow_repo.save(workflow)
+
         # Extract knowledge candidate post-commit
         if (
             commit_res.success

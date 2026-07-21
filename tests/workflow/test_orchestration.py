@@ -256,6 +256,69 @@ def test_process_approval_success_transition() -> None:
     )
 
 
+def test_process_approval_clears_active_objectives_so_readiness_passes() -> None:
+    """Regression test (Finding-008): approving a stage's proposal must clear
+    its active_objectives, or WorkflowReadinessService can never report the
+    stage ready and the bundled transition can never fire -- reproduced here
+    with the real readiness service, not a mock, so the fix is exercised
+    end-to-end rather than assumed."""
+    workflow_repo = DummyWorkflowRepo()
+    project_id = uuid4()
+    workflow = Workflow(
+        project_id=project_id,
+        current_stage=WorkflowStage.RESEARCH,
+        active_objectives=["Review literature", "Identify knowledge gaps"],
+        pending_stages=[WorkflowStage.PLANNING],
+    )
+    workflow_repo.workflow = workflow
+
+    executor = Mock(spec=StageExecutor)
+    registry = StageServiceRegistry({WorkflowStage.RESEARCH: executor})
+
+    commit_service = Mock(spec=ProposalCommitService)
+    commit_service.commit_proposal.return_value = CommitResult(
+        success=True, committed_snapshot_id=uuid4()
+    )
+
+    readiness_service = WorkflowReadinessService(workflow_repo)
+    transition_service = Mock(spec=WorkflowTransitionService)
+
+    service = WorkflowOrchestrationService(
+        workflow_repo=workflow_repo,
+        transition_service=transition_service,
+        readiness_service=readiness_service,
+        commit_service=commit_service,
+        registry=registry,
+    )
+
+    proposal = AIProposal[ResearchProposalDraft](
+        proposal_type=ProposalType.RESEARCH,
+        status=ProposalStatus.PENDING_REVIEW,
+        prompt_metadata=PromptTemplateMetadata(
+            version=1, supported_subsystem=ProposalType.RESEARCH
+        ),
+        context_used=ContextPayload(serialized_context=""),
+        data=ResearchProposalDraft(problem_statement="Test", objectives=[]),
+    )
+
+    res = service.process_review_decision(
+        project_id=project_id,
+        proposal=proposal,
+        decision=ProposalDecision.APPROVE,
+        transition_reason="Verified",
+    )
+
+    assert res is not None
+    assert not res.transition_blocked
+    assert workflow.active_objectives == []
+    transition_service.transition_stage.assert_called_once_with(
+        project_id=project_id,
+        new_stage=WorkflowStage.PLANNING,
+        approval_status=ApprovalStatus.APPROVED,
+        reason="Verified",
+    )
+
+
 def test_generate_proposal_with_knowledge_orchestration() -> None:
     workflow_repo = DummyWorkflowRepo()
     project_id = uuid4()
