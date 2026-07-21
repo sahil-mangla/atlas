@@ -4,6 +4,8 @@ This module is an internal implementation detail and must not be imported
 by client adapters. It wires the engine subsystems and returns the public facade.
 """
 
+import logging
+
 from atlas._service import Atlas, _AtlasServices
 from engine.ai.config import ProviderConfig
 from engine.ai.context import IdentityContextStrategy
@@ -118,6 +120,9 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
         The fully configured Atlas facade instance.
     """
     settings = get_settings()
+    logging.basicConfig(
+        level=settings.log_level.upper(), format="%(levelname)s %(name)s: %(message)s"
+    )
 
     # 1. Repositories
     project_repo = FilesystemProjectRepository(settings.workspace_root)

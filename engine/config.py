@@ -48,6 +48,10 @@ class Settings(BaseSettings):
     ai_timeout_seconds: int = Field(
         default=60, description="AI protocol HTTP request timeout, in seconds."
     )
+    log_level: str = Field(
+        default="INFO",
+        description="Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).",
+    )
 
 
 def get_settings() -> Settings:

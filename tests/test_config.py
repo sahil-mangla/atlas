@@ -15,6 +15,12 @@ def test_settings_default_ai_timeout_seconds() -> None:
     assert settings.ai_timeout_seconds == 60
 
 
+def test_settings_default_log_level() -> None:
+    """Verify the logging level defaults to INFO."""
+    settings = get_settings()
+    assert settings.log_level == "INFO"
+
+
 def test_settings_environ_override() -> None:
     """Verify that Settings supports loading values via the constructor.
 
