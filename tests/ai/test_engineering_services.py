@@ -10,6 +10,7 @@ from engine.ai.engineering_services import (
     ArchitectureProposalValidator,
     EvaluationAIEngineeringService,
     PlanningAIEngineeringService,
+    PlanningProposalValidator,
     ProposalCommitService,
     ResearchAIEngineeringService,
     ResearchProposalTransformer,
@@ -24,7 +25,11 @@ from engine.domain.ai_drafts import (
     ArchitectureComponentDraft,
     ArchitectureProposalDraft,
     EvaluationProposalDraft,
+    PlanningEpicDraft,
+    PlanningMilestoneDraft,
     PlanningProposalDraft,
+    PlanningSubtaskDraft,
+    PlanningTaskDraft,
     ResearchFindingDraft,
     ResearchProposalDraft,
 )
@@ -227,6 +232,39 @@ def test_research_validator_rejects_invalid_reference() -> None:
 
     with pytest.raises(InvalidProposalException, match="invalid evidence index"):
         ResearchProposalValidator().validate(draft)
+
+
+def test_planning_task_draft_has_no_estimated_hours_field() -> None:
+    """PlanningTaskDraft must not advertise a field the aggregate can't persist."""
+    assert "estimated_hours" not in PlanningTaskDraft.model_fields
+
+
+def test_planning_validator_accepts_tasks_with_subtasks() -> None:
+    draft = PlanningProposalDraft(
+        scope_statement="Scope",
+        deliverables=[{"title": "Deliverable"}],
+        milestones=[
+            PlanningMilestoneDraft(
+                title="Milestone",
+                description="Description",
+                epics=[
+                    PlanningEpicDraft(
+                        title="Epic",
+                        description="Description",
+                        tasks=[
+                            PlanningTaskDraft(
+                                title="Task",
+                                description="Description",
+                                subtasks=[PlanningSubtaskDraft(title="Subtask")],
+                            )
+                        ],
+                    )
+                ],
+            )
+        ],
+    )
+
+    PlanningProposalValidator().validate(draft)
 
 
 def test_architecture_validator_accepts_supported_components() -> None:

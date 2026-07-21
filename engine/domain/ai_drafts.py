@@ -93,7 +93,6 @@ class PlanningSubtaskDraft(BaseModel):
 class PlanningTaskDraft(BaseModel):
     title: str = Field(description="Main task title.")
     description: str = Field(description="Task description.")
-    estimated_hours: int | None = Field(default=None, description="Estimate in hours.")
     subtasks: list[PlanningSubtaskDraft] = Field(default_factory=list)
 
 

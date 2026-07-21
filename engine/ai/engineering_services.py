@@ -104,15 +104,6 @@ class PlanningProposalValidator(ProposalValidator[PlanningProposalDraft]):
     def validate(self, draft: PlanningProposalDraft) -> None:
         if not draft.scope_statement.strip():
             raise InvalidProposalException("Scope statement cannot be empty.")
-        if any(
-            task.estimated_hours is not None
-            for milestone in draft.milestones
-            for epic in milestone.epics
-            for task in epic.tasks
-        ):
-            raise InvalidProposalException(
-                "Task estimates are not supported by the planning aggregate."
-            )
 
 
 class ArchitectureProposalValidator(ProposalValidator[ArchitectureProposalDraft]):
