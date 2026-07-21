@@ -279,17 +279,17 @@ class WorkflowOrchestrationService:
 
         review_comment = feedback.feedback if feedback else None
         review_approver = feedback.author if feedback else approver
-        workflow.record_proposal_review(
-            ProposalReviewEntry(
-                proposal_id=proposal.id,
-                approver=review_approver,
-                decision=decision,
-                comment=review_comment,
-            )
-        )
-        self.workflow_repo.save(workflow)
 
         if decision == ProposalDecision.REJECT:
+            workflow.record_proposal_review(
+                ProposalReviewEntry(
+                    proposal_id=proposal.id,
+                    approver=review_approver,
+                    decision=decision,
+                    comment=review_comment,
+                )
+            )
+            self.workflow_repo.save(workflow)
             proposal.status = ProposalStatus.REJECTED
             proposal.human_feedback = review_comment
             return None
@@ -299,6 +299,18 @@ class WorkflowOrchestrationService:
         commit_res = self.commit_service.commit_proposal(project_id, proposal)
         if not commit_res.success:
             return commit_res
+
+        # Only record the review entry once the commit has actually succeeded,
+        # so the audit trail in workflow.json never shows an approval that
+        # wasn't durably committed.
+        workflow.record_proposal_review(
+            ProposalReviewEntry(
+                proposal_id=proposal.id,
+                approver=review_approver,
+                decision=decision,
+                comment=review_comment,
+            )
+        )
 
         # The stage's objectives are satisfied by its one required proposal
         # being committed -- clear them so readiness can actually pass.

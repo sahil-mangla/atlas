@@ -47,7 +47,9 @@ def test_workflow_initialization_service(repo: FakeWorkflowRepository) -> None:
 
     assert workflow.project_id == project_id
     assert workflow.current_stage == WorkflowStage.IDEA
-    assert len(workflow.active_objectives) > 0
+    # IDEA starts with no active objectives: its objectives are already
+    # satisfied by the description/objective supplied at project creation.
+    assert workflow.active_objectives == []
     assert repo.exists(project_id) is True
 
 
@@ -85,9 +87,16 @@ def test_workflow_readiness_service(repo: FakeWorkflowRepository) -> None:
 
     init.initialize_workflow(project_id)
 
-    # Initial state has default objectives (not ready)
+    # IDEA starts with no active objectives, so it's auto-ready.
     review = readiness.evaluate_readiness(project_id)
     assert review.stage == WorkflowStage.IDEA
+    assert review.status == EvaluationStatus.PASSED
+    assert len(review.blocking_issues) == 0
+    assert review.confidence == 1.0
+
+    # Setting objectives manually blocks readiness again.
+    progress.set_active_objectives(project_id, ["Task A"])
+    review = readiness.evaluate_readiness(project_id)
     assert review.status == EvaluationStatus.FAILED
     assert len(review.blocking_issues) > 0
     assert review.confidence < 1.0

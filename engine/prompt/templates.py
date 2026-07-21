@@ -81,7 +81,11 @@ class ResearchPromptTemplate(PromptTemplate):
         return PromptDocument(
             system_prompt=(
                 "You are a Principal Engineer producing a research proposal. "
-                "Return only JSON that conforms to the supplied schema."
+                "Return only JSON that conforms to the supplied schema. "
+                "All `*_indices` fields (evidence_indices, finding_indices) are "
+                "0-based: the first item in a list is index 0, not 1. Every "
+                "index you emit must be strictly less than the length of the "
+                "list it references."
             ),
             context=context.serialized_context,
             task=(

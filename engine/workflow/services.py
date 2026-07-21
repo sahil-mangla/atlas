@@ -65,7 +65,12 @@ class WorkflowInitializationService:
     def initialize_workflow(self, project_id: UUID) -> Workflow:
         """Initialize the workflow state for a new project.
 
-        Starts the project at the IDEA stage with default objectives.
+        Starts the project at the IDEA stage with no active objectives: the
+        IDEA objectives ("Define project boundaries", "Outline concept
+        overview") are already satisfied by the description/objective the
+        caller supplies at project creation (see
+        ``ProjectCreationService.create_project``), so IDEA is auto-ready to
+        transition to RESEARCH rather than requiring a manual checklist step.
 
         Args:
             project_id: The UUID of the project.
@@ -78,7 +83,7 @@ class WorkflowInitializationService:
             current_stage=WorkflowStage.IDEA,
             completed_stages=[],
             pending_stages=list(WorkflowStage)[1:],
-            active_objectives=list(DEFAULT_STAGE_OBJECTIVES[WorkflowStage.IDEA]),
+            active_objectives=[],
             history=[],
         )
         self.repository.save(workflow)

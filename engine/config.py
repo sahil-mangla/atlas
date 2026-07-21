@@ -1,10 +1,14 @@
 """Configuration settings for the ATLAS platform using Pydantic Settings."""
 
+import logging
 from enum import StrEnum
 from pathlib import Path
 
+from dotenv import find_dotenv
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+logger = logging.getLogger(__name__)
 
 
 class Environment(StrEnum):
@@ -60,7 +64,21 @@ def get_settings() -> Settings:
     Uses Pydantic Settings to load from environment variables and the .env file.
     Using a getter function facilitates mock injection during testing.
 
+    The bare ``env_file=".env"`` in ``model_config`` only ever looked in the
+    current process's CWD, so running Atlas from any subdirectory silently
+    lost the project's .env (and thus workspace_root) with no diagnostic --
+    just a downstream "not found" error. Resolve upward from CWD instead, and
+    log what was actually resolved so a misconfigured invocation is
+    diagnosable rather than alarming.
+
     Returns:
         Settings: Loaded configuration settings.
     """
-    return Settings()
+    env_path = find_dotenv(usecwd=True)
+    settings = Settings(_env_file=env_path or None)  # type: ignore[call-arg]
+    logger.info(
+        "ATLAS config resolved: env_file=%s workspace_root=%s",
+        env_path or "<not found>",
+        settings.workspace_root.resolve(),
+    )
+    return settings

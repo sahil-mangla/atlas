@@ -101,6 +101,17 @@ class WorkflowCapability:
             if not workflow.pending_stages:
                 raise InvalidTransitionException("No pending stages available.")
 
+            pre_readiness = (
+                self._orchestration_service.readiness_service.evaluate_readiness(
+                    command.project_id
+                )
+            )
+            if pre_readiness.status == EngineEvaluationStatus.FAILED:
+                raise WorkflowNotReadyError(
+                    "Current stage is not ready to transition: "
+                    f"{', '.join(pre_readiness.blocking_issues)}"
+                )
+
             target_stage = self._orchestration_service.resolve_next_stage(workflow)
             self._workflow_transition_service.transition_stage(
                 project_id=command.project_id,

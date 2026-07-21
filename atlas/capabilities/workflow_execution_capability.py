@@ -145,14 +145,23 @@ class WorkflowExecutionCapability:
                 approver=command.actor,
             )
             if commit_res:
+                if commit_res.success:
+                    patch_summary = (
+                        f"Snapshot {commit_res.committed_snapshot_id} committed."
+                    )
+                else:
+                    # Surface the actual validation/rollback errors instead of a
+                    # bare "Snapshot None committed." with no actionable detail.
+                    patch_summary = "Commit failed: " + (
+                        "; ".join(commit_res.errors) or "unknown error."
+                    )
                 result = AppCommitResult(
                     success=commit_res.success,
                     proposal_id=command.proposal_id,
-                    patch_summary=(
-                        f"Snapshot {commit_res.committed_snapshot_id} committed."
-                    ),
+                    patch_summary=patch_summary,
                     transition_blocked=commit_res.transition_blocked,
-                    blocking_issues=tuple(commit_res.transition_errors),
+                    blocking_issues=tuple(commit_res.errors)
+                    + tuple(commit_res.transition_errors),
                 )
                 if result.success:
                     self._pending_proposals.pop(command.proposal_id, None)
