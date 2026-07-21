@@ -32,7 +32,12 @@ class OllamaAIProvider(AIProvider):
         if request.response_schema is not None:
             payload["format"] = "json"
         payload.update(self._config.options)
-        data = post_json(endpoint + "/api/generate", payload, {})
+        data = post_json(
+            endpoint + "/api/generate",
+            payload,
+            {},
+            timeout=self._config.timeout_seconds,
+        )
         return AIResponse(
             content=str(data.get("response", "")),
             usage_metrics={

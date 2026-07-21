@@ -39,6 +39,7 @@ class AnthropicAIProvider(AIProvider):
             endpoint,
             payload,
             {"x-api-key": self._config.api_key, "anthropic-version": "2023-06-01"},
+            timeout=self._config.timeout_seconds,
         )
         content = data.get("content", [])
         first = content[0] if content else {}

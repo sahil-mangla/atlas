@@ -174,6 +174,7 @@ def test_openai_compatible_normalizes_request_and_response() -> None:
         response = provider.generate(request)
 
     url, payload, headers = mocked_post.call_args.args
+    assert mocked_post.call_args.kwargs["timeout"] == 60
     assert url == "https://api.openai.com/v1/chat/completions"
     assert headers == {"Authorization": "Bearer secret"}
     assert payload["model"] == "gpt-test"
@@ -218,6 +219,28 @@ def test_openai_compatible_uses_schema_title_as_json_schema_name() -> None:
         "type": "json_schema",
         "json_schema": {"name": "ResearchProposalDraft", "schema": schema},
     }
+
+
+def test_openai_compatible_uses_configured_timeout() -> None:
+    provider = OpenAICompatibleAIProvider(
+        ProviderConfig(
+            protocol="OPENAI_COMPATIBLE",
+            endpoint="http://localhost:1234/v1",
+            model="local-model",
+            timeout_seconds=300,
+        )
+    )
+    request = _prompt_request()
+    fake_response = {
+        "choices": [{"message": {"content": "{}"}, "finish_reason": "stop"}],
+    }
+
+    with patch(
+        "engine.ai.adapters.openai_compatible.post_json", return_value=fake_response
+    ) as mocked_post:
+        provider.generate(request)
+
+    assert mocked_post.call_args.kwargs["timeout"] == 300
 
 
 def test_anthropic_normalizes_request_and_response() -> None:

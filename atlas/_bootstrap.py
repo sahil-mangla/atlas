@@ -136,6 +136,7 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
         endpoint=settings.ai_endpoint,
         model=settings.ai_model,
         api_key=settings.ai_api_key,
+        timeout_seconds=settings.ai_timeout_seconds,
     )
     provider = ProtocolFactory().resolve(provider_config, settings)
     research_repo = FilesystemResearchRepository(project_repo)

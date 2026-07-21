@@ -9,6 +9,12 @@ def test_settings_default_values() -> None:
     assert settings.environment == Environment.DEVELOPMENT
 
 
+def test_settings_default_ai_timeout_seconds() -> None:
+    """Verify the AI protocol HTTP timeout defaults to 60 seconds."""
+    settings = get_settings()
+    assert settings.ai_timeout_seconds == 60
+
+
 def test_settings_environ_override() -> None:
     """Verify that Settings supports loading values via the constructor.
 

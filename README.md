@@ -142,6 +142,10 @@ interface, selected via `ATLAS_AI_PROTOCOL` (defaults to `GEMINI`).
 | `OPENAI_COMPATIBLE` | `ATLAS_AI_API_KEY`, `ATLAS_AI_MODEL`, `ATLAS_AI_ENDPOINT` | Any OpenAI-compatible chat completions endpoint. |
 | `OLLAMA` | `ATLAS_AI_MODEL`, `ATLAS_AI_ENDPOINT` | Local models via Ollama; no API key needed. |
 
+All protocols also respect `ATLAS_AI_TIMEOUT_SECONDS` (default `60`) for
+the HTTP request timeout. Locally-hosted models generating long
+structured drafts may need this raised well above the default.
+
 All settings are read as environment variables prefixed with `ATLAS_` (e.g.
 `ATLAS_WORKSPACE_ROOT` to change where project directories are created,
 default `./workspace`). Copy `.env.example` to `.env` and fill in your values

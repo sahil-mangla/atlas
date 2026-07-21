@@ -45,6 +45,9 @@ class Settings(BaseSettings):
     ai_endpoint: str | None = Field(default=None, description="AI protocol endpoint.")
     ai_model: str | None = Field(default=None, description="AI protocol model.")
     ai_api_key: str | None = Field(default=None, description="AI protocol credential.")
+    ai_timeout_seconds: int = Field(
+        default=60, description="AI protocol HTTP request timeout, in seconds."
+    )
 
 
 def get_settings() -> Settings:

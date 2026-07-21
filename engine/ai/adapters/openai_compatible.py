@@ -46,7 +46,10 @@ class OpenAICompatibleAIProvider(AIProvider):
             else {}
         )
         data = post_json(
-            self._config.endpoint.rstrip("/") + "/chat/completions", payload, headers
+            self._config.endpoint.rstrip("/") + "/chat/completions",
+            payload,
+            headers,
+            timeout=self._config.timeout_seconds,
         )
         choices = data.get("choices", [])
         first = choices[0] if choices else {}

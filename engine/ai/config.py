@@ -30,6 +30,11 @@ class ProviderConfig(BaseModel):
         description="Model identifier understood by the selected protocol.",
     )
     api_key: str | None = Field(default=None, description="Protocol credential.")
+    timeout_seconds: int = Field(
+        default=60,
+        validation_alias=AliasChoices("timeout_seconds", "timeout"),
+        description="HTTP request timeout, in seconds, for protocol requests.",
+    )
     options: dict[str, Any] = Field(
         default_factory=dict,
         description="Protocol-specific runtime options.",

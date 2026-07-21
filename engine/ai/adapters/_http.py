@@ -9,7 +9,10 @@ from engine.ai.exceptions import AIProviderException
 
 
 def post_json(
-    url: str, payload: dict[str, Any], headers: dict[str, str]
+    url: str,
+    payload: dict[str, Any],
+    headers: dict[str, str],
+    timeout: int = 60,
 ) -> dict[str, Any]:
     """Send a JSON request and normalize transport errors to runtime errors."""
     request = Request(
@@ -19,7 +22,7 @@ def post_json(
         method="POST",
     )
     try:
-        with urlopen(request, timeout=60) as response:
+        with urlopen(request, timeout=timeout) as response:
             result: object = json.loads(response.read())
     except (HTTPError, URLError, OSError, json.JSONDecodeError) as error:
         raise AIProviderException(f"AI protocol request failed: {error}") from error
