@@ -25,6 +25,7 @@ from engine.domain.ai_drafts import (
     ArchitectureComponentDraft,
     ArchitectureProposalDraft,
     EvaluationProposalDraft,
+    PlanningDeliverableDraft,
     PlanningEpicDraft,
     PlanningMilestoneDraft,
     PlanningProposalDraft,
@@ -83,7 +84,7 @@ def test_research_ai_service(assembler: ContextAssemblerService) -> None:
 def test_planning_ai_service(assembler: ContextAssemblerService) -> None:
     draft_data = PlanningProposalDraft(
         scope_statement="Build Scope",
-        deliverables=[{"title": "Deliv 1", "description": ""}],
+        deliverables=[PlanningDeliverableDraft(title="Deliv 1", description="")],
         milestones=[],
     )
     registry = PromptLoader.load_registry()
@@ -242,7 +243,7 @@ def test_planning_task_draft_has_no_estimated_hours_field() -> None:
 def test_planning_validator_accepts_tasks_with_subtasks() -> None:
     draft = PlanningProposalDraft(
         scope_statement="Scope",
-        deliverables=[{"title": "Deliverable"}],
+        deliverables=[PlanningDeliverableDraft(title="Deliverable")],
         milestones=[
             PlanningMilestoneDraft(
                 title="Milestone",
