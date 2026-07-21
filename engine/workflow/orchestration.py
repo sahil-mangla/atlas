@@ -32,7 +32,7 @@ from engine.domain.enums import (
     ProposalStatus,
     WorkflowStage,
 )
-from engine.domain.workflow import ProposalReviewEntry
+from engine.domain.workflow import ProposalReviewEntry, Workflow
 from engine.knowledge.orchestration import KnowledgeOrchestrationService
 from engine.project.services import ProjectLifecycleService
 from engine.workflow.exceptions import WorkflowException, WorkflowNotFoundException
@@ -165,6 +165,10 @@ class StageServiceRegistry:
             raise WorkflowException(f"No StageExecutor registered for stage: {stage}")
         return executor
 
+    def has_executor(self, stage: WorkflowStage) -> bool:
+        """Report whether a stage has a registered AI proposal executor."""
+        return stage in self._executors
+
 
 # ==========================================
 # Workflow Orchestration Service
@@ -195,6 +199,21 @@ class WorkflowOrchestrationService:
         self.registry = registry
         self.knowledge_orchestration = knowledge_orchestration
         self.project_lifecycle_service = project_lifecycle_service
+
+    def resolve_next_stage(self, workflow: Workflow) -> WorkflowStage:
+        """Pick the next stage to transition to from ``workflow.pending_stages``.
+
+        Skips ahead past any pending stage with no registered StageExecutor
+        (e.g. PROBLEM_DEFINITION, IMPLEMENTATION) to the first one that has
+        one, since those stages have nothing for ``stage execute`` to run.
+        Falls back to the first pending stage if none of them have an
+        executor (e.g. ITERATION/COMPLETION, which are legitimate
+        executor-less terminal stages, not skip targets).
+        """
+        return next(
+            (s for s in workflow.pending_stages if self.registry.has_executor(s)),
+            workflow.pending_stages[0],
+        )
 
     def generate_proposal(
         self, project_id: UUID, user_instructions: str = ""
@@ -318,7 +337,7 @@ class WorkflowOrchestrationService:
             # No next stage available, project completes sequence
             return commit_res
 
-        target_stage = workflow.pending_stages[0]
+        target_stage = self.resolve_next_stage(workflow)
         try:
             self.transition_service.transition_stage(
                 project_id=project_id,

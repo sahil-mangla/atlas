@@ -101,7 +101,7 @@ class WorkflowCapability:
             if not workflow.pending_stages:
                 raise InvalidTransitionException("No pending stages available.")
 
-            target_stage = workflow.pending_stages[0]
+            target_stage = self._orchestration_service.resolve_next_stage(workflow)
             self._workflow_transition_service.transition_stage(
                 project_id=command.project_id,
                 new_stage=target_stage,

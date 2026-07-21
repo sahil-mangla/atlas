@@ -319,6 +319,136 @@ def test_process_approval_clears_active_objectives_so_readiness_passes() -> None
     )
 
 
+def _production_shaped_registry() -> StageServiceRegistry:
+    """Mirror atlas/_bootstrap.py's real registry: executors only for
+    RESEARCH/PLANNING/ARCHITECTURE/REVIEW -- PROBLEM_DEFINITION and
+    IMPLEMENTATION have none, exactly like the real StageServiceRegistry."""
+    return StageServiceRegistry(
+        {
+            WorkflowStage.RESEARCH: Mock(spec=StageExecutor),
+            WorkflowStage.PLANNING: Mock(spec=StageExecutor),
+            WorkflowStage.ARCHITECTURE: Mock(spec=StageExecutor),
+            WorkflowStage.REVIEW: Mock(spec=StageExecutor),
+        }
+    )
+
+
+def test_resolve_next_stage_skips_stages_with_no_executor() -> None:
+    """Regression test (Finding-009 follow-up): adding a direct
+    RESEARCH -> PLANNING edge to VALID_TRANSITIONS was not, by itself,
+    enough -- the automatic "next stage" resolution used by both
+    WorkflowCapability.transition_stage() and the bundled transition in
+    process_review_decision() picked workflow.pending_stages[0] with no
+    regard for which stages actually have a registered executor, so it kept
+    landing on PROBLEM_DEFINITION regardless. resolve_next_stage() must
+    actually skip ahead to the first pending stage with an executor."""
+    workflow_repo = DummyWorkflowRepo()
+    service = WorkflowOrchestrationService(
+        workflow_repo=workflow_repo,
+        transition_service=Mock(),
+        readiness_service=Mock(),
+        commit_service=Mock(),
+        registry=_production_shaped_registry(),
+    )
+
+    at_research = Workflow(
+        project_id=uuid4(),
+        current_stage=WorkflowStage.RESEARCH,
+        pending_stages=[
+            WorkflowStage.PROBLEM_DEFINITION,
+            WorkflowStage.PLANNING,
+            WorkflowStage.ARCHITECTURE,
+            WorkflowStage.IMPLEMENTATION,
+            WorkflowStage.REVIEW,
+            WorkflowStage.ITERATION,
+            WorkflowStage.COMPLETION,
+        ],
+    )
+    assert service.resolve_next_stage(at_research) == WorkflowStage.PLANNING
+
+    at_architecture = Workflow(
+        project_id=uuid4(),
+        current_stage=WorkflowStage.ARCHITECTURE,
+        pending_stages=[
+            WorkflowStage.IMPLEMENTATION,
+            WorkflowStage.REVIEW,
+            WorkflowStage.ITERATION,
+            WorkflowStage.COMPLETION,
+        ],
+    )
+    assert service.resolve_next_stage(at_architecture) == WorkflowStage.REVIEW
+
+    # REVIEW's remaining pending stages (ITERATION, COMPLETION) legitimately
+    # have no executor either -- there is nothing to skip ahead to, so the
+    # first pending stage is used, unchanged from the pre-fix behavior.
+    at_review = Workflow(
+        project_id=uuid4(),
+        current_stage=WorkflowStage.REVIEW,
+        pending_stages=[WorkflowStage.ITERATION, WorkflowStage.COMPLETION],
+    )
+    assert service.resolve_next_stage(at_review) == WorkflowStage.ITERATION
+
+
+def test_process_approval_skips_problem_definition_end_to_end() -> None:
+    """End-to-end regression test (Finding-009 follow-up): approving the
+    Research proposal must land the workflow on PLANNING, not
+    PROBLEM_DEFINITION -- using the real WorkflowTransitionService and
+    WorkflowReadinessService, and a registry shaped like the real
+    production one, not mocks, so the actual bundled-transition path is
+    exercised."""
+    workflow_repo = DummyWorkflowRepo()
+    project_id = uuid4()
+    workflow = Workflow(
+        project_id=project_id,
+        current_stage=WorkflowStage.RESEARCH,
+        pending_stages=[
+            WorkflowStage.PROBLEM_DEFINITION,
+            WorkflowStage.PLANNING,
+            WorkflowStage.ARCHITECTURE,
+            WorkflowStage.IMPLEMENTATION,
+            WorkflowStage.REVIEW,
+            WorkflowStage.ITERATION,
+            WorkflowStage.COMPLETION,
+        ],
+    )
+    workflow_repo.workflow = workflow
+
+    commit_service = Mock(spec=ProposalCommitService)
+    commit_service.commit_proposal.return_value = CommitResult(
+        success=True, committed_snapshot_id=uuid4()
+    )
+
+    service = WorkflowOrchestrationService(
+        workflow_repo=workflow_repo,
+        transition_service=WorkflowTransitionService(workflow_repo),
+        readiness_service=WorkflowReadinessService(workflow_repo),
+        commit_service=commit_service,
+        registry=_production_shaped_registry(),
+    )
+
+    proposal = AIProposal[ResearchProposalDraft](
+        proposal_type=ProposalType.RESEARCH,
+        status=ProposalStatus.PENDING_REVIEW,
+        prompt_metadata=PromptTemplateMetadata(
+            version=1, supported_subsystem=ProposalType.RESEARCH
+        ),
+        context_used=ContextPayload(serialized_context=""),
+        data=ResearchProposalDraft(problem_statement="Test", objectives=[]),
+    )
+
+    res = service.process_review_decision(
+        project_id=project_id,
+        proposal=proposal,
+        decision=ProposalDecision.APPROVE,
+        transition_reason="test",
+    )
+
+    assert res is not None
+    assert not res.transition_blocked
+    assert workflow.current_stage == WorkflowStage.PLANNING
+    assert WorkflowStage.PROBLEM_DEFINITION in workflow.completed_stages
+
+
 def test_generate_proposal_with_knowledge_orchestration() -> None:
     workflow_repo = DummyWorkflowRepo()
     project_id = uuid4()
