@@ -31,7 +31,13 @@ class OpenAICompatibleAIProvider(AIProvider):
         ]
         payload: dict[str, Any] = {"model": self._config.model, "messages": messages}
         if request.response_schema is not None:
-            payload["response_format"] = {"type": "json_object"}
+            payload["response_format"] = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": str(request.response_schema.get("title", "response")),
+                    "schema": request.response_schema,
+                },
+            }
         payload.update(self._normalize_parameters(request.parameters))
         payload.update(self._config.options)
         headers = (

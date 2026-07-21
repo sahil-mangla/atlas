@@ -181,7 +181,10 @@ def test_openai_compatible_normalizes_request_and_response() -> None:
         {"role": "system", "content": "system"},
         {"role": "user", "content": request.prompt.user_prompt},
     ]
-    assert payload["response_format"] == {"type": "json_object"}
+    assert payload["response_format"] == {
+        "type": "json_schema",
+        "json_schema": {"name": "response", "schema": {"type": "object"}},
+    }
     assert payload["temperature"] == _OPENAI_TEMPERATURE
     assert payload["top_p"] == _OPENAI_TOP_P
     assert payload["max_tokens"] == _OPENAI_MAX_TOKENS
@@ -189,6 +192,32 @@ def test_openai_compatible_normalizes_request_and_response() -> None:
     assert response.content == '{"ok": true}'
     assert response.usage_metrics == {"prompt_tokens": 11, "completion_tokens": 7}
     assert response.finish_reason == "stop"
+
+
+def test_openai_compatible_uses_schema_title_as_json_schema_name() -> None:
+    provider = OpenAICompatibleAIProvider(
+        ProviderConfig(
+            protocol="OPENAI_COMPATIBLE",
+            endpoint="http://localhost:1234/v1",
+            model="local-model",
+        )
+    )
+    schema = {"title": "ResearchProposalDraft", "type": "object"}
+    request = _prompt_request(response_schema=schema)
+    fake_response = {
+        "choices": [{"message": {"content": "{}"}, "finish_reason": "stop"}],
+    }
+
+    with patch(
+        "engine.ai.adapters.openai_compatible.post_json", return_value=fake_response
+    ) as mocked_post:
+        provider.generate(request)
+
+    _, payload, _ = mocked_post.call_args.args
+    assert payload["response_format"] == {
+        "type": "json_schema",
+        "json_schema": {"name": "ResearchProposalDraft", "schema": schema},
+    }
 
 
 def test_anthropic_normalizes_request_and_response() -> None:
