@@ -25,7 +25,11 @@ from atlas.commands import (
 )
 from atlas.exceptions import ProjectNotFoundError, ProposalValidationError
 from atlas.types import ProjectStatus, ProposalStatus, WorkflowStage
-from engine.domain.ai_drafts import ResearchProposalDraft
+from engine.domain.ai_drafts import (
+    PlanningDeliverableDraft,
+    PlanningProposalDraft,
+    ResearchProposalDraft,
+)
 from tests.ai.test_adapters import MockAIProvider
 from tests.support.test_bootstrap import create_test_platform
 
@@ -88,6 +92,49 @@ def test_research_stage_proposal_commits_successfully_end_to_end(
     listed = platform.list_projects(ListProjectsCommand())
     project_entry = next(p for p in listed.projects if p.id == proj.id)
     assert project_entry.status == ProjectStatus.ACTIVE
+
+
+def test_planning_stage_with_deliverables_commits_end_to_end(
+    platform: Atlas, provider: MockAIProvider
+) -> None:
+    """Regression test (Finding-017): PlanningProposalDraft.deliverables must
+    carry real title/description fields the schema actually documents, not a
+    bare dict -- ScopePlanningService.set_scope() hardcodes d["title"], which
+    KeyErrors on any deliverable shaped some other reasonable way (e.g. a
+    single free-text key), and (per Finding-014, not fixed here) the CLI
+    would show no error text at all when that happened."""
+    proj = platform.create_project(
+        CreateProjectCommand(name="Rollback Tooling", description="D", objective="O")
+    )
+    platform.transition_stage(TransitionStageCommand(project_id=proj.id))
+    _stub_research_draft(provider)
+    research_proposal = platform.execute_stage(
+        ExecuteStageCommand(project_id=proj.id, stage=WorkflowStage.RESEARCH)
+    )
+    research_commit = platform.approve_proposal(
+        ApproveProposalCommand(project_id=proj.id, proposal_id=research_proposal.id)
+    )
+    assert not research_commit.transition_blocked  # research -> planning, direct
+
+    planning_draft = PlanningProposalDraft(
+        scope_statement="Ship the rollback CLI tool.",
+        deliverables=[
+            PlanningDeliverableDraft(
+                title="Rollback Mechanism", description="Core rollback logic."
+            )
+        ],
+    )
+    provider.stubbed_response = planning_draft.model_dump_json()
+    planning_proposal = platform.execute_stage(
+        ExecuteStageCommand(project_id=proj.id, stage=WorkflowStage.PLANNING)
+    )
+
+    commit = platform.approve_proposal(
+        ApproveProposalCommand(project_id=proj.id, proposal_id=planning_proposal.id)
+    )
+    assert commit.success
+    assert not commit.transition_blocked
+    assert not commit.blocking_issues
 
 
 def test_reject_then_retry_recovery_flow(

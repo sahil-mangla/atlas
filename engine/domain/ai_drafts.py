@@ -86,6 +86,11 @@ class ResearchProposalDraft(BaseModel):
 # ==========================================
 
 
+class PlanningDeliverableDraft(BaseModel):
+    title: str = Field(description="Deliverable title.")
+    description: str = Field(default="", description="Deliverable description.")
+
+
 class PlanningSubtaskDraft(BaseModel):
     title: str = Field(description="Subtask title.")
 
@@ -112,7 +117,7 @@ class PlanningProposalDraft(BaseModel):
     """Mirror of Planning aggregate components before freeze."""
 
     scope_statement: str = Field(description="Comprehensive project scope statement.")
-    deliverables: list[dict[str, str]] = Field(
+    deliverables: list[PlanningDeliverableDraft] = Field(
         description="Key milestones deliverables."
     )
     milestones: list[PlanningMilestoneDraft] = Field(default_factory=list)

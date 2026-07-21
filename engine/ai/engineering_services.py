@@ -310,7 +310,10 @@ class PlanningProposalTransformer(ProposalTransformer[PlanningProposalDraft]):
         self.scope_planning.set_scope(
             project_id=project_id,
             statement=draft.scope_statement,
-            deliverables=draft.deliverables,
+            deliverables=[
+                {"title": d.title, "description": d.description}
+                for d in draft.deliverables
+            ],
         )
 
         # Step 3: Add Milestones, Epics, Tasks
