@@ -2,6 +2,54 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Phase 17: Release Candidate Stabilization
+
+#### RC-001 -- Workflow Completion Blocker
+- Fixed: a project could reach the `iteration` stage and never progress
+  further through any public interface. `WorkflowTransitionService.transition_stage`
+  sets default active objectives for every stage, including the human-driven
+  stages that have no AI `StageExecutor` (`problem_definition`,
+  `implementation`, `iteration`, `completion`); those objectives could
+  previously only be cleared by `WorkflowProgressService.complete_objective`,
+  an engine service that was never exposed through a Command, capability
+  method, or CLI command. `workflow transition` therefore permanently failed
+  readiness once a project reached one of those stages.
+- Added: `CompleteObjectiveCommand` / `Atlas.complete_objective` /
+  `atlas workflow complete-objective --project-id <uuid> --objective <o>`,
+  delegating to the existing `WorkflowProgressService.complete_objective` (no
+  new engine behavior). Also reachable through `Atlas.handle()` for
+  non-CLI adapters.
+- A project can now reach `idea -> research -> planning -> architecture ->
+  review -> iteration -> completion` using only documented public
+  interfaces. See `docs/architecture/workflow-stages.md#progressing-through-a-human-driven-stage`.
+
+#### RC-002 -- Knowledge CLI
+- Fixed: engineering-knowledge candidates could be extracted and reviewed
+  internally (`ReviewKnowledgeCandidateCommand` existed on the `Atlas` facade
+  since Phase 13) but had zero CLI exposure -- no parser branch, no
+  application dispatch, no renderer -- so a CLI user could never see or act
+  on them.
+- Added: `atlas knowledge list [--status <s>]`, `atlas knowledge show
+  --candidate-id <uuid>`, `atlas knowledge approve --candidate-id <uuid>`,
+  `atlas knowledge reject --candidate-id <uuid> --feedback <f>`. Approval
+  publishes in the same step (`KnowledgeApprovalService.approve_and_publish`)
+  -- there is no separate publish action in the engine, so no `publish`
+  sub-command was added.
+- Added engine-side plumbing reused by the above (no new business logic):
+  `KnowledgeOrchestrationService.list_candidates` /
+  `.get_candidate`, thin pass-throughs to the existing
+  `KnowledgeRepository.list_candidates` / `.get_candidate`.
+- Fixed a latent architecture-boundary leak surfaced while wiring this up:
+  `ReviewKnowledgeCandidateCommand` previously took raw
+  `engine.domain.knowledge.KnowledgeActor` / `engine.domain.enums.ProposalDecision`
+  values, which `clients/` is never allowed to import
+  (`tests/test_clients/test_imports.py::test_clients_do_not_import_engine`).
+  Added SDK-boundary mirrors (`atlas.types.ProposalDecision`,
+  `atlas.types.KnowledgeActorType`, `atlas.commands.KnowledgeActorInput`),
+  converted to engine types inside `KnowledgeCapability`.
+
 ## [1.0.0] - 2026-07-21
 
 ### Phase 16: Production Readiness & Release Engineering

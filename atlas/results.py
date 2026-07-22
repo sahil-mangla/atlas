@@ -73,3 +73,24 @@ class CommitResult(Result):
     patch_summary: str
     transition_blocked: bool = False
     blocking_issues: tuple[str, ...] = ()
+
+
+class KnowledgeCandidateResult(Result):
+    """Summary of one engineering-knowledge candidate."""
+
+    id: UUID
+    project_id: UUID
+    title: str
+    content: str
+    category: str
+    tags: tuple[str, ...] = ()
+    status: str
+    rationale: str = ""
+    review_comment: str | None = None
+    created_at: datetime
+
+
+class KnowledgeCandidateListResult(Result):
+    """A project's engineering-knowledge candidates."""
+
+    candidates: list[KnowledgeCandidateResult]

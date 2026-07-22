@@ -7,15 +7,19 @@ import pytest
 from atlas.commands import (
     ApproveProposalCommand,
     ArchiveProjectCommand,
+    CompleteObjectiveCommand,
     CreateProjectCommand,
     ExecuteStageCommand,
     GetWorkflowStatusCommand,
+    ListKnowledgeCandidatesCommand,
     ListProjectsCommand,
     LoadProjectCommand,
     RejectProposalCommand,
+    ReviewKnowledgeCandidateCommand,
+    ShowKnowledgeCandidateCommand,
     TransitionStageCommand,
 )
-from atlas.types import WorkflowStage
+from atlas.types import KnowledgeCandidateStatus, ProposalDecision, WorkflowStage
 from clients.cli.commands import HelpCommand, VersionCommand
 from clients.cli.parser import CLIParseError, parse_argv
 
@@ -125,6 +129,30 @@ def test_parse_workflow_transition() -> None:
     assert cmd.actor == "cli"
 
 
+def test_parse_workflow_complete_objective() -> None:
+    pid = str(uuid.uuid4())
+    cmd = parse_argv(
+        [
+            "workflow",
+            "complete-objective",
+            "--project-id",
+            pid,
+            "--objective",
+            "Resolve blocking bugs",
+        ]
+    )
+    assert isinstance(cmd, CompleteObjectiveCommand)
+    assert str(cmd.project_id) == pid
+    assert cmd.objective == "Resolve blocking bugs"
+    assert cmd.actor == "cli"
+
+
+def test_parse_workflow_unknown_sub() -> None:
+    pid = str(uuid.uuid4())
+    with pytest.raises(CLIParseError, match="Unknown workflow sub-command"):
+        parse_argv(["workflow", "bogus", "--project-id", pid])
+
+
 # -- Stage group ---------------------------------------------------------------
 
 
@@ -196,6 +224,95 @@ def test_parse_proposal_reject() -> None:
     assert str(cmd.proposal_id) == propid
     assert cmd.feedback == "Too slow"
     assert cmd.actor == "cli"
+
+
+# -- Knowledge group ------------------------------------------------------------
+
+
+def test_parse_knowledge_missing_sub() -> None:
+    with pytest.raises(CLIParseError, match="Missing knowledge sub-command"):
+        parse_argv(["knowledge"])
+
+
+def test_parse_knowledge_list() -> None:
+    pid = str(uuid.uuid4())
+    cmd = parse_argv(["knowledge", "list", "--project-id", pid])
+    assert isinstance(cmd, ListKnowledgeCandidatesCommand)
+    assert str(cmd.project_id) == pid
+    assert cmd.status is None
+
+
+def test_parse_knowledge_list_with_status() -> None:
+    pid = str(uuid.uuid4())
+    cmd = parse_argv(
+        ["knowledge", "list", "--project-id", pid, "--status", "approved"]
+    )
+    assert isinstance(cmd, ListKnowledgeCandidatesCommand)
+    assert cmd.status == KnowledgeCandidateStatus.APPROVED
+
+
+def test_parse_knowledge_list_invalid_status() -> None:
+    pid = str(uuid.uuid4())
+    with pytest.raises(CLIParseError, match="Invalid status"):
+        parse_argv(["knowledge", "list", "--project-id", pid, "--status", "bogus"])
+
+
+def test_parse_knowledge_show() -> None:
+    pid = str(uuid.uuid4())
+    cid = str(uuid.uuid4())
+    cmd = parse_argv(
+        ["knowledge", "show", "--project-id", pid, "--candidate-id", cid]
+    )
+    assert isinstance(cmd, ShowKnowledgeCandidateCommand)
+    assert str(cmd.project_id) == pid
+    assert str(cmd.candidate_id) == cid
+
+
+def test_parse_knowledge_approve() -> None:
+    pid = str(uuid.uuid4())
+    cid = str(uuid.uuid4())
+    cmd = parse_argv(
+        ["knowledge", "approve", "--project-id", pid, "--candidate-id", cid]
+    )
+    assert isinstance(cmd, ReviewKnowledgeCandidateCommand)
+    assert cmd.decision == ProposalDecision.APPROVE
+    assert cmd.actor.actor_id == "cli"
+    assert cmd.feedback is None
+
+
+def test_parse_knowledge_reject() -> None:
+    pid = str(uuid.uuid4())
+    cid = str(uuid.uuid4())
+    cmd = parse_argv(
+        [
+            "knowledge",
+            "reject",
+            "--project-id",
+            pid,
+            "--candidate-id",
+            cid,
+            "--feedback",
+            "Not generalizable.",
+        ]
+    )
+    assert isinstance(cmd, ReviewKnowledgeCandidateCommand)
+    assert cmd.decision == ProposalDecision.REJECT
+    assert cmd.feedback == "Not generalizable."
+
+
+def test_parse_knowledge_reject_requires_feedback() -> None:
+    pid = str(uuid.uuid4())
+    cid = str(uuid.uuid4())
+    with pytest.raises(CLIParseError, match="Missing required flags"):
+        parse_argv(
+            ["knowledge", "reject", "--project-id", pid, "--candidate-id", cid]
+        )
+
+
+def test_parse_knowledge_unknown_sub() -> None:
+    pid = str(uuid.uuid4())
+    with pytest.raises(CLIParseError, match="Unknown knowledge sub-command"):
+        parse_argv(["knowledge", "bogus", "--project-id", pid])
 
 
 # -- Flag parsing logic --------------------------------------------------------

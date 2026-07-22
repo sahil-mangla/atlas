@@ -33,3 +33,25 @@ class EvaluationStatus(StrEnum):
     PASSED = "passed"
     PASSED_WITH_WARNINGS = "passed_with_warnings"
     FAILED = "failed"
+
+
+class ProposalDecision(StrEnum):
+    APPROVE = "approve"
+    REJECT = "reject"
+
+
+class KnowledgeActorType(StrEnum):
+    HUMAN = "human"
+    AI = "ai"
+    SYSTEM = "system"
+    WORKFLOW = "workflow"
+    PLUGIN = "plugin"
+    IMPORT = "import"
+    EXTERNAL = "external"
+
+
+class KnowledgeCandidateStatus(StrEnum):
+    PENDING_REVIEW = "pending_review"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+    WITHDRAWN = "withdrawn"

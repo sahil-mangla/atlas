@@ -50,14 +50,31 @@ See `docs/plans/phase-16-production-readiness.md`.
 - [x] Sprint 6: Performance Review -- see `docs/reports/phase-16-sprint-6-performance-review.md`
 - [x] Sprint 7: Release Engineering -- see `docs/reports/phase-16-sprint-7-release-engineering.md`
 
+### Phase 17 -- Release Candidate Stabilization
+In progress. Fixes the remaining first-time-user blockers found after Phase
+16's end-to-end validation, one RC item at a time.
+- [x] RC-001: Workflow Completion Blocker -- `iteration`/`completion` (and
+  other executor-less stages) were a dead end; added
+  `atlas workflow complete-objective` as the public progression path. See
+  `CHANGELOG.md` and `docs/architecture/workflow-stages.md#progressing-through-a-human-driven-stage`.
+- [x] RC-002: Knowledge CLI -- `atlas knowledge list/show/approve/reject`
+  added; approval publishes in one step (no separate publish action exists
+  in the engine). Also fixed a latent `clients/` -> `engine` import boundary
+  violation surfaced while wiring the CLI. See `CHANGELOG.md`.
+- [ ] RC-003: Presentation CLI
+- [ ] RC-004: Configuration Experience (`.env.example`)
+- [ ] RC-005: Workflow Documentation sync
+- [ ] RC-006: Diagnostics Improvements
+- [ ] RC-007: Minor UX Polish
+
 ## Current Task
 
+- [ ] Continue Phase 17 RC items in priority order (RC-003 next).
 - [ ] Repository identity decision (git remote naming) and `v1.0.0` release tag --
   both left as explicit open items for the user; see the Sprint 7 report's
-  Release Checklist. No further engineering work is queued.
+  Release Checklist.
 
 ## Overall Progress
 
-- Phase 16 of a planned 16-phase v1.0.0 roadmap: all 7 sprints complete.
-  ATLAS is ready to be declared **Version 1.0.0 Release Candidate**, pending
-  the two open release-checklist items above.
+- Phase 16 (v1.0.0 roadmap, all 7 sprints) is complete. Phase 17 (Release
+  Candidate Stabilization) is in progress; RC-001 and RC-002 of 7 are done.

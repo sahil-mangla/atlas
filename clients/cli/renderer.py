@@ -35,6 +35,8 @@ from atlas.exceptions import (
 )
 from atlas.results import (
     CommitResult,
+    KnowledgeCandidateListResult,
+    KnowledgeCandidateResult,
     OperationResult,
     ProjectListResult,
     ProjectResult,
@@ -253,6 +255,89 @@ class CLIRenderer:
         return f"{heading}\n{meta}\n\n{content_section}"
 
     # ------------------------------------------------------------------
+    # Knowledge results
+    # ------------------------------------------------------------------
+
+    def render_knowledge_candidate(self, result: KnowledgeCandidateResult) -> str:
+        """Render a single engineering-knowledge candidate's full detail.
+
+        Args:
+            result: The knowledge candidate result DTO.
+
+        Returns:
+            Formatted candidate detail string.
+        """
+        heading = render_heading(
+            result.title,
+            width=self._ctx.terminal_width,
+            use_unicode=self._ctx.use_unicode,
+        )
+        pairs: dict[str, Any] = {
+            "ID": str(result.id),
+            "Project": str(result.project_id),
+            "Category": result.category,
+            "Status": result.status,
+            "Tags": ", ".join(result.tags) if result.tags else "(none)",
+        }
+        meta = render_key_value(pairs)
+        content_section = render_section(
+            "Content",
+            render_markdown_block(result.content, width=self._ctx.terminal_width),
+            width=self._ctx.terminal_width,
+            use_unicode=self._ctx.use_unicode,
+        )
+        parts = [heading, meta, content_section]
+        if result.rationale:
+            parts.append(
+                render_section(
+                    "Rationale",
+                    result.rationale,
+                    width=self._ctx.terminal_width,
+                    use_unicode=self._ctx.use_unicode,
+                )
+            )
+        if result.review_comment:
+            parts.append(
+                render_section(
+                    "Review Comment",
+                    result.review_comment,
+                    width=self._ctx.terminal_width,
+                    use_unicode=self._ctx.use_unicode,
+                )
+            )
+        return "\n\n".join(parts)
+
+    def render_knowledge_candidate_list(
+        self, result: KnowledgeCandidateListResult
+    ) -> str:
+        """Render a project's engineering-knowledge candidates as a table.
+
+        Args:
+            result: The knowledge candidate list result DTO.
+
+        Returns:
+            Formatted table string.
+        """
+        if not result.candidates:
+            return "No knowledge candidates found."
+        heading = render_heading(
+            "Knowledge Candidates",
+            width=self._ctx.terminal_width,
+            use_unicode=self._ctx.use_unicode,
+        )
+        rows = [
+            [
+                str(c.id)[:8] + self._ellipsis,
+                truncate(c.title, 40, ellipsis=self._ellipsis),
+                c.category,
+                c.status,
+            ]
+            for c in result.candidates
+        ]
+        table = render_table(["ID", "Title", "Category", "Status"], rows)
+        return f"{heading}\n\n{table}"
+
+    # ------------------------------------------------------------------
     # Operation / commit results
     # ------------------------------------------------------------------
 
@@ -412,8 +497,14 @@ Project commands:
   atlas project archive  --project-id <uuid>
 
 Workflow commands:
-  atlas workflow status      --project-id <uuid>
-  atlas workflow transition  --project-id <uuid> [--reason <r>] [--actor <a>]
+  atlas workflow status              --project-id <uuid>
+  atlas workflow transition          --project-id <uuid> [--reason <r>] [--actor <a>]
+  atlas workflow complete-objective  --project-id <uuid> --objective <o> [--actor <a>]
+
+  Human-driven stages (problem_definition, implementation, iteration,
+  completion) have no AI stage executor. Use 'workflow status' to see their
+  active objectives, 'workflow complete-objective' to clear each one, then
+  'workflow transition' once readiness passes.
 
 Stage commands:
   atlas stage execute  --project-id <uuid> --stage <stage>
@@ -422,6 +513,15 @@ Proposal commands:
   atlas proposal approve  --project-id <uuid> --proposal-id <uuid> [--actor <a>]
   atlas proposal reject   --project-id <uuid> --proposal-id <uuid> --feedback <f> [--actor <a>]
 
+Knowledge commands:
+  atlas knowledge list     --project-id <uuid> [--status <s>]
+  atlas knowledge show     --project-id <uuid> --candidate-id <uuid>
+  atlas knowledge approve  --project-id <uuid> --candidate-id <uuid> [--feedback <f>] [--actor <a>]
+  atlas knowledge reject   --project-id <uuid> --candidate-id <uuid> --feedback <f> [--actor <a>]
+
+  Approving a candidate publishes it in the same step -- there is no
+  separate publish command.
+
 Information:
   atlas version
   atlas help
@@ -429,4 +529,7 @@ Information:
 Valid stages:
   idea, research, problem_definition, planning, architecture,
   implementation, review, iteration, completion
+
+Valid knowledge candidate statuses:
+  pending_review, approved, rejected, withdrawn
 """  # noqa: E501

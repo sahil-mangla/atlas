@@ -126,9 +126,20 @@ atlas proposal reject --project-id <project-id> --proposal-id <proposal-id> \
   --feedback "Needs more evidence on X."
 ```
 
-Repeat `stage execute` / `proposal approve` for each subsequent stage
-(`planning`, `architecture`, `review`) as the project progresses. See the
-[CLI Reference](#cli-reference) below for the full command set.
+Repeat `stage execute` / `proposal approve` for each subsequent AI-assisted
+stage (`planning`, `architecture`, `review`) as the project progresses. Once
+the project reaches a human-driven stage with no AI executor (`iteration`,
+`completion`), clear its listed objectives with `workflow complete-objective`
+before running `workflow transition` again -- see [Progressing through a
+human-driven stage](docs/architecture/workflow-stages.md#progressing-through-a-human-driven-stage).
+
+Each committed stage proposal may also extract engineering-knowledge
+candidates -- run `atlas knowledge list --project-id <project-id>` to see
+them, `atlas knowledge show --project-id <project-id> --candidate-id
+<candidate-id>` for full detail, and `atlas knowledge approve` (publishes)
+or `atlas knowledge reject --feedback <f>` to review one.
+
+See the [CLI Reference](#cli-reference) below for the full command set.
 
 ## Configuring an AI Provider
 
@@ -165,9 +176,14 @@ atlas <group> <sub-command> [flags]
 | | `archive --project-id <uuid>` | Archive an active project |
 | `workflow` | `status --project-id <uuid>` | Show the current stage and readiness |
 | | `transition --project-id <uuid> --reason <r>` | Transition to the next stage |
+| | `complete-objective --project-id <uuid> --objective <o>` | Clear one active objective on a human-driven stage (`problem_definition`, `implementation`, `iteration`, `completion`) |
 | `stage` | `execute --project-id <uuid> --stage <s>` | Generate an AI draft for the current stage |
 | `proposal` | `approve --project-id <uuid> --proposal-id <uuid>` | Approve and commit a draft |
 | | `reject --project-id <uuid> --proposal-id <uuid> --feedback <f>` | Reject a draft with feedback |
+| `knowledge` | `list --project-id <uuid> [--status <s>]` | List engineering-knowledge candidates |
+| | `show --project-id <uuid> --candidate-id <uuid>` | Show one candidate's full content |
+| | `approve --project-id <uuid> --candidate-id <uuid>` | Approve and publish a candidate (one step) |
+| | `reject --project-id <uuid> --candidate-id <uuid> --feedback <f>` | Reject a candidate with feedback |
 
 `<s>` is one of `research`, `planning`, `architecture`, `review`. Full details:
 [docs/usage/cli.md](docs/usage/cli.md).

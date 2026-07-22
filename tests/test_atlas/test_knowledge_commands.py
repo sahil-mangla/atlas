@@ -3,9 +3,11 @@ from uuid import uuid4
 
 from atlas import Atlas
 from atlas._service import _AtlasServices
-from atlas.commands import ReviewKnowledgeCandidateCommand
-from engine.domain.enums import KnowledgeActorType, ProposalDecision
-from engine.domain.knowledge import KnowledgeActor
+from atlas.commands import KnowledgeActorInput, ReviewKnowledgeCandidateCommand
+from atlas.types import KnowledgeActorType, ProposalDecision
+from engine.domain.enums import KnowledgeActorType as EngineKnowledgeActorType
+from engine.domain.enums import ProposalDecision as EngineProposalDecision
+from engine.domain.knowledge import KnowledgeActor as EngineKnowledgeActor
 from engine.workflow.orchestration import WorkflowOrchestrationService
 
 
@@ -19,6 +21,7 @@ def test_review_knowledge_candidate_command_approve() -> None:
         workflow_initialization_service=Mock(),
         workflow_repo=Mock(),
         workflow_transition_service=Mock(),
+        workflow_progress_service=Mock(),
         orchestration_service=orch,
         proposal_repo=Mock(),
     )
@@ -28,7 +31,7 @@ def test_review_knowledge_candidate_command_approve() -> None:
         project_id=uuid4(),
         candidate_id=uuid4(),
         decision=ProposalDecision.APPROVE,
-        actor=KnowledgeActor(
+        actor=KnowledgeActorInput(
             actor_type=KnowledgeActorType.HUMAN,
             actor_id="user",
             display_name="User",
@@ -39,8 +42,12 @@ def test_review_knowledge_candidate_command_approve() -> None:
     orch.process_knowledge_review.assert_called_once_with(
         cmd.project_id,
         cmd.candidate_id,
-        cmd.decision,
-        cmd.actor,
+        EngineProposalDecision.APPROVE,
+        EngineKnowledgeActor(
+            actor_type=EngineKnowledgeActorType.HUMAN,
+            actor_id="user",
+            display_name="User",
+        ),
         cmd.feedback,
     )
 
@@ -55,6 +62,7 @@ def test_review_knowledge_candidate_command_reject() -> None:
         workflow_initialization_service=Mock(),
         workflow_repo=Mock(),
         workflow_transition_service=Mock(),
+        workflow_progress_service=Mock(),
         orchestration_service=orch,
         proposal_repo=Mock(),
     )
@@ -64,7 +72,7 @@ def test_review_knowledge_candidate_command_reject() -> None:
         project_id=uuid4(),
         candidate_id=uuid4(),
         decision=ProposalDecision.REJECT,
-        actor=KnowledgeActor(
+        actor=KnowledgeActorInput(
             actor_type=KnowledgeActorType.HUMAN,
             actor_id="user",
             display_name="User",
@@ -76,7 +84,11 @@ def test_review_knowledge_candidate_command_reject() -> None:
     orch.process_knowledge_review.assert_called_once_with(
         cmd.project_id,
         cmd.candidate_id,
-        cmd.decision,
-        cmd.actor,
+        EngineProposalDecision.REJECT,
+        EngineKnowledgeActor(
+            actor_type=EngineKnowledgeActorType.HUMAN,
+            actor_id="user",
+            display_name="User",
+        ),
         cmd.feedback,
     )

@@ -14,9 +14,12 @@ from atlas.adapters.protocol import AdapterContext, AdapterKind
 from atlas.commands import (
     ArchiveProjectCommand,
     Command,
+    CompleteObjectiveCommand,
     CreateProjectCommand,
+    GetWorkflowStatusCommand,
     ListProjectsCommand,
     LoadProjectCommand,
+    TransitionStageCommand,
 )
 from atlas.contracts.envelope import RequestEnvelope
 from atlas.contracts.errors import PlatformErrorCode
@@ -31,7 +34,7 @@ def _envelope(command: Command) -> RequestEnvelope[Command]:
     return RequestEnvelope(adapter=_adapter_context(), command=command)
 
 
-_EXPECTED_COMMAND_TYPE_COUNT = 10
+_EXPECTED_COMMAND_TYPE_COUNT = 13
 
 
 def test_dispatch_table_has_one_entry_per_command_type(
@@ -89,6 +92,28 @@ def test_handle_archive_project(test_atlas_platform: Atlas) -> None:
     )
     assert response.result is not None
     assert response.result.success is True
+
+
+def test_handle_complete_objective(test_atlas_platform: Atlas) -> None:
+    created = test_atlas_platform.create_project(
+        CreateProjectCommand(name="P1", description="D", objective="O")
+    )
+    test_atlas_platform.transition_stage(
+        TransitionStageCommand(project_id=created.id)
+    )
+    status = test_atlas_platform.get_workflow_status(
+        GetWorkflowStatusCommand(project_id=created.id)
+    )
+    response = test_atlas_platform.handle(
+        _envelope(
+            CompleteObjectiveCommand(
+                project_id=created.id, objective=status.objectives[0]
+            )
+        )
+    )
+    assert response.result is not None
+    assert response.error is None
+    assert status.objectives[0] not in response.result.objectives
 
 
 def test_handle_maps_application_error_to_error_envelope(

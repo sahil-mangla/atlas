@@ -2,7 +2,12 @@ from typing import Any
 from uuid import UUID
 
 from engine.domain.ai_drafts import KnowledgeCandidateDraft
-from engine.domain.enums import KnowledgeSourceType, ProposalDecision, WorkflowStage
+from engine.domain.enums import (
+    KnowledgeCandidateStatus,
+    KnowledgeSourceType,
+    ProposalDecision,
+    WorkflowStage,
+)
 from engine.domain.knowledge import (
     EngineeringKnowledgeContext,
     HumanKnowledgeSubmission,
@@ -50,6 +55,16 @@ class KnowledgeOrchestrationService:
 
     def list_pending_candidates(self, project_id: UUID) -> list[KnowledgeCandidate]:
         return self.candidates.get_pending(project_id)
+
+    def list_candidates(
+        self, project_id: UUID, status: KnowledgeCandidateStatus | None = None
+    ) -> list[KnowledgeCandidate]:
+        return self.candidates.repository.list_candidates(project_id, status)
+
+    def get_candidate(
+        self, project_id: UUID, candidate_id: UUID
+    ) -> KnowledgeCandidate | None:
+        return self.candidates.repository.get_candidate(project_id, candidate_id)
 
     def process_candidate_review(
         self,

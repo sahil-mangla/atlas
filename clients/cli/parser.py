@@ -24,15 +24,25 @@ from uuid import UUID
 from atlas.commands import (
     ApproveProposalCommand,
     ArchiveProjectCommand,
+    CompleteObjectiveCommand,
     CreateProjectCommand,
     ExecuteStageCommand,
     GetWorkflowStatusCommand,
+    KnowledgeActorInput,
+    ListKnowledgeCandidatesCommand,
     ListProjectsCommand,
     LoadProjectCommand,
     RejectProposalCommand,
+    ReviewKnowledgeCandidateCommand,
+    ShowKnowledgeCandidateCommand,
     TransitionStageCommand,
 )
-from atlas.types import WorkflowStage
+from atlas.types import (
+    KnowledgeActorType,
+    KnowledgeCandidateStatus,
+    ProposalDecision,
+    WorkflowStage,
+)
 
 if TYPE_CHECKING:
     from atlas.commands import Command
@@ -84,6 +94,7 @@ class CommandParser:
             "workflow": self._parse_workflow,
             "stage": self._parse_stage,
             "proposal": self._parse_proposal,
+            "knowledge": self._parse_knowledge,
             "version": self._parse_version,
             "help": self._parse_help,
         }
@@ -123,7 +134,8 @@ class CommandParser:
     def _parse_workflow(self, rest: list[str]) -> Command:
         if not rest:
             raise CLIParseError(
-                "Missing workflow sub-command. Valid sub-commands: status, transition."
+                "Missing workflow sub-command. "
+                "Valid sub-commands: status, transition, complete-objective."
             )
         sub = rest[0]
         args = rest[1:]
@@ -132,8 +144,11 @@ class CommandParser:
             return self._workflow_status(args)
         if sub == "transition":
             return self._workflow_transition(args)
+        if sub == "complete-objective":
+            return self._workflow_complete_objective(args)
         raise CLIParseError(
-            f"Unknown workflow sub-command '{sub}'. Valid: status, transition."
+            f"Unknown workflow sub-command '{sub}'. "
+            "Valid: status, transition, complete-objective."
         )
 
     def _parse_stage(self, rest: list[str]) -> Command:
@@ -162,6 +177,28 @@ class CommandParser:
             return self._proposal_reject(args)
         raise CLIParseError(
             f"Unknown proposal sub-command '{sub}'. Valid: approve, reject."
+        )
+
+    def _parse_knowledge(self, rest: list[str]) -> Command:
+        if not rest:
+            raise CLIParseError(
+                "Missing knowledge sub-command. "
+                "Valid sub-commands: list, show, approve, reject."
+            )
+        sub = rest[0]
+        args = rest[1:]
+
+        if sub == "list":
+            return self._knowledge_list(args)
+        if sub == "show":
+            return self._knowledge_show(args)
+        if sub == "approve":
+            return self._knowledge_approve(args)
+        if sub == "reject":
+            return self._knowledge_reject(args)
+        raise CLIParseError(
+            f"Unknown knowledge sub-command '{sub}'. "
+            "Valid: list, show, approve, reject."
         )
 
     def _parse_version(self, _rest: list[str]) -> Command:
@@ -220,6 +257,19 @@ class CommandParser:
         )
 
     @staticmethod
+    def _workflow_complete_objective(args: list[str]) -> CompleteObjectiveCommand:
+        parsed = _parse_flags(
+            args,
+            required=["--project-id", "--objective"],
+            optional=["--actor"],
+        )
+        return CompleteObjectiveCommand(
+            project_id=_uuid(parsed["--project-id"]),
+            objective=parsed["--objective"],
+            actor=parsed.get("--actor", "cli"),
+        )
+
+    @staticmethod
     def _stage_execute(args: list[str]) -> ExecuteStageCommand:
         parsed = _parse_flags(args, required=["--project-id", "--stage"])
         stage_val = parsed["--stage"]
@@ -260,6 +310,66 @@ class CommandParser:
             proposal_id=_uuid(parsed["--proposal-id"]),
             feedback=parsed["--feedback"],
             actor=parsed.get("--actor", "cli"),
+        )
+
+    @staticmethod
+    def _knowledge_list(args: list[str]) -> ListKnowledgeCandidatesCommand:
+        parsed = _parse_flags(args, required=["--project-id"], optional=["--status"])
+        status: KnowledgeCandidateStatus | None = None
+        if "--status" in parsed:
+            try:
+                status = KnowledgeCandidateStatus(parsed["--status"])
+            except ValueError:
+                valid = ", ".join(s.value for s in KnowledgeCandidateStatus)
+                raise CLIParseError(  # noqa: B904
+                    f"Invalid status '{parsed['--status']}'. Valid: {valid}."
+                )
+        return ListKnowledgeCandidatesCommand(
+            project_id=_uuid(parsed["--project-id"]), status=status
+        )
+
+    @staticmethod
+    def _knowledge_show(args: list[str]) -> ShowKnowledgeCandidateCommand:
+        parsed = _parse_flags(args, required=["--project-id", "--candidate-id"])
+        return ShowKnowledgeCandidateCommand(
+            project_id=_uuid(parsed["--project-id"]),
+            candidate_id=_uuid(parsed["--candidate-id"]),
+        )
+
+    @staticmethod
+    def _knowledge_approve(args: list[str]) -> ReviewKnowledgeCandidateCommand:
+        parsed = _parse_flags(
+            args,
+            required=["--project-id", "--candidate-id"],
+            optional=["--actor", "--feedback"],
+        )
+        return ReviewKnowledgeCandidateCommand(
+            project_id=_uuid(parsed["--project-id"]),
+            candidate_id=_uuid(parsed["--candidate-id"]),
+            decision=ProposalDecision.APPROVE,
+            actor=KnowledgeActorInput(
+                actor_type=KnowledgeActorType.HUMAN,
+                actor_id=parsed.get("--actor", "cli"),
+            ),
+            feedback=parsed.get("--feedback"),
+        )
+
+    @staticmethod
+    def _knowledge_reject(args: list[str]) -> ReviewKnowledgeCandidateCommand:
+        parsed = _parse_flags(
+            args,
+            required=["--project-id", "--candidate-id", "--feedback"],
+            optional=["--actor"],
+        )
+        return ReviewKnowledgeCandidateCommand(
+            project_id=_uuid(parsed["--project-id"]),
+            candidate_id=_uuid(parsed["--candidate-id"]),
+            decision=ProposalDecision.REJECT,
+            actor=KnowledgeActorInput(
+                actor_type=KnowledgeActorType.HUMAN,
+                actor_id=parsed.get("--actor", "cli"),
+            ),
+            feedback=parsed["--feedback"],
         )
 
 

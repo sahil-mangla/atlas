@@ -18,13 +18,16 @@ from atlas.commands import (
     ApproveProposalCommand,
     ArchiveProjectCommand,
     Command,
+    CompleteObjectiveCommand,
     CreateProjectCommand,
     ExecuteStageCommand,
     GetWorkflowStatusCommand,
+    ListKnowledgeCandidatesCommand,
     ListProjectsCommand,
     LoadProjectCommand,
     RejectProposalCommand,
     ReviewKnowledgeCandidateCommand,
+    ShowKnowledgeCandidateCommand,
     TransitionStageCommand,
 )
 from atlas.contracts.envelope import RequestEnvelope, ResponseEnvelope
@@ -34,6 +37,8 @@ from atlas.results import (
     CommitResult as AppCommitResult,
 )
 from atlas.results import (
+    KnowledgeCandidateListResult,
+    KnowledgeCandidateResult,
     OperationResult,
     ProjectListResult,
     ProjectResult,
@@ -56,6 +61,7 @@ from engine.workflow.orchestration import WorkflowOrchestrationService
 from engine.workflow.repository import WorkflowRepository
 from engine.workflow.services import (
     WorkflowInitializationService,
+    WorkflowProgressService,
     WorkflowTransitionService,
 )
 from presentation.orchestration import PlatformOrchestrationService
@@ -87,6 +93,7 @@ class _AtlasServices:
     workflow_initialization_service: WorkflowInitializationService
     workflow_repo: WorkflowRepository
     workflow_transition_service: WorkflowTransitionService
+    workflow_progress_service: WorkflowProgressService
     orchestration_service: WorkflowOrchestrationService
     proposal_repo: ProposalRepository
     # Read-only repositories backing the Phase 14 presentation read-model API.
@@ -125,6 +132,7 @@ class Atlas:
             workflow_transition_service=services.workflow_transition_service,
             orchestration_service=services.orchestration_service,
             project_lifecycle_service=services.project_archive_service,
+            workflow_progress_service=services.workflow_progress_service,
         )
         self._workflow_execution = WorkflowExecutionCapability(
             workflow_repo=services.workflow_repo,
@@ -154,10 +162,13 @@ class Atlas:
             ArchiveProjectCommand: self._project.archive_project,
             GetWorkflowStatusCommand: self._workflow.get_workflow_status,
             TransitionStageCommand: self._workflow.transition_stage,
+            CompleteObjectiveCommand: self._workflow.complete_objective,
             ExecuteStageCommand: self._workflow_execution.execute_stage,
             ApproveProposalCommand: self._workflow_execution.approve_proposal,
             RejectProposalCommand: self._workflow_execution.reject_proposal,
             ReviewKnowledgeCandidateCommand: self._knowledge.review_knowledge_candidate,
+            ListKnowledgeCandidatesCommand: self._knowledge.list_candidates,
+            ShowKnowledgeCandidateCommand: self._knowledge.show_candidate,
         }
 
         # Presentation wiring (PlatformOrchestrationService, RendererRegistry) is
@@ -207,6 +218,12 @@ class Atlas:
         """Transition workflow to the next stage."""
         return self._workflow.transition_stage(command)
 
+    def complete_objective(
+        self, command: CompleteObjectiveCommand
+    ) -> WorkflowStatusResult:
+        """Mark one active stage objective as satisfied by human action."""
+        return self._workflow.complete_objective(command)
+
     def execute_stage(self, command: ExecuteStageCommand) -> ProposalResult:
         """Execute a workflow stage with AI generation."""
         return self._workflow_execution.execute_stage(command)
@@ -220,6 +237,18 @@ class Atlas:
     ) -> OperationResult:
         """Apply a human review decision to one pending knowledge candidate."""
         return self._knowledge.review_knowledge_candidate(command)
+
+    def list_knowledge_candidates(
+        self, command: ListKnowledgeCandidatesCommand
+    ) -> KnowledgeCandidateListResult:
+        """List a project's engineering-knowledge candidates."""
+        return self._knowledge.list_candidates(command)
+
+    def show_knowledge_candidate(
+        self, command: ShowKnowledgeCandidateCommand
+    ) -> KnowledgeCandidateResult:
+        """Show a single engineering-knowledge candidate's full detail."""
+        return self._knowledge.show_candidate(command)
 
     def reject_proposal(self, command: RejectProposalCommand) -> OperationResult:
         """Reject a generated AI proposal with feedback."""

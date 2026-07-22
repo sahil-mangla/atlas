@@ -98,6 +98,7 @@ from engine.workflow.orchestration import (
 )
 from engine.workflow.services import (
     WorkflowInitializationService,
+    WorkflowProgressService,
     WorkflowReadinessService,
     WorkflowTransitionService,
 )
@@ -272,6 +273,7 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
     workflow_initialization_service = WorkflowInitializationService(workflow_repo)
     workflow_transition_service = WorkflowTransitionService(workflow_repo)
     workflow_readiness_service = WorkflowReadinessService(workflow_repo)
+    workflow_progress_service = WorkflowProgressService(workflow_repo)
     knowledge_lifecycle = KnowledgeLifecycleService(knowledge_repo)
 
     extractor_registry = ExtractorRegistry(
@@ -309,6 +311,7 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
             workflow_initialization_service=workflow_initialization_service,
             workflow_repo=workflow_repo,
             workflow_transition_service=workflow_transition_service,
+            workflow_progress_service=workflow_progress_service,
             orchestration_service=orchestration_service,
             proposal_repo=proposal_repo,
             research_repo=research_repo,

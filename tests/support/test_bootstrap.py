@@ -92,6 +92,7 @@ from engine.workflow.orchestration import (
 )
 from engine.workflow.services import (
     WorkflowInitializationService,
+    WorkflowProgressService,
     WorkflowReadinessService,
     WorkflowTransitionService,
 )
@@ -248,6 +249,7 @@ def create_test_platform(  # noqa: PLR0915
     workflow_initialization = WorkflowInitializationService(workflow_repo)
     workflow_transition = WorkflowTransitionService(workflow_repo)
     workflow_readiness = WorkflowReadinessService(workflow_repo)
+    workflow_progress = WorkflowProgressService(workflow_repo)
 
     knowledge_lifecycle = KnowledgeLifecycleService(knowledge_repo)
     extractor_registry = ExtractorRegistry(
@@ -283,6 +285,7 @@ def create_test_platform(  # noqa: PLR0915
             workflow_initialization_service=workflow_initialization,
             workflow_repo=workflow_repo,
             workflow_transition_service=workflow_transition,
+            workflow_progress_service=workflow_progress,
             orchestration_service=orchestration,
             proposal_repo=proposal_repo,
             research_repo=research_repo,

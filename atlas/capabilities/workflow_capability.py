@@ -7,7 +7,11 @@ Responsibility Rule in ``docs/plans/phase-15-platform-layer.md`` §3.5.
 
 from uuid import UUID
 
-from atlas.commands import GetWorkflowStatusCommand, TransitionStageCommand
+from atlas.commands import (
+    CompleteObjectiveCommand,
+    GetWorkflowStatusCommand,
+    TransitionStageCommand,
+)
 from atlas.exceptions import (
     ApplicationError,
     InvalidTransitionError,
@@ -25,7 +29,7 @@ from engine.workflow.exceptions import (
 )
 from engine.workflow.orchestration import WorkflowOrchestrationService
 from engine.workflow.repository import WorkflowRepository
-from engine.workflow.services import WorkflowTransitionService
+from engine.workflow.services import WorkflowProgressService, WorkflowTransitionService
 
 
 class WorkflowCapability:
@@ -37,11 +41,13 @@ class WorkflowCapability:
         workflow_transition_service: WorkflowTransitionService,
         orchestration_service: WorkflowOrchestrationService,
         project_lifecycle_service: ProjectLifecycleService,
+        workflow_progress_service: WorkflowProgressService,
     ) -> None:
         self._workflow_repo = workflow_repo
         self._workflow_transition_service = workflow_transition_service
         self._orchestration_service = orchestration_service
         self._project_lifecycle_service = project_lifecycle_service
+        self._workflow_progress_service = workflow_progress_service
 
     def _map_workflow_exception(self, e: Exception) -> ApplicationError:
         """Map internal workflow exceptions to application errors."""
@@ -65,6 +71,60 @@ class WorkflowCapability:
     ) -> WorkflowStatusResult:
         """Get current workflow state for a project."""
         try:
+            workflow = self._workflow_repo.get_by_project_id(command.project_id)
+            if not workflow:
+                raise WorkflowNotFoundException(
+                    f"Workflow for project {command.project_id} not found."
+                )
+            readiness = (
+                self._orchestration_service.readiness_service.evaluate_readiness(
+                    command.project_id
+                )
+            )
+            return WorkflowStatusResult(
+                project_id=command.project_id,
+                current_stage=WorkflowStage(workflow.current_stage.value),
+                objectives=workflow.active_objectives,
+                is_ready_for_transition=readiness.status
+                != EngineEvaluationStatus.FAILED,
+                readiness_status=EvaluationStatus(readiness.status.value),
+                blocking_issues=readiness.blocking_issues,
+                pending_knowledge_candidates=self._pending_knowledge_candidate_ids(
+                    command.project_id
+                ),
+            )
+        except WorkflowException as e:
+            raise self._map_workflow_exception(e) from e
+
+    def complete_objective(
+        self, command: CompleteObjectiveCommand
+    ) -> WorkflowStatusResult:
+        """Mark one active stage objective as satisfied.
+
+        This is the public progression path for human-driven stages that have
+        no AI StageExecutor (PROBLEM_DEFINITION, IMPLEMENTATION, ITERATION,
+        COMPLETION): their active objectives can only be set via
+        ``WorkflowTransitionService.transition_stage`` and are never cleared
+        by a proposal commit, so this is what readiness requires before
+        ``transition_stage`` can proceed past them.
+        """
+        try:
+            workflow = self._workflow_repo.get_by_project_id(command.project_id)
+            if not workflow:
+                raise WorkflowNotFoundException(
+                    f"Workflow for project {command.project_id} not found."
+                )
+            if command.objective not in workflow.active_objectives:
+                raise WorkflowException(
+                    f"'{command.objective}' is not an active objective for stage "
+                    f"{workflow.current_stage}. Active objectives: "
+                    f"{workflow.active_objectives}"
+                )
+
+            self._workflow_progress_service.complete_objective(
+                command.project_id, command.objective
+            )
+
             workflow = self._workflow_repo.get_by_project_id(command.project_id)
             if not workflow:
                 raise WorkflowNotFoundException(

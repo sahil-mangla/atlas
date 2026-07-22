@@ -31,12 +31,16 @@ from atlas.capabilities.base import CapabilityName
 from atlas.commands import (
     ApproveProposalCommand,
     ArchiveProjectCommand,
+    CompleteObjectiveCommand,
     CreateProjectCommand,
     ExecuteStageCommand,
     GetWorkflowStatusCommand,
+    ListKnowledgeCandidatesCommand,
     ListProjectsCommand,
     LoadProjectCommand,
     RejectProposalCommand,
+    ReviewKnowledgeCandidateCommand,
+    ShowKnowledgeCandidateCommand,
     TransitionStageCommand,
 )
 from atlas.contracts.version import PLATFORM_API_VERSION
@@ -147,7 +151,7 @@ class CLIApplication:
     # Command dispatch
     # ------------------------------------------------------------------
 
-    def _dispatch(self, command: Command) -> str:  # noqa: PLR0911
+    def _dispatch(self, command: Command) -> str:  # noqa: PLR0911, PLR0912
         """Route a command to the correct Atlas call.
 
         Args:
@@ -189,6 +193,10 @@ class CLIApplication:
             trans_res = self._atlas.transition_stage(command)
             return self._renderer.render_workflow_status(trans_res)
 
+        if isinstance(command, CompleteObjectiveCommand):
+            comp_res = self._atlas.complete_objective(command)
+            return self._renderer.render_workflow_status(comp_res)
+
         if isinstance(command, ExecuteStageCommand):
             exec_res = self._atlas.execute_stage(command)
             return self._renderer.render_proposal(exec_res)
@@ -200,6 +208,18 @@ class CLIApplication:
         if isinstance(command, RejectProposalCommand):
             rej_res = self._atlas.reject_proposal(command)
             return self._renderer.render_operation(rej_res)
+
+        if isinstance(command, ListKnowledgeCandidatesCommand):
+            list_kc_res = self._atlas.list_knowledge_candidates(command)
+            return self._renderer.render_knowledge_candidate_list(list_kc_res)
+
+        if isinstance(command, ShowKnowledgeCandidateCommand):
+            show_kc_res = self._atlas.show_knowledge_candidate(command)
+            return self._renderer.render_knowledge_candidate(show_kc_res)
+
+        if isinstance(command, ReviewKnowledgeCandidateCommand):
+            review_res = self._atlas.review_knowledge_candidate(command)
+            return self._renderer.render_operation(review_res)
 
         # Defensive: this path should never be reached with a valid Command.
         return f"Unhandled command type: {type(command).__name__}"
