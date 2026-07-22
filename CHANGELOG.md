@@ -136,6 +136,38 @@ All notable changes to this project will be documented in this file.
   message content, `URLError`-wrapped-timeout message content, 401 and 403
   both get API-key guidance, and a 500 explicitly does *not*.
 
+#### RC-007 -- Minor UX Polish
+- Fixed: `CLIRenderer.render_workflow_status` and `.render_commit` called
+  `clients.common.formatting.render_list` for objectives/blocking-issues
+  without ever overriding its Unicode `'•'` default bullet based on
+  `RenderContext.use_unicode` -- a non-Unicode terminal (`_supports_unicode()`
+  returning `False`) still saw `•` bullets, only the heading rule and status
+  badges actually degraded to ASCII. Added `CLIRenderer._bullet` (mirroring
+  the existing `_ellipsis` pattern) and threaded it through all three
+  `render_list` call sites.
+- Fixed the same gap in `clients/common/formatting.py::render_tree`
+  (currently unused by any renderer, but a public shared primitive):
+  added a `use_unicode` parameter with an ASCII fallback for its
+  box-drawing connectors, matching every other primitive in that module.
+- Fixed: `atlas.types.ProposalStatus` (the SDK-boundary mirror of
+  `engine.domain.enums.ProposalStatus`, used so `clients/` never has to
+  import `engine` directly) was missing two members --
+  `PENDING_REVIEW`/`EXPIRED` -- that the engine enum has. Nothing engine-side
+  currently assigns either value, so this was latent rather than a live
+  crash, but the moment it is wired up, converting the engine status to the
+  SDK one would raise `ValueError`. Added the missing members.
+- Added `tests/architecture/test_sdk_enum_mirrors.py`: a structural guard
+  checking every declared `atlas.types` mirror enum (`ProjectStatus`,
+  `WorkflowStage`, `ProposalStatus`, `EvaluationStatus`, `ProposalDecision`,
+  `KnowledgeActorType`, `KnowledgeCandidateStatus`) has exactly the same
+  members as its `engine.domain.enums` counterpart -- this is what caught
+  the `ProposalStatus` drift above, and prevents the next one silently
+  recurring for any of the seven mirrors.
+- Added `tests/test_clients/common/test_formatting.py` and an ASCII-fallback
+  regression test in `tests/test_clients/cli/test_renderer.py` (neither
+  `clients/common/formatting.py` nor this specific fallback path had any
+  test coverage before this fix).
+
 ## [1.0.0] - 2026-07-21
 
 ### Phase 16: Production Readiness & Release Engineering

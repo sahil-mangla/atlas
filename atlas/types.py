@@ -24,8 +24,10 @@ class WorkflowStage(StrEnum):
 
 class ProposalStatus(StrEnum):
     DRAFT = "draft"
+    PENDING_REVIEW = "pending_review"
     APPROVED = "approved"
     REJECTED = "rejected"
+    EXPIRED = "expired"
 
 
 class EvaluationStatus(StrEnum):

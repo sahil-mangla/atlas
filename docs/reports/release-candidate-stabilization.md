@@ -1,8 +1,8 @@
 # Phase 17: Release Candidate Stabilization
 
-Status: **in progress** -- RC-001 through RC-006 of 7 complete. This report
-is updated as each RC item lands rather than written once at the end, so
-its "Remaining Issues" section is authoritative for what is still open.
+Status: **all 7 RC items complete.** This report was updated as each RC
+item landed rather than written once at the end; see the Release Readiness
+Assessment at the bottom for what "complete" does and does not mean.
 
 ## RC-001 -- Workflow Completion Blocker
 
@@ -611,11 +611,181 @@ tests/ai/test_http.py (updated)
     'atlas presentation diagnostics --project-id <uuid>' to confirm which
     project/stage is affected."`
 
-## Remaining Issues
+## RC-007 -- Minor UX Polish
 
-RC-007 has not yet started:
+### Issue
 
-- RC-007 -- Minor UX Polish
+Four named sub-items: ASCII fallback for non-Unicode terminals, improve
+archived-project messages, improve timeout documentation, improve provider
+documentation, stage naming consistency. The latter three were already
+substantially covered by RC-004 (provider/timeout docs) and RC-006
+(archived-project message) as those RC items were implemented, so RC-007's
+audit focused on what was still actually broken: ASCII fallback
+completeness and naming/enum consistency across the SDK boundary.
+
+### Root Cause
+
+- **ASCII fallback**: `clients/common/formatting.py::render_list` defaults
+  its `bullet` parameter to `'•'` (Unicode) regardless of context -- it has
+  no way to know the caller's `RenderContext`. Every other shared rendering
+  primitive in that module (`render_heading`, `render_divider`,
+  `render_status_badge`, `truncate` via `CLIRenderer._ellipsis`) is
+  correctly threaded through `use_unicode`, but `render_list`'s three call
+  sites in `CLIRenderer` were not -- an oversight, not a design gap.
+  `render_tree` (a public primitive in the same module, currently unused by
+  any renderer) had the same gap with no `use_unicode` parameter at all.
+- **Stage naming / enum consistency**: `atlas.types` declares seven
+  StrEnum mirrors of `engine.domain.enums` types specifically so `clients/`
+  code can construct/compare these values without importing `engine`
+  directly (the boundary RC-002 fixed a violation of). Nothing checked
+  that a mirror and its source stayed in sync member-for-member.
+  `atlas.types.ProposalStatus` had drifted -- missing `PENDING_REVIEW` and
+  `EXPIRED`, both present on `engine.domain.enums.ProposalStatus`.
+
+### Implementation
+
+- `clients/cli/renderer.py`: added `CLIRenderer._bullet` (mirroring the
+  existing `_ellipsis` property) and passed it to all three
+  `render_list(...)` call sites (`render_workflow_status` x2,
+  `render_commit`).
+- `clients/common/formatting.py::render_tree`: added a `use_unicode`
+  parameter with ASCII-safe connectors (`` `-- ``/`|-- `/`|   ` instead of
+  `└── `/`├── `/`│   `), propagated through its own recursion.
+- `atlas/types.py::ProposalStatus`: added the two missing members so it
+  exactly mirrors `engine.domain.enums.ProposalStatus` again.
+
+### Audit
+
+- Manually rendered a `WorkflowStatusResult` through `CLIRenderer` with
+  `use_unicode=True` and `use_unicode=False` side by side and confirmed
+  the ASCII path now has zero non-ASCII bytes anywhere in the output
+  (headings, badges, *and* bullets) -- see Verification for the actual
+  output.
+- Checked every other `atlas.types` mirror enum
+  (`ProjectStatus`, `WorkflowStage`, `EvaluationStatus`, `ProposalDecision`,
+  `KnowledgeActorType`, `KnowledgeCandidateStatus`) against its engine
+  counterpart before writing the fix -- only `ProposalStatus` had actually
+  drifted; the RC-001/RC-002 work had kept the others in sync by
+  construction.
+- Confirmed the two missing `ProposalStatus` members are not currently
+  assigned anywhere in engine code (`grep` across `engine/`), so this was
+  latent, not a live crash -- but exactly the kind of drift that becomes a
+  live `ValueError` the moment engine code starts using them, with no
+  warning beforehand without the new guard test.
+- Re-audited "stage naming" specifically for the literal `WorkflowStage`
+  enum (not just `ProposalStatus`): confirmed `atlas.types.WorkflowStage`
+  and `engine.domain.enums.WorkflowStage` already had identical member
+  order and values (this is what the new mirror-guard test also checks
+  going forward).
+
+### Stabilization
+
+- `tests/architecture/test_sdk_enum_mirrors.py` (new): checks all seven
+  declared mirror pairs have identical members; checks the pair-declaration
+  table itself isn't referencing a typo'd/renamed name. Confirmed it fails
+  against the pre-fix `ProposalStatus` (via `git stash`) and passes
+  against the fix.
+- `tests/test_clients/common/test_formatting.py` (new): first-ever test
+  coverage for `clients/common/formatting.py` -- covers `render_list`'s
+  Unicode default and ASCII override, `render_tree`'s Unicode default and
+  ASCII fallback (flat and nested), and `truncate`'s Unicode default and
+  ASCII override.
+- `tests/test_clients/cli/test_renderer.py`: added ASCII-fallback
+  regression tests for `render_workflow_status` and `render_commit`,
+  asserting `'•'` never appears in `use_unicode=False` output.
+
+### Affected Files
+
+```
+clients/cli/renderer.py
+clients/common/formatting.py
+atlas/types.py
+CHANGELOG.md
+PROGRESS.md
+tests/architecture/test_sdk_enum_mirrors.py (new)
+tests/test_clients/common/test_formatting.py (new)
+tests/test_clients/common/__init__.py (new)
+tests/test_clients/cli/test_renderer.py (updated)
+```
+
+### Verification
+
+- `pytest`: full suite green, including all new RC-007 tests.
+- `mypy .` (strict mode): 0 errors, 271 source files.
+- `ruff check .`: all checks passed.
+- Manual side-by-side render of the same `WorkflowStatusResult` in both
+  modes:
+  ```
+  --- Unicode ---            --- ASCII ---
+  Workflow Status            Workflow Status
+  ═══════════════            ===============
+  Readiness: failed  [✗ ...] Readiness: failed  [x ...]
+  ── Objectives               -- Objectives
+  • Address review feedback  - Address review feedback
+  ```
+
+## Release Candidate Stabilization -- Final Summary
+
+### Implementation Summary
+
+All 7 RC items (RC-001 through RC-007) are implemented, each in its own
+commit, each preserving backward compatibility, existing architecture, and
+engine boundaries per the stated engineering rules. No AI prompts,
+research/architecture/planning quality, or engine business logic were
+touched at any point -- every fix was either (a) wiring an already-working
+engine capability through to a public interface that didn't expose it yet
+(RC-001, RC-002, RC-003), (b) a documentation/configuration accuracy fix
+with a regression test guarding against recurrence (RC-004, RC-005), or
+(c) an error-message/UX-polish fix with the same guarantee (RC-006, RC-007).
+
+### Audit Summary
+
+Every RC item's audit step verified the fix against the actual code (not
+assumption) and, wherever practical, confirmed the new regression test
+actually fails without the fix (RC-001, RC-002, RC-003 via a real
+end-to-end platform; RC-005 and RC-007 via `git stash` + re-run). Two
+latent bugs were caught purely by this audit discipline that were not in
+the original RC-00X problem statements: the `clients/` -> `engine` import
+boundary violation (found while implementing RC-002) and the
+`ProposalStatus` SDK-mirror drift (found while implementing RC-007).
+
+### Test Results
+
+- `pytest`: full suite green as of the RC-007 commit (see each RC section
+  above for exact new/updated test files).
+- `mypy .` (strict mode, per `pyproject.toml`): 0 errors, 271 source files.
+- `ruff check .`: all checks passed.
+- No existing test was weakened, skipped, or deleted to make any of the
+  above pass.
+
+### Remaining Open Issues
+
+- `Settings.environment` (`ATLAS_ENVIRONMENT`) may be dead configuration --
+  flagged during RC-004, not fixed there or since, since it touches
+  `Settings`'s public shape and needs a deliberate decision, not a
+  documentation-scoped fix. See the RC-004 section above.
+- `clients/mcp`, `clients/rest`, `clients/ide` were not audited as part of
+  Phase 17 -- RC-001 through RC-007 only ever touched the CLI adapter and
+  the underlying `Atlas` SDK/engine layers they all share. Commands routed
+  through the generic `Atlas.handle()` envelope (everything added in
+  RC-001/RC-002) are automatically available to those adapters; the
+  CLI-only sentinel commands added in RC-003 (`PresentationViewCommand`/
+  `PresentationExportCommand`) are not, by design, since they mirror the
+  existing `VersionCommand`/`HelpCommand` CLI-only pattern -- other
+  adapters would need their own thin wrapper around the same
+  `Atlas.get_*_view`/`Atlas.render` API if they want equivalent
+  functionality.
+- The Phase 17 problem statement's "Final Deliverable" instructions ask
+  this report to include a "Release Readiness Assessment." Per those same
+  instructions ("Do not claim the project is release-ready unless every
+  release-blocking issue has been verified through tests"): every fix
+  described in this report has been verified through tests, run, and
+  independently confirmed to fail without the fix where practical. Whether
+  ATLAS as a whole is ready for a `v1.0.0` tag is a broader question than
+  Phase 17's scope (it also depends on the two open items already tracked
+  in `PROGRESS.md`'s Release Checklist -- repository identity/git remote
+  naming and the release tag itself, both explicitly left to the user) and
+  is not this report's call to make unilaterally.
 
 Do not treat ATLAS as release-ready on the basis of this report alone --
 only RC-001 through RC-006 have been verified. See `PROGRESS.md` for

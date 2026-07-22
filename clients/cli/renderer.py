@@ -125,6 +125,13 @@ class CLIRenderer:
         """The truncation suffix, respecting this context's Unicode support."""
         return "…" if self._ctx.use_unicode else "..."
 
+    @property
+    def _bullet(self) -> str:
+        """The list bullet character, respecting this context's Unicode
+        support -- ``render_list`` defaults to '•' regardless of context,
+        so every call site here must pass this explicitly."""
+        return "•" if self._ctx.use_unicode else "-"
+
     # ------------------------------------------------------------------
     # Project results
     # ------------------------------------------------------------------
@@ -215,7 +222,7 @@ class CLIRenderer:
 
         objectives_section = render_section(
             "Objectives",
-            render_list(result.objectives),
+            render_list(result.objectives, bullet=self._bullet),
             width=self._ctx.terminal_width,
             use_unicode=self._ctx.use_unicode,
         )
@@ -224,7 +231,7 @@ class CLIRenderer:
         if result.blocking_issues:
             issues_section = render_section(
                 "Blocking Issues",
-                render_list(result.blocking_issues),
+                render_list(result.blocking_issues, bullet=self._bullet),
                 width=self._ctx.terminal_width,
                 use_unicode=self._ctx.use_unicode,
             )
@@ -393,7 +400,7 @@ class CLIRenderer:
         if result.transition_blocked:
             issues_section = render_section(
                 "Stage Not Advanced",
-                render_list(result.blocking_issues),
+                render_list(result.blocking_issues, bullet=self._bullet),
                 width=self._ctx.terminal_width,
                 use_unicode=self._ctx.use_unicode,
             )

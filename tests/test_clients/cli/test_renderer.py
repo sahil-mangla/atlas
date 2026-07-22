@@ -73,6 +73,25 @@ def test_render_workflow_status() -> None:
     assert "Missing info" in out
 
 
+def test_render_workflow_status_ascii_fallback_has_no_unicode_bullets() -> None:
+    """RC-007 regression: render_list defaults to a Unicode '•' bullet
+    regardless of context, so every call site in CLIRenderer must pass an
+    explicit ASCII-aware bullet -- a non-Unicode terminal must never see one."""
+    renderer = CLIRenderer(RenderContext(use_unicode=False))
+    res = WorkflowStatusResult(
+        project_id=uuid.uuid4(),
+        current_stage=WorkflowStage.RESEARCH,
+        objectives=["Obj 1", "Obj 2"],
+        is_ready_for_transition=False,
+        readiness_status=EvaluationStatus.PENDING,
+        blocking_issues=["Missing info"],
+    )
+    out = renderer.render_workflow_status(res)
+    assert "•" not in out
+    assert "- Obj 1" in out
+    assert "- Missing info" in out
+
+
 def test_render_proposal() -> None:
     renderer = CLIRenderer()
     res = ProposalResult(
@@ -107,6 +126,20 @@ def test_render_commit() -> None:
     out = renderer.render_commit(res)
     assert "[✓ committed]" in out
     assert "Applied." in out
+
+
+def test_render_commit_blocked_ascii_fallback_has_no_unicode_bullets() -> None:
+    renderer = CLIRenderer(RenderContext(use_unicode=False))
+    res = CommitResult(
+        success=True,
+        proposal_id=uuid.uuid4(),
+        patch_summary="Applied.",
+        transition_blocked=True,
+        blocking_issues=("Readiness failed.",),
+    )
+    out = renderer.render_commit(res)
+    assert "•" not in out
+    assert "- Readiness failed." in out
 
 
 def test_render_error() -> None:

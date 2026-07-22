@@ -79,17 +79,24 @@ In progress. Fixes the remaining first-time-user blockers found after Phase
   (raise timeout vs. fix API key) instead of one generic transport-error
   string; improved CLI recovery hints for project-not-found/archived
   scenarios. See `CHANGELOG.md`.
-- [ ] RC-007: Minor UX Polish
+- [x] RC-007: Minor UX Polish -- fixed a non-Unicode terminal still seeing
+  Unicode `'•'` list bullets (the ASCII fallback was incomplete, not
+  absent); fixed `atlas.types.ProposalStatus` missing two members present
+  in its engine counterpart; added a structural test guarding all seven
+  SDK-boundary enum mirrors against future drift. See `CHANGELOG.md`.
+
+Phase 17 (Release Candidate Stabilization): all 7 RC items complete. See
+`docs/reports/release-candidate-stabilization.md` for the full report,
+including its Remaining Issues / not-yet-verified notes.
 
 ## Current Task
 
-- [ ] Continue Phase 17 RC items in priority order (RC-007 next -- the last one).
 - [ ] Repository identity decision (git remote naming) and `v1.0.0` release tag --
   both left as explicit open items for the user; see the Sprint 7 report's
   Release Checklist.
+- [ ] Nothing else queued -- Phase 17 is complete pending user review.
 
 ## Overall Progress
 
 - Phase 16 (v1.0.0 roadmap, all 7 sprints) is complete. Phase 17 (Release
-  Candidate Stabilization) is in progress; RC-001 through RC-006 of 7 are
-  done.
+  Candidate Stabilization) is complete: RC-001 through RC-007 all done.

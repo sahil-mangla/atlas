@@ -149,6 +149,7 @@ def render_tree(
     *,
     prefix: str = "",
     is_last: bool = True,
+    use_unicode: bool = True,
 ) -> str:
     """Render a hierarchical tree structure.
 
@@ -157,13 +158,17 @@ def render_tree(
         children: Child labels or nested ``(label, children)`` tuples.
         prefix: Internal prefix used during recursion.
         is_last: Whether this node is the last sibling.
+        use_unicode: Whether to use Unicode box-drawing characters.
 
     Returns:
         Multi-line string representing the tree.
     """
-    connector = "└── " if is_last else "├── "
+    last_connector = "└── " if use_unicode else "`-- "
+    mid_connector = "├── " if use_unicode else "|-- "
+    connector = last_connector if is_last else mid_connector
     lines = [f"{prefix}{connector}{node}"]
-    child_prefix = prefix + ("    " if is_last else "│   ")
+    rail = "│   " if use_unicode else "|   "
+    child_prefix = prefix + ("    " if is_last else rail)
     for idx, child in enumerate(children):
         last_child = idx == len(children) - 1
         if isinstance(child, tuple) and len(child) == 2:  # noqa: PLR2004
@@ -174,10 +179,11 @@ def render_tree(
                     grandchildren,
                     prefix=child_prefix,
                     is_last=last_child,
+                    use_unicode=use_unicode,
                 )
             )
         else:
-            conn = "└── " if last_child else "├── "
+            conn = last_connector if last_child else mid_connector
             lines.append(f"{child_prefix}{conn}{child}")
     return "\n".join(lines)
 
