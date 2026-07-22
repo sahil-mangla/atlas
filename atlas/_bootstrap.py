@@ -199,12 +199,22 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
     prompt_registry = PromptLoader.load_registry()
     prompt_executor = PromptExecutor(provider, IdentityContextStrategy())
     ai_orchestrator = AIOrchestrationService(prompt_executor, prompt_registry)
-    research_ai = ResearchAIEngineeringService(ai_orchestrator, context_assembler)
-    planning_ai = PlanningAIEngineeringService(ai_orchestrator, context_assembler)
-    architecture_ai = ArchitectureAIEngineeringService(
-        ai_orchestrator, context_assembler
+    research_validator = ResearchProposalValidator()
+    planning_validator = PlanningProposalValidator()
+    architecture_validator = ArchitectureProposalValidator()
+    evaluation_validator = EvaluationProposalValidator()
+    research_ai = ResearchAIEngineeringService(
+        ai_orchestrator, context_assembler, research_validator
     )
-    evaluation_ai = EvaluationAIEngineeringService(ai_orchestrator, context_assembler)
+    planning_ai = PlanningAIEngineeringService(
+        ai_orchestrator, context_assembler, planning_validator
+    )
+    architecture_ai = ArchitectureAIEngineeringService(
+        ai_orchestrator, context_assembler, architecture_validator
+    )
+    evaluation_ai = EvaluationAIEngineeringService(
+        ai_orchestrator, context_assembler, evaluation_validator
+    )
 
     research_transformer = ResearchProposalTransformer(
         research_repo,
@@ -253,10 +263,10 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
         planning_transformer,
         architecture_transformer,
         evaluation_transformer,
-        ResearchProposalValidator(),
-        PlanningProposalValidator(),
-        ArchitectureProposalValidator(),
-        EvaluationProposalValidator(),
+        research_validator,
+        planning_validator,
+        architecture_validator,
+        evaluation_validator,
     )
 
     # 6. Stage Executors

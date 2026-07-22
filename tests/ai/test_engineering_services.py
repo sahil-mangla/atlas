@@ -31,7 +31,10 @@ from engine.domain.ai_drafts import (
     PlanningProposalDraft,
     PlanningSubtaskDraft,
     PlanningTaskDraft,
+    ResearchConstraintDraft,
+    ResearchEvidenceDraft,
     ResearchFindingDraft,
+    ResearchOpportunityDraft,
     ResearchProposalDraft,
 )
 from engine.domain.enums import ProposalStatus, ProposalType
@@ -79,6 +82,108 @@ def test_research_ai_service(assembler: ContextAssemblerService) -> None:
     assert isinstance(proposal, AIProposal)
     assert proposal.data.problem_statement == "Build atomic engine"
     assert len(proposal.data.objectives) == len(draft_data.objectives)
+
+
+def test_research_ai_service_rejects_invalid_finding_index_at_generation_time(
+    assembler: ContextAssemblerService,
+) -> None:
+    """A draft with an out-of-range finding_indices reference must fail at
+    generation time (surfacing as a regenerate-able error), not silently pass
+    review and only fail later when the human tries to approve it."""
+    draft_data = ResearchProposalDraft(
+        problem_statement="Build atomic engine",
+        objectives=["Speed"],
+        evidence=[
+            ResearchEvidenceDraft(
+                title="Some evidence",
+                type="document",
+                origin="AI Suggestion",
+                citation="AI Generated",
+                summary="...",
+            )
+        ],
+        findings=[
+            ResearchFindingDraft(
+                title="Only finding", summary="...", evidence_indices=[0]
+            )
+        ],
+        constraints=[
+            ResearchConstraintDraft(
+                description="Bad reference",
+                impact="...",
+                finding_indices=[1],  # out of range: only index 0 exists
+            )
+        ],
+    )
+    registry = PromptLoader.load_registry()
+    executor = PromptExecutor(
+        MockAIProvider(draft_data.model_dump_json()),
+        IdentityContextStrategy(),
+    )
+    orchestrator = AIOrchestrationService(executor, registry)
+
+    service = ResearchAIEngineeringService(
+        orchestrator, assembler, ResearchProposalValidator()
+    )
+
+    with pytest.raises(InvalidProposalException, match="invalid finding index"):
+        service.generate(uuid4())
+
+
+def test_research_ai_service_rejects_finding_with_no_evidence_at_generation_time(
+    assembler: ContextAssemblerService,
+) -> None:
+    """A finding with an empty evidence_indices list is schema-legal but is
+    rejected by ResearchOrganizationService.add_finding() at commit time
+    ("Findings must reference at least one Evidence ID."); this must now be
+    caught at generation time too, before a human ever reviews it."""
+    draft_data = ResearchProposalDraft(
+        problem_statement="Build atomic engine",
+        objectives=["Speed"],
+        findings=[ResearchFindingDraft(title="Orphan finding", summary="...")],
+    )
+    registry = PromptLoader.load_registry()
+    executor = PromptExecutor(
+        MockAIProvider(draft_data.model_dump_json()),
+        IdentityContextStrategy(),
+    )
+    orchestrator = AIOrchestrationService(executor, registry)
+
+    service = ResearchAIEngineeringService(
+        orchestrator, assembler, ResearchProposalValidator()
+    )
+
+    with pytest.raises(InvalidProposalException, match="at least one evidence index"):
+        service.generate(uuid4())
+
+
+def test_research_ai_service_rejects_opportunity_with_no_findings_at_generation_time(
+    assembler: ContextAssemblerService,
+) -> None:
+    """An opportunity with an empty finding_indices list is schema-legal but is
+    rejected by ResearchOrganizationService.add_opportunity() at commit time
+    ("Opportunities must reference at least one Finding ID."); this must now be
+    caught at generation time too, before a human ever reviews it."""
+    draft_data = ResearchProposalDraft(
+        problem_statement="Build atomic engine",
+        objectives=["Speed"],
+        opportunities=[
+            ResearchOpportunityDraft(title="Untethered opportunity", description="...")
+        ],
+    )
+    registry = PromptLoader.load_registry()
+    executor = PromptExecutor(
+        MockAIProvider(draft_data.model_dump_json()),
+        IdentityContextStrategy(),
+    )
+    orchestrator = AIOrchestrationService(executor, registry)
+
+    service = ResearchAIEngineeringService(
+        orchestrator, assembler, ResearchProposalValidator()
+    )
+
+    with pytest.raises(InvalidProposalException, match="at least one finding index"):
+        service.generate(uuid4())
 
 
 def test_planning_ai_service(assembler: ContextAssemblerService) -> None:

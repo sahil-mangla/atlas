@@ -74,6 +74,10 @@ class ResearchProposalValidator(ProposalValidator[ResearchProposalDraft]):
             raise InvalidProposalException("Research objectives list cannot be empty.")
         evidence_count = len(draft.evidence)
         for finding in draft.findings:
+            if not finding.evidence_indices:
+                raise InvalidProposalException(
+                    "Finding must reference at least one evidence index."
+                )
             if any(
                 index < 0 or index >= evidence_count
                 for index in finding.evidence_indices
@@ -91,6 +95,10 @@ class ResearchProposalValidator(ProposalValidator[ResearchProposalDraft]):
                     "Constraint references an invalid finding index."
                 )
         for opportunity in draft.opportunities:
+            if not opportunity.finding_indices:
+                raise InvalidProposalException(
+                    "Opportunity must reference at least one finding index."
+                )
             if any(
                 index < 0 or index >= finding_count
                 for index in opportunity.finding_indices
@@ -569,10 +577,12 @@ class AIEngineeringService[T: BaseModel](ABC):  # noqa: B024
         orchestrator: AIOrchestrationService,
         context_assembler: ContextAssemblerService,
         draft_cls: type[T],
+        validator: ProposalValidator[T] | None = None,
     ) -> None:
         self.orchestrator = orchestrator
         self.context_assembler = context_assembler
         self.draft_cls = draft_cls
+        self.validator = validator
 
     def generate(
         self,
@@ -583,12 +593,17 @@ class AIEngineeringService[T: BaseModel](ABC):  # noqa: B024
         """Generate a strongly typed proposal.
 
         Retrieves deterministic context, triggers generation, and parses outcomes.
+        Applies the same domain validation that commit-time enforces, so a
+        proposal that could never be approved surfaces as a generation failure
+        instead of passing human review and only then failing to commit.
         """
         context = context or self.context_assembler.assemble_context(project_id)
         template = self.orchestrator.prompt_registry.resolve(self.draft_cls)
         typed_draft = self.orchestrator.prompt_executor.execute(
             template, context, self.draft_cls, user_instructions
         )
+        if self.validator is not None:
+            self.validator.validate(typed_draft)
         return AIProposal[T](
             proposal_type=template.metadata.supported_subsystem,
             status=ProposalStatus.DRAFT,
@@ -603,11 +618,13 @@ class ResearchAIEngineeringService(AIEngineeringService[ResearchProposalDraft]):
         self,
         orchestrator: AIOrchestrationService,
         context_assembler: ContextAssemblerService,
+        validator: "ResearchProposalValidator | None" = None,
     ) -> None:
         super().__init__(
             orchestrator=orchestrator,
             context_assembler=context_assembler,
             draft_cls=ResearchProposalDraft,
+            validator=validator,
         )
 
 
@@ -616,11 +633,13 @@ class PlanningAIEngineeringService(AIEngineeringService[PlanningProposalDraft]):
         self,
         orchestrator: AIOrchestrationService,
         context_assembler: ContextAssemblerService,
+        validator: "PlanningProposalValidator | None" = None,
     ) -> None:
         super().__init__(
             orchestrator=orchestrator,
             context_assembler=context_assembler,
             draft_cls=PlanningProposalDraft,
+            validator=validator,
         )
 
 
@@ -629,11 +648,13 @@ class ArchitectureAIEngineeringService(AIEngineeringService[ArchitectureProposal
         self,
         orchestrator: AIOrchestrationService,
         context_assembler: ContextAssemblerService,
+        validator: "ArchitectureProposalValidator | None" = None,
     ) -> None:
         super().__init__(
             orchestrator=orchestrator,
             context_assembler=context_assembler,
             draft_cls=ArchitectureProposalDraft,
+            validator=validator,
         )
 
 
@@ -642,11 +663,13 @@ class EvaluationAIEngineeringService(AIEngineeringService[EvaluationProposalDraf
         self,
         orchestrator: AIOrchestrationService,
         context_assembler: ContextAssemblerService,
+        validator: "EvaluationProposalValidator | None" = None,
     ) -> None:
         super().__init__(
             orchestrator=orchestrator,
             context_assembler=context_assembler,
             draft_cls=EvaluationProposalDraft,
+            validator=validator,
         )
 
 
