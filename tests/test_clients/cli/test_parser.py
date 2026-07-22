@@ -249,9 +249,7 @@ def test_parse_knowledge_list() -> None:
 
 def test_parse_knowledge_list_with_status() -> None:
     pid = str(uuid.uuid4())
-    cmd = parse_argv(
-        ["knowledge", "list", "--project-id", pid, "--status", "approved"]
-    )
+    cmd = parse_argv(["knowledge", "list", "--project-id", pid, "--status", "approved"])
     assert isinstance(cmd, ListKnowledgeCandidatesCommand)
     assert cmd.status == KnowledgeCandidateStatus.APPROVED
 
@@ -265,9 +263,7 @@ def test_parse_knowledge_list_invalid_status() -> None:
 def test_parse_knowledge_show() -> None:
     pid = str(uuid.uuid4())
     cid = str(uuid.uuid4())
-    cmd = parse_argv(
-        ["knowledge", "show", "--project-id", pid, "--candidate-id", cid]
-    )
+    cmd = parse_argv(["knowledge", "show", "--project-id", pid, "--candidate-id", cid])
     assert isinstance(cmd, ShowKnowledgeCandidateCommand)
     assert str(cmd.project_id) == pid
     assert str(cmd.candidate_id) == cid
@@ -309,9 +305,7 @@ def test_parse_knowledge_reject_requires_feedback() -> None:
     pid = str(uuid.uuid4())
     cid = str(uuid.uuid4())
     with pytest.raises(CLIParseError, match="Missing required flags"):
-        parse_argv(
-            ["knowledge", "reject", "--project-id", pid, "--candidate-id", cid]
-        )
+        parse_argv(["knowledge", "reject", "--project-id", pid, "--candidate-id", cid])
 
 
 def test_parse_knowledge_unknown_sub() -> None:

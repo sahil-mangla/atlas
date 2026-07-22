@@ -95,7 +95,11 @@ def test_post_json_401_gives_api_key_guidance() -> None:
     """RC-006 regression: an auth rejection must point at the API key, not
     just repeat the raw HTTP error."""
     error = HTTPError(
-        url="https://api.example.com", code=401, msg="Unauthorized", hdrs=None, fp=None  # type: ignore[arg-type]
+        url="https://api.example.com",
+        code=401,
+        msg="Unauthorized",
+        hdrs=None,  # type: ignore[arg-type]
+        fp=None,
     )
     with (
         patch("engine.ai.adapters._http.urlopen", side_effect=error),
@@ -110,7 +114,11 @@ def test_post_json_401_gives_api_key_guidance() -> None:
 
 def test_post_json_403_gives_api_key_guidance() -> None:
     error = HTTPError(
-        url="https://api.example.com", code=403, msg="Forbidden", hdrs=None, fp=None  # type: ignore[arg-type]
+        url="https://api.example.com",
+        code=403,
+        msg="Forbidden",
+        hdrs=None,  # type: ignore[arg-type]
+        fp=None,
     )
     with (
         patch("engine.ai.adapters._http.urlopen", side_effect=error),

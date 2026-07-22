@@ -30,9 +30,7 @@ def test_render_tree_ascii_fallback_has_no_box_drawing_characters() -> None:
 
 
 def test_render_tree_ascii_fallback_nested() -> None:
-    out = render_tree(
-        "root", [("branch", ["leaf1", "leaf2"])], use_unicode=False
-    )
+    out = render_tree("root", [("branch", ["leaf1", "leaf2"])], use_unicode=False)
     assert "└" not in out
     assert "├" not in out
     assert "│" not in out

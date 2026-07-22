@@ -238,8 +238,7 @@ class CLIApplication:
             rendered = self._atlas.render(view, command.format)
             Path(command.output).write_text(rendered.content)
             return (
-                f"Exported '{command.view}' view ({command.format}) "
-                f"to {command.output}"
+                f"Exported '{command.view}' view ({command.format}) to {command.output}"
             )
 
         # Defensive: this path should never be reached with a valid Command.

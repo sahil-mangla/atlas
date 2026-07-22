@@ -119,9 +119,7 @@ def test_show_knowledge_candidate(
     candidate_id = listed.candidates[0].id
 
     shown = platform.show_knowledge_candidate(
-        ShowKnowledgeCandidateCommand(
-            project_id=project_id, candidate_id=candidate_id
-        )
+        ShowKnowledgeCandidateCommand(project_id=project_id, candidate_id=candidate_id)
     )
     assert shown.id == candidate_id
     assert shown.content == "No automated way to revert a bad deploy today."

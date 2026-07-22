@@ -98,9 +98,7 @@ def test_handle_complete_objective(test_atlas_platform: Atlas) -> None:
     created = test_atlas_platform.create_project(
         CreateProjectCommand(name="P1", description="D", objective="O")
     )
-    test_atlas_platform.transition_stage(
-        TransitionStageCommand(project_id=created.id)
-    )
+    test_atlas_platform.transition_stage(TransitionStageCommand(project_id=created.id))
     status = test_atlas_platform.get_workflow_status(
         GetWorkflowStatusCommand(project_id=created.id)
     )

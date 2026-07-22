@@ -131,9 +131,7 @@ def test_presentation_export_writes_file(
 def test_presentation_view_nonexistent_project_is_application_error(
     app: CLIApplication, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    code = app.run(
-        ["presentation", "dashboard", "--project-id", str(uuid.uuid4())]
-    )
+    code = app.run(["presentation", "dashboard", "--project-id", str(uuid.uuid4())])
     assert code == _EXIT_ERROR
     out, _ = capsys.readouterr()
     assert "ProjectNotFoundError" in out
