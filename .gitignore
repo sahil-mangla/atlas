@@ -39,5 +39,8 @@ htmlcov/
 # ATLAS project metadata directory
 .atlas/
 
+# Default ATLAS_WORKSPACE_ROOT -- generated project data, not source
+workspace/
+
 # GSD planning and onboarding state (local development only)
 .planning/
