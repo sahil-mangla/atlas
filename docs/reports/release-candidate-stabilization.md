@@ -1,9 +1,8 @@
 # Phase 17: Release Candidate Stabilization
 
-Status: **in progress** -- RC-001, RC-002, and RC-003 of 7 complete. This
-report is updated as each RC item lands rather than written once at the
-end, so its "Remaining Issues" section is authoritative for what is still
-open.
+Status: **in progress** -- RC-001 through RC-004 of 7 complete. This report
+is updated as each RC item lands rather than written once at the end, so
+its "Remaining Issues" section is authoritative for what is still open.
 
 ## RC-001 -- Workflow Completion Blocker
 
@@ -352,15 +351,101 @@ tests/test_clients/cli/test_presentation_rc003.py (new)
   (`bogus` sub-command, `--format xml`) all produced correct output and
   exit codes.
 
+## RC-004 -- Configuration Experience
+
+### Issue
+
+`.env.example` documented `ATLAS_ENVIRONMENT`, `ATLAS_DEBUG` (a field
+removed from `Settings` back in Phase 16 Sprint 1), `ATLAS_WORKSPACE_ROOT`,
+and `ATLAS_LOG_LEVEL` -- but had no AI provider section at all, despite
+`ATLAS_AI_PROTOCOL` and its per-protocol variables being the block a
+first-time user most needs to fill in before `atlas project create` /
+`stage execute` will work. It also referenced `ATLAS_DEBUG`, a field that
+no longer exists on `Settings`.
+
+### Root Cause
+
+`.env.example` is a static file with nothing enforcing it stays in sync
+with `engine/config.py::Settings` or `engine/ai/factory.py::ProtocolFactory`'s
+registered protocols. It was written before the AI protocol abstraction
+existed and never updated afterward.
+
+### Implementation
+
+- Rewrote `.env.example`: kept the existing `ATLAS_ENVIRONMENT`/
+  `ATLAS_LOG_LEVEL`/`ATLAS_WORKSPACE_ROOT` (verified these are real,
+  currently-read `Settings` fields -- `ATLAS_DEBUG` was dropped, since that
+  field really was removed), and added a fully worked, ready-to-uncomment
+  block for each of the four registered AI protocols (`GEMINI`, `ANTHROPIC`,
+  `OPENAI_COMPATIBLE`, `OLLAMA`), with OpenAI and LM Studio called out by
+  name as `OPENAI_COMPATIBLE` targets (there is no distinct protocol
+  adapter for either -- confirmed against `engine/ai/factory.py`'s
+  registry). Documented `ATLAS_AI_TIMEOUT_SECONDS` with a concrete
+  recommendation (cloud: default is fine; local: `180`-`300`).
+- Updated the README's "Configuring an AI Provider" table to match: added
+  LM Studio, marked cloud vs. local per protocol, replaced "raised well
+  above the default" with the same concrete `180`-`300` range.
+
+### Audit
+
+- Verified every value used in `.env.example`'s per-protocol blocks
+  (default endpoints, which fields are required vs. optional, whether an
+  API key is needed) directly against each adapter's `generate()`
+  validation in `engine/ai/adapters/{gemini,anthropic,ollama,openai_compatible}.py`,
+  not from memory or assumption.
+- Verified `ATLAS_ENVIRONMENT`/`Environment` is still a real, read
+  `Settings` field with test coverage (`tests/test_config.py`) -- kept it
+  rather than removing it, since RC-004's scope is documentation accuracy,
+  not settings pruning (out of scope; noted below for a future RC/phase:
+  `environment` is set but never branched on anywhere outside its own
+  declaration, so it may be a dead field, but confirming that and deciding
+  what to do about it is a separate, deliberate decision, not a documentation
+  fix).
+
+### Stabilization
+
+- Regression tests added (`tests/test_config.py`):
+  - `test_env_example_documents_every_settings_field`: fails if any real
+    `Settings` field's `ATLAS_*` env var is missing from `.env.example`.
+  - `test_env_example_documents_every_registered_ai_protocol` +
+    `test_known_ai_protocols_are_exhaustive`: fails if a registered AI
+    protocol name is missing from `.env.example`, or if the protocol list
+    the test guards against drifts from what `ProtocolFactory` actually
+    constructs.
+
+### Affected Files
+
+```
+.env.example
+README.md
+CHANGELOG.md
+PROGRESS.md
+tests/test_config.py (updated)
+```
+
+### Verification
+
+- `pytest`: full suite green (including the two new drift-guard tests).
+- `mypy .` (strict mode): 0 errors, 267 source files.
+- `ruff check .`: all checks passed.
+
+### Note for a future RC
+
+`Settings.environment` (`ATLAS_ENVIRONMENT`) is read and tested but not
+branched on by any production code path outside `engine/config.py` itself
+-- it may be genuinely dead, matching the `debug`/`log_level` cleanup
+Phase 16 Sprint 1 already did once. Confirming and removing it (if
+warranted) belongs to a future stabilization pass, not RC-004, since it
+touches `Settings`'s public shape and has test-file callers.
+
 ## Remaining Issues
 
-RC-004 through RC-007 are not yet started:
+RC-005 through RC-007 are not yet started:
 
-- RC-004 -- Configuration Experience (`.env.example`)
 - RC-005 -- Workflow Documentation sync
 - RC-006 -- Diagnostics Improvements
 - RC-007 -- Minor UX Polish
 
 Do not treat ATLAS as release-ready on the basis of this report alone --
-only RC-001, RC-002, and RC-003 have been verified. See `PROGRESS.md` for
+only RC-001 through RC-004 have been verified. See `PROGRESS.md` for
 current sequencing.

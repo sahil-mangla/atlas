@@ -70,6 +70,24 @@ All notable changes to this project will be documented in this file.
   Command/Result envelope, so `PresentationViewCommand`/
   `PresentationExportCommand` were not added to `atlas.commands`.
 
+#### RC-004 -- Configuration Experience
+- Fixed: `.env.example` was stale and incomplete -- it had no AI provider
+  section at all (despite `ATLAS_AI_PROTOCOL`/`ATLAS_GEMINI_*`/`ATLAS_AI_*`
+  being the variables a first-time user most needs), so first-time setup
+  required reading `engine/config.py` to discover them.
+- Rewrote `.env.example` with a documented, ready-to-uncomment block for
+  every registered AI protocol (`GEMINI`, `ANTHROPIC`, `OPENAI_COMPATIBLE`,
+  `OLLAMA`), including OpenAI and LM Studio as named `OPENAI_COMPATIBLE`
+  targets (not separate protocols -- there is no distinct engine support for
+  them), plus a timeout-tuning note (cloud vs. locally-hosted models).
+- Expanded the README's "Configuring an AI Provider" table to match: added
+  LM Studio, clarified cloud vs. local, and gave a concrete timeout range
+  (`180`-`300`s) for local models instead of just "raised well above the
+  default."
+- Added regression tests (`tests/test_config.py`) that fail if
+  `.env.example` ever again omits a real `Settings` field or a registered
+  AI protocol, so this can't silently go stale a second time.
+
 ## [1.0.0] - 2026-07-21
 
 ### Phase 16: Production Readiness & Release Engineering

@@ -65,14 +65,17 @@ In progress. Fixes the remaining first-time-user blockers found after Phase
   dashboard/workflow/research/knowledge/diagnostics/export` added, reusing
   the existing Phase 14 typed-view + `Atlas.render` API with no new
   rendering logic. See `CHANGELOG.md`.
-- [ ] RC-004: Configuration Experience (`.env.example`)
+- [x] RC-004: Configuration Experience -- `.env.example` rewritten with a
+  block per AI protocol (including LM Studio/OpenAI under
+  `OPENAI_COMPATIBLE`) and timeout guidance; regression tests guard against
+  it going stale again. See `CHANGELOG.md`.
 - [ ] RC-005: Workflow Documentation sync
 - [ ] RC-006: Diagnostics Improvements
 - [ ] RC-007: Minor UX Polish
 
 ## Current Task
 
-- [ ] Continue Phase 17 RC items in priority order (RC-004 next).
+- [ ] Continue Phase 17 RC items in priority order (RC-005 next).
 - [ ] Repository identity decision (git remote naming) and `v1.0.0` release tag --
   both left as explicit open items for the user; see the Sprint 7 report's
   Release Checklist.
@@ -80,5 +83,5 @@ In progress. Fixes the remaining first-time-user blockers found after Phase
 ## Overall Progress
 
 - Phase 16 (v1.0.0 roadmap, all 7 sprints) is complete. Phase 17 (Release
-  Candidate Stabilization) is in progress; RC-001, RC-002, and RC-003 of 7
-  are done.
+  Candidate Stabilization) is in progress; RC-001 through RC-004 of 7 are
+  done.

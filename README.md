@@ -144,18 +144,23 @@ See the [CLI Reference](#cli-reference) below for the full command set.
 ## Configuring an AI Provider
 
 ATLAS is provider-agnostic: it talks to any of four protocols through a common
-interface, selected via `ATLAS_AI_PROTOCOL` (defaults to `GEMINI`).
+interface, selected via `ATLAS_AI_PROTOCOL` (defaults to `GEMINI`). `.env.example`
+has a ready-to-uncomment block for each row below, including OpenAI and
+LM Studio (both are `OPENAI_COMPATIBLE` targets, not separate protocols).
 
 | Protocol | Env var(s) | Notes |
 |---|---|---|
-| `GEMINI` | `ATLAS_GEMINI_API_KEY`, `ATLAS_GEMINI_MODEL` | Google's Gemini API. Default provider. |
-| `ANTHROPIC` | `ATLAS_AI_API_KEY`, `ATLAS_AI_MODEL` | Anthropic's Messages API. |
-| `OPENAI_COMPATIBLE` | `ATLAS_AI_API_KEY`, `ATLAS_AI_MODEL`, `ATLAS_AI_ENDPOINT` | Any OpenAI-compatible chat completions endpoint. |
-| `OLLAMA` | `ATLAS_AI_MODEL`, `ATLAS_AI_ENDPOINT` | Local models via Ollama; no API key needed. |
+| `GEMINI` | `ATLAS_GEMINI_API_KEY`, `ATLAS_GEMINI_MODEL` | Google's Gemini API. Default provider. Cloud. |
+| `ANTHROPIC` | `ATLAS_AI_API_KEY`, `ATLAS_AI_MODEL` | Anthropic's Messages API. Cloud. |
+| `OPENAI_COMPATIBLE` | `ATLAS_AI_API_KEY`, `ATLAS_AI_MODEL`, `ATLAS_AI_ENDPOINT` | OpenAI itself (cloud), or any OpenAI-compatible endpoint -- including [LM Studio](https://lmstudio.ai)'s local server (`http://localhost:1234/v1/chat/completions`, no API key needed). Endpoint and model are both required; there is no default endpoint. |
+| `OLLAMA` | `ATLAS_AI_MODEL`, `ATLAS_AI_ENDPOINT` | Local models via [Ollama](https://ollama.com); no API key needed. Endpoint defaults to `http://localhost:11434`. |
 
-All protocols also respect `ATLAS_AI_TIMEOUT_SECONDS` (default `60`) for
-the HTTP request timeout. Locally-hosted models generating long
-structured drafts may need this raised well above the default.
+All protocols also respect `ATLAS_AI_TIMEOUT_SECONDS` (default `60`, seconds)
+for the HTTP request timeout. Cloud providers (Gemini, Anthropic, OpenAI)
+rarely need more than the default. Locally-hosted models (Ollama, LM Studio)
+generating long structured drafts on modest hardware can take well over a
+minute -- if you see AI provider timeout errors against a local model, raise
+this to `180`-`300`.
 
 All settings are read as environment variables prefixed with `ATLAS_` (e.g.
 `ATLAS_WORKSPACE_ROOT` to change where project directories are created,
