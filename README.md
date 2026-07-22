@@ -152,7 +152,7 @@ LM Studio (both are `OPENAI_COMPATIBLE` targets, not separate protocols).
 |---|---|---|
 | `GEMINI` | `ATLAS_GEMINI_API_KEY`, `ATLAS_GEMINI_MODEL` | Google's Gemini API. Default provider. Cloud. |
 | `ANTHROPIC` | `ATLAS_AI_API_KEY`, `ATLAS_AI_MODEL` | Anthropic's Messages API. Cloud. |
-| `OPENAI_COMPATIBLE` | `ATLAS_AI_API_KEY`, `ATLAS_AI_MODEL`, `ATLAS_AI_ENDPOINT` | OpenAI itself (cloud), or any OpenAI-compatible endpoint -- including [LM Studio](https://lmstudio.ai)'s local server (`http://localhost:1234/v1/chat/completions`, no API key needed). Endpoint and model are both required; there is no default endpoint. |
+| `OPENAI_COMPATIBLE` | `ATLAS_AI_API_KEY`, `ATLAS_AI_MODEL`, `ATLAS_AI_ENDPOINT` | OpenAI itself (cloud), or any OpenAI-compatible endpoint -- including [LM Studio](https://lmstudio.ai)'s local server (`http://localhost:1234/v1`, no API key needed). Give the base URL only -- ATLAS appends `/chat/completions` itself. Endpoint and model are both required; there is no default endpoint. |
 | `OLLAMA` | `ATLAS_AI_MODEL`, `ATLAS_AI_ENDPOINT` | Local models via [Ollama](https://ollama.com); no API key needed. Endpoint defaults to `http://localhost:11434`. |
 
 All protocols also respect `ATLAS_AI_TIMEOUT_SECONDS` (default `60`, seconds)
