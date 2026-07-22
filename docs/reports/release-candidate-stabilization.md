@@ -1,6 +1,6 @@
 # Phase 17: Release Candidate Stabilization
 
-Status: **in progress** -- RC-001 through RC-004 of 7 complete. This report
+Status: **in progress** -- RC-001 through RC-005 of 7 complete. This report
 is updated as each RC item lands rather than written once at the end, so
 its "Remaining Issues" section is authoritative for what is still open.
 
@@ -438,14 +438,97 @@ Phase 16 Sprint 1 already did once. Confirming and removing it (if
 warranted) belongs to a future stabilization pass, not RC-004, since it
 touches `Settings`'s public shape and has test-file callers.
 
+## RC-005 -- Workflow Documentation Sync
+
+### Issue
+
+Two living documents that claim to describe the workflow state machine
+were stale against the actual code: `docs/architecture/engineering-workflow.md`
+(prose transition list + ASCII diagram) and
+`docs/diagrams/engineering-pipeline.md` (mermaid diagram).
+
+### Root Cause
+
+`WorkflowTransitionService.VALID_TRANSITIONS` (`engine/workflow/services.py`)
+allows two "skip an optional manual-detour stage" shortcut edges --
+`RESEARCH -> PLANNING` and `ARCHITECTURE -> REVIEW` -- because
+`PROBLEM_DEFINITION` and `IMPLEMENTATION` have no AI `StageExecutor` and are
+therefore optional detours, not mandatory waypoints (this is an intentional,
+already-comment-documented design decision in the code itself, not new).
+Neither doc was updated when that design decision was made: both showed
+only seven of the nine actual edges, undercounting the legal paths through
+the workflow.
+
+### Implementation
+
+- `docs/architecture/engineering-workflow.md`: added the two missing edges
+  to the "Valid Transitions Registry" prose list (with the same
+  "optional detour, not mandatory waypoint" rationale already in the code
+  comment), and a note above the ASCII diagram pointing at the mermaid
+  diagram for the version that actually draws all nine edges. Also added a
+  cross-link from the objectives section to
+  `workflow-stages.md#progressing-through-a-human-driven-stage` (the RC-001
+  fix) so a reader following the state-machine doc discovers `atlas
+  workflow complete-objective` rather than hitting the same dead end
+  RC-001 fixed.
+- `docs/diagrams/engineering-pipeline.md`: added the two missing mermaid
+  edges (`Research --> Planning`, `Architecture --> Review`, both labeled
+  "Skip ..."), plus a note stating the diagram now matches
+  `VALID_TRANSITIONS` exactly.
+
+### Audit
+
+- Audited every other doc under `docs/` that mentions workflow stages
+  (`docs/glossary.md`, `docs/README.md`, `docs/architecture/system-overview.md`,
+  `docs/architecture/extension-guide.md`, `docs/architecture/architecture-principles.md`,
+  `docs/architecture/workflow-stages.md`, `docs/usage/cli.md`, `README.md`)
+  for the same class of drift -- none of the others enumerate the full
+  transition graph, so none had this bug. `docs/plans/*.md` were
+  deliberately left untouched: they are historical records of what was
+  planned at the time (like commit messages), not living documentation.
+- Confirmed, by temporarily reverting the two doc fixes and re-running the
+  new test, that the added regression test actually fails against the
+  pre-fix content (not a vacuous assertion) -- see Stabilization below.
+
+### Stabilization
+
+- Added `tests/architecture/test_workflow_docs_sync.py`, alongside the
+  existing structural guards in that directory
+  (`test_platform_boundaries.py`, `test_presentation_boundaries.py`):
+  - `test_pipeline_diagram_has_an_edge_for_every_valid_transition`: for
+    every `(source, target)` pair in
+    `WorkflowTransitionService.VALID_TRANSITIONS`, asserts a matching
+    mermaid edge exists in the diagram file.
+  - `test_engineering_workflow_doc_lists_every_stage` /
+    `test_workflow_stages_doc_lists_every_stage`: asserts every
+    `WorkflowStage` member is mentioned in the corresponding doc.
+
+### Affected Files
+
+```
+docs/architecture/engineering-workflow.md
+docs/diagrams/engineering-pipeline.md
+CHANGELOG.md
+PROGRESS.md
+tests/architecture/test_workflow_docs_sync.py (new)
+```
+
+### Verification
+
+- `pytest`: full suite green, including the new doc-sync guard.
+- `mypy .` (strict mode): 0 errors, 268 source files.
+- `ruff check .`: all checks passed.
+- Confirmed the new test fails against the pre-fix diagram/doc content
+  (via a temporary `git stash` of just those two files) and passes against
+  the fix.
+
 ## Remaining Issues
 
-RC-005 through RC-007 are not yet started:
+RC-006 through RC-007 are not yet started:
 
-- RC-005 -- Workflow Documentation sync
 - RC-006 -- Diagnostics Improvements
 - RC-007 -- Minor UX Polish
 
 Do not treat ATLAS as release-ready on the basis of this report alone --
-only RC-001 through RC-004 have been verified. See `PROGRESS.md` for
+only RC-001 through RC-005 have been verified. See `PROGRESS.md` for
 current sequencing.

@@ -69,13 +69,17 @@ In progress. Fixes the remaining first-time-user blockers found after Phase
   block per AI protocol (including LM Studio/OpenAI under
   `OPENAI_COMPATIBLE`) and timeout guidance; regression tests guard against
   it going stale again. See `CHANGELOG.md`.
-- [ ] RC-005: Workflow Documentation sync
+- [x] RC-005: Workflow Documentation sync -- fixed two missing shortcut
+  transition edges in `engineering-workflow.md` and
+  `engineering-pipeline.md` (both were stale against
+  `WorkflowTransitionService.VALID_TRANSITIONS`); added a structural test
+  guarding against future drift. See `CHANGELOG.md`.
 - [ ] RC-006: Diagnostics Improvements
 - [ ] RC-007: Minor UX Polish
 
 ## Current Task
 
-- [ ] Continue Phase 17 RC items in priority order (RC-005 next).
+- [ ] Continue Phase 17 RC items in priority order (RC-006 next).
 - [ ] Repository identity decision (git remote naming) and `v1.0.0` release tag --
   both left as explicit open items for the user; see the Sprint 7 report's
   Release Checklist.
@@ -83,5 +87,5 @@ In progress. Fixes the remaining first-time-user blockers found after Phase
 ## Overall Progress
 
 - Phase 16 (v1.0.0 roadmap, all 7 sprints) is complete. Phase 17 (Release
-  Candidate Stabilization) is in progress; RC-001 through RC-004 of 7 are
+  Candidate Stabilization) is in progress; RC-001 through RC-005 of 7 are
   done.

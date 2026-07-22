@@ -88,6 +88,29 @@ All notable changes to this project will be documented in this file.
   `.env.example` ever again omits a real `Settings` field or a registered
   AI protocol, so this can't silently go stale a second time.
 
+#### RC-005 -- Workflow Documentation Sync
+- Fixed: `docs/architecture/engineering-workflow.md`'s "Valid Transitions
+  Registry" and ASCII state diagram, and `docs/diagrams/engineering-pipeline.md`'s
+  mermaid diagram, were both missing the two "skip an optional manual-detour
+  stage" shortcut edges the code has actually supported since the
+  Finding-009 stage-resolution fix: `RESEARCH -> PLANNING` and
+  `ARCHITECTURE -> REVIEW` (Problem Definition and Implementation have no AI
+  `StageExecutor`, so they're optional detours, not mandatory waypoints).
+  Both documents now state and draw all nine edges in
+  `WorkflowTransitionService.VALID_TRANSITIONS`, not seven.
+- Cross-linked `engineering-workflow.md`'s objectives section to
+  `workflow-stages.md#progressing-through-a-human-driven-stage` (the
+  RC-001 fix), so a reader following the state-machine doc also discovers
+  `atlas workflow complete-objective`.
+- Added `tests/architecture/test_workflow_docs_sync.py`: a structural guard
+  (in the same spirit as the existing
+  `tests/architecture/test_platform_boundaries.py`) that fails if the
+  pipeline diagram is ever again missing an edge for a transition
+  `WorkflowTransitionService.VALID_TRANSITIONS` actually allows, or if
+  either workflow doc stops mentioning any `WorkflowStage` member. Verified
+  it actually catches the RC-005 bug by re-running it against the pre-fix
+  diagram content.
+
 ## [1.0.0] - 2026-07-21
 
 ### Phase 16: Production Readiness & Release Engineering

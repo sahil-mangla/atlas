@@ -42,13 +42,18 @@ Idea ──> Research ──> Problem Definition ──> Planning ──> Archit
                   └──────────────────────┴────────────┴────────────────┴─────────────────────┴────────┘
 ```
 
+Research and Architecture also have direct shortcut edges to Planning and
+Review respectively (not drawn above to keep the ASCII diagram readable) --
+see the Valid Transitions Registry below and the rendered diagram in
+[docs/diagrams/engineering-pipeline.md](../diagrams/engineering-pipeline.md).
+
 ### Valid Transitions Registry
 Transitions are validated against the `WorkflowTransitionService.VALID_TRANSITIONS` registry:
 - **Idea**: Can transition to **Research**.
-- **Research**: Can transition to **Problem Definition** or back to **Idea**.
+- **Research**: Can transition to **Problem Definition**, directly to **Planning** (Problem Definition has no AI-generation support, so it is an optional manual detour, not a mandatory waypoint), or back to **Idea**.
 - **Problem Definition**: Can transition to **Planning** or back to **Research**.
 - **Planning**: Can transition to **Architecture** or back to **Problem Definition**.
-- **Architecture**: Can transition to **Implementation** or back to **Planning**.
+- **Architecture**: Can transition to **Implementation**, directly to **Review** (Implementation has no AI-generation support, so it is likewise an optional manual detour), or back to **Planning**.
 - **Implementation**: Can transition to **Review** or back to **Architecture** (e.g. if code implementation reveals design flaws).
 - **Review**: Can transition to **Iteration**, **Completion**, or back to **Implementation**.
 - **Iteration**: Can transition to **Completion**, **Review**, or back to **Implementation**.
@@ -64,6 +69,7 @@ Transitions are validated against the `WorkflowTransitionService.VALID_TRANSITIO
 
 - **Active Objectives**: Defined in `DEFAULT_STAGE_OBJECTIVES` (e.g., "Record ADRs" for Architecture). These represent the target accomplishments for a stage.
 - **Readiness Review** (`ReadinessReview`): Evaluated by the `WorkflowReadinessService`. It checks if any active objectives remain uncompleted. If objectives are outstanding, the readiness status is set to `EvaluationStatus.FAILED` with a list of `blocking_issues`.
+- **Clearing objectives for human-driven stages**: Problem Definition, Implementation, Iteration, and Completion have no AI `StageExecutor`, so nothing commits a proposal to clear their objectives automatically. Use `atlas workflow complete-objective` to clear them one at a time -- see [Progressing through a human-driven stage](workflow-stages.md#progressing-through-a-human-driven-stage).
 
 ---
 
