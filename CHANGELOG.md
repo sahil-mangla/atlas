@@ -50,6 +50,26 @@ All notable changes to this project will be documented in this file.
   `atlas.types.KnowledgeActorType`, `atlas.commands.KnowledgeActorInput`),
   converted to engine types inside `KnowledgeCapability`.
 
+#### RC-003 -- Presentation CLI
+- Fixed: the Phase 14 presentation layer (`Atlas.get_project_dashboard_view`,
+  `.get_workflow_status_view`, `.get_research_summary_view`,
+  `.get_knowledge_summary_view`, `.get_diagnostics_view`, and generic
+  `Atlas.render`) was fully implemented and renderer-agnostic (`cli`,
+  `markdown`, `json` via `RendererRegistry`) but had no CLI command group --
+  a CLI user could never generate a dashboard or diagnostics report.
+- Added: `atlas presentation dashboard|workflow|research|knowledge|diagnostics
+  --project-id <uuid> [--format <f>]` (prints to stdout) and `atlas
+  presentation export --project-id <uuid> --view <v> --output <path>
+  [--format <f>]` (writes to a file). `<f>` defaults to `cli`.
+- No new rendering logic: both sub-commands call the existing
+  `Atlas.get_*_view` methods and `Atlas.render`; the CLI only routes the
+  already-rendered `RenderResult.content` to stdout or a file.
+- These are CLI-only command types (`clients/cli/commands.py`), matching the
+  existing `VersionCommand`/`HelpCommand` precedent -- Phase 14 views are a
+  read-only query API deliberately kept outside the `Atlas._dispatch`
+  Command/Result envelope, so `PresentationViewCommand`/
+  `PresentationExportCommand` were not added to `atlas.commands`.
+
 ## [1.0.0] - 2026-07-21
 
 ### Phase 16: Production Readiness & Release Engineering

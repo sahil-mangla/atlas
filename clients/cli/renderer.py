@@ -522,6 +522,17 @@ Knowledge commands:
   Approving a candidate publishes it in the same step -- there is no
   separate publish command.
 
+Presentation commands:
+  atlas presentation dashboard    --project-id <uuid> [--format <f>]
+  atlas presentation workflow     --project-id <uuid> [--format <f>]
+  atlas presentation research     --project-id <uuid> [--format <f>]
+  atlas presentation knowledge    --project-id <uuid> [--format <f>]
+  atlas presentation diagnostics  --project-id <uuid> [--format <f>]
+  atlas presentation export       --project-id <uuid> --view <v> --output <path> [--format <f>]
+
+  <f> defaults to 'cli' (terminal-friendly). <v> is one of: dashboard,
+  workflow, research, knowledge, diagnostics.
+
 Information:
   atlas version
   atlas help
@@ -532,4 +543,7 @@ Valid stages:
 
 Valid knowledge candidate statuses:
   pending_review, approved, rejected, withdrawn
+
+Valid presentation formats:
+  cli, markdown, json
 """  # noqa: E501

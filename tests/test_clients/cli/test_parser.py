@@ -20,7 +20,12 @@ from atlas.commands import (
     TransitionStageCommand,
 )
 from atlas.types import KnowledgeCandidateStatus, ProposalDecision, WorkflowStage
-from clients.cli.commands import HelpCommand, VersionCommand
+from clients.cli.commands import (
+    HelpCommand,
+    PresentationExportCommand,
+    PresentationViewCommand,
+    VersionCommand,
+)
 from clients.cli.parser import CLIParseError, parse_argv
 
 
@@ -313,6 +318,106 @@ def test_parse_knowledge_unknown_sub() -> None:
     pid = str(uuid.uuid4())
     with pytest.raises(CLIParseError, match="Unknown knowledge sub-command"):
         parse_argv(["knowledge", "bogus", "--project-id", pid])
+
+
+# -- Presentation group ---------------------------------------------------------
+
+
+def test_parse_presentation_missing_sub() -> None:
+    with pytest.raises(CLIParseError, match="Missing presentation sub-command"):
+        parse_argv(["presentation"])
+
+
+@pytest.mark.parametrize(
+    "view", ["dashboard", "workflow", "research", "knowledge", "diagnostics"]
+)
+def test_parse_presentation_view_defaults_to_cli_format(view: str) -> None:
+    pid = str(uuid.uuid4())
+    cmd = parse_argv(["presentation", view, "--project-id", pid])
+    assert isinstance(cmd, PresentationViewCommand)
+    assert str(cmd.project_id) == pid
+    assert cmd.view == view
+    assert cmd.format == "cli"
+
+
+def test_parse_presentation_view_explicit_format() -> None:
+    pid = str(uuid.uuid4())
+    cmd = parse_argv(
+        ["presentation", "dashboard", "--project-id", pid, "--format", "json"]
+    )
+    assert isinstance(cmd, PresentationViewCommand)
+    assert cmd.format == "json"
+
+
+def test_parse_presentation_view_invalid_format() -> None:
+    pid = str(uuid.uuid4())
+    with pytest.raises(CLIParseError, match="Invalid format"):
+        parse_argv(
+            ["presentation", "dashboard", "--project-id", pid, "--format", "xml"]
+        )
+
+
+def test_parse_presentation_export() -> None:
+    pid = str(uuid.uuid4())
+    cmd = parse_argv(
+        [
+            "presentation",
+            "export",
+            "--project-id",
+            pid,
+            "--view",
+            "diagnostics",
+            "--output",
+            "out.json",
+            "--format",
+            "json",
+        ]
+    )
+    assert isinstance(cmd, PresentationExportCommand)
+    assert cmd.view == "diagnostics"
+    assert cmd.output == "out.json"
+    assert cmd.format == "json"
+
+
+def test_parse_presentation_export_defaults_to_cli_format() -> None:
+    pid = str(uuid.uuid4())
+    cmd = parse_argv(
+        [
+            "presentation",
+            "export",
+            "--project-id",
+            pid,
+            "--view",
+            "workflow",
+            "--output",
+            "out.txt",
+        ]
+    )
+    assert isinstance(cmd, PresentationExportCommand)
+    assert cmd.format == "cli"
+
+
+def test_parse_presentation_export_invalid_view() -> None:
+    pid = str(uuid.uuid4())
+    with pytest.raises(CLIParseError, match="Invalid view"):
+        parse_argv(
+            [
+                "presentation",
+                "export",
+                "--project-id",
+                pid,
+                "--view",
+                "bogus",
+                "--output",
+                "out.json",
+            ]
+        )
+
+
+def test_parse_presentation_unknown_sub() -> None:
+    pid = str(uuid.uuid4())
+    with pytest.raises(CLIParseError, match="Unknown presentation sub-command"):
+        parse_argv(["presentation", "bogus", "--project-id", pid])
 
 
 # -- Flag parsing logic --------------------------------------------------------

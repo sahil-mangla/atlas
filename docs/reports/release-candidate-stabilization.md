@@ -1,8 +1,9 @@
 # Phase 17: Release Candidate Stabilization
 
-Status: **in progress** -- RC-001 and RC-002 of 7 complete. This report is
-updated as each RC item lands rather than written once at the end, so its
-"Remaining Issues" section is authoritative for what is still open.
+Status: **in progress** -- RC-001, RC-002, and RC-003 of 7 complete. This
+report is updated as each RC item lands rather than written once at the
+end, so its "Remaining Issues" section is authoritative for what is still
+open.
 
 ## RC-001 -- Workflow Completion Blocker
 
@@ -247,16 +248,119 @@ tests/test_clients/cli/test_parser.py (updated)
   correctly and dispatch to the right renderer; `atlas help` documents the
   new group.
 
+## RC-003 -- Presentation CLI
+
+### Issue
+
+The Phase 14 presentation layer -- five typed views
+(`get_project_dashboard_view`, `get_workflow_status_view`,
+`get_research_summary_view`, `get_knowledge_summary_view`,
+`get_diagnostics_view`) plus a generic, renderer-agnostic
+`Atlas.render(view, renderer, contract)` backed by `RendererRegistry`
+(`cli`, `markdown`, `json` renderers) -- was fully implemented and tested
+at the `Atlas` facade level, but had no CLI exposure whatsoever. There was
+no `atlas presentation ...` command group.
+
+### Root Cause
+
+Phase 14 deliberately kept views outside the Command/`Atlas._dispatch`
+envelope used by mutating operations (see
+`docs/architecture/presentation-layer.md`): views are read-only queries
+with their own typed API (`Atlas.get_*_view` + `Atlas.render`), not
+`Command`/`Result` pairs. `clients/cli/parser.py` and
+`clients/cli/application.py` were never updated to call this API -- the
+CLI's command groups (`project`, `workflow`, `stage`, `proposal`,
+`knowledge`) all map onto `Atlas._dispatch`-registered commands, and
+nothing analogous existed for the view API.
+
+### Implementation
+
+- `clients/cli/commands.py`: added `PresentationViewCommand` and
+  `PresentationExportCommand`, following the existing
+  `VersionCommand`/`HelpCommand` precedent -- CLI-only sentinel types that
+  subclass `atlas.commands.Command` but are never added to `atlas.commands`
+  or `Atlas._dispatch`, since they wrap a query API, not a mutating one.
+- `clients/cli/parser.py`: `atlas presentation
+  dashboard|workflow|research|knowledge|diagnostics --project-id <uuid>
+  [--format <f>]` and `atlas presentation export --project-id <uuid>
+  --view <v> --output <path> [--format <f>]`. `<f>` (`cli`/`markdown`/`json`)
+  and `<v>` are validated client-side against the renderers/views the
+  production bootstrap actually registers, following the same validation
+  pattern already used for `--stage` and `--status`.
+- `clients/cli/application.py`: `_get_view(view, project_id)` maps the
+  validated view name to the matching `Atlas.get_*_view` call; both new
+  dispatch branches then call the *same* `Atlas.render(view, format)` used
+  internally, and either write `RenderResult.content` to stdout or to the
+  `--output` file. No formatting/rendering logic was added to `clients/` --
+  every byte of output comes from the existing `presentation/renderers/`
+  implementations.
+- `clients/cli/renderer.py`: help text documents the new group and valid
+  formats.
+
+### Audit
+
+- Confirmed `clients/cli/application.py` never imports from
+  `presentation.*` or `engine.*` -- `_get_view`/the dispatch branches only
+  call `Atlas` methods and read `.content` off the returned `RenderResult`,
+  so no new type needed importing across the boundary.
+- Confirmed the `export` sub-command performs plain file I/O (via
+  `pathlib.Path.write_text`) and nothing else -- it is not a new rendering
+  path, just an alternate destination for output that already existed.
+- Confirmed invalid `--format`/`--view` values are rejected by the parser
+  (`CLIParseError`, exit code 2) rather than reaching
+  `RendererRegistry.resolve`, which raises a plain `ValueError` that
+  `CLIApplication.run` does not catch -- this was verified as a real crash
+  risk during implementation and closed by validating client-side before
+  any `Atlas` call, matching the existing `--stage`/`--status` pattern.
+
+### Stabilization
+
+- Regression tests added:
+  - `tests/test_clients/cli/test_presentation_rc003.py`: end-to-end via a
+    real `CLIApplication` + real `Atlas` platform (not mocked) -- creates a
+    project, renders all five views in `cli` format, verifies `json` format
+    produces parseable JSON with the right `kind`/`project_id`, verifies
+    `markdown` format, verifies `export` writes a real file with the
+    expected content, and verifies a nonexistent project surfaces
+    `ProjectNotFoundError` with exit code 1 rather than crashing.
+  - `tests/test_clients/cli/test_parser.py`: parsing for all five views
+    (parametrized) plus `export`, including invalid-format and invalid-view
+    error paths.
+
+### Affected Files
+
+```
+clients/cli/commands.py
+clients/cli/parser.py
+clients/cli/application.py
+clients/cli/renderer.py
+docs/usage/cli.md
+README.md
+CHANGELOG.md
+PROGRESS.md
+tests/test_clients/cli/test_parser.py (updated)
+tests/test_clients/cli/test_presentation_rc003.py (new)
+```
+
+### Verification
+
+- `pytest`: full suite green.
+- `mypy .` (strict mode): 0 errors, 267 source files.
+- `ruff check .`: all checks passed.
+- Manual CLI smoke test against a real bootstrapped platform: all five
+  views in all three formats, export to a real file, and both error paths
+  (`bogus` sub-command, `--format xml`) all produced correct output and
+  exit codes.
+
 ## Remaining Issues
 
-RC-003 through RC-007 are not yet started:
+RC-004 through RC-007 are not yet started:
 
-- RC-003 -- Presentation CLI
 - RC-004 -- Configuration Experience (`.env.example`)
 - RC-005 -- Workflow Documentation sync
 - RC-006 -- Diagnostics Improvements
 - RC-007 -- Minor UX Polish
 
 Do not treat ATLAS as release-ready on the basis of this report alone --
-only RC-001 and RC-002 have been verified. See `PROGRESS.md` for current
-sequencing.
+only RC-001, RC-002, and RC-003 have been verified. See `PROGRESS.md` for
+current sequencing.

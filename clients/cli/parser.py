@@ -43,9 +43,13 @@ from atlas.types import (
     ProposalDecision,
     WorkflowStage,
 )
+from clients.cli.commands import PresentationExportCommand, PresentationViewCommand
 
 if TYPE_CHECKING:
     from atlas.commands import Command
+
+_PRESENTATION_VIEWS = ("dashboard", "workflow", "research", "knowledge", "diagnostics")
+_PRESENTATION_FORMATS = ("cli", "markdown", "json")
 
 
 class CLIParseError(ValueError):
@@ -95,6 +99,7 @@ class CommandParser:
             "stage": self._parse_stage,
             "proposal": self._parse_proposal,
             "knowledge": self._parse_knowledge,
+            "presentation": self._parse_presentation,
             "version": self._parse_version,
             "help": self._parse_help,
         }
@@ -199,6 +204,26 @@ class CommandParser:
         raise CLIParseError(
             f"Unknown knowledge sub-command '{sub}'. "
             "Valid: list, show, approve, reject."
+        )
+
+    def _parse_presentation(self, rest: list[str]) -> Command:
+        if not rest:
+            raise CLIParseError(
+                "Missing presentation sub-command. Valid sub-commands: "
+                + ", ".join((*_PRESENTATION_VIEWS, "export"))
+                + "."
+            )
+        sub = rest[0]
+        args = rest[1:]
+
+        if sub in _PRESENTATION_VIEWS:
+            return self._presentation_view(sub, args)
+        if sub == "export":
+            return self._presentation_export(args)
+        raise CLIParseError(
+            f"Unknown presentation sub-command '{sub}'. Valid: "
+            + ", ".join((*_PRESENTATION_VIEWS, "export"))
+            + "."
         )
 
     def _parse_version(self, _rest: list[str]) -> Command:
@@ -370,6 +395,42 @@ class CommandParser:
                 actor_id=parsed.get("--actor", "cli"),
             ),
             feedback=parsed["--feedback"],
+        )
+
+    @staticmethod
+    def _presentation_view(view: str, args: list[str]) -> PresentationViewCommand:
+        parsed = _parse_flags(args, required=["--project-id"], optional=["--format"])
+        fmt = parsed.get("--format", "cli")
+        if fmt not in _PRESENTATION_FORMATS:
+            raise CLIParseError(
+                f"Invalid format '{fmt}'. Valid: {', '.join(_PRESENTATION_FORMATS)}."
+            )
+        return PresentationViewCommand(
+            project_id=_uuid(parsed["--project-id"]), view=view, format=fmt
+        )
+
+    @staticmethod
+    def _presentation_export(args: list[str]) -> PresentationExportCommand:
+        parsed = _parse_flags(
+            args,
+            required=["--project-id", "--view", "--output"],
+            optional=["--format"],
+        )
+        view = parsed["--view"]
+        if view not in _PRESENTATION_VIEWS:
+            raise CLIParseError(
+                f"Invalid view '{view}'. Valid: {', '.join(_PRESENTATION_VIEWS)}."
+            )
+        fmt = parsed.get("--format", "cli")
+        if fmt not in _PRESENTATION_FORMATS:
+            raise CLIParseError(
+                f"Invalid format '{fmt}'. Valid: {', '.join(_PRESENTATION_FORMATS)}."
+            )
+        return PresentationExportCommand(
+            project_id=_uuid(parsed["--project-id"]),
+            view=view,
+            format=fmt,
+            output=parsed["--output"],
         )
 
 

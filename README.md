@@ -184,8 +184,10 @@ atlas <group> <sub-command> [flags]
 | | `show --project-id <uuid> --candidate-id <uuid>` | Show one candidate's full content |
 | | `approve --project-id <uuid> --candidate-id <uuid>` | Approve and publish a candidate (one step) |
 | | `reject --project-id <uuid> --candidate-id <uuid> --feedback <f>` | Reject a candidate with feedback |
+| `presentation` | `dashboard\|workflow\|research\|knowledge\|diagnostics --project-id <uuid> [--format <f>]` | Render a composed view to stdout |
+| | `export --project-id <uuid> --view <v> --output <path> [--format <f>]` | Render a view to a file |
 
-`<s>` is one of `research`, `planning`, `architecture`, `review`. Full details:
+`<s>` is one of `research`, `planning`, `architecture`, `review`. `<f>` (presentation format) is one of `cli` (default), `markdown`, `json`. Full details:
 [docs/usage/cli.md](docs/usage/cli.md).
 
 ## Architecture

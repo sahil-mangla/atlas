@@ -47,5 +47,16 @@ List and review engineering-knowledge candidates extracted from committed stage 
 - `atlas knowledge approve --project-id <uuid> --candidate-id <uuid> [--feedback <f>] [--actor <a>]`: Approve a candidate. This publishes it in the same step -- there is no separate publish command.
 - `atlas knowledge reject --project-id <uuid> --candidate-id <uuid> --feedback <f> [--actor <a>]`: Reject a candidate with required feedback.
 
+#### `presentation`
+Render composed presentation views (Phase 14 typed views) for a project.
+- `atlas presentation dashboard --project-id <uuid> [--format <f>]`: Project dashboard.
+- `atlas presentation workflow --project-id <uuid> [--format <f>]`: Workflow status view.
+- `atlas presentation research --project-id <uuid> [--format <f>]`: Research summary view.
+- `atlas presentation knowledge --project-id <uuid> [--format <f>]`: Knowledge summary view.
+- `atlas presentation diagnostics --project-id <uuid> [--format <f>]`: Diagnostics view.
+- `atlas presentation export --project-id <uuid> --view <v> --output <path> [--format <f>]`: Render any of the above views to a file instead of stdout.
+
+`<f>` is one of `cli` (default, terminal-friendly plain text), `markdown`, or `json`. `<v>` is one of `dashboard`, `workflow`, `research`, `knowledge`, `diagnostics`. All rendering is delegated to `Atlas.render`/`RendererRegistry` -- the CLI does no formatting of its own.
+
 ## Configuration
 The CLI adapts to the terminal's width and detected Unicode support automatically. No extra configuration is needed.
