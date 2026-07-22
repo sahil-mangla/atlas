@@ -67,14 +67,23 @@ _DEFAULT_WIDTH = 80
 #: tests/test_clients/cli/test_renderer.py,
 #: test_all_application_errors_have_recovery_hints).
 _RECOVERY_HINTS: dict[type[ApplicationError], str] = {
-    ProjectNotFoundError: "Run 'atlas project list' to see known projects.",
+    ProjectNotFoundError: (
+        "Run 'atlas project list' to see known projects. If it's empty but "
+        "you expected projects to be there, you're likely in the wrong "
+        "directory or ATLAS_WORKSPACE_ROOT points elsewhere than when the "
+        "project was created -- check .env / your current working directory."
+    ),
     ProjectAlreadyExistsError: (
         "Run 'atlas project load --project-id <uuid>' to load it instead."
     ),
     InvalidProjectError: (
         "The project's stored metadata may be corrupt; check its workspace directory."
     ),
-    ProjectLifecycleError: "Archived projects are read-only and cannot be modified.",
+    ProjectLifecycleError: (
+        "Archived projects are permanently read-only -- there is no "
+        "'unarchive' command. Run 'atlas project list' to work with a "
+        "different project, or start a new one with 'atlas project create'."
+    ),
     WorkflowNotReadyError: (
         "Run 'atlas project list' to confirm the project ID is correct."
     ),
@@ -88,7 +97,11 @@ _RECOVERY_HINTS: dict[type[ApplicationError], str] = {
         "proposal is still pending."
     ),
     ContextAssemblyError: "Complete the prior workflow stage before retrying.",
-    AIProviderError: "This is often transient; retrying may succeed.",
+    AIProviderError: (
+        "The error above states what actually happened (timeout, rejected "
+        "API key, etc.) and how to fix it. If it doesn't, check your AI "
+        "provider settings against .env.example and retry."
+    ),
     BootstrapError: "Check your ATLAS configuration (.env / environment) and retry.",
     KnowledgeReviewError: (
         "Run 'atlas workflow status --project-id <uuid>' to see pending "

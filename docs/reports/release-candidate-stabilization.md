@@ -1,6 +1,6 @@
 # Phase 17: Release Candidate Stabilization
 
-Status: **in progress** -- RC-001 through RC-005 of 7 complete. This report
+Status: **in progress** -- RC-001 through RC-006 of 7 complete. This report
 is updated as each RC item lands rather than written once at the end, so
 its "Remaining Issues" section is authoritative for what is still open.
 
@@ -522,13 +522,101 @@ tests/architecture/test_workflow_docs_sync.py (new)
   (via a temporary `git stash` of just those two files) and passes against
   the fix.
 
+## RC-006 -- Diagnostics Improvements
+
+### Issue
+
+Five error scenarios were named as needing better diagnostics: project not
+found, wrong directory, archived project, provider timeout, missing API
+key. Auditing `clients/cli/renderer.py::_RECOVERY_HINTS` and the AI
+transport layer found: project-not-found, archived-project, and
+missing-API-key already had reasonably clear handling (each AI adapter
+already raises a specific "X provider requires Y" message before ever
+reaching the network); provider-timeout and any HTTP auth rejection did
+not -- both collapsed into one indistinguishable generic message.
+
+### Root Cause
+
+`engine/ai/adapters/_http.py::post_json` caught `(HTTPError, URLError,
+OSError, json.JSONDecodeError)` as one group and raised
+`f"AI protocol request failed: {error}"` for all of them. A `urlopen`
+timeout and an HTTP 401 both produced the same-shaped, unhelpful message --
+neither told the user what to actually change (`ATLAS_AI_TIMEOUT_SECONDS`
+vs. the API key). Separately, `ProjectNotFoundError`'s and
+`ProjectLifecycleError`'s CLI recovery hints stated what was true but not
+always the most useful next step (e.g. didn't mention the "wrong directory /
+`ATLAS_WORKSPACE_ROOT`" cause, or that archived projects have no unarchive
+path at all).
+
+### Implementation
+
+- `engine/ai/adapters/_http.py`: split the single `except` clause into one
+  for `HTTPError` (checking `error.code` against `{401, 403}` for an
+  API-key-specific message, otherwise a generic-but-still-coded message)
+  and one for `(URLError, OSError, json.JSONDecodeError)` (checking a new
+  `_is_timeout()` helper that recognizes both timeout shapes `urlopen` can
+  raise -- a bare `TimeoutError` or one wrapped in `URLError.reason` --
+  for a timeout-specific message, otherwise the prior generic message).
+  Both new messages name the concrete fix and, for the timeout case, a
+  concrete recommended range (`180`-`300`s).
+- `clients/cli/renderer.py`: rewrote the `ProjectNotFoundError`,
+  `ProjectLifecycleError`, and `AIProviderError` recovery hints to name
+  the wrong-directory cause, the no-unarchive-path fact, and to defer to
+  the now-actually-useful underlying error text, respectively.
+
+### Audit
+
+- Manually invoked `post_json` with a mocked timeout and a mocked 401 to
+  confirm the exact rendered text (see Verification) -- not just that an
+  exception type was raised, but that the message a real user would read
+  actually explains the fix.
+- Confirmed a 500 (or any non-401/403 HTTP error) explicitly does *not* get
+  the API-key hint, since that would be actively misleading for e.g. a
+  provider outage -- covered by a dedicated test.
+- Confirmed missing-API-key was already well handled at the provider-adapter
+  layer (e.g. `GeminiAIProvider.generate` raises "Gemini provider requires
+  ATLAS_GEMINI_API_KEY and ATLAS_GEMINI_MODEL." before any network call),
+  so no change was needed there -- only the network-transport-level 401/403
+  case (a key that's present but wrong/expired/revoked) was actually broken.
+
+### Stabilization
+
+- Regression tests added (`tests/ai/test_http.py`): bare-`TimeoutError`
+  message content, `URLError`-wrapped-timeout message content, 401 and 403
+  both get the API-key hint, and a 500 explicitly does not.
+
+### Affected Files
+
+```
+engine/ai/adapters/_http.py
+clients/cli/renderer.py
+CHANGELOG.md
+PROGRESS.md
+tests/ai/test_http.py (updated)
+```
+
+### Verification
+
+- `pytest`: full suite green, including 5 new/updated `_http.py` tests.
+- `mypy .` (strict mode): 0 errors, 268 source files.
+- `ruff check .`: all checks passed.
+- Manual verification of actual rendered messages:
+  - Timeout: `"AI provider request timed out after 60s. If you're using a
+    locally-hosted model (Ollama, LM Studio), this is often just slow
+    generation on modest hardware, not a real failure -- try raising
+    ATLAS_AI_TIMEOUT_SECONDS (e.g. to 180-300) in your .env and retrying."`
+  - 401: `"AI provider rejected the request (401 Unauthorized). The
+    configured API key is missing, invalid, or lacks access to this model
+    -- check the *_API_KEY value in your .env against .env.example, or run
+    'atlas presentation diagnostics --project-id <uuid>' to confirm which
+    project/stage is affected."`
+
 ## Remaining Issues
 
-RC-006 through RC-007 are not yet started:
+RC-007 has not yet started:
 
-- RC-006 -- Diagnostics Improvements
 - RC-007 -- Minor UX Polish
 
 Do not treat ATLAS as release-ready on the basis of this report alone --
-only RC-001 through RC-005 have been verified. See `PROGRESS.md` for
+only RC-001 through RC-006 have been verified. See `PROGRESS.md` for
 current sequencing.

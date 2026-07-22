@@ -3,6 +3,7 @@
 import json
 import logging
 from unittest.mock import Mock, patch
+from urllib.error import HTTPError, URLError
 
 import pytest
 
@@ -56,3 +57,84 @@ def test_post_json_logs_request_duration_on_failure(
 
     assert len(caplog.records) == 1
     assert "failed after" in caplog.records[0].message
+
+
+def test_post_json_bare_timeout_gives_actionable_message() -> None:
+    """RC-006 regression: a timeout must explain what happened and suggest
+    the fix (raise ATLAS_AI_TIMEOUT_SECONDS), not a generic transport error."""
+    with (
+        patch(
+            "engine.ai.adapters._http.urlopen",
+            side_effect=TimeoutError("timed out"),
+        ),
+        pytest.raises(AIProviderException) as exc_info,
+    ):
+        post_json("http://localhost:1234/v1/chat/completions", {}, {}, timeout=42)
+
+    message = str(exc_info.value)
+    assert "timed out after 42s" in message
+    assert "ATLAS_AI_TIMEOUT_SECONDS" in message
+
+
+def test_post_json_wrapped_timeout_gives_actionable_message() -> None:
+    """A timeout wrapped in a URLError (the other path urlopen can take)
+    must be diagnosed identically to a bare TimeoutError."""
+    with (
+        patch(
+            "engine.ai.adapters._http.urlopen",
+            side_effect=URLError(TimeoutError("timed out")),
+        ),
+        pytest.raises(AIProviderException) as exc_info,
+    ):
+        post_json("http://localhost:1234/v1/chat/completions", {}, {})
+
+    assert "timed out after" in str(exc_info.value)
+
+
+def test_post_json_401_gives_api_key_guidance() -> None:
+    """RC-006 regression: an auth rejection must point at the API key, not
+    just repeat the raw HTTP error."""
+    error = HTTPError(
+        url="https://api.example.com", code=401, msg="Unauthorized", hdrs=None, fp=None  # type: ignore[arg-type]
+    )
+    with (
+        patch("engine.ai.adapters._http.urlopen", side_effect=error),
+        pytest.raises(AIProviderException) as exc_info,
+    ):
+        post_json("https://api.example.com", {}, {})
+
+    message = str(exc_info.value)
+    assert "API key" in message
+    assert "401" in message
+
+
+def test_post_json_403_gives_api_key_guidance() -> None:
+    error = HTTPError(
+        url="https://api.example.com", code=403, msg="Forbidden", hdrs=None, fp=None  # type: ignore[arg-type]
+    )
+    with (
+        patch("engine.ai.adapters._http.urlopen", side_effect=error),
+        pytest.raises(AIProviderException, match="API key"),
+    ):
+        post_json("https://api.example.com", {}, {})
+
+
+def test_post_json_500_is_not_treated_as_auth_failure() -> None:
+    """A non-auth HTTP error must not get the API-key hint -- that would be
+    actively misleading for e.g. a provider outage."""
+    error = HTTPError(
+        url="https://api.example.com",
+        code=500,
+        msg="Internal Server Error",
+        hdrs=None,  # type: ignore[arg-type]
+        fp=None,
+    )
+    with (
+        patch("engine.ai.adapters._http.urlopen", side_effect=error),
+        pytest.raises(AIProviderException) as exc_info,
+    ):
+        post_json("https://api.example.com", {}, {})
+
+    message = str(exc_info.value)
+    assert "API key" not in message
+    assert "500" in message

@@ -74,12 +74,16 @@ In progress. Fixes the remaining first-time-user blockers found after Phase
   `engineering-pipeline.md` (both were stale against
   `WorkflowTransitionService.VALID_TRANSITIONS`); added a structural test
   guarding against future drift. See `CHANGELOG.md`.
-- [ ] RC-006: Diagnostics Improvements
+- [x] RC-006: Diagnostics Improvements -- AI provider timeouts and
+  401/403 auth rejections now get distinct, actionable error messages
+  (raise timeout vs. fix API key) instead of one generic transport-error
+  string; improved CLI recovery hints for project-not-found/archived
+  scenarios. See `CHANGELOG.md`.
 - [ ] RC-007: Minor UX Polish
 
 ## Current Task
 
-- [ ] Continue Phase 17 RC items in priority order (RC-006 next).
+- [ ] Continue Phase 17 RC items in priority order (RC-007 next -- the last one).
 - [ ] Repository identity decision (git remote naming) and `v1.0.0` release tag --
   both left as explicit open items for the user; see the Sprint 7 report's
   Release Checklist.
@@ -87,5 +91,5 @@ In progress. Fixes the remaining first-time-user blockers found after Phase
 ## Overall Progress
 
 - Phase 16 (v1.0.0 roadmap, all 7 sprints) is complete. Phase 17 (Release
-  Candidate Stabilization) is in progress; RC-001 through RC-005 of 7 are
+  Candidate Stabilization) is in progress; RC-001 through RC-006 of 7 are
   done.

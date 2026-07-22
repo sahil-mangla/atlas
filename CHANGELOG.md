@@ -111,6 +111,31 @@ All notable changes to this project will be documented in this file.
   it actually catches the RC-005 bug by re-running it against the pre-fix
   diagram content.
 
+#### RC-006 -- Diagnostics Improvements
+- Fixed: `engine/ai/adapters/_http.py::post_json` collapsed every transport
+  failure (timeout, rejected API key, DNS failure, 500, ...) into one
+  generic `"AI protocol request failed: {error}"` message. A timeout and an
+  auth rejection have different fixes (raise `ATLAS_AI_TIMEOUT_SECONDS` vs.
+  fix the API key) but produced indistinguishable, unhelpful text.
+- `post_json` now recognizes both timeout paths `urlopen` can take (a bare
+  `TimeoutError` and one wrapped in a `URLError`) and HTTP 401/403, and
+  raises a message that states what happened, why, and the concrete next
+  step (raise the timeout to `180`-`300`s; check the `*_API_KEY` value
+  against `.env.example`). Other HTTP/transport errors keep a generic but
+  still informative message (status code included) -- confirmed a 500
+  does *not* get the misleading API-key hint.
+- Improved CLI recovery hints (`clients/cli/renderer.py::_RECOVERY_HINTS`)
+  for the remaining diagnostics scenarios: `ProjectNotFoundError` now
+  mentions the "wrong directory / `ATLAS_WORKSPACE_ROOT`" failure mode
+  explicitly (not just "run project list"); `ProjectLifecycleError` now
+  states archived projects have no unarchive path and suggests the actual
+  next command; `AIProviderError`'s hint now points at reading the
+  error text itself first (since it now actually says what to do) instead
+  of a generic "this is often transient."
+- Added regression tests (`tests/ai/test_http.py`) covering: bare-timeout
+  message content, `URLError`-wrapped-timeout message content, 401 and 403
+  both get API-key guidance, and a 500 explicitly does *not*.
+
 ## [1.0.0] - 2026-07-21
 
 ### Phase 16: Production Readiness & Release Engineering
