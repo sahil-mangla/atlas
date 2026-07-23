@@ -29,7 +29,13 @@ Concrete repositories (such as `FilesystemArchitectureRepository`) must not hard
 
 ## Filesystem Storage Layout
 
-Under the hybrid local model, all engineering data is persisted in a hidden `.atlas/` folder located in the project's root directory:
+Under the hybrid local model, all engine-owned engineering data is persisted
+in a hidden `.atlas/` folder located in the project's root directory. A
+second, repo-visible `atlas-proposals/` folder holds the human-readable
+Markdown record of every proposal a human is meant to actually read and
+review -- deliberately outside `.atlas/` so it shows up in the normal file
+tree, `git status`, and PR diffs instead of being buried where only Atlas
+looks (see ADR-005):
 
 ```
 [Project Root Path]/
@@ -41,9 +47,16 @@ Under the hybrid local model, all engineering data is persisted in a hidden `.at
 │   ├── workflow.json      # Stage state, active checklists, and transition logs
 │   ├── memory.json        # Dialogue histories and context logs
 │   ├── evaluation.json    # Review reports and compliance results
-│   └── knowledge.json     # Reviewed candidates and active published knowledge
+│   ├── knowledge.json     # Reviewed candidates and active published knowledge
+│   └── proposals/         # Pending proposal JSON (machine-readable source of truth)
+├── atlas-proposals/
+│   ├── pending/            # Proposal Markdown awaiting human review
+│   └── approved/           # Proposal Markdown archived on approval
 └── [Project Code Files]   # Application source code
 ```
+
+Atlas never edits this project's `.gitignore` -- whether to commit or ignore
+either `atlas-proposals/` subfolder is left entirely to the user.
 
 ---
 

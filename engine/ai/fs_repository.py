@@ -8,6 +8,7 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from engine.ai.exceptions import InvalidConversationException
+from engine.ai.markdown import render_proposal_markdown
 from engine.ai.repository import ConversationRepository, ProposalRepository
 from engine.ai.serializers import deserialize_conversation, serialize_conversation
 from engine.domain.ai import AIProposal
@@ -120,6 +121,26 @@ class FilesystemProposalRepository(ProposalRepository):
     def _proposal_dir(self, project_id: UUID) -> Path:
         return self.project_repo.get_project_path(project_id) / ".atlas" / "proposals"
 
+    def _pending_review_dir(self, project_id: UUID) -> Path:
+        """Repo-visible directory holding Markdown proposals awaiting review.
+
+        Deliberately outside ``.atlas/`` (engine-owned, hidden state) so a
+        proposal shows up in the user's normal file tree and `git status`,
+        not buried where only Atlas looks.
+        """
+        return (
+            self.project_repo.get_project_path(project_id)
+            / "atlas-proposals"
+            / "pending"
+        )
+
+    def _approved_review_dir(self, project_id: UUID) -> Path:
+        return (
+            self.project_repo.get_project_path(project_id)
+            / "atlas-proposals"
+            / "approved"
+        )
+
     def save(self, project_id: UUID, proposal: AIProposal[Any]) -> None:
         directory = self._proposal_dir(project_id)
         directory.mkdir(parents=True, exist_ok=True)
@@ -129,6 +150,12 @@ class FilesystemProposalRepository(ProposalRepository):
         }
         (directory / f"{proposal.id}.json").write_text(
             json.dumps(payload, indent=2), encoding="utf-8"
+        )
+
+        pending_dir = self._pending_review_dir(project_id)
+        pending_dir.mkdir(parents=True, exist_ok=True)
+        (pending_dir / f"{proposal.id}.md").write_text(
+            render_proposal_markdown(proposal), encoding="utf-8"
         )
 
     def get_by_id(self, proposal_id: UUID) -> tuple[UUID, AIProposal[Any]] | None:
@@ -154,4 +181,21 @@ class FilesystemProposalRepository(ProposalRepository):
             file_path = self._proposal_dir(project.id) / f"{proposal_id}.json"
             if file_path.is_file():
                 file_path.unlink()
+                pending_md = self._pending_review_dir(project.id) / f"{proposal_id}.md"
+                pending_md.unlink(missing_ok=True)
+                return
+
+    def archive_approved(self, proposal_id: UUID) -> None:
+        """Move the Markdown record from pending/ to approved/ on approval.
+
+        A proposal's JSON record is deleted once committed (see ``delete``),
+        so the Markdown file is the only durable, git-visible trace of what
+        was proposed and accepted -- it must survive that deletion.
+        """
+        for project in self.project_repo.discover():
+            pending_md = self._pending_review_dir(project.id) / f"{proposal_id}.md"
+            if pending_md.is_file():
+                approved_dir = self._approved_review_dir(project.id)
+                approved_dir.mkdir(parents=True, exist_ok=True)
+                pending_md.replace(approved_dir / f"{proposal_id}.md")
                 return

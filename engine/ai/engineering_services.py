@@ -1,5 +1,6 @@
 """AI Engineering Services coordinating generation, validation, and commits."""
 
+import json
 from abc import ABC, abstractmethod
 from typing import Any
 from uuid import UUID
@@ -44,6 +45,7 @@ from engine.planning.services import (
     TaskPlanningService,
 )
 from engine.research.repository import ResearchRepository
+from engine.research.retrieval import ResearchRetrievalService
 from engine.research.services import (
     OpportunityAnalysisService,
     ResearchCaptureService,
@@ -584,6 +586,16 @@ class AIEngineeringService[T: BaseModel](ABC):  # noqa: B024
         self.draft_cls = draft_cls
         self.validator = validator
 
+    def _augment_context(
+        self, _project_id: UUID, context: ContextPayload
+    ) -> ContextPayload:
+        """Hook for subclasses to inject grounding material into context.
+
+        Default is a no-op; ``ResearchAIEngineeringService`` overrides this
+        to inject retrieved, real-paper evidence.
+        """
+        return context
+
     def generate(
         self,
         project_id: UUID,
@@ -598,6 +610,7 @@ class AIEngineeringService[T: BaseModel](ABC):  # noqa: B024
         instead of passing human review and only then failing to commit.
         """
         context = context or self.context_assembler.assemble_context(project_id)
+        context = self._augment_context(project_id, context)
         template = self.orchestrator.prompt_registry.resolve(self.draft_cls)
         typed_draft = self.orchestrator.prompt_executor.execute(
             template, context, self.draft_cls, user_instructions
@@ -619,6 +632,7 @@ class ResearchAIEngineeringService(AIEngineeringService[ResearchProposalDraft]):
         orchestrator: AIOrchestrationService,
         context_assembler: ContextAssemblerService,
         validator: "ResearchProposalValidator | None" = None,
+        retrieval_service: ResearchRetrievalService | None = None,
     ) -> None:
         super().__init__(
             orchestrator=orchestrator,
@@ -626,6 +640,33 @@ class ResearchAIEngineeringService(AIEngineeringService[ResearchProposalDraft]):
             draft_cls=ResearchProposalDraft,
             validator=validator,
         )
+        self.retrieval_service = retrieval_service
+
+    def _augment_context(
+        self, project_id: UUID, context: ContextPayload
+    ) -> ContextPayload:
+        """Inject real, retrieved paper evidence for the LLM to reason over.
+
+        Without this, ``ResearchPromptTemplate`` has nothing but its own
+        training knowledge to draw an ``evidence`` array from -- which is
+        exactly how citations end up fabricated. See ADR-005.
+        """
+        if self.retrieval_service is None:
+            return context
+
+        evidence = self.retrieval_service.retrieve_evidence(project_id)
+        if not evidence:
+            return context
+
+        evidence_json = json.dumps(
+            [item.model_dump(mode="json") for item in evidence], indent=2
+        )
+        augmented_context = (
+            f"{context.serialized_context}\n\n"
+            "GROUNDED EVIDENCE (reproduce exactly in your `evidence` array, "
+            f"do not alter):\n{evidence_json}"
+        )
+        return context.model_copy(update={"serialized_context": augmented_context})
 
 
 class PlanningAIEngineeringService(AIEngineeringService[PlanningProposalDraft]):

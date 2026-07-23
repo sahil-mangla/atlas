@@ -84,6 +84,71 @@ def test_research_ai_service(assembler: ContextAssemblerService) -> None:
     assert len(proposal.data.objectives) == len(draft_data.objectives)
 
 
+class FakeRetrievalService:
+    def __init__(self, evidence: list[ResearchEvidenceDraft]) -> None:
+        self._evidence = evidence
+
+    def retrieve_evidence(self, _project_id: UUID) -> list[ResearchEvidenceDraft]:
+        return self._evidence
+
+
+def test_augment_context_is_noop_without_retrieval_service(
+    assembler: ContextAssemblerService,
+) -> None:
+    registry = PromptLoader.load_registry()
+    executor = PromptExecutor(MockAIProvider("{}"), IdentityContextStrategy())
+    orchestrator = AIOrchestrationService(executor, registry)
+    service = ResearchAIEngineeringService(orchestrator, assembler)
+
+    context = ContextPayload(serialized_context="original")
+    assert service._augment_context(uuid4(), context) is context
+
+
+def test_augment_context_is_noop_when_retrieval_finds_nothing(
+    assembler: ContextAssemblerService,
+) -> None:
+    registry = PromptLoader.load_registry()
+    executor = PromptExecutor(MockAIProvider("{}"), IdentityContextStrategy())
+    orchestrator = AIOrchestrationService(executor, registry)
+    service = ResearchAIEngineeringService(
+        orchestrator, assembler, retrieval_service=FakeRetrievalService([])
+    )
+
+    context = ContextPayload(serialized_context="original")
+    assert service._augment_context(uuid4(), context) is context
+
+
+def test_augment_context_injects_grounded_evidence_verbatim(
+    assembler: ContextAssemblerService,
+) -> None:
+    evidence = [
+        ResearchEvidenceDraft(
+            title="Real Paper",
+            type="paper",
+            origin="arxiv: https://arxiv.org/abs/1234.5678",
+            citation="A. Author (2023). Real Paper. https://arxiv.org/abs/1234.5678",
+            summary="A real, retrieved summary.",
+        )
+    ]
+    registry = PromptLoader.load_registry()
+    executor = PromptExecutor(MockAIProvider("{}"), IdentityContextStrategy())
+    orchestrator = AIOrchestrationService(executor, registry)
+    service = ResearchAIEngineeringService(
+        orchestrator, assembler, retrieval_service=FakeRetrievalService(evidence)
+    )
+
+    context = ContextPayload(serialized_context="original")
+    augmented = service._augment_context(uuid4(), context)
+
+    assert "original" in augmented.serialized_context
+    assert "GROUNDED EVIDENCE" in augmented.serialized_context
+    assert "Real Paper" in augmented.serialized_context
+    assert (
+        "A. Author (2023). Real Paper. https://arxiv.org/abs/1234.5678"
+        in augmented.serialized_context
+    )
+
+
 def test_research_ai_service_rejects_invalid_finding_index_at_generation_time(
     assembler: ContextAssemblerService,
 ) -> None:

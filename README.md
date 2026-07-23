@@ -48,17 +48,28 @@ For each stage, ATLAS:
 
 1. **Generates a draft proposal** using your configured AI provider, grounded
    in the project's accumulated context (prior approved research, plans, and
-   architecture decisions).
+   architecture decisions). For the Research stage specifically, evidence is
+   grounded further still: before the AI drafts anything, ATLAS queries real
+   paper sources (arXiv, Semantic Scholar, OpenAlex) and builds each
+   evidence entry's citation and origin directly from that source's own
+   metadata -- never from LLM recall. The AI's only role there is condensing
+   an already-real abstract into a summary; it cannot invent sources.
 2. **Presents it for human review** -- nothing is written to the project until
-   you decide.
+   you decide. Every proposal is also rendered to a plain-Markdown file under
+   `atlas-proposals/pending/` in your project root -- readable and reviewable
+   like any other file in your repo, not just as a JSON blob inside a
+   dotfolder.
 3. **Commits your decision.** Approve it and it becomes a permanent, versioned
-   snapshot; reject it with feedback and regenerate.
+   snapshot -- its Markdown record moves to `atlas-proposals/approved/` as a
+   durable, git-diffable trail; reject it with feedback and regenerate.
 4. **Extracts durable engineering knowledge** from what you approved, so later
    stages (and later projects) can draw on it.
 
 The result is a project directory (`.atlas/`) holding a fully traceable history
 of every research finding, planning decision, architectural choice, and
-evaluation -- not just the final code, but the reasoning that produced it.
+evaluation -- not just the final code, but the reasoning that produced it --
+plus a repo-visible `atlas-proposals/` folder holding the human-readable record
+of everything that was proposed and decided.
 
 ## Quick Start
 

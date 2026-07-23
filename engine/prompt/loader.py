@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from engine.domain.ai_drafts import (
     ArchitectureProposalDraft,
     EvaluationProposalDraft,
+    EvidenceSummaryBatchDraft,
     KnowledgeCandidateDraft,
     PlanningProposalDraft,
     ResearchProposalDraft,
@@ -13,6 +14,7 @@ from engine.prompt.registry import PromptRegistry
 from engine.prompt.templates import (
     ArchitecturePromptTemplate,
     EvaluationPromptTemplate,
+    EvidenceSummaryPromptTemplate,
     KnowledgeCandidatePromptTemplate,
     PlanningPromptTemplate,
     PromptTemplate,
@@ -32,5 +34,6 @@ class PromptLoader:
             ArchitectureProposalDraft: ArchitecturePromptTemplate(),
             EvaluationProposalDraft: EvaluationPromptTemplate(),
             KnowledgeCandidateDraft: KnowledgeCandidatePromptTemplate(),
+            EvidenceSummaryBatchDraft: EvidenceSummaryPromptTemplate(),
         }
         return PromptRegistry(templates)

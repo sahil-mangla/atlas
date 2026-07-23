@@ -16,6 +16,21 @@ from engine.domain.enums import (
 # ==========================================
 
 
+class EvidenceSummaryBatchDraft(BaseModel):
+    """Output of the evidence-summarization pass.
+
+    Deliberately narrow: the LLM's only job when grounding research is
+    condensing real abstracts into plain-language summaries, in the same
+    order they were given. Title, citation, and origin are built
+    deterministically from source metadata elsewhere and never touch this
+    model, so there is nothing here for the LLM to fabricate.
+    """
+
+    summaries: list[str] = Field(
+        description="One summary per input abstract, same order as given."
+    )
+
+
 class ResearchEvidenceDraft(BaseModel):
     title: str = Field(description="Title of the raw evidence.")
     type: str = Field(default="document", description="Type of evidence.")

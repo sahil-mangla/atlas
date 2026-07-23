@@ -7,6 +7,7 @@ from engine.domain.ai import ContextPayload, PromptTemplateMetadata
 from engine.domain.ai_drafts import (
     ArchitectureProposalDraft,
     EvaluationProposalDraft,
+    EvidenceSummaryBatchDraft,
     KnowledgeCandidateDraft,
     PlanningProposalDraft,
     ResearchProposalDraft,
@@ -85,7 +86,16 @@ class ResearchPromptTemplate(PromptTemplate):
                 "All `*_indices` fields (evidence_indices, finding_indices) are "
                 "0-based: the first item in a list is index 0, not 1. Every "
                 "index you emit must be strictly less than the length of the "
-                "list it references."
+                "list it references.\n\n"
+                "You must never invent evidence. If the context below contains "
+                "a 'GROUNDED EVIDENCE' section, your `evidence` array must "
+                "reproduce exactly those entries, unchanged -- do not add, "
+                "remove, reorder, or alter them, and do not append any "
+                "additional entries. Build `findings`, `constraints`, and "
+                "`opportunities` only by referencing that evidence via "
+                "`evidence_indices`. If no 'GROUNDED EVIDENCE' section is "
+                "present, leave `evidence` as an empty list rather than "
+                "fabricating sources or citations."
             ),
             context=context.serialized_context,
             task=(
@@ -222,6 +232,51 @@ class SummaryPromptTemplate(PromptTemplate):
             task=(
                 f"Schema: {self.expected_schema}\n\n"
                 f"User instructions: {user_instructions}"
+            ),
+        )
+
+
+class EvidenceSummaryPromptTemplate(PromptTemplate):
+    """Condenses real, retrieved paper abstracts into plain-language summaries.
+
+    Deliberately narrow -- unlike the proposal templates above, this one must
+    never be asked to produce citations, titles, or origins: those come from
+    the paper source's own API response (see ``engine.research.sources``)
+    and are never passed through an LLM, so there is nothing for it to
+    invent. Its only job is condensing text that already exists.
+    """
+
+    def __init__(self) -> None:
+        self._metadata = PromptTemplateMetadata(
+            version=1,
+            supported_subsystem=ProposalType.EVIDENCE_SUMMARY,
+        )
+
+    @property
+    def metadata(self) -> PromptTemplateMetadata:
+        return self._metadata
+
+    @property
+    def expected_schema(self) -> dict[str, Any] | None:
+        return EvidenceSummaryBatchDraft.model_json_schema()
+
+    def build(
+        self, context: ContextPayload, user_instructions: str = ""
+    ) -> PromptDocument:
+        return PromptDocument(
+            system_prompt=(
+                "You are condensing real paper abstracts for an engineering "
+                "research review. Return only JSON conforming to the supplied "
+                "schema. Summarize only what is stated in each abstract -- do "
+                "not add claims, numbers, or conclusions the abstract does not "
+                "contain. Produce exactly one summary per abstract, in the "
+                "same order they are given, each 1-3 sentences focused on the "
+                "engineering-relevant claim."
+            ),
+            context=context.serialized_context,
+            task=(
+                "Produce a summary batch using this JSON schema:\n"
+                f"{self.expected_schema}\n\nUser instructions: {user_instructions}"
             ),
         )
 

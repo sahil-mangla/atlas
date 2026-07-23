@@ -80,6 +80,7 @@ from engine.project.services import (
 )
 from engine.prompt.loader import PromptLoader
 from engine.research.fs_repository import FilesystemResearchRepository
+from engine.research.retrieval import ResearchRetrievalService
 from engine.research.services import (
     OpportunityAnalysisService,
     ResearchCaptureService,
@@ -87,6 +88,7 @@ from engine.research.services import (
     ResearchOrganizationService,
     ResearchSummaryService,
 )
+from engine.research.sources import ArxivSource, OpenAlexSource, SemanticScholarSource
 from engine.workflow.fs_repository import FilesystemWorkflowRepository
 from engine.workflow.orchestration import (
     ArchitectureStageExecutor,
@@ -203,8 +205,20 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
     planning_validator = PlanningProposalValidator()
     architecture_validator = ArchitectureProposalValidator()
     evaluation_validator = EvaluationProposalValidator()
+    research_retrieval = ResearchRetrievalService(
+        sources=[
+            ArxivSource(timeout_seconds=settings.research_retrieval_timeout_seconds),
+            SemanticScholarSource(
+                timeout_seconds=settings.research_retrieval_timeout_seconds
+            ),
+            OpenAlexSource(timeout_seconds=settings.research_retrieval_timeout_seconds),
+        ],
+        project_repo=project_repo,
+        prompt_executor=prompt_executor,
+        max_candidates=settings.research_max_candidates,
+    )
     research_ai = ResearchAIEngineeringService(
-        ai_orchestrator, context_assembler, research_validator
+        ai_orchestrator, context_assembler, research_validator, research_retrieval
     )
     planning_ai = PlanningAIEngineeringService(
         ai_orchestrator, context_assembler, planning_validator

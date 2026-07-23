@@ -165,6 +165,7 @@ class WorkflowExecutionCapability:
                 )
                 if result.success:
                     self._pending_proposals.pop(command.proposal_id, None)
+                    self._proposal_repo.archive_approved(command.proposal_id)
                     self._proposal_repo.delete(command.proposal_id)
                 return result
             return AppCommitResult(

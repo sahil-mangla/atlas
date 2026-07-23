@@ -155,6 +155,7 @@ class ProposalType(StrEnum):
     EVALUATION = "evaluation"
     MEMORY_CANDIDATE = "memory_candidate"
     KNOWLEDGE_CANDIDATE = "knowledge_candidate"
+    EVIDENCE_SUMMARY = "evidence_summary"
 
 
 class ProposalDecision(StrEnum):

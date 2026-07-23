@@ -86,3 +86,76 @@ def test_proposal_repository_survives_recreation(tmp_path: Path) -> None:
     loaded_project, loaded_proposal = loaded
     assert loaded_project == proj_id
     assert loaded_proposal.data.problem_statement == "p"
+
+
+def _make_research_proposal() -> AIProposal[ResearchProposalDraft]:
+    return AIProposal[ResearchProposalDraft](
+        proposal_type=ProposalType.RESEARCH,
+        status=ProposalStatus.DRAFT,
+        prompt_metadata=PromptTemplateMetadata(
+            version=1, supported_subsystem=ProposalType.RESEARCH
+        ),
+        context_used=ContextPayload(serialized_context=""),
+        data=ResearchProposalDraft(problem_statement="p", objectives=["o"]),
+    )
+
+
+def test_save_writes_repo_visible_pending_markdown(tmp_path: Path) -> None:
+    proj_repo = DummyProjectRepo(tmp_path)
+    proj_id = uuid4()
+    proj_repo.projects = [
+        Project(id=proj_id, name="Test", description="Desc", objective="Obj")
+    ]
+    proposal = _make_research_proposal()
+
+    FilesystemProposalRepository(proj_repo).save(proj_id, proposal)
+
+    project_path = proj_repo.get_project_path(proj_id)
+    md_path = project_path / "atlas-proposals" / "pending" / f"{proposal.id}.md"
+    assert md_path.is_file()
+    content = md_path.read_text(encoding="utf-8")
+    assert "Research Proposal" in content
+    assert "p" in content
+
+
+def test_archive_approved_moves_markdown_and_delete_removes_json(
+    tmp_path: Path,
+) -> None:
+    proj_repo = DummyProjectRepo(tmp_path)
+    proj_id = uuid4()
+    proj_repo.projects = [
+        Project(id=proj_id, name="Test", description="Desc", objective="Obj")
+    ]
+    proposal = _make_research_proposal()
+    repo = FilesystemProposalRepository(proj_repo)
+    repo.save(proj_id, proposal)
+
+    repo.archive_approved(proposal.id)
+    repo.delete(proposal.id)
+
+    project_path = proj_repo.get_project_path(proj_id)
+    pending_md = project_path / "atlas-proposals" / "pending" / f"{proposal.id}.md"
+    approved_md = project_path / "atlas-proposals" / "approved" / f"{proposal.id}.md"
+    json_path = project_path / ".atlas" / "proposals" / f"{proposal.id}.json"
+    assert not pending_md.exists()
+    assert approved_md.is_file()
+    assert not json_path.exists()
+
+
+def test_delete_without_archive_removes_pending_markdown_too(tmp_path: Path) -> None:
+    proj_repo = DummyProjectRepo(tmp_path)
+    proj_id = uuid4()
+    proj_repo.projects = [
+        Project(id=proj_id, name="Test", description="Desc", objective="Obj")
+    ]
+    proposal = _make_research_proposal()
+    repo = FilesystemProposalRepository(proj_repo)
+    repo.save(proj_id, proposal)
+
+    repo.delete(proposal.id)
+
+    project_path = proj_repo.get_project_path(proj_id)
+    pending_md = project_path / "atlas-proposals" / "pending" / f"{proposal.id}.md"
+    approved_md = project_path / "atlas-proposals" / "approved" / f"{proposal.id}.md"
+    assert not pending_md.exists()
+    assert not approved_md.exists()

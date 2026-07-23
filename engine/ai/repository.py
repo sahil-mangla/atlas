@@ -64,3 +64,8 @@ class ProposalRepository(ABC):
     def delete(self, proposal_id: UUID) -> None:
         """Delete a completed proposal."""
         pass
+
+    @abstractmethod
+    def archive_approved(self, proposal_id: UUID) -> None:
+        """Move a proposal's human-readable record from pending to approved."""
+        pass

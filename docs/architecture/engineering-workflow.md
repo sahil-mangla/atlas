@@ -19,7 +19,7 @@ This document defines the structured workflow engine of the ATLAS platform. It o
 ATLAS workflows guide the software development process through nine distinct stages, enforcing a logical sequence from concept to verification:
 
 1. **Idea**: Captures initial high-level vision, product boundaries, and concept overview.
-2. **Research**: Explores problem domain, gathers external evidence, and synthesizes findings.
+2. **Research**: Explores problem domain, gathers external evidence, and synthesizes findings. Evidence is grounded in real, retrieved papers (see [`ResearchRetrievalService`](../decisions/adr-005-grounded-research-and-repo-native-review.md)) rather than drafted from the AI's own recall.
 3. **Problem Definition**: Refines concept and research into functional and non-functional requirements.
 4. **Planning**: Decomposes requirements into milestones, epic groupings, and prioritized roadmaps.
 5. **Architecture**: Establishes system component boundaries, interface contracts, and records ADRs.

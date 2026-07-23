@@ -36,8 +36,10 @@ Execute active stages.
 - `atlas stage execute --project-id <uuid> --stage <s>`: Start AI generation for the current stage.
 
 #### `proposal`
-Review AI-generated drafts.
-- `atlas proposal approve --project-id <uuid> --proposal-id <uuid>`: Approve and commit a draft.
+Review AI-generated drafts. Each generated proposal is also written as
+Markdown to `atlas-proposals/pending/<proposal-id>.md` in the project root --
+read it there instead of the underlying `.atlas/proposals/<id>.json`.
+- `atlas proposal approve --project-id <uuid> --proposal-id <uuid>`: Approve and commit a draft. Its Markdown file moves to `atlas-proposals/approved/`.
 - `atlas proposal reject --project-id <uuid> --proposal-id <uuid> --feedback <f>`: Reject a draft and provide feedback.
 
 #### `knowledge`

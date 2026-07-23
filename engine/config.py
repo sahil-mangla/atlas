@@ -57,6 +57,15 @@ class Settings(BaseSettings):
         description="Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).",
     )
 
+    research_max_candidates: int = Field(
+        default=5,
+        description="Max paper candidates kept per research proposal generation.",
+    )
+    research_retrieval_timeout_seconds: int = Field(
+        default=15,
+        description="HTTP timeout, in seconds, per paper-source API call.",
+    )
+
 
 def get_settings() -> Settings:
     """Load and return the ATLAS settings.
