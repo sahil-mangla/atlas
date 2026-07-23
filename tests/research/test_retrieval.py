@@ -1,4 +1,6 @@
 import json
+from pathlib import Path
+from typing import Any
 from uuid import UUID, uuid4
 
 from engine.ai.context import IdentityContextStrategy
@@ -14,7 +16,7 @@ class FakeProjectRepo(ProjectRepository):
     def __init__(self, project: Project | None) -> None:
         self._project = project
 
-    def get_project_path(self, project_id: UUID):  # pragma: no cover - unused here
+    def get_project_path(self, project_id: UUID) -> Path:  # pragma: no cover - unused
         raise NotImplementedError
 
     def save(self, project: Project) -> None:  # pragma: no cover - unused here
@@ -49,7 +51,7 @@ def _candidate(external_id: str, title: str = "Title") -> PaperCandidate:
     )
 
 
-def _executor_returning(payload: dict) -> PromptExecutor:
+def _executor_returning(payload: dict[str, Any]) -> PromptExecutor:
     provider = MockAIProvider(stubbed_response=json.dumps(payload))
     return PromptExecutor(provider, IdentityContextStrategy())
 

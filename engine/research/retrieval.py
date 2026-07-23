@@ -7,6 +7,7 @@ LLM's only role is condensing an already-real abstract into a summary.
 """
 
 import logging
+from typing import Protocol
 from uuid import UUID
 
 from engine.ai.executor import PromptExecutor
@@ -18,6 +19,18 @@ from engine.research.sources.base import PaperSource
 from engine.research.sources.models import PaperCandidate
 
 logger = logging.getLogger(__name__)
+
+
+class EvidenceRetriever(Protocol):
+    """What ``ResearchAIEngineeringService`` actually depends on.
+
+    A structural type -- not the concrete ``ResearchRetrievalService`` --
+    so callers (including test doubles) only need to implement
+    ``retrieve_evidence``, the same pattern already used for ``PaperSource``.
+    """
+
+    def retrieve_evidence(self, project_id: UUID) -> list[ResearchEvidenceDraft]: ...
+
 
 _ABSTRACT_FALLBACK_CHARS = 280
 _MAX_CITED_AUTHORS = 3

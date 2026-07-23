@@ -45,7 +45,7 @@ from engine.planning.services import (
     TaskPlanningService,
 )
 from engine.research.repository import ResearchRepository
-from engine.research.retrieval import ResearchRetrievalService
+from engine.research.retrieval import EvidenceRetriever
 from engine.research.services import (
     OpportunityAnalysisService,
     ResearchCaptureService,
@@ -632,7 +632,7 @@ class ResearchAIEngineeringService(AIEngineeringService[ResearchProposalDraft]):
         orchestrator: AIOrchestrationService,
         context_assembler: ContextAssemblerService,
         validator: "ResearchProposalValidator | None" = None,
-        retrieval_service: ResearchRetrievalService | None = None,
+        retrieval_service: EvidenceRetriever | None = None,
     ) -> None:
         super().__init__(
             orchestrator=orchestrator,
