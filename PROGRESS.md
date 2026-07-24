@@ -84,8 +84,17 @@ In progress. Fixes the remaining first-time-user blockers found after Phase
   absent); fixed `atlas.types.ProposalStatus` missing two members present
   in its engine counterpart; added a structural test guarding all seven
   SDK-boundary enum mirrors against future drift. See `CHANGELOG.md`.
+- [x] RC-008: Post-Release Hardening Audit -- full-repo audit (27 issues
+  found) fixed in 7 dependency-ordered batches: crash-safe atomic writes
+  across every filesystem repository; research proposal grounding now
+  enforced in code instead of prompt-only; research retrieval crash fixes,
+  source-bias fix, and rate limiting; repository exception-handling fixes
+  and planning's missing REVIEW gate; orphaned-project rollback and
+  knowledge-capability exception leaks; AI adapter schema/response
+  handling fixes (Gemini, Ollama, Anthropic); CLI export crash and
+  flag-parsing edge cases. See `CHANGELOG.md`.
 
-Phase 17 (Release Candidate Stabilization): all 7 RC items complete. See
+Phase 17 (Release Candidate Stabilization): all 8 RC items complete. See
 `docs/reports/release-candidate-stabilization.md` for the full report,
 including its Remaining Issues / not-yet-verified notes.
 

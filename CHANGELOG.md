@@ -168,6 +168,109 @@ All notable changes to this project will be documented in this file.
   `clients/common/formatting.py` nor this specific fallback path had any
   test coverage before this fix).
 
+#### RC-008 -- Post-Release Hardening Audit
+A full-repo audit plus a deep-dive on the research/AI-proposal pipeline
+found 27 issues ranging from silent data corruption to AI-generated
+research proposals that were never actually checked against the real
+papers they claimed to cite. Fixed in seven dependency-ordered batches,
+each independently tested and committed.
+
+- **Crash-safe persistence**: every `fs_repository.py` (`workflow`,
+  `project`, `evaluation`, `architecture`, `planning`, `memory`,
+  `knowledge`, `research`, `ai`) wrote JSON/Markdown directly to the live
+  file. A crash, kill, or full disk mid-write left a truncated file that
+  every later read rejected as corrupt, with no recovery path. Added
+  `shared/atomic_write.py::atomic_write_text` (write to a temp file in the
+  same directory, fsync, atomic `Path.replace()`) and routed all ten
+  direct-write call sites through it. See
+  `docs/architecture/persistence.md#4-crash-safe-atomic-writes`.
+- **Research grounding actually enforced** (critical): grounding was
+  prompt-only -- the LLM was told to reproduce retrieved paper evidence
+  verbatim, but nothing checked that it did. A non-compliant or
+  hallucinating response was committed as if faithfully grounded. Added
+  `external_id` to `ResearchEvidenceDraft`/`Evidence` so retrieved papers
+  carry a stable identifier through generation and persistence, and a
+  `_check_grounding` hook (run after existing validation in
+  `AIEngineeringService.generate()`) that rejects any generated evidence
+  entry whose `external_id` doesn't match a retrieved paper, and rejects
+  fabricated evidence outright when retrieval found none. See
+  `docs/decisions/adr-005-grounded-research-and-repo-native-review.md`.
+- **Research retrieval crashes and bias**: `openalex.py` crashed with
+  `AttributeError` on a real OpenAlex authorship with `author: null`;
+  `arxiv.py` crashed on a malformed `<published>` date, violating the
+  `PaperSource` contract that sources never raise. The retrieval
+  orchestrator now defends against both by wrapping every `source.search()`
+  call and running all three sources concurrently instead of serially.
+  Candidates are now round-robin interleaved across sources before
+  dedup+cap -- previously, if the first-queried source alone filled the
+  candidate budget, every result from the other two sources was silently
+  discarded even though they were fully queried. All three sources now
+  rate-limit consecutive requests, honoring each provider's policy, and
+  report call failures so a total outage can be distinguished (via an
+  error log) from a query that genuinely found no papers. arXiv queries
+  are now sanitized so ordinary punctuation in a project description can't
+  be reinterpreted as arXiv's boolean/field-prefix query syntax.
+- **Repository exception handling**: `engine/memory/fs_repository.py`'s
+  `save()` didn't wrap `ProjectNotFoundException` like its
+  evaluation/architecture/planning siblings, leaking the raw project-layer
+  exception. `FilesystemProposalRepository.get_by_id` now wraps
+  JSON/field-parsing errors as `InvalidProposalException` instead of
+  letting a raw `JSONDecodeError`/`KeyError` escape on a corrupt record.
+  `FilesystemConversationRepository.get_by_id` no longer silently
+  swallows corruption via a bare `except Exception` -- it now logs the
+  specific failure.
+- **Planning's missing REVIEW gate**: `PlanningSummaryService
+  .freeze_snapshot` had no status guard, unlike evaluation's and
+  architecture's equivalents, which both require `REVIEW` status first.
+  It could freeze straight from `DRAFT`, or be called repeatedly after
+  `APPROVED`. Added the matching guard and updated
+  `PlanningProposalTransformer` to call `submit_for_review` before
+  freezing, matching the architecture/evaluation transformers' sequence.
+- **Orphaned-project rollback**: `ProjectCapability.create_project` left a
+  permanently stuck, unusable project behind if workflow initialization
+  failed after the project record was already persisted -- every workflow
+  operation on it would then fail, and re-creating it under the same name
+  hit `ProjectAlreadyExistsError`. Added `ProjectRepository.delete()`
+  (minimal scope: removes only the metadata this repository owns, not the
+  project directory tree, since a custom `--path` may pre-exist with
+  unrelated content) and a rollback path in `create_project`.
+- **Knowledge exception leaks**: `KnowledgeCapability.list_candidates`/
+  `.show_candidate` called the knowledge repository directly with no
+  exception translation, unlike every other capability method. A corrupt
+  candidate file raised `KnowledgeException` straight past
+  `Atlas.handle()`, which only catches `ApplicationError` -- breaking the
+  `ErrorEnvelope` wire contract for any MCP/REST client. Now wrapped and
+  translated to `KnowledgeReviewError`, matching the rest of the class.
+- **Dead prompt template registered**: `SummaryPromptTemplate` was fully
+  implemented but never included in `PromptLoader.load_registry()`.
+  Registered against a new minimal `SummaryDraft` model matching its
+  existing hardcoded schema, so resolving it no longer hits
+  `PromptRegistry`'s `KeyError`.
+- **AI adapter schema/response handling**: `gemini.py` (the default
+  provider) now flattens Pydantic's `$defs`/`$ref` schema indirection
+  before sending it to Gemini -- every non-trivial proposal draft (e.g.
+  `ResearchProposalDraft` nesting `ResearchFindingDraft`/
+  `ResearchEvidenceDraft`) produces `$defs`/`$ref` via
+  `model_json_schema()`, previously forwarded unresolved.  `ollama.py` now
+  forwards the actual `response_schema` as Ollama's `format` value instead
+  of the generic string `"json"`, so its declared `structured_output=True`
+  capability is honest. `anthropic.py` now selects the first content block
+  that actually carries a `text` field instead of assuming `content[0]` is
+  text -- a leading non-text block previously produced an empty string and
+  a misleading downstream parse failure. See
+  `docs/architecture/multi-protocol-ai-runtime.md`.
+- **CLI export crash and flag parsing**: `presentation export`'s output
+  write is now wrapped in try/except, translating `OSError`/
+  `UnicodeEncodeError` into a clean `ApplicationError` instead of an
+  uncaught traceback. `_parse_flags` now accepts `--flag=value` alongside
+  `--flag value`; a flag immediately followed by another flag (value
+  omitted) now raises a clear "requires a value" error instead of
+  silently consuming the next flag name as the value; a flag specified
+  more than once now raises a clear error instead of silently keeping
+  only the last value. `RendererRegistry`'s bare `ValueError` is now
+  translated to `ApplicationError` at the capability boundary. See
+  `docs/usage/cli.md#flag-syntax`.
+
 ## [1.0.0] - 2026-07-21
 
 ### Phase 16: Production Readiness & Release Engineering

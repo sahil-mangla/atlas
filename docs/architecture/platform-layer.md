@@ -31,7 +31,7 @@ Phase 15 is purely additive and internal restructuring. It does not change `engi
 | `ProjectCapability` | Project lifecycle | `create_project`, `load_project`, `list_projects`, `archive_project` | `ProjectCreationService`, `ProjectLoadingService`, `ProjectRegistryService`, `ProjectLifecycleService`, `WorkflowInitializationService` |
 | `WorkflowCapability` | Workflow status/readiness, stage transitions | `get_workflow_status`, `transition_stage` | `WorkflowRepository`, `WorkflowTransitionService`, `WorkflowOrchestrationService.readiness_service` / `.knowledge_orchestration` |
 | `WorkflowExecutionCapability` | AI proposal generation, approval, rejection | `execute_stage`, `approve_proposal`, `reject_proposal` | `WorkflowOrchestrationService.generate_proposal` / `.process_review_decision`, `ProposalRepository` |
-| `KnowledgeCapability` | Human review of knowledge candidates | `review_knowledge_candidate` | `WorkflowOrchestrationService.process_knowledge_review` |
+| `KnowledgeCapability` | Listing and human review of knowledge candidates | `list_candidates`, `show_candidate`, `review_knowledge_candidate` | `KnowledgeOrchestrationService.list_candidates` / `.get_candidate`, `WorkflowOrchestrationService.process_knowledge_review` |
 | `PresentationCapability` | Typed read models, composed views, rendering | `get_*_read_model` (5), `get_*_view` (5), `render` | Read-only repositories, `PlatformOrchestrationService`, `RendererRegistry` |
 
 `WorkflowExecutionCapability` is named deliberately narrower than a generic "execution" concept -- it owns exactly AI proposal generation and the two proposal review decisions, nothing else.
@@ -48,6 +48,8 @@ atlas/capabilities/*  --X  atlas/capabilities/*    (no capability imports anothe
 ```
 
 `PresentationCapability` owns its own copy of `_map_project_exception` rather than sharing `ProjectCapability`'s, specifically to avoid a runtime dependency between two capability instances -- a small, deliberate duplication in exchange for independence.
+
+Every capability method that calls into `engine/*` must translate the engine-layer exceptions it can raise into `ApplicationError` subclasses before they cross the capability boundary -- `Atlas.handle()` only catches `ApplicationError`, so anything else escapes uncaught and breaks the `ErrorEnvelope` wire contract for out-of-process adapters (MCP, REST). `ProjectCapability.create_project` additionally performs a compensating rollback (`ProjectRepository.delete()`) if workflow initialization fails after the project record was already persisted, so a partial failure never leaves an orphaned, permanently-stuck project behind.
 
 ### Capability Responsibility Rule (Architectural Invariant)
 

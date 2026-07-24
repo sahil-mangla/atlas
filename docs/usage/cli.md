@@ -16,6 +16,16 @@ atlas version
 atlas <group> <sub-command> [flags]
 ```
 
+### Flag Syntax
+
+- Both `--flag value` and `--flag=value` are accepted for every flag.
+- Each flag may be specified once per command. Repeating a flag (e.g. two
+  `--name` values) raises a parse error rather than silently keeping only
+  the last one.
+- A flag given without a value (e.g. immediately followed by another flag)
+  raises a parse error naming the flag that needs a value, rather than
+  silently consuming the next flag's name as this flag's value.
+
 ### Available Groups
 
 #### `project`

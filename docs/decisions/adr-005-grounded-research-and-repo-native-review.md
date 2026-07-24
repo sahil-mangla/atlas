@@ -4,7 +4,7 @@
 Partially implemented. Points 1–3 are shipped, one at a time as decided below; point 4 (PyPI distribution) remains proposed and unscheduled.
 
 - **Point 2+3 (Markdown proposals + `atlas-proposals/` in the repo)**: Implemented. See `engine/ai/markdown.py`, `engine/ai/fs_repository.py` (`FilesystemProposalRepository.save`/`archive_approved`/`delete`), and `atlas/capabilities/workflow_execution_capability.py`.
-- **Point 1 (grounded research retrieval)**: Implemented. See `engine/research/sources/` (arXiv, Semantic Scholar, OpenAlex clients), `engine/research/retrieval.py` (`ResearchRetrievalService`), and `ResearchAIEngineeringService._augment_context` in `engine/ai/engineering_services.py`. CORE.ac.uk was deferred as decided below.
+- **Point 1 (grounded research retrieval)**: Implemented, and as of the RC-008 hardening pass, actually *enforced* rather than only requested. See `engine/research/sources/` (arXiv, Semantic Scholar, OpenAlex clients), `engine/research/retrieval.py` (`ResearchRetrievalService`), `ResearchAIEngineeringService._augment_context`/`._check_grounding` in `engine/ai/engineering_services.py`, and [Addendum: Grounding Enforcement](#addendum-rc-008-grounding-is-now-enforced-not-only-requested) below. CORE.ac.uk was deferred as decided below.
 - **Point 4 (PyPI distribution)**: Not started.
 
 ## Context
@@ -74,3 +74,28 @@ Not scheduled yet — will be picked up as its own phase, sequenced after 1–3.
 2. ~~Commit proposals to git?~~ — Atlas writes both folders unconditionally and never edits `.gitignore`; committing vs. ignoring either is entirely the user's choice.
 3. Package name and initial distribution channel for point 4 — still open, deferred until that phase starts.
 4. ~~Order of implementation~~ — sequenced, one point at a time, not all four together. Next: decide which point ships first.
+
+## Addendum (RC-008): Grounding is now enforced, not only requested
+
+A post-release audit found that Point 1's grounding guarantee, as originally implemented, was **prompt-only**: `_augment_context` injected retrieved evidence into the prompt with the instruction "reproduce exactly those entries, unchanged" — but nothing downstream ever checked that the LLM actually complied. `ResearchProposalValidator` only checked that `evidence_indices` referenced in-bounds evidence, and `PromptExecutor.execute` only validated JSON schema conformance. A non-compliant or hallucinating model could drop a retrieved paper, edit a citation, or invent an additional one, and the resulting proposal would still be committed and surfaced to the human reviewer as though every citation were faithfully grounded — silently defeating the entire point of this ADR.
+
+Fixed:
+
+- **`external_id` now survives the pipeline.** `PaperCandidate.external_id` (arXiv ID / DOI / OpenAlex ID) was previously used only to dedup search results, then discarded before reaching `ResearchEvidenceDraft`. It is now a field on both `ResearchEvidenceDraft` (`engine/domain/ai_drafts.py`) and the persisted `Evidence` aggregate (`engine/domain/research.py`), threaded through `ResearchProposalTransformer` into `ResearchCaptureService.add_evidence`.
+- **A verification hook runs after generation.** `AIEngineeringService.generate()` gained a `_check_grounding(project_id, draft)` hook (default no-op), called after existing validation. `ResearchAIEngineeringService` overrides it to compare the generated `evidence` array's `external_id`s against the set actually retrieved and injected into the prompt (tracked as instance state set by `_augment_context` and read by `_check_grounding` within the same synchronous `generate()` call — this codebase's AI generation path is single-threaded per invocation, so that scoping is safe without additional locking).
+- **Two rejection cases, both raising `InvalidProposalException`:** (1) any evidence entry whose `external_id` doesn't match a retrieved paper — covers dropped, altered, or fabricated citations; (2) any evidence at all when retrieval found none — covers the case where `retrieve_evidence()` correctly returned `[]` (its own contract: "an empty evidence list is preferable to fabricated evidence") but the LLM invented citations anyway.
+
+This closes the loop the original ADR left open: retrieval feeding evidence into the prompt was necessary but not sufficient — the system now also verifies the model actually used it.
+
+### Retrieval-pipeline hardening (same audit)
+
+Separately, the same audit found and fixed defects in the retrieval clients themselves, all in `engine/research/`:
+
+- `openalex.py` crashed with `AttributeError` on a real OpenAlex authorship with `"author": null` (an anonymized/withdrawn authorship) — `.get("author", {})` only substitutes a default for a *missing* key, not an explicit `None`.
+- `arxiv.py` crashed on a malformed `<published>` date (`int(published_el.text[:4])` had no exception handling) — both violated `PaperSource`'s explicit "must never raise" contract.
+- `retrieval.py`'s `_search_all_sources` now wraps every `source.search()` call defensively (the contract above is a contract, not a guarantee) and runs all three sources concurrently via a thread pool instead of serially, so one slow source no longer blocks the others.
+- `_dedupe` previously broke out of its accumulation loop as soon as the candidate cap was reached; since candidates were concatenated in source order, a single source alone filling the cap silently discarded every result from the other two sources, even though they were fully queried over the network. Candidates are now round-robin interleaved across sources before dedup+cap.
+- All three sources now rate-limit consecutive requests (`RateLimiter` in `engine/research/sources/base.py`), honoring each provider's documented policy (arXiv: ≥3s; Semantic Scholar unauthenticated: a conservative 3s; OpenAlex: 1s), and report `last_call_failed` so `retrieve_evidence` can log a distinct error when *all* sources failed outright, rather than that outage looking identical to a query that genuinely found no papers.
+- arXiv queries are now sanitized (parentheses, colons, quotes stripped, lowercased) before being embedded in `search_query`, so ordinary punctuation in a project description can no longer be reinterpreted as arXiv's `AND`/`OR`/`ANDNOT`/field-prefix query syntax.
+
+None of this changes the ADR's decisions -- it closes gaps in how faithfully the decided design was actually implemented.

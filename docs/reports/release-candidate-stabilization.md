@@ -1,6 +1,6 @@
 # Phase 17: Release Candidate Stabilization
 
-Status: **all 7 RC items complete.** This report was updated as each RC
+Status: **all 8 RC items complete.** This report was updated as each RC
 item landed rather than written once at the end; see the Release Readiness
 Assessment at the bottom for what "complete" does and does not mean.
 
@@ -724,19 +724,180 @@ tests/test_clients/cli/test_renderer.py (updated)
   • Address review feedback  - Address review feedback
   ```
 
+## RC-008 -- Post-Release Hardening Audit
+
+### Issue
+
+Unlike RC-001 through RC-007 (each scoped to one named user-facing gap), RC-008
+originated from a full-repo audit run across every subsystem specifically
+looking for correctness bugs that would surface under extensive real-world
+use rather than a known complaint: silent data corruption, crashes on
+realistic-but-untested inputs, and -- most seriously -- an AI-proposal
+grounding claim that the code never actually enforced. The audit ran six
+parallel subsystem reviews (AI providers, workflow/domain, knowledge/
+research, evaluation/architecture/planning/memory repositories,
+presentation/CLI, core service/capabilities) followed by two deep-dives on
+the research retrieval pipeline and the AI-grounded proposal generation
+path, surfacing 27 verified findings.
+
+### Root Cause (by area)
+
+- **Non-atomic writes**: every `fs_repository.py`'s `save()` wrote directly
+  to the live file (`path.open("w")` / `write_text()`), with no
+  temp-file-then-rename. A crash mid-write left a truncated file; the next
+  read raised a domain "invalid/corrupt" exception with no recovery path.
+- **Prompt-only grounding**: `ResearchAIEngineeringService._augment_context`
+  injected retrieved evidence into the prompt with an instruction to
+  reproduce it verbatim, but neither `ResearchProposalValidator` nor
+  `PromptExecutor` ever checked the LLM's returned `evidence` array against
+  what was actually retrieved -- the instruction was trusted, not verified.
+- **Research source contract violations**: `openalex.py` used
+  `.get("author", {})`, which only substitutes on a missing key, not an
+  explicit `None` -- a real OpenAlex authorship with `author: null` crashed
+  with `AttributeError`. `arxiv.py`'s year parser had no exception handling
+  around `int(published_el.text[:4])`. Both violate the `PaperSource`
+  protocol's explicit "must never raise" contract, and the retrieval
+  orchestrator trusted that contract instead of defending against it.
+- **Source-order bias in dedup**: `_dedupe` broke out of its loop as soon
+  as the candidate cap was reached, so if the first-queried source alone
+  filled the cap, candidates from the other two sources were never even
+  inspected -- despite both having been fully queried over the network.
+- **Divergent repository patterns**: `engine/memory/fs_repository.py`'s
+  `save()` was the one sibling (of four near-identical modules) that didn't
+  wrap `ProjectNotFoundException`. `PlanningSummaryService.freeze_snapshot`
+  was the one sibling (of three) with no `REVIEW`-status guard.
+- **Two-step operations with no rollback**: `ProjectCapability
+  .create_project` performed project creation and workflow initialization
+  as two independent calls with no compensating action if the second
+  failed after the first succeeded.
+- **Inconsistent exception translation**: every other `KnowledgeCapability`
+  method wrapped repository calls and translated `KnowledgeException` to an
+  `ApplicationError` subclass; `list_candidates`/`show_candidate` did not.
+- **AI adapter correctness**: `gemini.py` forwarded Pydantic's raw
+  `$defs`/`$ref` schema output unresolved; `ollama.py` sent the generic
+  string `"json"` instead of the actual schema despite declaring
+  `structured_output=True`; `anthropic.py` assumed `content[0]` was always
+  the text block.
+- **CLI edge cases**: the `presentation export` file write had no error
+  handling; the flag parser had no `--flag=value` support, silently
+  consumed the next flag as a missing value, and silently kept only the
+  last value for a repeated flag.
+
+### Implementation
+
+Fixed in seven dependency-ordered batches, each its own commit so
+`git bisect` stays tractable:
+
+1. `shared/atomic_write.py::atomic_write_text` (temp file + fsync +
+   `Path.replace()`), routed through all ten direct-write call sites.
+2. `external_id` added to `ResearchEvidenceDraft`/`Evidence`; a
+   `_check_grounding` hook added to `AIEngineeringService.generate()`,
+   implemented by `ResearchAIEngineeringService` to reject evidence that
+   doesn't match a retrieved paper's `external_id`, and to reject
+   fabricated evidence when retrieval found none.
+3. Null-safe OpenAlex author parsing; try/except around the arXiv year
+   parse; `_search_all_sources` now wraps every source call defensively
+   and runs all three concurrently via a thread pool; `_dedupe` now
+   interleaves candidates round-robin across sources before capping;
+   arXiv queries are sanitized against operator injection; all three
+   sources rate-limit consecutive requests and report call failures for
+   outage detection.
+4. `memory/fs_repository.py.save()` now wraps `ProjectNotFoundException`;
+   `FilesystemProposalRepository.get_by_id` wraps parse errors as
+   `InvalidProposalException`; `FilesystemConversationRepository.get_by_id`
+   logs corruption instead of silently swallowing it; `PlanningSummaryService
+   .freeze_snapshot` now requires `REVIEW` status, with
+   `PlanningProposalTransformer` updated to call `submit_for_review` first.
+5. `ProjectRepository.delete()` added (metadata-only, not the directory
+   tree); `create_project` now rolls back on workflow-init failure;
+   `KnowledgeCapability.list_candidates`/`.show_candidate` now translate
+   `KnowledgeException`; `SummaryPromptTemplate` registered against a new
+   `SummaryDraft` model.
+6. `gemini.py` flattens `$defs`/`$ref` before sending a schema; `ollama.py`
+   forwards the actual schema as `format`; `anthropic.py` selects the
+   first content block that actually carries a `text` field.
+7. `presentation export`'s write wrapped in try/except; `_parse_flags`
+   supports `--flag=value`, rejects a missing value instead of consuming
+   the next flag, and rejects a repeated flag instead of silently
+   overwriting; `RendererRegistry`'s bare `ValueError` translated to
+   `ApplicationError` at the capability boundary.
+
+### Audit
+
+Each batch was verified independently before moving to the next: targeted
+new tests were added for the specific defect (e.g. an OpenAlex response
+with `author: null`, a proposal draft whose evidence doesn't match
+retrieval, a repeated `--name` flag), the affected test suite was run,
+then the full suite, `mypy`, and `ruff` were run clean before committing.
+
+### Stabilization
+
+New/extended test coverage per batch: `tests/test_shared_atomic_write.py`
+(new); `tests/ai/test_engineering_services.py` (grounding rejection cases);
+`tests/research/test_sources.py` and `test_retrieval.py` (null-author,
+malformed-date, source-fairness, rate-limit, and outage cases);
+`tests/memory/test_repository.py`, `tests/ai/test_repository.py`,
+`tests/planning/test_services.py`; `tests/test_atlas/test_project_capability.py`
+(new), `tests/test_atlas/test_knowledge_capability.py`,
+`tests/ai/test_prompt_management.py`; `tests/ai/test_adapters.py` and
+`test_protocol_runtime.py`; `tests/test_clients/cli/test_parser.py` and
+`test_presentation_rc003.py`, `tests/presentation/test_facade_integration.py`.
+
+### Affected Files
+
+```
+shared/atomic_write.py (new)
+engine/{workflow,project,evaluation,architecture,planning,memory,knowledge,research,ai}/fs_repository.py
+engine/domain/ai_drafts.py
+engine/domain/research.py
+engine/ai/engineering_services.py
+engine/research/retrieval.py
+engine/research/services.py
+engine/research/sources/{arxiv,openalex,semantic_scholar,base}.py
+engine/planning/services.py
+engine/prompt/loader.py
+engine/prompt/templates.py
+engine/project/repository.py
+engine/project/fs_repository.py
+engine/ai/adapters/{gemini,ollama,anthropic}.py
+atlas/capabilities/{project_capability,knowledge_capability,presentation_capability}.py
+clients/cli/application.py
+clients/cli/parser.py
+CHANGELOG.md
+PROGRESS.md
+docs/architecture/persistence.md
+docs/architecture/multi-protocol-ai-runtime.md
+docs/decisions/adr-005-grounded-research-and-repo-native-review.md
+docs/usage/cli.md
+(plus corresponding test files per batch, listed under Stabilization above)
+```
+
+### Verification
+
+- `pytest`: full suite green after every batch and again at the end.
+- `mypy` (per `pyproject.toml`): 0 errors across all touched files and a
+  full-repo sweep.
+- `ruff check .`: all checks passed.
+- No existing test was weakened, skipped, or deleted to make any of the
+  above pass.
+
 ## Release Candidate Stabilization -- Final Summary
 
 ### Implementation Summary
 
-All 7 RC items (RC-001 through RC-007) are implemented, each in its own
+All 8 RC items (RC-001 through RC-008) are implemented, each in its own
 commit, each preserving backward compatibility, existing architecture, and
 engine boundaries per the stated engineering rules. No AI prompts,
 research/architecture/planning quality, or engine business logic were
-touched at any point -- every fix was either (a) wiring an already-working
-engine capability through to a public interface that didn't expose it yet
-(RC-001, RC-002, RC-003), (b) a documentation/configuration accuracy fix
-with a regression test guarding against recurrence (RC-004, RC-005), or
-(c) an error-message/UX-polish fix with the same guarantee (RC-006, RC-007).
+touched at any point beyond what RC-008 itself required to close a
+verified correctness gap -- every fix was either (a) wiring an
+already-working engine capability through to a public interface that
+didn't expose it yet (RC-001, RC-002, RC-003), (b) a documentation/
+configuration accuracy fix with a regression test guarding against
+recurrence (RC-004, RC-005), (c) an error-message/UX-polish fix with the
+same guarantee (RC-006, RC-007), or (d) a correctness/hardening fix found
+by systematic audit rather than a reported symptom, each with its own
+regression test (RC-008).
 
 ### Audit Summary
 
@@ -748,12 +909,15 @@ latent bugs were caught purely by this audit discipline that were not in
 the original RC-00X problem statements: the `clients/` -> `engine` import
 boundary violation (found while implementing RC-002) and the
 `ProposalStatus` SDK-mirror drift (found while implementing RC-007).
+RC-008 itself is the largest instance of this pattern -- a
+dedicated audit pass (not a user report) that found the research-grounding
+enforcement gap, among 26 other issues.
 
 ### Test Results
 
-- `pytest`: full suite green as of the RC-007 commit (see each RC section
+- `pytest`: full suite green as of the RC-008 commits (see each RC section
   above for exact new/updated test files).
-- `mypy .` (strict mode, per `pyproject.toml`): 0 errors, 271 source files.
+- `mypy .` (per `pyproject.toml`): 0 errors, all source files.
 - `ruff check .`: all checks passed.
 - No existing test was weakened, skipped, or deleted to make any of the
   above pass.
@@ -765,7 +929,7 @@ boundary violation (found while implementing RC-002) and the
   `Settings`'s public shape and needs a deliberate decision, not a
   documentation-scoped fix. See the RC-004 section above.
 - `clients/mcp`, `clients/rest`, `clients/ide` were not audited as part of
-  Phase 17 -- RC-001 through RC-007 only ever touched the CLI adapter and
+  Phase 17 -- RC-001 through RC-008 only ever touched the CLI adapter and
   the underlying `Atlas` SDK/engine layers they all share. Commands routed
   through the generic `Atlas.handle()` envelope (everything added in
   RC-001/RC-002) are automatically available to those adapters; the
@@ -788,5 +952,7 @@ boundary violation (found while implementing RC-002) and the
   is not this report's call to make unilaterally.
 
 Do not treat ATLAS as release-ready on the basis of this report alone --
-only RC-001 through RC-006 have been verified. See `PROGRESS.md` for
-current sequencing.
+this report documents that RC-001 through RC-008 have each been verified
+individually; it is not itself a release sign-off. See `PROGRESS.md` for
+current sequencing and the two open release-checklist items left to the
+user.

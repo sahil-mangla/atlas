@@ -77,6 +77,18 @@ Since local filesystems do not support standard ACID database transactions, ATLA
 ### 3. Published Knowledge Immutability Invariant
 To preserve absolute traceability and engineering integrity, published knowledge content (title, content, category, tags) is strictly immutable once written. The `KnowledgeRepository` enforces this persistence invariant at the serialization boundary. Any attempt to modify the contents of an existing published entry raises a `ValueError`. Changes must be made by publishing a new version that formally supersedes the previous entry via version and backlink pointers.
 
+### 4. Crash-Safe Atomic Writes
+Writing a JSON/Markdown artifact directly to its target path (`path.open("w")`) is not crash-safe: a process kill, power loss, or full disk mid-write leaves a truncated file. Every subsequent read then fails with the aggregate's "invalid/corrupt" exception (e.g. `InvalidArchitectureException`), and there is no way to recover the prior state -- the same class of failure the compensating rollback above exists to prevent for multi-file commits, but which non-atomic single-file writes remained exposed to.
+
+`shared/atomic_write.py::atomic_write_text(path, content)` closes this gap and is used by every `save()` across all nine filesystem repositories (`workflow`, `project`, `evaluation`, `architecture`, `planning`, `memory`, `knowledge`, `research`, `ai` -- both the conversation JSON and the proposal JSON/Markdown writes):
+
+1. Write `content` to a temp file in the *same directory* as the target (same filesystem, so the final swap is atomic; the `.{name}.<random>.tmp` prefix keeps it out of any glob that only matches the real filename).
+2. `flush()` and `os.fsync()` the temp file's contents to disk.
+3. `Path.replace()` the temp file onto the target path -- atomic on POSIX and Windows; there is no window where the target is partially written.
+4. On any failure before the swap, the temp file is removed and the original target (if any) is left completely untouched.
+
+This is orthogonal to the `ProposalCommitUnitOfWork` rollback above: the unit of work protects against a *logically* failed multi-aggregate commit (roll back to the last known-good state across several files); `atomic_write_text` protects each individual file write against being *physically* interrupted mid-write, regardless of why.
+
 ---
 
 ## Future Extensions
