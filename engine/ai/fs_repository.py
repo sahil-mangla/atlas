@@ -22,6 +22,7 @@ from engine.domain.conversation import ConversationSession
 from engine.domain.enums import ProposalType
 from engine.project.exceptions import ProjectNotFoundException
 from engine.project.repository import ProjectRepository
+from shared.atomic_write import atomic_write_text
 
 
 class FilesystemConversationRepository(ConversationRepository):
@@ -57,8 +58,7 @@ class FilesystemConversationRepository(ConversationRepository):
             conv_dir.mkdir(parents=True, exist_ok=True)
             session_file = conv_dir / f"{session.id}.json"
             data = serialize_conversation(session)
-            with session_file.open("w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2)
+            atomic_write_text(session_file, json.dumps(data, indent=2))
         except OSError as e:
             raise InvalidConversationException(
                 f"Failed to write conversation: {e}"
@@ -148,14 +148,14 @@ class FilesystemProposalRepository(ProposalRepository):
             "project_id": str(project_id),
             "proposal": proposal.model_dump(mode="json"),
         }
-        (directory / f"{proposal.id}.json").write_text(
-            json.dumps(payload, indent=2), encoding="utf-8"
+        atomic_write_text(
+            directory / f"{proposal.id}.json", json.dumps(payload, indent=2)
         )
 
         pending_dir = self._pending_review_dir(project_id)
         pending_dir.mkdir(parents=True, exist_ok=True)
-        (pending_dir / f"{proposal.id}.md").write_text(
-            render_proposal_markdown(proposal), encoding="utf-8"
+        atomic_write_text(
+            pending_dir / f"{proposal.id}.md", render_proposal_markdown(proposal)
         )
 
     def get_by_id(self, proposal_id: UUID) -> tuple[UUID, AIProposal[Any]] | None:

@@ -12,6 +12,7 @@ from engine.knowledge.serializers import (
     serialize_knowledge_document,
 )
 from engine.project.repository import ProjectRepository
+from shared.atomic_write import atomic_write_text
 
 
 class FilesystemKnowledgeRepository(KnowledgeRepository):
@@ -39,9 +40,8 @@ class FilesystemKnowledgeRepository(KnowledgeRepository):
         path = self._path(document.project_id)
         try:
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(
-                json.dumps(serialize_knowledge_document(document), indent=2),
-                encoding="utf-8",
+            atomic_write_text(
+                path, json.dumps(serialize_knowledge_document(document), indent=2)
             )
         except OSError as exc:
             raise InvalidKnowledgeException(

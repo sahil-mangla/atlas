@@ -21,6 +21,7 @@ from engine.planning.repository import PlanningRepository
 from engine.planning.serializers import deserialize_planning, serialize_planning
 from engine.project.exceptions import ProjectNotFoundException
 from engine.project.repository import ProjectRepository
+from shared.atomic_write import atomic_write_text
 
 
 class FilesystemPlanningRepository(PlanningRepository):
@@ -69,8 +70,7 @@ class FilesystemPlanningRepository(PlanningRepository):
         try:
             planning_file.parent.mkdir(parents=True, exist_ok=True)
             data = serialize_planning(planning)
-            with planning_file.open("w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2)
+            atomic_write_text(planning_file, json.dumps(data, indent=2))
         except OSError as e:
             raise InvalidPlanningException(
                 f"Failed to write planning data to {planning_file}: {e}"

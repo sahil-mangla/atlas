@@ -14,6 +14,7 @@ from engine.project.exceptions import (
     ProjectNotFoundException,
 )
 from engine.project.repository import ProjectRepository
+from shared.atomic_write import atomic_write_text
 
 
 class FilesystemProjectRepository(ProjectRepository):
@@ -91,8 +92,7 @@ class FilesystemProjectRepository(ProjectRepository):
         try:
             file_path.parent.mkdir(parents=True, exist_ok=True)
             data = project.model_dump(mode="json")
-            with file_path.open("w", encoding="utf-8") as f:
-                json.dump(data, f, indent=4)
+            atomic_write_text(file_path, json.dumps(data, indent=4))
         except OSError as e:
             raise InvalidProjectException(
                 f"Failed to write project metadata to {file_path}: {e}"

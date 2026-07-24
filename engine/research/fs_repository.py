@@ -21,6 +21,7 @@ from engine.research.exceptions import (
 )
 from engine.research.repository import ResearchRepository
 from engine.research.serializers import deserialize_research, serialize_research
+from shared.atomic_write import atomic_write_text
 
 
 class FilesystemResearchRepository(ResearchRepository):
@@ -69,8 +70,7 @@ class FilesystemResearchRepository(ResearchRepository):
         try:
             research_file.parent.mkdir(parents=True, exist_ok=True)
             data = serialize_research(research)
-            with research_file.open("w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2)
+            atomic_write_text(research_file, json.dumps(data, indent=2))
         except OSError as e:
             raise InvalidResearchException(
                 f"Failed to write research data to {research_file}: {e}"

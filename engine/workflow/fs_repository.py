@@ -12,6 +12,7 @@ from engine.workflow.exceptions import (
 )
 from engine.workflow.repository import WorkflowRepository
 from engine.workflow.serializers import deserialize_workflow, serialize_workflow
+from shared.atomic_write import atomic_write_text
 
 
 class FilesystemWorkflowRepository(WorkflowRepository):
@@ -38,8 +39,7 @@ class FilesystemWorkflowRepository(WorkflowRepository):
         try:
             atlas_dir.mkdir(parents=True, exist_ok=True)
             data = serialize_workflow(workflow)
-            with workflow_file.open("w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2)
+            atomic_write_text(workflow_file, json.dumps(data, indent=2))
         except OSError as e:
             raise InvalidTransitionException(
                 f"Failed to write workflow data to {workflow_file}: {e}"

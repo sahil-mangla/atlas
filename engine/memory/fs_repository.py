@@ -9,6 +9,7 @@ from engine.memory.repository import MemoryRepository
 from engine.memory.serializers import deserialize_memory, serialize_memory
 from engine.project.exceptions import ProjectNotFoundException
 from engine.project.repository import ProjectRepository
+from shared.atomic_write import atomic_write_text
 
 
 class FilesystemMemoryRepository(MemoryRepository):
@@ -30,8 +31,7 @@ class FilesystemMemoryRepository(MemoryRepository):
         try:
             atlas_dir.mkdir(parents=True, exist_ok=True)
             data = serialize_memory(memory)
-            with memory_file.open("w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2)
+            atomic_write_text(memory_file, json.dumps(data, indent=2))
         except OSError as e:
             raise InvalidMemoryException(
                 f"Failed to write memory data to {memory_file}: {e}"
