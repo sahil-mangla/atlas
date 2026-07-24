@@ -39,6 +39,15 @@ class ResearchEvidenceDraft(BaseModel):
     )
     citation: str = Field(default="AI Generated", description="Source citation.")
     summary: str = Field(description="Summary of the evidence.")
+    external_id: str = Field(
+        default="",
+        description=(
+            "Source-specific identifier (arXiv ID, DOI, OpenAlex ID) of the "
+            "retrieved paper this evidence is grounded in. Used to verify "
+            "generated proposals reference real, retrieved evidence rather "
+            "than fabricating or altering it."
+        ),
+    )
 
 
 class ResearchFindingDraft(BaseModel):

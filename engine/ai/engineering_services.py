@@ -26,6 +26,7 @@ from engine.domain.ai_drafts import (
     CommitResult,
     EvaluationProposalDraft,
     PlanningProposalDraft,
+    ResearchEvidenceDraft,
     ResearchProposalDraft,
 )
 from engine.domain.enums import ProposalStatus, ProposalType
@@ -74,6 +75,14 @@ class ResearchProposalValidator(ProposalValidator[ResearchProposalDraft]):
             raise InvalidProposalException("Problem statement cannot be empty.")
         if not draft.objectives:
             raise InvalidProposalException("Research objectives list cannot be empty.")
+        if any(
+            not value.strip()
+            for evidence in draft.evidence
+            for value in (evidence.title, evidence.citation)
+        ):
+            raise InvalidProposalException(
+                "Evidence entries require a title and citation."
+            )
         evidence_count = len(draft.evidence)
         for finding in draft.findings:
             if not finding.evidence_indices:
@@ -232,6 +241,7 @@ class ResearchProposalTransformer(ProposalTransformer[ResearchProposalDraft]):
                 origin=ev.origin,
                 citation=ev.citation,
                 summary=ev.summary,
+                external_id=ev.external_id,
             )
             evidence_ids.append(evidence.id)
 
@@ -596,6 +606,14 @@ class AIEngineeringService[T: BaseModel](ABC):  # noqa: B024
         """
         return context
 
+    def _check_grounding(self, _project_id: UUID, _draft: T) -> None:  # noqa: B027
+        """Hook for subclasses to verify the draft against material gathered
+        during ``_augment_context``, run after schema/domain validation.
+
+        Default is a no-op; ``ResearchAIEngineeringService`` overrides this
+        to reject drafts whose evidence doesn't match what was retrieved.
+        """
+
     def generate(
         self,
         project_id: UUID,
@@ -617,6 +635,7 @@ class AIEngineeringService[T: BaseModel](ABC):  # noqa: B024
         )
         if self.validator is not None:
             self.validator.validate(typed_draft)
+        self._check_grounding(project_id, typed_draft)
         return AIProposal[T](
             proposal_type=template.metadata.supported_subsystem,
             status=ProposalStatus.DRAFT,
@@ -641,6 +660,11 @@ class ResearchAIEngineeringService(AIEngineeringService[ResearchProposalDraft]):
             validator=validator,
         )
         self.retrieval_service = retrieval_service
+        # Set by _augment_context and read by _check_grounding within the same
+        # generate() call. Not safe for concurrent generate() calls on the
+        # same instance -- this codebase's AI generation path is synchronous
+        # and single-threaded per invocation, so that's not a live concern.
+        self._last_retrieved_evidence: list[ResearchEvidenceDraft] | None = None
 
     def _augment_context(
         self, project_id: UUID, context: ContextPayload
@@ -652,9 +676,11 @@ class ResearchAIEngineeringService(AIEngineeringService[ResearchProposalDraft]):
         exactly how citations end up fabricated. See ADR-005.
         """
         if self.retrieval_service is None:
+            self._last_retrieved_evidence = None
             return context
 
         evidence = self.retrieval_service.retrieve_evidence(project_id)
+        self._last_retrieved_evidence = evidence
         if not evidence:
             return context
 
@@ -664,9 +690,44 @@ class ResearchAIEngineeringService(AIEngineeringService[ResearchProposalDraft]):
         augmented_context = (
             f"{context.serialized_context}\n\n"
             "GROUNDED EVIDENCE (reproduce exactly in your `evidence` array, "
-            f"do not alter):\n{evidence_json}"
+            f"including `external_id`, do not alter):\n{evidence_json}"
         )
         return context.model_copy(update={"serialized_context": augmented_context})
+
+    def _check_grounding(
+        self, _project_id: UUID, draft: ResearchProposalDraft
+    ) -> None:
+        """Reject drafts whose evidence doesn't match what was retrieved.
+
+        ``_augment_context`` only *asks* the LLM to reproduce grounded
+        evidence verbatim -- nothing enforced that request. This closes that
+        gap: a proposal is rejected outright if it drops, edits, or
+        fabricates evidence relative to what was actually retrieved from
+        real paper sources. See ADR-005.
+        """
+        retrieved = self._last_retrieved_evidence
+        if retrieved is None:
+            # No retrieval service configured for this instance; nothing to
+            # enforce (e.g. tests exercising generation in isolation).
+            return
+
+        if not retrieved:
+            if draft.evidence:
+                raise InvalidProposalException(
+                    "No evidence was retrieved from real paper sources for "
+                    "this project, but the generated proposal includes "
+                    "evidence entries. Refusing to commit fabricated evidence."
+                )
+            return
+
+        retrieved_ids = {item.external_id for item in retrieved if item.external_id}
+        for item in draft.evidence:
+            if item.external_id not in retrieved_ids:
+                raise InvalidProposalException(
+                    f"Evidence entry '{item.title}' does not match any "
+                    "retrieved paper. Refusing to commit fabricated or "
+                    "altered evidence."
+                )
 
 
 class PlanningAIEngineeringService(AIEngineeringService[PlanningProposalDraft]):

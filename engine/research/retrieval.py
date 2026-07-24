@@ -143,6 +143,7 @@ class ResearchRetrievalService:
                 origin=f"{candidate.source}: {candidate.url}",
                 citation=_format_citation(candidate),
                 summary=summary,
+                external_id=candidate.external_id,
             )
             for candidate, summary in zip(candidates, summaries, strict=True)
         ]

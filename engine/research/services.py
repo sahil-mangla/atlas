@@ -86,6 +86,7 @@ class ResearchCaptureService:
         confidence: float = 1.0,
         tags: list[str] | None = None,
         notes: str = "",
+        external_id: str = "",
     ) -> Evidence:
         """Add a piece of collected evidence."""
         research = self.repository.get_by_project_id(project_id)
@@ -102,6 +103,7 @@ class ResearchCaptureService:
             confidence=confidence,
             tags=tags or [],
             notes=notes,
+            external_id=external_id,
         )
         research.evidence.append(evidence)
         research.status = ResearchStatus.IN_PROGRESS

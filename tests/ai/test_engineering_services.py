@@ -251,6 +251,156 @@ def test_research_ai_service_rejects_opportunity_with_no_findings_at_generation_
         service.generate(uuid4())
 
 
+def test_research_ai_service_rejects_evidence_not_in_retrieved_set(
+    assembler: ContextAssemblerService,
+) -> None:
+    """A generated evidence entry whose external_id doesn't match any
+    retrieved paper is fabricated or altered and must be rejected."""
+    retrieved = [
+        ResearchEvidenceDraft(
+            title="Real Paper",
+            type="paper",
+            origin="arxiv: https://arxiv.org/abs/1234.5678",
+            citation="A. Author (2023). Real Paper. https://arxiv.org/abs/1234.5678",
+            summary="A real, retrieved summary.",
+            external_id="arxiv:1234.5678",
+        )
+    ]
+    draft_data = ResearchProposalDraft(
+        problem_statement="Build atomic engine",
+        objectives=["Speed"],
+        evidence=[
+            ResearchEvidenceDraft(
+                title="Fabricated Paper",
+                citation="Made up citation",
+                summary="Hallucinated.",
+                external_id="does-not-exist",
+            )
+        ],
+    )
+    registry = PromptLoader.load_registry()
+    executor = PromptExecutor(
+        MockAIProvider(draft_data.model_dump_json()), IdentityContextStrategy()
+    )
+    orchestrator = AIOrchestrationService(executor, registry)
+    service = ResearchAIEngineeringService(
+        orchestrator,
+        assembler,
+        ResearchProposalValidator(),
+        retrieval_service=FakeRetrievalService(retrieved),
+    )
+
+    with pytest.raises(InvalidProposalException, match="does not match any retrieved"):
+        service.generate(uuid4())
+
+
+def test_research_ai_service_rejects_evidence_when_none_was_retrieved(
+    assembler: ContextAssemblerService,
+) -> None:
+    """If retrieval found no real papers, a proposal with evidence entries
+    anyway must be treated as fabricated, not silently accepted."""
+    draft_data = ResearchProposalDraft(
+        problem_statement="Build atomic engine",
+        objectives=["Speed"],
+        evidence=[
+            ResearchEvidenceDraft(
+                title="Invented Paper",
+                citation="Invented citation",
+                summary="Hallucinated despite no retrieval results.",
+            )
+        ],
+    )
+    registry = PromptLoader.load_registry()
+    executor = PromptExecutor(
+        MockAIProvider(draft_data.model_dump_json()), IdentityContextStrategy()
+    )
+    orchestrator = AIOrchestrationService(executor, registry)
+    service = ResearchAIEngineeringService(
+        orchestrator,
+        assembler,
+        ResearchProposalValidator(),
+        retrieval_service=FakeRetrievalService([]),
+    )
+
+    with pytest.raises(InvalidProposalException, match="No evidence was retrieved"):
+        service.generate(uuid4())
+
+
+def test_research_ai_service_accepts_faithfully_reproduced_evidence(
+    assembler: ContextAssemblerService,
+) -> None:
+    """Evidence that matches retrieved external_ids exactly is accepted."""
+    retrieved = [
+        ResearchEvidenceDraft(
+            title="Real Paper",
+            type="paper",
+            origin="arxiv: https://arxiv.org/abs/1234.5678",
+            citation="A. Author (2023). Real Paper. https://arxiv.org/abs/1234.5678",
+            summary="A real, retrieved summary.",
+            external_id="arxiv:1234.5678",
+        )
+    ]
+    draft_data = ResearchProposalDraft(
+        problem_statement="Build atomic engine",
+        objectives=["Speed"],
+        evidence=retrieved,
+    )
+    registry = PromptLoader.load_registry()
+    executor = PromptExecutor(
+        MockAIProvider(draft_data.model_dump_json()), IdentityContextStrategy()
+    )
+    orchestrator = AIOrchestrationService(executor, registry)
+    service = ResearchAIEngineeringService(
+        orchestrator,
+        assembler,
+        ResearchProposalValidator(),
+        retrieval_service=FakeRetrievalService(retrieved),
+    )
+
+    proposal = service.generate(uuid4())
+
+    assert proposal.data.evidence[0].external_id == "arxiv:1234.5678"
+
+
+def test_research_ai_service_no_grounding_check_without_retrieval_service(
+    assembler: ContextAssemblerService,
+) -> None:
+    """Without a retrieval service configured, no grounding claim is made,
+    so arbitrary evidence in the draft is not rejected on that basis."""
+    draft_data = ResearchProposalDraft(
+        problem_statement="Build atomic engine",
+        objectives=["Speed"],
+        evidence=[
+            ResearchEvidenceDraft(
+                title="Some evidence", citation="AI Generated", summary="..."
+            )
+        ],
+    )
+    registry = PromptLoader.load_registry()
+    executor = PromptExecutor(
+        MockAIProvider(draft_data.model_dump_json()), IdentityContextStrategy()
+    )
+    orchestrator = AIOrchestrationService(executor, registry)
+    service = ResearchAIEngineeringService(
+        orchestrator, assembler, ResearchProposalValidator()
+    )
+
+    proposal = service.generate(uuid4())
+
+    assert proposal.data.evidence[0].title == "Some evidence"
+
+
+def test_research_validator_rejects_evidence_missing_title_or_citation() -> None:
+    draft = ResearchProposalDraft(
+        problem_statement="Problem",
+        objectives=["Objective"],
+        evidence=[ResearchEvidenceDraft(title="  ", citation="Cite", summary="...")],
+    )
+
+    with pytest.raises(InvalidProposalException, match="title and citation"):
+        ResearchProposalValidator().validate(draft)
+
+
 def test_planning_ai_service(assembler: ContextAssemblerService) -> None:
     draft_data = PlanningProposalDraft(
         scope_statement="Build Scope",

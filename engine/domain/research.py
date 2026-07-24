@@ -44,6 +44,13 @@ class Evidence(BaseModel):
     origin: str = Field(description="Origin context of this evidence.")
     citation: str = Field(description="Formal citation or reference string.")
     summary: str = Field(description="Summary of the gathered information.")
+    external_id: str = Field(
+        default="",
+        description=(
+            "Source-specific identifier (arXiv ID, DOI, OpenAlex ID) of the "
+            "retrieved paper this evidence is grounded in, if any."
+        ),
+    )
     confidence: float = Field(default=1.0, description="Confidence in this evidence.")
     tags: list[str] = Field(default_factory=list, description="Categorization tags.")
     notes: str = Field(default="", description="Optional context or notes.")
