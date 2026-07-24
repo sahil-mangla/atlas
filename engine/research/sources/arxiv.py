@@ -14,7 +14,7 @@ from engine.research.sources.models import PaperCandidate
 logger = logging.getLogger(__name__)
 
 _ATOM_NS = "{http://www.w3.org/2005/Atom}"
-_BASE_URL = "http://export.arxiv.org/api/query"
+_BASE_URL = "https://export.arxiv.org/api/query"
 # arXiv's API usage policy requires at least 3 seconds between requests:
 # https://info.arxiv.org/help/api/user-manual.html#play-nice
 _MIN_INTERVAL_SECONDS = 3.0
@@ -41,7 +41,9 @@ class ArxivSource:
     def __init__(
         self, client: httpx.Client | None = None, timeout_seconds: int = 15
     ) -> None:
-        self._client = client or httpx.Client(timeout=timeout_seconds)
+        self._client = client or httpx.Client(
+            timeout=timeout_seconds, follow_redirects=True
+        )
         self._rate_limiter = RateLimiter(_MIN_INTERVAL_SECONDS)
         self.last_call_failed = False
 

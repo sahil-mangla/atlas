@@ -99,6 +99,34 @@ def test_arxiv_source_sanitizes_query_operators() -> None:
     assert "AND" not in sanitized_terms
 
 
+def test_arxiv_source_requests_https_base_url() -> None:
+    """arXiv's export host 301-redirects http -> https; the base URL must
+    be https directly so every call doesn't depend on redirect-following."""
+    captured: dict[str, str] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["scheme"] = request.url.scheme
+        captured["host"] = request.url.host
+        return httpx.Response(200, text=_ARXIV_ATOM_RESPONSE)
+
+    transport = httpx.MockTransport(handler)
+    source = ArxivSource(client=_client_for(transport))
+
+    source.search("distributed systems", max_results=5)
+
+    assert captured["scheme"] == "https"
+    assert captured["host"] == "export.arxiv.org"
+
+
+def test_arxiv_source_default_client_follows_redirects() -> None:
+    """Defensive against arXiv adding another redirect hop in the future --
+    a client that doesn't follow redirects makes every arXiv search fail
+    silently, since export.arxiv.org 301-redirects http to https."""
+    source = ArxivSource()
+
+    assert source._client.follow_redirects is True
+
+
 def test_semantic_scholar_source_parses_response() -> None:
     payload = {
         "data": [
