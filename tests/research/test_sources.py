@@ -1,7 +1,9 @@
 import time
 
 import httpx
+import pytest
 
+import engine.research.sources.semantic_scholar as semantic_scholar_module
 from engine.research.sources.arxiv import ArxivSource
 from engine.research.sources.base import RateLimiter
 from engine.research.sources.openalex import OpenAlexSource, _reconstruct_abstract
@@ -164,12 +166,75 @@ def test_semantic_scholar_source_returns_empty_on_http_error() -> None:
     assert source.last_call_failed is True
 
 
-def test_semantic_scholar_source_returns_empty_on_rate_limit() -> None:
+def test_semantic_scholar_source_returns_empty_on_rate_limit(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(semantic_scholar_module.time, "sleep", lambda _seconds: None)
     transport = httpx.MockTransport(lambda _request: httpx.Response(429))
     source = SemanticScholarSource(client=_client_for(transport))
 
     assert source.search("anything", max_results=5) == []
     assert source.last_call_failed is True
+
+
+def test_semantic_scholar_source_retries_after_rate_limit_then_succeeds(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A transient 429 (often shared across an entire egress IP, not caused
+    by this caller) must be retried rather than treated as a hard failure."""
+    monkeypatch.setattr(semantic_scholar_module.time, "sleep", lambda _seconds: None)
+    responses = iter(
+        [
+            httpx.Response(429),
+            httpx.Response(200, json={"data": []}),
+        ]
+    )
+
+    def handler(_request: httpx.Request) -> httpx.Response:
+        return next(responses)
+
+    transport = httpx.MockTransport(handler)
+    source = SemanticScholarSource(client=_client_for(transport))
+
+    results = source.search("anything", max_results=5)
+
+    assert results == []
+    assert source.last_call_failed is False
+
+
+def test_semantic_scholar_source_gives_up_after_max_retries(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(semantic_scholar_module.time, "sleep", lambda _seconds: None)
+    call_count = 0
+
+    def handler(_request: httpx.Request) -> httpx.Response:
+        nonlocal call_count
+        call_count += 1
+        return httpx.Response(429)
+
+    transport = httpx.MockTransport(handler)
+    source = SemanticScholarSource(client=_client_for(transport))
+
+    assert source.search("anything", max_results=5) == []
+    assert source.last_call_failed is True
+    assert call_count == 3  # initial attempt + 2 retries
+
+
+def test_semantic_scholar_retry_delay_prefers_retry_after_header() -> None:
+    response = httpx.Response(429, headers={"Retry-After": "5"})
+    assert semantic_scholar_module._retry_delay_seconds(response, attempt=0) == 5.0
+
+
+def test_semantic_scholar_retry_delay_caps_retry_after_header() -> None:
+    response = httpx.Response(429, headers={"Retry-After": "9999"})
+    assert semantic_scholar_module._retry_delay_seconds(response, attempt=0) == 30.0
+
+
+def test_semantic_scholar_retry_delay_falls_back_to_backoff() -> None:
+    response = httpx.Response(429)
+    assert semantic_scholar_module._retry_delay_seconds(response, attempt=0) == 2.0
+    assert semantic_scholar_module._retry_delay_seconds(response, attempt=1) == 4.0
 
 
 def test_sources_rate_limit_consecutive_calls() -> None:
