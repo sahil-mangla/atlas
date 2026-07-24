@@ -42,7 +42,7 @@ def _retry_delay_seconds(response: httpx.Response, attempt: int) -> float:
             return min(float(retry_after), _MAX_RETRY_AFTER_SECONDS)
         except ValueError:
             pass
-    return _RETRY_BACKOFF_SECONDS * (2**attempt)
+    return float(_RETRY_BACKOFF_SECONDS * (2**attempt))
 
 
 class SemanticScholarSource:
@@ -92,7 +92,11 @@ class SemanticScholarSource:
         shared across an entire egress IP -- so a short wait-and-retry can
         recover a transient throttle instead of returning empty evidence.
         """
-        params = {"query": query, "limit": max_results, "fields": _FIELDS}
+        params: dict[str, str | int] = {
+            "query": query,
+            "limit": max_results,
+            "fields": _FIELDS,
+        }
         response = self._client.get(_BASE_URL, params=params)
         for attempt in range(_MAX_RETRIES):
             if response.status_code != httpx.codes.TOO_MANY_REQUESTS:

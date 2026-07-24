@@ -169,7 +169,9 @@ def test_semantic_scholar_source_returns_empty_on_http_error() -> None:
 def test_semantic_scholar_source_returns_empty_on_rate_limit(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setattr(semantic_scholar_module.time, "sleep", lambda _seconds: None)
+    monkeypatch.setattr(
+        "engine.research.sources.semantic_scholar.time.sleep", lambda _seconds: None
+    )
     transport = httpx.MockTransport(lambda _request: httpx.Response(429))
     source = SemanticScholarSource(client=_client_for(transport))
 
@@ -182,7 +184,9 @@ def test_semantic_scholar_source_retries_after_rate_limit_then_succeeds(
 ) -> None:
     """A transient 429 (often shared across an entire egress IP, not caused
     by this caller) must be retried rather than treated as a hard failure."""
-    monkeypatch.setattr(semantic_scholar_module.time, "sleep", lambda _seconds: None)
+    monkeypatch.setattr(
+        "engine.research.sources.semantic_scholar.time.sleep", lambda _seconds: None
+    )
     responses = iter(
         [
             httpx.Response(429),
@@ -205,7 +209,9 @@ def test_semantic_scholar_source_retries_after_rate_limit_then_succeeds(
 def test_semantic_scholar_source_gives_up_after_max_retries(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setattr(semantic_scholar_module.time, "sleep", lambda _seconds: None)
+    monkeypatch.setattr(
+        "engine.research.sources.semantic_scholar.time.sleep", lambda _seconds: None
+    )
     call_count = 0
 
     def handler(_request: httpx.Request) -> httpx.Response:
