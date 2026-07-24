@@ -119,9 +119,7 @@ def test_parse_project_create_missing_value_raises_clear_error() -> None:
     raise a clear 'requires a value' error, not silently swallow the next
     flag name as the value."""
     with pytest.raises(CLIParseError, match="'--name' requires a value"):
-        parse_argv(
-            ["project", "create", "--name", "--description", "Desc"]
-        )
+        parse_argv(["project", "create", "--name", "--description", "Desc"])
 
 
 def test_parse_project_create_repeated_flag_raises_clear_error() -> None:

@@ -695,9 +695,7 @@ class ResearchAIEngineeringService(AIEngineeringService[ResearchProposalDraft]):
         )
         return context.model_copy(update={"serialized_context": augmented_context})
 
-    def _check_grounding(
-        self, _project_id: UUID, draft: ResearchProposalDraft
-    ) -> None:
+    def _check_grounding(self, _project_id: UUID, draft: ResearchProposalDraft) -> None:
         """Reject drafts whose evidence doesn't match what was retrieved.
 
         ``_augment_context`` only *asks* the LLM to reproduce grounded
