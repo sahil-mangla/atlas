@@ -28,6 +28,9 @@ class FakeProjectRepo(ProjectRepository):
     def discover(self) -> list[Project]:  # pragma: no cover - unused here
         return [self._project] if self._project else []
 
+    def delete(self, project_id: UUID) -> None:  # pragma: no cover - unused here
+        pass
+
 
 class FakeSource:
     name = "fake"

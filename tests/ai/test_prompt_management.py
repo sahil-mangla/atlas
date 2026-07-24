@@ -8,6 +8,7 @@ from engine.domain.ai_drafts import (
     EvaluationProposalDraft,
     PlanningProposalDraft,
     ResearchProposalDraft,
+    SummaryDraft,
 )
 from engine.prompt.loader import PromptLoader
 from engine.prompt.templates import (
@@ -15,6 +16,7 @@ from engine.prompt.templates import (
     EvaluationPromptTemplate,
     PlanningPromptTemplate,
     ResearchPromptTemplate,
+    SummaryPromptTemplate,
 )
 
 
@@ -37,6 +39,7 @@ def test_prompt_loader_registers_the_same_template_set_deterministically() -> No
     assert type(first_registry.resolve(ResearchProposalDraft)) is type(
         second_registry.resolve(ResearchProposalDraft)
     )
+    assert isinstance(first_registry.resolve(SummaryDraft), SummaryPromptTemplate)
 
 
 def test_registered_prompt_definitions_and_metadata_are_immutable() -> None:

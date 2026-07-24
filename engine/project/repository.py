@@ -59,3 +59,18 @@ class ProjectRepository(ABC):
             ProjectNotFoundException: If the project is not tracked by this
                 repository.
         """
+
+    @abstractmethod
+    def delete(self, project_id: UUID) -> None:
+        """Remove this repository's record of the project.
+
+        Used to roll back a failed create (e.g. workflow initialization
+        failed after the project was persisted). Only removes the metadata
+        this repository owns -- never the project's directory tree, which
+        may pre-exist and hold unrelated content when the project was
+        created at a caller-supplied custom path.
+
+        Args:
+            project_id: The UUID of the project to remove. A no-op if the
+                project isn't tracked.
+        """

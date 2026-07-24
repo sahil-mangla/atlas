@@ -78,16 +78,29 @@ class ProjectCapability:
                 objective=command.objective,
                 path=Path(command.path) if command.path else None,
             )
-            self._workflow_initialization_service.initialize_workflow(project.id)
-            return ProjectResult(
-                id=project.id,
-                name=project.name,
-                description=project.description,
-                objective=project.objective,
-                status=ProjectStatus(project.status.value),
-            )
         except ProjectException as e:
             raise self._map_project_exception(e) from e
+
+        try:
+            self._workflow_initialization_service.initialize_workflow(project.id)
+        except Exception as e:
+            # The project record was already persisted; without this rollback
+            # it would be stuck permanently -- listed, but with no workflow,
+            # so every subsequent operation on it fails, and re-creating it
+            # under the same name would hit ProjectAlreadyExistsError.
+            self._project_creation_service.repository.delete(project.id)
+            raise ApplicationError(
+                "Project creation failed while initializing its workflow; "
+                f"the partially created project has been rolled back. Error: {e}"
+            ) from e
+
+        return ProjectResult(
+            id=project.id,
+            name=project.name,
+            description=project.description,
+            objective=project.objective,
+            status=ProjectStatus(project.status.value),
+        )
 
     def load_project(self, command: LoadProjectCommand) -> ProjectResult:
         """Load an existing project by ID."""

@@ -205,3 +205,21 @@ class FilesystemProjectRepository(ProjectRepository):
                 f"Project with ID {project_id} is not tracked by the repository."
             )
         return path
+
+    def delete(self, project_id: UUID) -> None:
+        """Remove the project's metadata file and deregister its path.
+
+        Only removes ``project.json`` -- not the project's directory tree,
+        which may pre-exist at a caller-supplied custom path and hold
+        unrelated content.
+        """
+        path = self._project_paths.pop(project_id, None)
+        if path is None:
+            return
+        metadata_file = path / ".atlas" / "project.json"
+        try:
+            metadata_file.unlink(missing_ok=True)
+        except OSError as e:
+            raise InvalidProjectException(
+                f"Failed to remove project metadata at {metadata_file}: {e}"
+            ) from e

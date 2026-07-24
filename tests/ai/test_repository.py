@@ -33,6 +33,9 @@ class DummyProjectRepo(ProjectRepository):
     def discover(self) -> list[Project]:
         return self.projects
 
+    def delete(self, project_id: UUID) -> None:
+        self.projects = [p for p in self.projects if p.id != project_id]
+
 
 def test_conversation_repository(tmp_path: Path) -> None:
     proj_repo = DummyProjectRepo(tmp_path)

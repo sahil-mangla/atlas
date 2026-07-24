@@ -119,9 +119,12 @@ class KnowledgeCapability:
         self, command: ListKnowledgeCandidatesCommand
     ) -> KnowledgeCandidateListResult:
         """List a project's engineering-knowledge candidates."""
-        candidates = self._knowledge_orchestration().list_candidates(
-            command.project_id, _to_engine_status(command.status)
-        )
+        try:
+            candidates = self._knowledge_orchestration().list_candidates(
+                command.project_id, _to_engine_status(command.status)
+            )
+        except KnowledgeException as exc:
+            raise self._map_knowledge_exception(exc) from exc
         return KnowledgeCandidateListResult(
             candidates=[_to_result(c) for c in candidates]
         )
@@ -130,9 +133,12 @@ class KnowledgeCapability:
         self, command: ShowKnowledgeCandidateCommand
     ) -> KnowledgeCandidateResult:
         """Show a single engineering-knowledge candidate's full detail."""
-        candidate = self._knowledge_orchestration().get_candidate(
-            command.project_id, command.candidate_id
-        )
+        try:
+            candidate = self._knowledge_orchestration().get_candidate(
+                command.project_id, command.candidate_id
+            )
+        except KnowledgeException as exc:
+            raise self._map_knowledge_exception(exc) from exc
         if not candidate:
             raise KnowledgeReviewError(
                 f"Knowledge candidate {command.candidate_id} not found."

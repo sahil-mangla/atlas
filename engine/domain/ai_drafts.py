@@ -16,6 +16,12 @@ from engine.domain.enums import (
 # ==========================================
 
 
+class SummaryDraft(BaseModel):
+    """Output of ``SummaryPromptTemplate`` -- a condensed engineering summary."""
+
+    summary: str = Field(description="Condensed summary of the given context.")
+
+
 class EvidenceSummaryBatchDraft(BaseModel):
     """Output of the evidence-summarization pass.
 

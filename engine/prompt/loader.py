@@ -9,6 +9,7 @@ from engine.domain.ai_drafts import (
     KnowledgeCandidateDraft,
     PlanningProposalDraft,
     ResearchProposalDraft,
+    SummaryDraft,
 )
 from engine.prompt.registry import PromptRegistry
 from engine.prompt.templates import (
@@ -19,6 +20,7 @@ from engine.prompt.templates import (
     PlanningPromptTemplate,
     PromptTemplate,
     ResearchPromptTemplate,
+    SummaryPromptTemplate,
 )
 
 
@@ -35,5 +37,6 @@ class PromptLoader:
             EvaluationProposalDraft: EvaluationPromptTemplate(),
             KnowledgeCandidateDraft: KnowledgeCandidatePromptTemplate(),
             EvidenceSummaryBatchDraft: EvidenceSummaryPromptTemplate(),
+            SummaryDraft: SummaryPromptTemplate(),
         }
         return PromptRegistry(templates)

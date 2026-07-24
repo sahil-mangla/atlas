@@ -11,6 +11,7 @@ from engine.domain.ai_drafts import (
     KnowledgeCandidateDraft,
     PlanningProposalDraft,
     ResearchProposalDraft,
+    SummaryDraft,
 )
 from engine.domain.enums import ProposalType
 from engine.domain.prompt_document import PromptDocument
@@ -219,7 +220,7 @@ class SummaryPromptTemplate(PromptTemplate):
 
     @property
     def expected_schema(self) -> dict[str, Any] | None:
-        return {"type": "object", "properties": {"summary": {"type": "string"}}}
+        return SummaryDraft.model_json_schema()
 
     def build(
         self, context: ContextPayload, user_instructions: str = ""
