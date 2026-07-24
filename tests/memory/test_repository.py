@@ -9,7 +9,7 @@ import pytest
 from engine.domain.enums import MemoryCategory
 from engine.domain.memory import Memory, MemoryEntry
 from engine.domain.project import Project
-from engine.memory.exceptions import InvalidMemoryException
+from engine.memory.exceptions import InvalidMemoryException, MemoryNotFoundException
 from engine.memory.fs_repository import FilesystemMemoryRepository
 from engine.project.fs_repository import FilesystemProjectRepository
 
@@ -61,6 +61,20 @@ def test_fs_memory_repository_not_found(
     # Exists should be false for a non-existent project/memory
     assert repo.exists(missing_id) is False
     assert repo.get_by_project_id(missing_id) is None
+
+
+def test_fs_memory_repository_save_unregistered_project(
+    project_repo: FilesystemProjectRepository,
+) -> None:
+    """Saving memory for a project the project repository doesn't know
+    about must raise the domain-specific MemoryNotFoundException, matching
+    the evaluation/architecture/planning repositories' identical pattern --
+    not leak the underlying ProjectNotFoundException."""
+    repo = FilesystemMemoryRepository(project_repo)
+    memory = Memory(project_id=uuid4())
+
+    with pytest.raises(MemoryNotFoundException):
+        repo.save(memory)
 
 
 def test_fs_memory_repository_corrupt_data(

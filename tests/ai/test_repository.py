@@ -1,6 +1,9 @@
 from pathlib import Path
 from uuid import UUID, uuid4
 
+import pytest
+
+from engine.ai.exceptions import InvalidProposalException
 from engine.ai.fs_repository import (
     FilesystemConversationRepository,
     FilesystemProposalRepository,
@@ -64,6 +67,26 @@ def test_conversation_repository(tmp_path: Path) -> None:
     assert sessions[0].id == session.id
 
 
+def test_conversation_repository_get_by_id_skips_corrupt_file_without_raising(
+    tmp_path: Path,
+) -> None:
+    """A truncated/corrupt conversation file (e.g. left by a crash mid-write)
+    must be treated as not-found for this session, not raise -- but the
+    corruption should be logged, not silently swallowed."""
+    proj_repo = DummyProjectRepo(tmp_path)
+    proj_id = uuid4()
+    proj_repo.projects = [
+        Project(id=proj_id, name="Test", description="Desc", objective="Obj")
+    ]
+    repo = FilesystemConversationRepository(proj_repo)
+    session_id = uuid4()
+    conv_dir = proj_repo.get_project_path(proj_id) / ".atlas" / "conversations"
+    conv_dir.mkdir(parents=True)
+    (conv_dir / f"{session_id}.json").write_text("not valid json")
+
+    assert repo.get_by_id(session_id) is None
+
+
 def test_proposal_repository_survives_recreation(tmp_path: Path) -> None:
     proj_repo = DummyProjectRepo(tmp_path)
     proj_id = uuid4()
@@ -86,6 +109,26 @@ def test_proposal_repository_survives_recreation(tmp_path: Path) -> None:
     loaded_project, loaded_proposal = loaded
     assert loaded_project == proj_id
     assert loaded_proposal.data.problem_statement == "p"
+
+
+def test_proposal_repository_get_by_id_raises_on_corrupt_record(
+    tmp_path: Path,
+) -> None:
+    """A truncated/corrupt proposal record (e.g. left by a crash mid-write)
+    must raise a clear domain exception instead of a raw JSONDecodeError or
+    KeyError escaping to the caller."""
+    proj_repo = DummyProjectRepo(tmp_path)
+    proj_id = uuid4()
+    proj_repo.projects = [
+        Project(id=proj_id, name="Test", description="Desc", objective="Obj")
+    ]
+    proposal_id = uuid4()
+    proposal_dir = proj_repo.get_project_path(proj_id) / ".atlas" / "proposals"
+    proposal_dir.mkdir(parents=True)
+    (proposal_dir / f"{proposal_id}.json").write_text("not valid json")
+
+    with pytest.raises(InvalidProposalException, match="Corrupt proposal record"):
+        FilesystemProposalRepository(proj_repo).get_by_id(proposal_id)
 
 
 def _make_research_proposal() -> AIProposal[ResearchProposalDraft]:

@@ -4,7 +4,7 @@ import json
 from uuid import UUID
 
 from engine.domain.memory import Memory
-from engine.memory.exceptions import InvalidMemoryException
+from engine.memory.exceptions import InvalidMemoryException, MemoryNotFoundException
 from engine.memory.repository import MemoryRepository
 from engine.memory.serializers import deserialize_memory, serialize_memory
 from engine.project.exceptions import ProjectNotFoundException
@@ -22,9 +22,20 @@ class FilesystemMemoryRepository(MemoryRepository):
         self.project_repo = project_repo
 
     def save(self, memory: Memory) -> None:
-        """Save the Memory aggregate to persistence."""
-        # Use project repository to resolve physical path
-        project_path = self.project_repo.get_project_path(memory.project_id)
+        """Save the Memory aggregate to persistence.
+
+        Raises:
+            MemoryNotFoundException: If the project is not registered.
+            InvalidMemoryException: If writing to disk fails.
+        """
+        try:
+            project_path = self.project_repo.get_project_path(memory.project_id)
+        except ProjectNotFoundException as e:
+            raise MemoryNotFoundException(
+                f"Project {memory.project_id} is not registered in the "
+                "project repository and cannot store memory data."
+            ) from e
+
         atlas_dir = project_path / ".atlas"
         memory_file = atlas_dir / "memory.json"
 

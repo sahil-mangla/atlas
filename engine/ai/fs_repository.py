@@ -1,13 +1,14 @@
 """Filesystem implementation of the Conversation repository."""
 
 import json
+import logging
 from pathlib import Path
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
-from engine.ai.exceptions import InvalidConversationException
+from engine.ai.exceptions import InvalidConversationException, InvalidProposalException
 from engine.ai.markdown import render_proposal_markdown
 from engine.ai.repository import ConversationRepository, ProposalRepository
 from engine.ai.serializers import deserialize_conversation, serialize_conversation
@@ -23,6 +24,8 @@ from engine.domain.enums import ProposalType
 from engine.project.exceptions import ProjectNotFoundException
 from engine.project.repository import ProjectRepository
 from shared.atomic_write import atomic_write_text
+
+logger = logging.getLogger(__name__)
 
 
 class FilesystemConversationRepository(ConversationRepository):
@@ -85,7 +88,15 @@ class FilesystemConversationRepository(ConversationRepository):
                     with session_file.open("r", encoding="utf-8") as f:
                         data = json.load(f)
                     return deserialize_conversation(data)
-            except Exception:
+            except ProjectNotFoundException:
+                continue
+            except (json.JSONDecodeError, OSError, ValidationError) as e:
+                logger.warning(
+                    "Corrupt conversation file for session %s in project %s: %s",
+                    session_id,
+                    project.id,
+                    e,
+                )
                 continue
         return None
 
@@ -163,17 +174,22 @@ class FilesystemProposalRepository(ProposalRepository):
             file_path = self._proposal_dir(project.id) / f"{proposal_id}.json"
             if not file_path.is_file():
                 continue
-            payload = json.loads(file_path.read_text(encoding="utf-8"))
-            raw = payload["proposal"]
-            draft_types: dict[ProposalType, type[BaseModel]] = {
-                ProposalType.RESEARCH: ResearchProposalDraft,
-                ProposalType.PLANNING: PlanningProposalDraft,
-                ProposalType.ARCHITECTURE: ArchitectureProposalDraft,
-                ProposalType.EVALUATION: EvaluationProposalDraft,
-            }
-            proposal_type = ProposalType(raw["proposal_type"])
-            raw["data"] = draft_types[proposal_type].model_validate(raw["data"])
-            return UUID(payload["project_id"]), AIProposal[Any].model_validate(raw)
+            try:
+                payload = json.loads(file_path.read_text(encoding="utf-8"))
+                raw = payload["proposal"]
+                draft_types: dict[ProposalType, type[BaseModel]] = {
+                    ProposalType.RESEARCH: ResearchProposalDraft,
+                    ProposalType.PLANNING: PlanningProposalDraft,
+                    ProposalType.ARCHITECTURE: ArchitectureProposalDraft,
+                    ProposalType.EVALUATION: EvaluationProposalDraft,
+                }
+                proposal_type = ProposalType(raw["proposal_type"])
+                raw["data"] = draft_types[proposal_type].model_validate(raw["data"])
+                return UUID(payload["project_id"]), AIProposal[Any].model_validate(raw)
+            except (json.JSONDecodeError, OSError, KeyError, ValueError) as e:
+                raise InvalidProposalException(
+                    f"Corrupt proposal record at {file_path}: {e}"
+                ) from e
         return None
 
     def delete(self, proposal_id: UUID) -> None:

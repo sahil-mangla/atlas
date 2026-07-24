@@ -353,6 +353,10 @@ class PlanningSummaryService:
         planning = self.repository.get_by_project_id(project_id)
         if not planning:
             raise PlanningNotFoundException()
+        if planning.status != PlanningStatus.REVIEW:
+            raise InvalidPlanningOperationException(
+                "Cannot freeze without entering REVIEW state first."
+            )
         if not planning.scope_definition:
             raise InvalidPlanningOperationException(
                 "Cannot freeze without a scope definition."

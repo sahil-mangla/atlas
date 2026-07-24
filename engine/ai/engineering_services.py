@@ -365,6 +365,7 @@ class PlanningProposalTransformer(ProposalTransformer[PlanningProposalDraft]):
                         )
 
         # Step 4: Freeze snapshot
+        self.planning_summary.submit_for_review(project_id)
         snapshot = self.planning_summary.freeze_snapshot(
             project_id=project_id,
             research_snapshot_id=research_snapshot_id,

@@ -211,3 +211,25 @@ def test_summary_service(
     assert planning is not None
     assert planning.status == PlanningStatus.APPROVED
     assert len(planning.snapshots) == 1
+
+
+def test_freeze_snapshot_rejects_draft_status(
+    repos: tuple[FilesystemPlanningRepository, FilesystemResearchRepository, UUID],
+) -> None:
+    """freeze_snapshot must require REVIEW status first, matching the
+    evaluation/architecture summary services -- not allow freezing straight
+    from DRAFT."""
+    plan_repo, res_repo, project_id = repos
+    research_snapshot_id = uuid4()
+
+    snapshot = create_snapshot(research_snapshot_id)
+    res_repo.save(Research(project_id=project_id, snapshots=[snapshot]))
+    PlanningInitializationService(plan_repo, res_repo).initialize_planning(
+        project_id, research_snapshot_id
+    )
+    ScopePlanningService(plan_repo).set_scope(project_id, "Scope", [])
+
+    sum_svc = PlanningSummaryService(plan_repo)
+
+    with pytest.raises(InvalidPlanningOperationException, match="REVIEW"):
+        sum_svc.freeze_snapshot(project_id, research_snapshot_id, "Synthesis")
