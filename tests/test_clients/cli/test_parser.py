@@ -84,6 +84,64 @@ def test_parse_project_create_missing_flags() -> None:
         parse_argv(["project", "create", "--name", "Test"])
 
 
+def test_parse_project_create_accepts_flag_equals_value_syntax() -> None:
+    cmd = parse_argv(
+        [
+            "project",
+            "create",
+            "--name=Test",
+            "--description=Desc",
+            "--objective=Obj",
+        ]
+    )
+    assert isinstance(cmd, CreateProjectCommand)
+    assert cmd.name == "Test"
+    assert cmd.description == "Desc"
+    assert cmd.objective == "Obj"
+
+
+def test_parse_project_create_flag_equals_value_preserves_embedded_equals() -> None:
+    cmd = parse_argv(
+        [
+            "project",
+            "create",
+            "--name=Test",
+            "--description=x=y",
+            "--objective=Obj",
+        ]
+    )
+    assert isinstance(cmd, CreateProjectCommand)
+    assert cmd.description == "x=y"
+
+
+def test_parse_project_create_missing_value_raises_clear_error() -> None:
+    """A flag immediately followed by another flag (value omitted) must
+    raise a clear 'requires a value' error, not silently swallow the next
+    flag name as the value."""
+    with pytest.raises(CLIParseError, match="'--name' requires a value"):
+        parse_argv(
+            ["project", "create", "--name", "--description", "Desc"]
+        )
+
+
+def test_parse_project_create_repeated_flag_raises_clear_error() -> None:
+    with pytest.raises(CLIParseError, match="'--name' was specified more than once"):
+        parse_argv(
+            [
+                "project",
+                "create",
+                "--name",
+                "A",
+                "--description",
+                "D",
+                "--objective",
+                "O",
+                "--name",
+                "B",
+            ]
+        )
+
+
 def test_parse_project_load() -> None:
     pid = str(uuid.uuid4())
     cmd = parse_argv(["project", "load", "--project-id", pid])

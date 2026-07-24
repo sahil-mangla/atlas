@@ -128,6 +128,34 @@ def test_presentation_export_writes_file(
     assert written["kind"] == "project_dashboard"
 
 
+def test_presentation_export_to_unwritable_path_is_clean_application_error(
+    app: CLIApplication,
+    project_id: str,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """A write failure (e.g. the output directory doesn't exist) must
+    surface as a clean exit-1 ApplicationError, not an uncaught traceback."""
+    output_path = tmp_path / "nonexistent-dir" / "dashboard.json"
+    code = app.run(
+        [
+            "presentation",
+            "export",
+            "--project-id",
+            project_id,
+            "--view",
+            "dashboard",
+            "--output",
+            str(output_path),
+            "--format",
+            "json",
+        ]
+    )
+    assert code == _EXIT_ERROR
+    out, _ = capsys.readouterr()
+    assert "Failed to write export" in out
+
+
 def test_presentation_view_nonexistent_project_is_application_error(
     app: CLIApplication, capsys: pytest.CaptureFixture[str]
 ) -> None:

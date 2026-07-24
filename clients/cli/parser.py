@@ -445,7 +445,7 @@ def _parse_flags(
     required: list[str] | None = None,
     optional: list[str] | None = None,
 ) -> dict[str, str]:
-    """Parse ``--flag value`` pairs from a flat token list.
+    """Parse ``--flag value`` or ``--flag=value`` pairs from a flat token list.
 
     Args:
         tokens: Remaining argv tokens after the sub-command.
@@ -456,7 +456,8 @@ def _parse_flags(
         Mapping of flag name → value string.
 
     Raises:
-        CLIParseError: On missing required flags or unknown flags.
+        CLIParseError: On missing required flags, unknown flags, a flag
+            missing its value, or a flag repeated more than once.
     """
     required = required or []
     optional = optional or []
@@ -468,12 +469,24 @@ def _parse_flags(
         token = tokens[i]
         if not token.startswith("--"):
             raise CLIParseError(f"Unexpected token '{token}'.")
-        if token not in known:
-            raise CLIParseError(f"Unknown flag '{token}'.")
-        if i + 1 >= len(tokens):
-            raise CLIParseError(f"Flag '{token}' requires a value.")
-        result[token] = tokens[i + 1]
-        i += 2
+
+        if "=" in token:
+            name, _, value = token.partition("=")
+            consumed = 1
+        else:
+            name = token
+            if i + 1 >= len(tokens) or tokens[i + 1].startswith("--"):
+                raise CLIParseError(f"Flag '{name}' requires a value.")
+            value = tokens[i + 1]
+            consumed = 2
+
+        if name not in known:
+            raise CLIParseError(f"Unknown flag '{name}'.")
+        if name in result:
+            raise CLIParseError(f"Flag '{name}' was specified more than once.")
+
+        result[name] = value
+        i += consumed
 
     missing = [f for f in required if f not in result]
     if missing:

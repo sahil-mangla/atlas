@@ -295,6 +295,8 @@ class PresentationCapability:
         """Render an immutable presentation view using the named renderer."""
         if self._renderer_registry is None:
             raise BootstrapError("Presentation renderers are not configured.")
-        return self._renderer_registry.resolve(renderer).render(
-            view, contract or RenderContract()
-        )
+        try:
+            resolved_renderer = self._renderer_registry.resolve(renderer)
+        except ValueError as exc:
+            raise ApplicationError(str(exc)) from exc
+        return resolved_renderer.render(view, contract or RenderContract())

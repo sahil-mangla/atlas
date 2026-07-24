@@ -16,7 +16,7 @@ import pytest
 import atlas as atlas_pkg
 from atlas._service import Atlas
 from atlas.commands import CreateProjectCommand
-from atlas.exceptions import ProjectNotFoundError
+from atlas.exceptions import ApplicationError, ProjectNotFoundError
 from engine.config import Settings
 from presentation.renderers import RenderContract
 from presentation.views import DiagnosticsView, ProjectDashboardView
@@ -120,9 +120,12 @@ def test_render_accepts_explicit_contract(atlas_with_project: AtlasWithProject) 
 
 
 def test_render_unknown_renderer_raises(atlas_with_project: AtlasWithProject) -> None:
+    """An unknown renderer name must surface as an ApplicationError (the
+    only exception type CLI/MCP/REST callers catch at the boundary), not a
+    bare ValueError that would escape uncaught."""
     atlas, project_id = atlas_with_project
     view = atlas.get_project_dashboard_view(project_id)
-    with pytest.raises(ValueError, match="Unknown renderer"):
+    with pytest.raises(ApplicationError, match="Unknown renderer"):
         atlas.render(view, renderer="xml")
 
 

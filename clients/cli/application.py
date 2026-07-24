@@ -236,7 +236,12 @@ class CLIApplication:
         if isinstance(command, PresentationExportCommand):
             view = self._get_view(command.view, command.project_id)
             rendered = self._atlas.render(view, command.format)
-            Path(command.output).write_text(rendered.content)
+            try:
+                Path(command.output).write_text(rendered.content)
+            except (OSError, UnicodeEncodeError) as exc:
+                raise ApplicationError(
+                    f"Failed to write export to '{command.output}': {exc}"
+                ) from exc
             return (
                 f"Exported '{command.view}' view ({command.format}) to {command.output}"
             )
