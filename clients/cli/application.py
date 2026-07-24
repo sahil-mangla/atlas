@@ -218,7 +218,9 @@ class CLIApplication:
 
         if isinstance(command, ListKnowledgeCandidatesCommand):
             list_kc_res = self._atlas.list_knowledge_candidates(command)
-            return self._renderer.render_knowledge_candidate_list(list_kc_res)
+            return self._renderer.render_knowledge_candidate_list(
+                list_kc_res, output_format=command.format
+            )
 
         if isinstance(command, ShowKnowledgeCandidateCommand):
             show_kc_res = self._atlas.show_knowledge_candidate(command)

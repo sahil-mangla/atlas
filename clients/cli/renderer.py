@@ -328,16 +328,31 @@ class CLIRenderer:
         return "\n\n".join(parts)
 
     def render_knowledge_candidate_list(
-        self, result: KnowledgeCandidateListResult
+        self, result: KnowledgeCandidateListResult, *, output_format: str = "cli"
     ) -> str:
         """Render a project's engineering-knowledge candidates as a table.
 
         Args:
             result: The knowledge candidate list result DTO.
+            output_format: "cli" for a truncated-ID table, or "json" for a
+                machine-readable list with full candidate IDs.
 
         Returns:
-            Formatted table string.
+            Formatted table or JSON string.
         """
+        if output_format == "json":
+            return json.dumps(
+                [
+                    {
+                        "id": str(c.id),
+                        "title": c.title,
+                        "category": c.category,
+                        "status": c.status,
+                    }
+                    for c in result.candidates
+                ],
+                indent=2,
+            )
         if not result.candidates:
             return "No knowledge candidates found."
         heading = render_heading(
@@ -534,13 +549,15 @@ Proposal commands:
   atlas proposal reject   --project-id <uuid> --proposal-id <uuid> --feedback <f> [--actor <a>]
 
 Knowledge commands:
-  atlas knowledge list     --project-id <uuid> [--status <s>]
+  atlas knowledge list     --project-id <uuid> [--status <s>] [--format <f>]
   atlas knowledge show     --project-id <uuid> --candidate-id <uuid>
   atlas knowledge approve  --project-id <uuid> --candidate-id <uuid> [--feedback <f>] [--actor <a>]
   atlas knowledge reject   --project-id <uuid> --candidate-id <uuid> --feedback <f> [--actor <a>]
 
   Approving a candidate publishes it in the same step -- there is no
-  separate publish command.
+  separate publish command. <f> for 'knowledge list' defaults to 'cli'
+  (truncated IDs); use 'json' to get full candidate IDs for 'knowledge
+  show'/'approve'/'reject'.
 
 Presentation commands:
   atlas presentation dashboard    --project-id <uuid> [--format <f>]

@@ -134,10 +134,13 @@ class ListKnowledgeCandidatesCommand(Command):
 
     Args:
         status: Optional filter. Omitted lists candidates in every status.
+        format: Output format -- "cli" (default, truncated IDs) or "json"
+            (full candidate IDs, machine-readable).
     """
 
     project_id: UUID
     status: KnowledgeCandidateStatus | None = None
+    format: str = "cli"
 
 
 class ShowKnowledgeCandidateCommand(Command):

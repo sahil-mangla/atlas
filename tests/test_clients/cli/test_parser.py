@@ -301,6 +301,7 @@ def test_parse_knowledge_list() -> None:
     assert isinstance(cmd, ListKnowledgeCandidatesCommand)
     assert str(cmd.project_id) == pid
     assert cmd.status is None
+    assert cmd.format == "cli"
 
 
 def test_parse_knowledge_list_with_status() -> None:
@@ -314,6 +315,19 @@ def test_parse_knowledge_list_invalid_status() -> None:
     pid = str(uuid.uuid4())
     with pytest.raises(CLIParseError, match="Invalid status"):
         parse_argv(["knowledge", "list", "--project-id", pid, "--status", "bogus"])
+
+
+def test_parse_knowledge_list_with_json_format() -> None:
+    pid = str(uuid.uuid4())
+    cmd = parse_argv(["knowledge", "list", "--project-id", pid, "--format", "json"])
+    assert isinstance(cmd, ListKnowledgeCandidatesCommand)
+    assert cmd.format == "json"
+
+
+def test_parse_knowledge_list_invalid_format() -> None:
+    pid = str(uuid.uuid4())
+    with pytest.raises(CLIParseError, match="Invalid format"):
+        parse_argv(["knowledge", "list", "--project-id", pid, "--format", "markdown"])
 
 
 def test_parse_knowledge_show() -> None:

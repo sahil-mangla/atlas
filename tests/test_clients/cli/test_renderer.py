@@ -1,10 +1,14 @@
 """Tests for the CLI renderer."""
 
+import json
 import uuid
+from datetime import UTC, datetime
 
 from atlas.exceptions import ApplicationError, InvalidProjectError
 from atlas.results import (
     CommitResult,
+    KnowledgeCandidateListResult,
+    KnowledgeCandidateResult,
     OperationResult,
     ProjectListResult,
     ProjectResult,
@@ -53,6 +57,63 @@ def test_render_project_list() -> None:
     empty_res = ProjectListResult(projects=[])
     out_empty = renderer.render_project_list(empty_res)
     assert out_empty == "No projects found."
+
+
+def test_render_knowledge_candidate_list_cli_truncates_ids() -> None:
+    renderer = CLIRenderer()
+    candidate_id = uuid.uuid4()
+    res = KnowledgeCandidateListResult(
+        candidates=[
+            KnowledgeCandidateResult(
+                id=candidate_id,
+                project_id=uuid.uuid4(),
+                title="Use retries for flaky API calls",
+                content="...",
+                category="pattern",
+                status="pending",
+                created_at=datetime.now(UTC),
+            )
+        ]
+    )
+    out = renderer.render_knowledge_candidate_list(res)
+    assert str(candidate_id) not in out
+    assert str(candidate_id)[:8] in out
+
+
+def test_render_knowledge_candidate_list_json_has_full_ids() -> None:
+    renderer = CLIRenderer()
+    candidate_id = uuid.uuid4()
+    res = KnowledgeCandidateListResult(
+        candidates=[
+            KnowledgeCandidateResult(
+                id=candidate_id,
+                project_id=uuid.uuid4(),
+                title="Use retries for flaky API calls",
+                content="...",
+                category="pattern",
+                status="pending",
+                created_at=datetime.now(UTC),
+            )
+        ]
+    )
+    out = renderer.render_knowledge_candidate_list(res, output_format="json")
+    parsed = json.loads(out)
+    assert parsed == [
+        {
+            "id": str(candidate_id),
+            "title": "Use retries for flaky API calls",
+            "category": "pattern",
+            "status": "pending",
+        }
+    ]
+
+
+def test_render_knowledge_candidate_list_json_empty() -> None:
+    renderer = CLIRenderer()
+    out = renderer.render_knowledge_candidate_list(
+        KnowledgeCandidateListResult(candidates=[]), output_format="json"
+    )
+    assert json.loads(out) == []
 
 
 def test_render_workflow_status() -> None:

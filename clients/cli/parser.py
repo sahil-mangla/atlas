@@ -50,6 +50,7 @@ if TYPE_CHECKING:
 
 _PRESENTATION_VIEWS = ("dashboard", "workflow", "research", "knowledge", "diagnostics")
 _PRESENTATION_FORMATS = ("cli", "markdown", "json")
+_KNOWLEDGE_LIST_FORMATS = ("cli", "json")
 
 
 class CLIParseError(ValueError):
@@ -339,7 +340,9 @@ class CommandParser:
 
     @staticmethod
     def _knowledge_list(args: list[str]) -> ListKnowledgeCandidatesCommand:
-        parsed = _parse_flags(args, required=["--project-id"], optional=["--status"])
+        parsed = _parse_flags(
+            args, required=["--project-id"], optional=["--status", "--format"]
+        )
         status: KnowledgeCandidateStatus | None = None
         if "--status" in parsed:
             try:
@@ -349,8 +352,13 @@ class CommandParser:
                 raise CLIParseError(  # noqa: B904
                     f"Invalid status '{parsed['--status']}'. Valid: {valid}."
                 )
+        fmt = parsed.get("--format", "cli")
+        if fmt not in _KNOWLEDGE_LIST_FORMATS:
+            raise CLIParseError(
+                f"Invalid format '{fmt}'. Valid: {', '.join(_KNOWLEDGE_LIST_FORMATS)}."
+            )
         return ListKnowledgeCandidatesCommand(
-            project_id=_uuid(parsed["--project-id"]), status=status
+            project_id=_uuid(parsed["--project-id"]), status=status, format=fmt
         )
 
     @staticmethod
