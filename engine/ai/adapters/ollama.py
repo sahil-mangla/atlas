@@ -30,7 +30,12 @@ class OllamaAIProvider(AIProvider):
             "options": options,
         }
         if request.response_schema is not None:
-            payload["format"] = "json"
+            # Ollama's /api/generate accepts a full JSON schema object here,
+            # not just the string "json" -- passing the schema constrains
+            # the model to that shape instead of merely valid JSON,
+            # honoring the structured_output capability this adapter
+            # declares below.
+            payload["format"] = request.response_schema
         payload.update(self._config.options)
         data = post_json(
             endpoint + "/api/generate",

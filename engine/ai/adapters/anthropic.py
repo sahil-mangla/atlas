@@ -42,7 +42,14 @@ class AnthropicAIProvider(AIProvider):
             timeout=self._config.timeout_seconds,
         )
         content = data.get("content", [])
-        first = content[0] if content else {}
+        # Anthropic responses can include non-text blocks first (e.g. a
+        # "thinking" block, reachable when extended-thinking config is
+        # merged in via self._config.options) -- blindly using content[0]
+        # would silently return "" for the actual text. Text blocks carry a
+        # "text" field; other block types don't.
+        first: dict[str, Any] = next(
+            (block for block in content if "text" in block), {}
+        )
         usage = data.get("usage", {})
         return AIResponse(
             content=str(first.get("text", "")),

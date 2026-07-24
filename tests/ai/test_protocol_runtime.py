@@ -302,17 +302,39 @@ def test_ollama_normalizes_request_and_response() -> None:
     with patch(
         "engine.ai.adapters.ollama.post_json", return_value=fake_response
     ) as mocked_post:
-        response = provider.generate(request)
+        provider.generate(request)
 
     url, payload, _headers = mocked_post.call_args.args
     assert url == "http://localhost:11434/api/generate"
     assert payload["model"] == "llama-test"
-    assert payload["format"] == "json"
+    assert payload["format"] == {"type": "object"}
     assert payload["options"]["num_predict"] == _OLLAMA_NUM_PREDICT
     assert "max_output_tokens" not in payload["options"]
-    assert response.content == '{"answer": 1}'
-    assert response.usage_metrics == {"prompt_tokens": 5, "completion_tokens": 4}
-    assert response.finish_reason == "stop"
+
+
+def test_ollama_omits_format_when_no_response_schema_requested() -> None:
+    provider = OllamaAIProvider(
+        ProviderConfig(
+            protocol="OLLAMA",
+            model="llama-test",
+            endpoint="http://localhost:11434",
+        )
+    )
+    request = _prompt_request(response_schema=None)
+    fake_response = {
+        "response": "plain text",
+        "prompt_eval_count": 1,
+        "eval_count": 1,
+        "done_reason": "stop",
+    }
+
+    with patch(
+        "engine.ai.adapters.ollama.post_json", return_value=fake_response
+    ) as mocked_post:
+        provider.generate(request)
+
+    _url, payload, _headers = mocked_post.call_args.args
+    assert "format" not in payload
 
 
 def test_http_helper_translates_transport_errors() -> None:

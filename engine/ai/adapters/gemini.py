@@ -16,6 +16,38 @@ from engine.config import Settings, get_settings
 from engine.domain.ai import AIRequest, AIResponse, ProviderCapabilities
 
 
+def _inline_refs(node: Any, defs: dict[str, Any]) -> Any:
+    if isinstance(node, dict):
+        if "$ref" in node:
+            ref_name = node["$ref"].rsplit("/", 1)[-1]
+            return _inline_refs(defs[ref_name], defs)
+        return {
+            key: _inline_refs(value, defs)
+            for key, value in node.items()
+            if key != "$defs"
+        }
+    if isinstance(node, list):
+        return [_inline_refs(item, defs) for item in node]
+    return node
+
+
+def _flatten_schema(schema: dict[str, Any]) -> dict[str, Any]:
+    """Resolve Pydantic's $defs/$ref indirection before sending a schema to
+    Gemini.
+
+    Every non-trivial proposal draft (e.g. ResearchProposalDraft, which
+    nests ResearchFindingDraft/ResearchEvidenceDraft) produces
+    $defs/$ref via model_json_schema(). Passing that structure through
+    unresolved risks Gemini failing or silently ignoring the schema on the
+    default provider for exactly the drafts that matter most.
+    """
+    defs = schema.get("$defs", {})
+    if not defs:
+        return schema
+    flattened: dict[str, Any] = _inline_refs(schema, defs)
+    return flattened
+
+
 class GeminiAIProvider(AIProvider):
     """Adapter bridging ATLAS AIProvider protocol with Google's Gemini SDK."""
 
@@ -50,7 +82,9 @@ class GeminiAIProvider(AIProvider):
                 "response_mime_type": "application/json",
             }
             if request.response_schema is not None:
-                config_values["response_schema"] = request.response_schema
+                config_values["response_schema"] = _flatten_schema(
+                    request.response_schema
+                )
             if request.parameters.temperature is not None:
                 config_values["temperature"] = request.parameters.temperature
             if request.parameters.top_p is not None:
