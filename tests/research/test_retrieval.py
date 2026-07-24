@@ -31,6 +31,7 @@ class FakeProjectRepo(ProjectRepository):
 
 class FakeSource:
     name = "fake"
+    last_call_failed = False
 
     def __init__(self, candidates: list[PaperCandidate]) -> None:
         self._candidates = candidates
@@ -147,6 +148,80 @@ def test_retrieve_evidence_falls_back_when_summary_count_mismatches() -> None:
 
     assert len(evidence) == 1
     assert evidence[0].summary == candidate.abstract
+
+
+def test_retrieve_evidence_gives_every_source_a_fair_share_when_capping() -> None:
+    """A source whose results alone would fill the cap must not crowd out
+    unique results from other sources -- they should be interleaved before
+    the cap is applied, not concatenated source-by-source."""
+    project = Project(name="P", description="d", objective="o")
+    first_source_candidates = [_candidate(f"first-{i}") for i in range(5)]
+    second_source_candidate = _candidate("second-unique")
+    service = ResearchRetrievalService(
+        sources=[
+            FakeSource(first_source_candidates),
+            FakeSource([second_source_candidate]),
+        ],
+        project_repo=FakeProjectRepo(project),
+        prompt_executor=_executor_returning({"summaries": ["s1", "s2"]}),
+        max_candidates=2,
+    )
+
+    evidence = service.retrieve_evidence(project.id)
+
+    origins = {e.origin for e in evidence}
+    assert "fake: https://example.org/second-unique" in origins
+
+
+class RaisingSource:
+    name = "raising"
+    last_call_failed = False
+
+    def search(self, _query: str, _max_results: int) -> list[PaperCandidate]:
+        raise RuntimeError("unexpected bug in a source")
+
+
+def test_retrieve_evidence_survives_a_source_raising_unexpectedly() -> None:
+    """A bug in one source (violating the 'never raises' contract) must not
+    take down retrieval for the other sources."""
+    project = Project(name="P", description="d", objective="o")
+    good_candidate = _candidate("1")
+    service = ResearchRetrievalService(
+        sources=[RaisingSource(), FakeSource([good_candidate])],
+        project_repo=FakeProjectRepo(project),
+        prompt_executor=_executor_returning({"summaries": ["s1"]}),
+    )
+
+    evidence = service.retrieve_evidence(project.id)
+
+    assert len(evidence) == 1
+    assert evidence[0].external_id == "1"
+
+
+class FailingSource:
+    name = "failing"
+    last_call_failed = False
+
+    def search(self, _query: str, _max_results: int) -> list[PaperCandidate]:
+        self.last_call_failed = True
+        return []
+
+
+def test_retrieve_evidence_logs_outage_when_all_sources_fail(
+    caplog: Any,
+) -> None:
+    project = Project(name="P", description="d", objective="o")
+    service = ResearchRetrievalService(
+        sources=[FailingSource(), FailingSource()],
+        project_repo=FakeProjectRepo(project),
+        prompt_executor=_executor_returning({"summaries": []}),
+    )
+
+    with caplog.at_level("ERROR", logger="engine.research.retrieval"):
+        evidence = service.retrieve_evidence(project.id)
+
+    assert evidence == []
+    assert "outage" in caplog.text
 
 
 def test_format_citation_handles_many_authors_and_missing_year() -> None:

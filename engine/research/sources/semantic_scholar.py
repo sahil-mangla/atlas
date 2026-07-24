@@ -8,12 +8,16 @@ from typing import Any
 
 import httpx
 
+from engine.research.sources.base import RateLimiter
 from engine.research.sources.models import PaperCandidate
 
 logger = logging.getLogger(__name__)
 
 _BASE_URL = "https://api.semanticscholar.org/graph/v1/paper/search"
 _FIELDS = "title,abstract,year,authors,url,externalIds"
+# Unauthenticated Semantic Scholar allows roughly 100 requests per 5 minutes;
+# 3s between requests stays comfortably inside that.
+_MIN_INTERVAL_SECONDS = 3.0
 
 
 class SemanticScholarSource:
@@ -25,8 +29,12 @@ class SemanticScholarSource:
         self, client: httpx.Client | None = None, timeout_seconds: int = 15
     ) -> None:
         self._client = client or httpx.Client(timeout=timeout_seconds)
+        self._rate_limiter = RateLimiter(_MIN_INTERVAL_SECONDS)
+        self.last_call_failed = False
 
     def search(self, query: str, max_results: int) -> list[PaperCandidate]:
+        self._rate_limiter.wait()
+        self.last_call_failed = False
         try:
             response = self._client.get(
                 _BASE_URL,
@@ -37,12 +45,14 @@ class SemanticScholarSource:
             logger.warning(
                 "Semantic Scholar search failed for query %r: %s", query, error
             )
+            self.last_call_failed = True
             return []
 
         try:
             payload = response.json()
         except ValueError as error:
             logger.warning("Semantic Scholar response could not be parsed: %s", error)
+            self.last_call_failed = True
             return []
 
         candidates = []

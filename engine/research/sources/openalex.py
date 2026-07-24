@@ -10,6 +10,7 @@ from typing import Any
 
 import httpx
 
+from engine.research.sources.base import RateLimiter
 from engine.research.sources.models import PaperCandidate
 
 logger = logging.getLogger(__name__)
@@ -18,6 +19,8 @@ _BASE_URL = "https://api.openalex.org/works"
 _SELECT = (
     "id,doi,title,publication_year,authorships,open_access,abstract_inverted_index"
 )
+# Conservative interval for OpenAlex's unauthenticated (non-"polite pool") tier.
+_MIN_INTERVAL_SECONDS = 1.0
 
 
 class OpenAlexSource:
@@ -29,8 +32,12 @@ class OpenAlexSource:
         self, client: httpx.Client | None = None, timeout_seconds: int = 15
     ) -> None:
         self._client = client or httpx.Client(timeout=timeout_seconds)
+        self._rate_limiter = RateLimiter(_MIN_INTERVAL_SECONDS)
+        self.last_call_failed = False
 
     def search(self, query: str, max_results: int) -> list[PaperCandidate]:
+        self._rate_limiter.wait()
+        self.last_call_failed = False
         try:
             response = self._client.get(
                 _BASE_URL,
@@ -44,12 +51,14 @@ class OpenAlexSource:
             response.raise_for_status()
         except httpx.HTTPError as error:
             logger.warning("OpenAlex search failed for query %r: %s", query, error)
+            self.last_call_failed = True
             return []
 
         try:
             payload = response.json()
         except ValueError as error:
             logger.warning("OpenAlex response could not be parsed: %s", error)
+            self.last_call_failed = True
             return []
 
         candidates = []
@@ -67,9 +76,9 @@ class OpenAlexSource:
             return None
 
         authors = [
-            authorship.get("author", {}).get("display_name", "")
+            display_name
             for authorship in work.get("authorships") or []
-            if authorship.get("author", {}).get("display_name")
+            if (display_name := (authorship.get("author") or {}).get("display_name"))
         ]
 
         return PaperCandidate(

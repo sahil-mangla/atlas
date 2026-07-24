@@ -7,6 +7,8 @@ LLM's only role is condensing an already-real abstract into a summary.
 """
 
 import logging
+from concurrent.futures import ThreadPoolExecutor
+from itertools import zip_longest
 from typing import Protocol
 from uuid import UUID
 
@@ -47,6 +49,21 @@ def _format_citation(candidate: PaperCandidate) -> str:
     return f"{author_str}{year_str}. {candidate.title}. {candidate.url}"
 
 
+def _interleave(per_source_results: list[list[PaperCandidate]]) -> list[PaperCandidate]:
+    """Round-robin merge so no single source can crowd out the others.
+
+    Concatenating source results in order and then capping would let
+    whichever source is queried first fill the entire candidate budget,
+    silently discarding every result from the other sources even though
+    they were fully queried. Interleaving keeps all sources represented
+    when the merged list is later capped by ``_dedupe``.
+    """
+    merged: list[PaperCandidate] = []
+    for round_candidates in zip_longest(*per_source_results):
+        merged.extend(c for c in round_candidates if c is not None)
+    return merged
+
+
 def _dedupe(
     candidates: list[PaperCandidate], max_candidates: int
 ) -> list[PaperCandidate]:
@@ -57,9 +74,7 @@ def _dedupe(
             continue
         seen.add(candidate.external_id)
         deduped.append(candidate)
-        if len(deduped) >= max_candidates:
-            break
-    return deduped
+    return deduped[:max_candidates]
 
 
 class ResearchRetrievalService:
@@ -86,11 +101,50 @@ class ResearchRetrievalService:
             part for part in (project.objective, project.description) if part
         ).strip()
 
+    def _search_one_source(
+        self, source: PaperSource, query: str
+    ) -> list[PaperCandidate]:
+        """Call a single source defensively.
+
+        ``PaperSource.search`` is documented to never raise, but that's a
+        contract, not a guarantee -- an unexpected bug in one source must
+        not take down the other sources or the whole retrieval call.
+        """
+        try:
+            return source.search(query, self._max_candidates)
+        except Exception:
+            logger.exception(
+                "Paper source %r raised unexpectedly for query %r; treating "
+                "as a failed call.",
+                getattr(source, "name", source),
+                query,
+            )
+            return []
+
     def _search_all_sources(self, query: str) -> list[PaperCandidate]:
-        candidates: list[PaperCandidate] = []
-        for source in self._sources:
-            candidates.extend(source.search(query, self._max_candidates))
-        return candidates
+        if not self._sources:
+            return []
+
+        with ThreadPoolExecutor(max_workers=len(self._sources)) as executor:
+            per_source_results = list(
+                executor.map(
+                    lambda source: self._search_one_source(source, query),
+                    self._sources,
+                )
+            )
+
+        failed = sum(
+            1 for source in self._sources if getattr(source, "last_call_failed", False)
+        )
+        if failed == len(self._sources):
+            logger.error(
+                "All %d paper sources failed or were unreachable for this "
+                "query; evidence will be empty due to an outage, not because "
+                "no relevant papers exist.",
+                len(self._sources),
+            )
+
+        return _interleave(per_source_results)
 
     def _summarize(self, candidates: list[PaperCandidate]) -> list[str]:
         """Condense abstracts via the LLM; fall back to truncation on failure."""
