@@ -1,0 +1,671 @@
+# Atlas benchmark task suite -- Step 2 of the eval + observability layer.
+#
+# Every task drives one or more Commands through Atlas.handle() -- the
+# adapter-agnostic RequestEnvelope/ResponseEnvelope chokepoint every future
+# client (CLI, MCP, IDE, REST) is designed to call through, instrumented by
+# Step 1. `adapter` tags which AdapterKind the envelope carries; it is
+# identity metadata only (exactly matching production `.handle()` behavior),
+# NOT a claim that a real MCP/REST/IDE transport exists yet. Only CLI is
+# implemented today, and CLI itself dispatches through Atlas's named methods
+# in production (clients/cli/application.py), not .handle() -- see
+# atlas/_service.py's `handle()` docstring. This suite exercises the
+# uniform envelope contract every adapter will eventually sit on top of, not
+# today's CLI code path specifically. (Decided explicitly with the user
+# rather than silently assumed -- see plan roadmap note for Step 2.)
+#
+# Known coverage gap: no Command type in Atlas._dispatch routes to the
+# PRESENTATION capability (it's reached only via separate named methods like
+# get_project_dashboard_view, never via a Command/handle() call), so no task
+# here can exercise it. Flagging rather than silently omitting.
+#
+# ---------------------------------------------------------------------------
+# Schema
+# ---------------------------------------------------------------------------
+# task_id:      unique, kebab-case
+# description:  one sentence -- what this task checks and why
+# adapter:      cli | mcp | ide | rest | ai   (AdapterKind tag on the envelope)
+# category:     tool_selection | schema_correctness | multi_step |
+#               error_handling | hallucination_check
+#
+# A task is EITHER a single `input` OR an ordered `steps` list -- `steps` is
+# just the mechanism for tasks that need more than one Command (e.g. seeding
+# a project before the action under test); `category: multi_step` is a
+# separate, semantic tag reserved for tasks whose *point* is testing
+# sequential/stateful workflow behavior itself. Don't conflate the two: a
+# task can use `steps` for plumbing without being categorized multi_step.
+#
+# input / each step:
+#   command:
+#     type:    a Command subclass name from atlas.commands, OR the sentinel
+#              "__unknown_command__" for a deliberately unrecognized type
+#              (hallucination_check: mirrors
+#              tests/test_atlas/test_platform_handle.py::test_handle_unrecognized_command_type)
+#     fields:  kwargs for that Command. A string value of the form "$name"
+#              substitutes a value captured by an earlier step (see below).
+#   capture:   (optional) {name: "result.<dotted.path>"} -- pulls a value out
+#              of this step's ResponseEnvelope.result for later steps to
+#              reference as "$name" (e.g. a created project's id).
+#   ai_response: (optional) JSON string MockAIProvider should return if this
+#              step reaches engine/ai -- for deterministic mock-backed runs.
+#              Ignored when the runner targets a real provider (e.g. a local
+#              Ollama model); `expected.checks` therefore prefer structural
+#              assertions (non_empty, type) over exact-string matches so the
+#              same task works against either.
+#   expected:
+#     outcome:  success | error | validation_error
+#       success           -> ResponseEnvelope.error is None
+#       error             -> ResponseEnvelope.error is not None (reached Atlas)
+#       validation_error  -> the Command itself failed pydantic construction;
+#                            never reached Atlas.handle() at all
+#     capability:  expected CapabilityName, or null for the
+#                  unrecognized-command-type case. Verified against the
+#                  TraceRecord Step 1's instrumentation exports for this
+#                  request (matched by request_id) -- NOT a field on
+#                  ResponseEnvelope itself, which carries no capability tag.
+#     ai_provider: expected non-null/null on the same TraceRecord, for tasks
+#                  that do/don't reach engine/ai.
+#     error_code:  expected PlatformErrorCode, if outcome != success
+#     result_type: expected atlas.results.Result subclass name, if
+#                  outcome == success
+#     checks:      list of {field: "result.<dotted.path>", equals: <value>}
+#                  or {field: ..., non_empty: true} or {field: ..., type: "str"}
+#
+# ---------------------------------------------------------------------------
+
+tasks:
+  # -- CLI adapter (>=3) -----------------------------------------------------
+
+  - task_id: cli-001-create-project
+    description: >
+      Creating a project routes to the Project capability and returns a
+      well-formed ProjectResult.
+    adapter: cli
+    category: tool_selection
+    input:
+      command:
+        type: CreateProjectCommand
+        fields:
+          name: "Rollback Tooling"
+          description: "Give operators a one-command rollback path."
+          objective: "Ship a safe, auditable rollback mechanism."
+    expected:
+      outcome: success
+      capability: project
+      result_type: ProjectResult
+      checks:
+        - field: result.name
+          equals: "Rollback Tooling"
+        - field: result.status
+          equals: "initialized"
+
+  - task_id: cli-002-list-projects-empty
+    description: >
+      Listing projects against a fresh platform returns an empty, valid
+      ProjectListResult rather than erroring on empty state.
+    adapter: cli
+    category: schema_correctness
+    input:
+      command:
+        type: ListProjectsCommand
+        fields: {}
+    expected:
+      outcome: success
+      capability: project
+      result_type: ProjectListResult
+      checks:
+        - field: result.projects
+          equals: []
+
+  - task_id: cli-003-workflow-status-after-transition
+    description: >
+      A freshly created project starts in the idea stage; one transition
+      moves it to research -- confirms Workflow capability state tracking.
+    adapter: cli
+    category: tool_selection
+    steps:
+      - command:
+          type: CreateProjectCommand
+          fields: {name: "P", description: "D", objective: "O"}
+        capture: {project_id: "result.id"}
+        expected: {outcome: success, capability: project}
+      - command:
+          type: GetWorkflowStatusCommand
+          fields: {project_id: "$project_id"}
+        expected:
+          outcome: success
+          capability: workflow
+          result_type: WorkflowStatusResult
+          checks:
+            - field: result.current_stage
+              equals: "idea"
+      - command:
+          type: TransitionStageCommand
+          fields: {project_id: "$project_id"}
+        expected: {outcome: success, capability: workflow}
+      - command:
+          type: GetWorkflowStatusCommand
+          fields: {project_id: "$project_id"}
+        expected:
+          outcome: success
+          capability: workflow
+          checks:
+            - field: result.current_stage
+              equals: "research"
+
+  # -- MCP adapter (>=3) ------------------------------------------------------
+
+  - task_id: mcp-001-transition-stage
+    description: >
+      TransitionStageCommand routes to the Workflow capability, not
+      WorkflowExecution -- the two are easy to conflate by name.
+    adapter: mcp
+    category: tool_selection
+    steps:
+      - command:
+          type: CreateProjectCommand
+          fields: {name: "P", description: "D", objective: "O"}
+        capture: {project_id: "result.id"}
+        expected: {outcome: success, capability: project}
+      - command:
+          type: TransitionStageCommand
+          fields: {project_id: "$project_id"}
+        expected:
+          outcome: success
+          capability: workflow
+          result_type: WorkflowStatusResult
+
+  - task_id: mcp-002-execute-research-stage
+    description: >
+      A full research-stage generation: create, transition into research,
+      then execute the stage -- the one path that reaches engine/ai.
+    adapter: mcp
+    category: multi_step
+    steps:
+      - command:
+          type: CreateProjectCommand
+          fields: {name: "P", description: "D", objective: "O"}
+        capture: {project_id: "result.id"}
+        expected: {outcome: success, capability: project}
+      - command:
+          type: TransitionStageCommand
+          fields: {project_id: "$project_id"}
+        expected: {outcome: success, capability: workflow}
+      - command:
+          type: ExecuteStageCommand
+          fields: {project_id: "$project_id", stage: "research"}
+        ai_response: >
+          {"problem_statement": "Users cannot recover from a failed deployment.",
+           "objectives": ["Design a rollback mechanism", "Document the recovery runbook"]}
+        expected:
+          outcome: success
+          capability: workflow_execution
+          ai_provider: non_null
+          result_type: ProposalResult
+          checks:
+            - field: result.status
+              equals: "draft"
+            - field: result.content.problem_statement
+              non_empty: true
+            - field: result.content.objectives
+              non_empty: true
+
+  - task_id: mcp-003-list-knowledge-candidates-empty
+    description: >
+      Listing knowledge candidates for a project with none yet returns an
+      empty list, routed through the Knowledge capability.
+    adapter: mcp
+    category: schema_correctness
+    steps:
+      - command:
+          type: CreateProjectCommand
+          fields: {name: "P", description: "D", objective: "O"}
+        capture: {project_id: "result.id"}
+        expected: {outcome: success, capability: project}
+      - command:
+          type: ListKnowledgeCandidatesCommand
+          fields: {project_id: "$project_id"}
+        expected:
+          outcome: success
+          capability: knowledge
+          result_type: KnowledgeCandidateListResult
+          checks:
+            - field: result.candidates
+              equals: []
+
+  # -- IDE adapter (>=3) -------------------------------------------------------
+
+  - task_id: ide-001-archive-project
+    description: >
+      Archiving a project succeeds and routes through the Project capability.
+    adapter: ide
+    category: tool_selection
+    steps:
+      - command:
+          type: CreateProjectCommand
+          fields: {name: "P", description: "D", objective: "O"}
+        capture: {project_id: "result.id"}
+        expected: {outcome: success, capability: project}
+      - command:
+          type: ArchiveProjectCommand
+          fields: {project_id: "$project_id"}
+        expected:
+          outcome: success
+          capability: project
+          result_type: OperationResult
+          checks:
+            - field: result.success
+              equals: true
+
+  - task_id: ide-002-load-project-round-trip
+    description: >
+      A project loaded back by id returns the same identity data it was
+      created with.
+    adapter: ide
+    category: schema_correctness
+    steps:
+      - command:
+          type: CreateProjectCommand
+          fields: {name: "Loadable", description: "D", objective: "O"}
+        capture: {project_id: "result.id"}
+        expected: {outcome: success, capability: project}
+      - command:
+          type: LoadProjectCommand
+          fields: {project_id: "$project_id"}
+        expected:
+          outcome: success
+          capability: project
+          result_type: ProjectResult
+          checks:
+            - field: result.name
+              equals: "Loadable"
+
+  - task_id: ide-003-review-nonexistent-knowledge-candidate
+    description: >
+      Reviewing a knowledge candidate that doesn't exist must fail with a
+      typed KNOWLEDGE_REVIEW_ERROR, not an unhandled exception.
+    adapter: ide
+    category: error_handling
+    steps:
+      - command:
+          type: CreateProjectCommand
+          fields: {name: "P", description: "D", objective: "O"}
+        capture: {project_id: "result.id"}
+        expected: {outcome: success, capability: project}
+      - command:
+          type: ReviewKnowledgeCandidateCommand
+          fields:
+            project_id: "$project_id"
+            candidate_id: "00000000-0000-0000-0000-000000000000"
+            decision: "approve"
+            actor: {actor_type: "human", actor_id: "evaluator"}
+        expected:
+          outcome: error
+          capability: knowledge
+          error_code: KNOWLEDGE_REVIEW_ERROR
+
+  # -- REST adapter (>=3) -------------------------------------------------------
+
+  - task_id: rest-001-create-project-full-fields
+    description: >
+      A ResponseEnvelope for a successful request echoes request_id and sets
+      exactly result, never error.
+    adapter: rest
+    category: schema_correctness
+    input:
+      command:
+        type: CreateProjectCommand
+        fields:
+          name: "REST Created"
+          description: "D"
+          objective: "O"
+          path: null
+    expected:
+      outcome: success
+      capability: project
+      checks:
+        - field: response.request_id
+          equals: "$request_id"
+        - field: response.error
+          equals: null
+
+  - task_id: rest-002-approve-nonexistent-proposal
+    description: >
+      Approving a proposal id that was never generated fails with
+      PROPOSAL_VALIDATION_ERROR rather than a not-found on the project.
+    adapter: rest
+    category: error_handling
+    steps:
+      - command:
+          type: CreateProjectCommand
+          fields: {name: "P", description: "D", objective: "O"}
+        capture: {project_id: "result.id"}
+        expected: {outcome: success, capability: project}
+      - command:
+          type: ApproveProposalCommand
+          fields:
+            project_id: "$project_id"
+            proposal_id: "00000000-0000-0000-0000-000000000000"
+        expected:
+          outcome: error
+          capability: workflow_execution
+          error_code: PROPOSAL_VALIDATION_ERROR
+
+  - task_id: rest-003-reject-nonexistent-proposal
+    description: >
+      Rejecting a proposal id that was never generated fails the same way
+      approval does -- both must be validated before touching state.
+    adapter: rest
+    category: error_handling
+    steps:
+      - command:
+          type: CreateProjectCommand
+          fields: {name: "P", description: "D", objective: "O"}
+        capture: {project_id: "result.id"}
+        expected: {outcome: success, capability: project}
+      - command:
+          type: RejectProposalCommand
+          fields:
+            project_id: "$project_id"
+            proposal_id: "00000000-0000-0000-0000-000000000000"
+            feedback: "Does not exist."
+        expected:
+          outcome: error
+          capability: workflow_execution
+          error_code: PROPOSAL_VALIDATION_ERROR
+
+  # -- Dedicated schema_correctness -------------------------------------------
+
+  - task_id: schema-001-error-envelope-shape
+    description: >
+      An error ResponseEnvelope still echoes request_id, sets result to
+      null, and always carries a code/message/retryable ErrorEnvelope.
+    adapter: rest
+    category: schema_correctness
+    input:
+      command:
+        type: LoadProjectCommand
+        fields: {project_id: "00000000-0000-0000-0000-000000000000"}
+    expected:
+      outcome: error
+      error_code: PROJECT_NOT_FOUND
+      checks:
+        - field: response.request_id
+          equals: "$request_id"
+        - field: response.result
+          equals: null
+        - field: response.error.retryable
+          equals: false
+
+  # -- Dedicated tool_selection -------------------------------------------------
+
+  - task_id: tool-001-execute-stage-invokes-workflow-execution-and-ai
+    description: >
+      ExecuteStageCommand must resolve to the WorkflowExecution capability
+      specifically (not Workflow, despite the name similarity), and must be
+      the one path that produces a non-null ai_provider on the trace record.
+    adapter: ai
+    category: tool_selection
+    steps:
+      - command:
+          type: CreateProjectCommand
+          fields: {name: "P", description: "D", objective: "O"}
+        capture: {project_id: "result.id"}
+        expected: {outcome: success, capability: project, ai_provider: null}
+      - command:
+          type: TransitionStageCommand
+          fields: {project_id: "$project_id"}
+        expected: {outcome: success, capability: workflow, ai_provider: null}
+      - command:
+          type: ExecuteStageCommand
+          fields: {project_id: "$project_id", stage: "research"}
+        ai_response: >
+          {"problem_statement": "P", "objectives": ["O"]}
+        expected:
+          outcome: success
+          capability: workflow_execution
+          ai_provider: non_null
+
+  # -- Dedicated error_handling --------------------------------------------------
+
+  - task_id: err-001-load-nonexistent-project
+    description: >
+      Loading a project id that was never created fails with
+      PROJECT_NOT_FOUND -- the baseline not-found case every capability's
+      error path should match.
+    adapter: mcp
+    category: error_handling
+    input:
+      command:
+        type: LoadProjectCommand
+        fields: {project_id: "00000000-0000-0000-0000-000000000000"}
+    expected:
+      outcome: error
+      capability: project
+      error_code: PROJECT_NOT_FOUND
+
+  # -- hallucination_check (>=3) -------------------------------------------------
+
+  - task_id: hall-001-unknown-command-type
+    description: >
+      A command type Atlas doesn't recognize at all (an agent "inventing" a
+      tool) must fail cleanly with UNKNOWN_ERROR, never crash or silently
+      no-op. Mirrors
+      tests/test_atlas/test_platform_handle.py::test_handle_unrecognized_command_type.
+    adapter: ai
+    category: hallucination_check
+    input:
+      command:
+        type: "__unknown_command__"
+        fields: {}
+    expected:
+      outcome: error
+      capability: null
+      error_code: UNKNOWN_ERROR
+
+  - task_id: hall-002-hallucinated-extra-field-is-silently-dropped
+    description: >
+      Documents CURRENT behavior, not a desired one: Command models don't
+      set extra="forbid" (verified directly against
+      atlas.commands.CreateProjectCommand), so a field an agent invents that
+      doesn't exist on the schema is silently dropped rather than rejected.
+      If stricter hallucination rejection is wanted later, add
+      extra="forbid" to atlas.commands.Command and flip this task's expected
+      outcome to validation_error.
+    adapter: ai
+    category: hallucination_check
+    input:
+      command:
+        type: CreateProjectCommand
+        fields:
+          name: "P"
+          description: "D"
+          objective: "O"
+          priority: "urgent"  # does not exist on CreateProjectCommand
+    expected:
+      outcome: success
+      capability: project
+      checks:
+        - field: result.name
+          equals: "P"
+
+  - task_id: hall-003-invalid-enum-value-rejected-before-reaching-atlas
+    description: >
+      A stage value that isn't a real WorkflowStage member fails pydantic
+      construction of ExecuteStageCommand -- the request never even reaches
+      Atlas.handle().
+    adapter: ai
+    category: hallucination_check
+    input:
+      command:
+        type: ExecuteStageCommand
+        fields:
+          project_id: "00000000-0000-0000-0000-000000000000"
+          stage: "not_a_real_stage"
+    expected:
+      outcome: validation_error
+
+  - task_id: hall-004-missing-required-field-rejected-before-reaching-atlas
+    description: >
+      Omitting a required field (name) fails pydantic construction of
+      CreateProjectCommand before Atlas ever sees the request.
+    adapter: ai
+    category: hallucination_check
+    input:
+      command:
+        type: CreateProjectCommand
+        fields:
+          description: "D"
+          objective: "O"
+    expected:
+      outcome: validation_error
+
+  # -- multi_step (>=3) -----------------------------------------------------------
+
+  - task_id: multi-001-research-to-planning-pipeline
+    description: >
+      The full happy-path pipeline: research proposal generated, approved,
+      auto-transitions to planning, planning proposal generated and
+      approved. Mirrors
+      tests/test_atlas/test_end_to_end_validation.py::test_planning_stage_with_deliverables_commits_end_to_end.
+    adapter: ai
+    category: multi_step
+    steps:
+      - command:
+          type: CreateProjectCommand
+          fields: {name: "Rollback Tooling", description: "D", objective: "O"}
+        capture: {project_id: "result.id"}
+        expected: {outcome: success, capability: project}
+      - command:
+          type: TransitionStageCommand
+          fields: {project_id: "$project_id"}
+        expected: {outcome: success, capability: workflow}
+      - command:
+          type: ExecuteStageCommand
+          fields: {project_id: "$project_id", stage: "research"}
+        ai_response: >
+          {"problem_statement": "Users cannot recover from a failed deployment.",
+           "objectives": ["Design a rollback mechanism", "Document the recovery runbook"]}
+        capture: {research_proposal_id: "result.id"}
+        expected: {outcome: success, capability: workflow_execution}
+      - command:
+          type: ApproveProposalCommand
+          fields: {project_id: "$project_id", proposal_id: "$research_proposal_id"}
+        expected:
+          outcome: success
+          capability: workflow_execution
+          checks:
+            - field: result.transition_blocked
+              equals: false
+      - command:
+          type: ExecuteStageCommand
+          fields: {project_id: "$project_id", stage: "planning"}
+        ai_response: >
+          {"scope_statement": "Ship the rollback CLI tool.",
+           "deliverables": [{"title": "Rollback Mechanism", "description": "Core rollback logic."}]}
+        capture: {planning_proposal_id: "result.id"}
+        expected: {outcome: success, capability: workflow_execution}
+      - command:
+          type: ApproveProposalCommand
+          fields: {project_id: "$project_id", proposal_id: "$planning_proposal_id"}
+        expected:
+          outcome: success
+          capability: workflow_execution
+          checks:
+            - field: result.success
+              equals: true
+            - field: result.transition_blocked
+              equals: false
+            - field: result.blocking_issues
+              equals: []
+
+  - task_id: multi-002-reject-then-retry-recovery
+    description: >
+      Rejecting a proposal must not commit it and must block a later
+      approval of that same proposal; regenerating and approving must still
+      succeed. Mirrors
+      tests/test_atlas/test_end_to_end_validation.py::test_reject_then_retry_recovery_flow.
+    adapter: ai
+    category: multi_step
+    steps:
+      - command:
+          type: CreateProjectCommand
+          fields: {name: "Recovery Flow", description: "D", objective: "O"}
+        capture: {project_id: "result.id"}
+        expected: {outcome: success, capability: project}
+      - command:
+          type: TransitionStageCommand
+          fields: {project_id: "$project_id"}
+        expected: {outcome: success, capability: workflow}
+      - command:
+          type: ExecuteStageCommand
+          fields: {project_id: "$project_id", stage: "research"}
+        ai_response: >
+          {"problem_statement": "P", "objectives": ["O"]}
+        capture: {first_proposal_id: "result.id"}
+        expected: {outcome: success, capability: workflow_execution}
+      - command:
+          type: RejectProposalCommand
+          fields:
+            project_id: "$project_id"
+            proposal_id: "$first_proposal_id"
+            feedback: "Needs more evidence."
+        expected: {outcome: success, capability: workflow_execution}
+      - command:
+          type: ApproveProposalCommand
+          fields: {project_id: "$project_id", proposal_id: "$first_proposal_id"}
+        expected:
+          outcome: error
+          capability: workflow_execution
+          error_code: PROPOSAL_VALIDATION_ERROR
+      - command:
+          type: ExecuteStageCommand
+          fields: {project_id: "$project_id", stage: "research"}
+        ai_response: >
+          {"problem_statement": "P retried", "objectives": ["O retried"]}
+        capture: {second_proposal_id: "result.id"}
+        expected: {outcome: success, capability: workflow_execution}
+      - command:
+          type: ApproveProposalCommand
+          fields: {project_id: "$project_id", proposal_id: "$second_proposal_id"}
+        expected:
+          outcome: success
+          capability: workflow_execution
+          checks:
+            - field: result.success
+              equals: true
+
+  - task_id: multi-003-knowledge-lookup-then-archive-lifecycle
+    description: >
+      A non-AI multi-step lifecycle: a fresh project has no knowledge
+      candidates yet, then gets archived -- exercises Knowledge and Project
+      capabilities in one chained task without needing AI stubbing.
+    adapter: ide
+    category: multi_step
+    steps:
+      - command:
+          type: CreateProjectCommand
+          fields: {name: "Lifecycle", description: "D", objective: "O"}
+        capture: {project_id: "result.id"}
+        expected: {outcome: success, capability: project}
+      - command:
+          type: TransitionStageCommand
+          fields: {project_id: "$project_id"}
+        expected: {outcome: success, capability: workflow}
+      - command:
+          type: ListKnowledgeCandidatesCommand
+          fields: {project_id: "$project_id"}
+        expected:
+          outcome: success
+          capability: knowledge
+          checks:
+            - field: result.candidates
+              equals: []
+      - command:
+          type: ArchiveProjectCommand
+          fields: {project_id: "$project_id"}
+        expected:
+          outcome: success
+          capability: project
+          checks:
+            - field: result.success
+              equals: true

@@ -1,0 +1,33 @@
+# Tiny fixture suite for the eval runner's own tests -- MockAIProvider-backed,
+# deterministic, no network/model dependency. See evals/tasks/benchmark.yaml
+# for the schema this mirrors.
+
+tasks:
+  - task_id: fixture-001-create-project
+    description: "Creating a project succeeds and routes to Project."
+    adapter: cli
+    category: tool_selection
+    input:
+      command:
+        type: CreateProjectCommand
+        fields: {name: "Fixture", description: "D", objective: "O"}
+    expected:
+      outcome: success
+      capability: project
+      result_type: ProjectResult
+      checks:
+        - field: result.name
+          equals: "Fixture"
+
+  - task_id: fixture-002-load-nonexistent-project
+    description: "Loading a nonexistent project fails with PROJECT_NOT_FOUND."
+    adapter: mcp
+    category: error_handling
+    input:
+      command:
+        type: LoadProjectCommand
+        fields: {project_id: "00000000-0000-0000-0000-000000000000"}
+    expected:
+      outcome: error
+      capability: project
+      error_code: PROJECT_NOT_FOUND

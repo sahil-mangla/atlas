@@ -1,0 +1,137 @@
+{
+  "run_id": "20260819T122908Z",
+  "tasks": {
+    "cli-001-create-project": {
+      "task_id": "cli-001-create-project",
+      "passed": true,
+      "total_latency_ms": 0.6259169895201921,
+      "total_tokens": 0
+    },
+    "cli-002-list-projects-empty": {
+      "task_id": "cli-002-list-projects-empty",
+      "passed": true,
+      "total_latency_ms": 0.017417012713849545,
+      "total_tokens": 0
+    },
+    "cli-003-workflow-status-after-transition": {
+      "task_id": "cli-003-workflow-status-after-transition",
+      "passed": true,
+      "total_latency_ms": 1.2145430082455277,
+      "total_tokens": 0
+    },
+    "mcp-001-transition-stage": {
+      "task_id": "mcp-001-transition-stage",
+      "passed": true,
+      "total_latency_ms": 1.107499934732914,
+      "total_tokens": 0
+    },
+    "mcp-002-execute-research-stage": {
+      "task_id": "mcp-002-execute-research-stage",
+      "passed": true,
+      "total_latency_ms": 17467.01295801904,
+      "total_tokens": 1388
+    },
+    "mcp-003-list-knowledge-candidates-empty": {
+      "task_id": "mcp-003-list-knowledge-candidates-empty",
+      "passed": true,
+      "total_latency_ms": 3.6279999185353518,
+      "total_tokens": 0
+    },
+    "ide-001-archive-project": {
+      "task_id": "ide-001-archive-project",
+      "passed": true,
+      "total_latency_ms": 1.0367919458076358,
+      "total_tokens": 0
+    },
+    "ide-002-load-project-round-trip": {
+      "task_id": "ide-002-load-project-round-trip",
+      "passed": true,
+      "total_latency_ms": 0.4427919629961252,
+      "total_tokens": 0
+    },
+    "ide-003-review-nonexistent-knowledge-candidate": {
+      "task_id": "ide-003-review-nonexistent-knowledge-candidate",
+      "passed": true,
+      "total_latency_ms": 0.6200829520821571,
+      "total_tokens": 0
+    },
+    "rest-001-create-project-full-fields": {
+      "task_id": "rest-001-create-project-full-fields",
+      "passed": true,
+      "total_latency_ms": 0.44945802073925734,
+      "total_tokens": 0
+    },
+    "rest-002-approve-nonexistent-proposal": {
+      "task_id": "rest-002-approve-nonexistent-proposal",
+      "passed": true,
+      "total_latency_ms": 0.5725009832531214,
+      "total_tokens": 0
+    },
+    "rest-003-reject-nonexistent-proposal": {
+      "task_id": "rest-003-reject-nonexistent-proposal",
+      "passed": true,
+      "total_latency_ms": 0.7067080587148666,
+      "total_tokens": 0
+    },
+    "schema-001-error-envelope-shape": {
+      "task_id": "schema-001-error-envelope-shape",
+      "passed": true,
+      "total_latency_ms": 0.032624928280711174,
+      "total_tokens": 0
+    },
+    "tool-001-execute-stage-invokes-workflow-execution-and-ai": {
+      "task_id": "tool-001-execute-stage-invokes-workflow-execution-and-ai",
+      "passed": true,
+      "total_latency_ms": 11468.10383303091,
+      "total_tokens": 1391
+    },
+    "err-001-load-nonexistent-project": {
+      "task_id": "err-001-load-nonexistent-project",
+      "passed": true,
+      "total_latency_ms": 0.13025000225752592,
+      "total_tokens": 0
+    },
+    "hall-001-unknown-command-type": {
+      "task_id": "hall-001-unknown-command-type",
+      "passed": true,
+      "total_latency_ms": 0.013875076547265053,
+      "total_tokens": 0
+    },
+    "hall-002-hallucinated-extra-field-is-silently-dropped": {
+      "task_id": "hall-002-hallucinated-extra-field-is-silently-dropped",
+      "passed": true,
+      "total_latency_ms": 2.106625004671514,
+      "total_tokens": 0
+    },
+    "hall-003-invalid-enum-value-rejected-before-reaching-atlas": {
+      "task_id": "hall-003-invalid-enum-value-rejected-before-reaching-atlas",
+      "passed": true,
+      "total_latency_ms": 0,
+      "total_tokens": 0
+    },
+    "hall-004-missing-required-field-rejected-before-reaching-atlas": {
+      "task_id": "hall-004-missing-required-field-rejected-before-reaching-atlas",
+      "passed": true,
+      "total_latency_ms": 0,
+      "total_tokens": 0
+    },
+    "multi-001-research-to-planning-pipeline": {
+      "task_id": "multi-001-research-to-planning-pipeline",
+      "passed": true,
+      "total_latency_ms": 61896.162208984606,
+      "total_tokens": 3367
+    },
+    "multi-002-reject-then-retry-recovery": {
+      "task_id": "multi-002-reject-then-retry-recovery",
+      "passed": true,
+      "total_latency_ms": 21239.970040973276,
+      "total_tokens": 2844
+    },
+    "multi-003-knowledge-lookup-then-archive-lifecycle": {
+      "task_id": "multi-003-knowledge-lookup-then-archive-lifecycle",
+      "passed": true,
+      "total_latency_ms": 4.16370783932507,
+      "total_tokens": 0
+    }
+  }
+}

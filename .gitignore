@@ -44,3 +44,8 @@ workspace/
 
 # GSD planning and onboarding state (local development only)
 .planning/
+
+# Eval runner artifacts -- timestamped per-run output (report + per-task
+# platform workspaces), not source. evals/baselines/ IS tracked, so
+# regression detection has continuity across commits.
+evals/runs/
