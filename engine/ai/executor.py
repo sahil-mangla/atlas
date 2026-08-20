@@ -7,6 +7,7 @@ from pydantic import BaseModel, ValidationError
 
 from engine.ai.context import ContextStrategy
 from engine.ai.exceptions import AIProviderException, InvalidProposalException
+from engine.ai.observability import capture_response_usage
 from engine.ai.provider import AIProvider
 from engine.domain.ai import AIGenerationParameters, AIRequest, ContextPayload
 from engine.prompt.templates import PromptTemplate
@@ -40,6 +41,10 @@ class PromptExecutor:
         )
         self._require_supported_capabilities(request)
         response = self._provider.generate(request)
+        # Captured before the JSON-parse step below so a malformed-JSON
+        # failure still produces a trace record with real token counts --
+        # the tokens were genuinely spent even though parsing then failed.
+        capture_response_usage(self._provider, response)
         try:
             return draft_cls.model_validate(json.loads(response.content))
         except (json.JSONDecodeError, ValidationError) as error:

@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from atlas._service import Atlas, _AtlasServices
+from atlas.observability.exporter import TraceExporter
 from engine.ai.context import IdentityContextStrategy
 from engine.ai.engineering_services import (
     ArchitectureAIEngineeringService,
@@ -110,7 +111,11 @@ from tests.ai.test_adapters import MockAIProvider
 
 
 def create_test_platform(  # noqa: PLR0915
-    tmp_path: Path, ai_provider: AIProvider | None = None
+    tmp_path: Path,
+    ai_provider: AIProvider | None = None,
+    *,
+    instrumentation_enabled: bool = True,
+    exporter: TraceExporter | None = None,
 ) -> Atlas:
     """Construct the test platform using the production dependency shape.
 
@@ -120,6 +125,10 @@ def create_test_platform(  # noqa: PLR0915
             ``MockAIProvider`` stubbed with ``"{}"``; pass an instance whose
             ``stubbed_response`` can be mutated between calls to drive a
             proposal through a real, non-empty stage execution.
+        instrumentation_enabled: Passed straight through to ``Atlas``.
+        exporter: Passed straight through to ``Atlas``. Defaults (via
+            ``Atlas`` itself) to ``NullExporter``, so existing callers see no
+            behavior change and no filesystem side effects.
     """
     workspace_root = tmp_path / "workspace"
     workspace_root.mkdir()
@@ -293,7 +302,9 @@ def create_test_platform(  # noqa: PLR0915
             architecture_repo=architecture_repo,
             evaluation_repo=evaluation_repo,
             knowledge_repo=knowledge_repo,
-        )
+        ),
+        instrumentation_enabled=instrumentation_enabled,
+        exporter=exporter,
     )
 
     platform_orchestration = PlatformOrchestrationService(

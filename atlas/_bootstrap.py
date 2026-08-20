@@ -7,6 +7,7 @@ by client adapters. It wires the engine subsystems and returns the public facade
 import logging
 
 from atlas._service import Atlas, _AtlasServices
+from atlas.observability.exporter import JsonlFileExporter, NullExporter
 from engine.ai.config import ProviderConfig
 from engine.ai.context import IdentityContextStrategy
 from engine.ai.engineering_services import (
@@ -326,6 +327,11 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
     )
 
     # 8. Facade Assembly
+    exporter = (
+        JsonlFileExporter(settings.workspace_root / "traces")
+        if settings.instrumentation_enabled
+        else NullExporter()
+    )
     atlas = Atlas(
         _AtlasServices(
             project_creation_service=project_creation_service,
@@ -343,7 +349,9 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
             architecture_repo=architecture_repo,
             evaluation_repo=evaluation_repo,
             knowledge_repo=knowledge_repo,
-        )
+        ),
+        instrumentation_enabled=settings.instrumentation_enabled,
+        exporter=exporter,
     )
 
     # 9. Presentation Layer (Phase 14)

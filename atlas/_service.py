@@ -14,6 +14,7 @@ from atlas.capabilities import (
     WorkflowCapability,
     WorkflowExecutionCapability,
 )
+from atlas.capabilities.base import CapabilityName
 from atlas.commands import (
     ApproveProposalCommand,
     ArchiveProjectCommand,
@@ -33,6 +34,8 @@ from atlas.commands import (
 from atlas.contracts.envelope import RequestEnvelope, ResponseEnvelope
 from atlas.contracts.errors import ErrorEnvelope, PlatformErrorCode, to_error_envelope
 from atlas.exceptions import ApplicationError
+from atlas.observability.exporter import NullExporter, TraceExporter
+from atlas.observability.instrumentation import instrument_request
 from atlas.results import (
     CommitResult as AppCommitResult,
 )
@@ -81,6 +84,26 @@ from presentation.views import (
     WorkflowStatusView,
 )
 
+#: Explicit, literal command -> capability table for trace records built by
+#: ``handle()``. Mirrors ``Atlas._dispatch`` one-for-one (guarded by
+#: ``tests/observability/test_instrumentation.py``); no reflection, no
+#: getattr-by-name magic.
+_COMMAND_CAPABILITY: dict[type[Command], CapabilityName] = {
+    CreateProjectCommand: CapabilityName.PROJECT,
+    LoadProjectCommand: CapabilityName.PROJECT,
+    ListProjectsCommand: CapabilityName.PROJECT,
+    ArchiveProjectCommand: CapabilityName.PROJECT,
+    GetWorkflowStatusCommand: CapabilityName.WORKFLOW,
+    TransitionStageCommand: CapabilityName.WORKFLOW,
+    CompleteObjectiveCommand: CapabilityName.WORKFLOW,
+    ExecuteStageCommand: CapabilityName.WORKFLOW_EXECUTION,
+    ApproveProposalCommand: CapabilityName.WORKFLOW_EXECUTION,
+    RejectProposalCommand: CapabilityName.WORKFLOW_EXECUTION,
+    ReviewKnowledgeCandidateCommand: CapabilityName.KNOWLEDGE,
+    ListKnowledgeCandidatesCommand: CapabilityName.KNOWLEDGE,
+    ShowKnowledgeCandidateCommand: CapabilityName.KNOWLEDGE,
+}
+
 
 @dataclass(frozen=True)
 class _AtlasServices:
@@ -118,8 +141,25 @@ class Atlas:
     See docs/plans/phase-15-platform-layer.md for the full design.
     """
 
-    def __init__(self, services: _AtlasServices) -> None:
-        """Initialize the Atlas facade with required engine services."""
+    def __init__(
+        self,
+        services: _AtlasServices,
+        *,
+        instrumentation_enabled: bool = True,
+        exporter: TraceExporter | None = None,
+    ) -> None:
+        """Initialize the Atlas facade with required engine services.
+
+        ``exporter`` defaults to ``NullExporter`` (discards every record)
+        rather than resolving a filesystem path itself -- ``Atlas`` never
+        reaches for global settings; the composition root
+        (``atlas/_bootstrap.py``) resolves settings once and passes the
+        concrete exporter in explicitly, exactly like every other
+        dependency here. This also keeps direct ``Atlas(...)`` construction
+        (e.g. in tests) free of filesystem side effects by default.
+        """
+        self._instrumentation_enabled = instrumentation_enabled
+        self._trace_exporter = exporter if exporter is not None else NullExporter()
         self._project = ProjectCapability(
             project_creation_service=services.project_creation_service,
             project_loading_service=services.project_loading_service,
@@ -263,6 +303,19 @@ class Atlas:
 
     def handle(self, envelope: RequestEnvelope[Any]) -> ResponseEnvelope[Any]:
         """Dispatch a versioned RequestEnvelope to the matching capability method."""
+        if not self._instrumentation_enabled:
+            return self._dispatch_envelope(envelope)
+        return instrument_request(
+            envelope,
+            self._dispatch_envelope,
+            _COMMAND_CAPABILITY.get,
+            self._trace_exporter,
+        )
+
+    def _dispatch_envelope(
+        self, envelope: RequestEnvelope[Any]
+    ) -> ResponseEnvelope[Any]:
+        """The actual dispatch logic ``handle()`` wraps with instrumentation."""
         handler = self._dispatch.get(type(envelope.command))
         if handler is None:
             error = ErrorEnvelope(

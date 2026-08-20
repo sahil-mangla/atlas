@@ -56,6 +56,10 @@ class Settings(BaseSettings):
         default="INFO",
         description="Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).",
     )
+    instrumentation_enabled: bool = Field(
+        default=True,
+        description="Whether request-level trace records are captured and exported.",
+    )
 
     research_max_candidates: int = Field(
         default=5,
