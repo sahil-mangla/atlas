@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document describes the Phase 15 additions inside `atlas/`: the **Capability Layer** (`atlas/capabilities/`), the **Contract Layer** (`atlas/contracts/`), and the **Adapter Boundary** (`atlas/adapters/`). Together they formalize the single doorway every client -- CLI, IDE, MCP, and AI/agent callers alike -- goes through before reaching an engine subsystem.
+This document describes the Phase 15 additions inside `atlas/`: the **Capability Layer** (`atlas/capabilities/`), the **Contract Layer** (`atlas/contracts/`), and the **Adapter Boundary** (`atlas/adapters/`). Together they formalize the single doorway every client -- CLI, IDE, MCP, and AI/agent callers alike -- goes through before reaching an engine subsystem. The request boundary is also the integration point for the later observability layer described in [Observability](#observability).
 
 Phase 15 is purely additive and internal restructuring. It does not change `engine/*`, `presentation/*`, the shape of `Command`/`Result` DTOs, or the Application Platform Layer boundary established in [ADR-002](../decisions/adr-002-application-platform-layer.md). Every existing public `Atlas` method keeps its exact signature and behavior.
 
@@ -142,3 +142,31 @@ MCP, IDE, REST, and Desktop remain unbuilt stub packages. Any adapter built agai
 - `tests/support/test_platform_bootstrap.py` -- extended with a non-regression check that `_dispatch` stays a literal dict, never dynamic `getattr`-by-name lookup.
 
 See also [Platform Request Dispatch Diagram](../diagrams/platform-request-dispatch.md) and [ADR-004](../decisions/adr-004-platform-capability-contract-layer.md).
+
+---
+
+## Observability
+
+`Atlas.handle()` wraps the dispatch path with request instrumentation when
+`Settings.instrumentation_enabled` is true. The wrapper records the adapter,
+capability, request latency, outcome, platform error code, and AI usage for the
+whole request. AI usage is reported by `PromptExecutor` through
+`shared.observability.usage_context`, keeping the dependency direction intact:
+`atlas` and `engine.ai` both depend on `shared`, while `engine.ai` never imports
+`atlas`.
+
+The composition root supplies `JsonlFileExporter` in production and places
+daily records under `<workspace-root>/traces/`. Direct `Atlas` construction
+defaults to `NullExporter`, so the public facade remains safe to instantiate in
+tests and embedded callers without implicit filesystem configuration.
+
+Returned platform errors and unexpected dispatch exceptions both produce
+`error` trace records. Unexpected exceptions are re-raised unchanged after the
+record is attempted. Exporter errors are logged and swallowed. This keeps
+observability diagnostic rather than authoritative: it may be absent or
+degraded without changing the request's result or exception behavior.
+
+The envelope boundary is intentionally separate from the named facade methods.
+The CLI still uses named methods, while protocol-style clients and the eval
+runner use `Atlas.handle(RequestEnvelope)` and receive the traceable,
+versioned contract.

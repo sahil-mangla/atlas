@@ -9,6 +9,15 @@ Welcome to the official ATLAS Architecture Baseline documentation. This referenc
 ### 1. [Glossary](file:///Users/sahilmangla/atlas/docs/glossary.md)
 Canonical definitions of terminology matching the codebase.
 
+### 1a. [FAQ](file:///Users/sahilmangla/atlas/docs/faq.md)
+Q&A walkthrough of the architecture, workflow, AI constitution, and knowledge lifecycle — a faster entry point than reading every doc below.
+
+### 1b. [Observability Guide](file:///Users/sahilmangla/atlas/docs/observability.md)
+Request traces, AI usage capture, exporters, configuration, and operational behavior.
+
+### 1c. [Evaluation and Regression Guide](file:///Users/sahilmangla/atlas/docs/evaluations.md)
+YAML benchmark tasks, real-provider runs, reports, and baseline comparison.
+
 ### 2. Architecture Reference
 - **[Application Platform Layer](file:///Users/sahilmangla/atlas/docs/architecture/application-platform.md)**: The public Atlas SDK boundary, commands, results, and exception contract.
 - **[Client Adapter Layer](file:///Users/sahilmangla/atlas/docs/architecture/client-adapters.md)**: Presentation and transport bindings exposing the Atlas SDK to external execution environments.
@@ -30,6 +39,8 @@ Canonical definitions of terminology matching the codebase.
 - **[Presentation Layer (Phase 14)](file:///Users/sahilmangla/atlas/docs/architecture/presentation-layer.md)**: The upper, non-engine layer composing typed immutable Views from the Atlas read-model API and rendering them to JSON/Markdown/CLI.
 - **[Presentation Extension Guide](file:///Users/sahilmangla/atlas/docs/guides/presentation-extension-guide.md)**: Walkthrough for adding a new View kind to the presentation layer.
 - **[Platform Layer (Phase 15)](file:///Users/sahilmangla/atlas/docs/architecture/platform-layer.md)**: The Capability Layer, Contract Layer, and Adapter Boundary formalizing the single doorway every client goes through before reaching an engine subsystem.
+- **[Observability Guide](file:///Users/sahilmangla/atlas/docs/observability.md)**: Request-boundary tracing, AI token usage, JSONL export, and failure behavior.
+- **[Evaluation and Regression Guide](file:///Users/sahilmangla/atlas/docs/evaluations.md)**: The benchmark task format, runner commands, reports, and baselines.
 
 ### 3. Architecture Decisions (ADRs)
 - **[ADR-001: Architecture Baseline v1.0](file:///Users/sahilmangla/atlas/docs/decisions/adr-001-architecture-baseline-v1.md)**: Initial ADR locking the v1.0 design baseline.
@@ -52,3 +63,4 @@ Canonical definitions of terminology matching the codebase.
 - **[Knowledge Workflow Integration](file:///Users/sahilmangla/atlas/docs/diagrams/knowledge-workflow-integration.md)**
 - **[Presentation Flow (Phase 14)](file:///Users/sahilmangla/atlas/docs/diagrams/presentation-flow.md)**: Atlas Facade to PlatformOrchestrationService to Collectors to Read Models to Views to Renderers to RenderResult.
 - **[Platform Request Dispatch (Phase 15)](file:///Users/sahilmangla/atlas/docs/diagrams/platform-request-dispatch.md)**: `Atlas.handle(RequestEnvelope)` through Capability dispatch to `ResponseEnvelope`.
+- **[Observed Platform Request](file:///Users/sahilmangla/atlas/docs/diagrams/observed-platform-request.md)**: Request instrumentation, shared AI usage capture, and trace export around the platform boundary.

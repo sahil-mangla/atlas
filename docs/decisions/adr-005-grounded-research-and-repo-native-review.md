@@ -99,3 +99,24 @@ Separately, the same audit found and fixed defects in the retrieval clients them
 - arXiv queries are now sanitized (parentheses, colons, quotes stripped, lowercased) before being embedded in `search_query`, so ordinary punctuation in a project description can no longer be reinterpreted as arXiv's `AND`/`OR`/`ANDNOT`/field-prefix query syntax.
 
 None of this changes the ADR's decisions -- it closes gaps in how faithfully the decided design was actually implemented.
+
+### Retrieval query and model-behavior hardening (later audit)
+
+Two further adjustments preserve the same grounding decision while addressing
+observed behavior in real searches and local models:
+
+- `ResearchRetrievalService._build_query()` now extracts a bounded,
+  case-insensitively deduplicated list of domain keywords and removes only
+  generic English stopwords. Passing the full objective and description as one
+  paragraph caused a project's ordinary name, such as "ATLAS", to dominate
+  search results and retrieve unrelated CERN particle-detector papers.
+- Grounding validation requires both the retrieved `external_id` and the exact
+  retrieved `title` to survive model generation. `origin`, `citation`, `type`,
+  and `summary` may be rewritten because live local models were observed to
+  paraphrase those cosmetic fields even when explicitly instructed to copy
+  them verbatim. The source identity remains fixed while the model can still
+  produce a usable summary.
+
+These constraints are covered by regression tests in
+`tests/research/test_retrieval.py` and
+`tests/ai/test_engineering_services.py`.

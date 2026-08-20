@@ -24,6 +24,7 @@ project's permanent record. Nothing an AI drafts is ever silently committed.
 - [Quick Start](#quick-start)
 - [Configuring an AI Provider](#configuring-an-ai-provider)
 - [CLI Reference](#cli-reference)
+- [Observability and Evaluations](#observability-and-evaluations)
 - [Architecture](#architecture)
 - [Documentation](#documentation)
 - [Development Setup](#development-setup)
@@ -152,6 +153,27 @@ or `atlas knowledge reject --feedback <f>` to review one.
 
 See the [CLI Reference](#cli-reference) below for the full command set.
 
+## Observability and Evaluations
+
+Every envelope-based request handled through `Atlas.handle()` can produce a
+structured trace containing its capability, adapter, latency, outcome, and AI
+token usage. Production bootstrap writes daily JSONL traces under
+`<workspace-root>/traces/`; set `ATLAS_INSTRUMENTATION_ENABLED=false` to turn
+this off. Unexpected exceptions are traced and then re-raised, while exporter
+failures never interrupt request handling.
+
+The platform also includes a YAML-driven evaluation suite for command routing,
+response schemas, multi-step workflows, error handling, and AI execution:
+
+```bash
+uv run python -m evals
+```
+
+Runs are written to `evals/runs/` and compared with the tracked baseline at
+`evals/baselines/latest.json`. See the [observability guide](docs/observability.md)
+and [evaluation guide](docs/evaluations.md) for configuration, task authoring,
+trace fields, and baseline updates.
+
 ## Configuring an AI Provider
 
 ATLAS is provider-agnostic: it talks to any of four protocols through a common
@@ -258,6 +280,12 @@ and IDE integrations are Version 2 scope) into calls against that SDK.
 - **`clients/`** -- Client adapters (CLI today; MCP/IDE/REST are Version 2)
   translating external execution environments to the public Atlas SDK.
 - **`shared/`** -- Common utilities and cross-cutting concerns.
+  - **`shared/observability/`** -- Request-scoped AI usage capture shared by
+    the engine provider boundary and the Atlas request boundary.
+- **`atlas/observability/`** -- Trace schema, request instrumentation, and
+  pluggable exporters for the platform boundary.
+- **`evals/`** -- YAML task loader, benchmark runner, report generation, and
+  baseline regression detection.
 
 ## Documentation
 
@@ -270,6 +298,8 @@ The full architecture reference, ADRs, and diagrams live under
 - [Engineering Workflow](docs/architecture/engineering-workflow.md)
 - [Architecture Decision Records](docs/decisions/)
 - [Glossary](docs/glossary.md)
+- [Observability Guide](docs/observability.md)
+- [Evaluation and Regression Guide](docs/evaluations.md)
 - [CHANGELOG](CHANGELOG.md)
 
 ## Development Setup
@@ -309,6 +339,9 @@ uv run mypy .
 
 # Test
 uv run pytest
+
+# Run the platform benchmark against the configured/default AI provider
+uv run python -m evals
 ```
 
 ### Pre-commit Hooks
