@@ -7,6 +7,7 @@ LLM's only role is condensing an already-real abstract into a summary.
 """
 
 import logging
+import re
 from concurrent.futures import ThreadPoolExecutor
 from itertools import zip_longest
 from typing import Protocol
@@ -36,6 +37,124 @@ class EvidenceRetriever(Protocol):
 
 _ABSTRACT_FALLBACK_CHARS = 280
 _MAX_CITED_AUTHORS = 3
+_MAX_QUERY_KEYWORDS = 18
+
+# Generic English stopwords only -- no domain-specific words. A project's
+# objective/description can legitimately be about anything (including, say,
+# "systems design"), so the list must not risk discarding a real keyword.
+_STOPWORDS = frozenset(
+    {
+        "a",
+        "an",
+        "the",
+        "and",
+        "or",
+        "but",
+        "of",
+        "to",
+        "for",
+        "in",
+        "on",
+        "at",
+        "from",
+        "with",
+        "that",
+        "this",
+        "these",
+        "those",
+        "is",
+        "are",
+        "was",
+        "were",
+        "be",
+        "been",
+        "being",
+        "have",
+        "has",
+        "had",
+        "do",
+        "does",
+        "did",
+        "will",
+        "would",
+        "should",
+        "could",
+        "can",
+        "may",
+        "might",
+        "must",
+        "shall",
+        "not",
+        "no",
+        "nor",
+        "as",
+        "if",
+        "than",
+        "then",
+        "so",
+        "such",
+        "both",
+        "each",
+        "few",
+        "more",
+        "most",
+        "other",
+        "some",
+        "only",
+        "own",
+        "same",
+        "too",
+        "very",
+        "s",
+        "t",
+        "just",
+        "now",
+        "it",
+        "its",
+        "they",
+        "them",
+        "their",
+        "we",
+        "our",
+        "you",
+        "your",
+        "i",
+        "he",
+        "she",
+        "his",
+        "her",
+        "by",
+        "about",
+        "into",
+        "through",
+    }
+)
+_WORD_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9'-]*")
+
+
+def _extract_keywords(text: str, limit: int) -> list[str]:
+    """Reduce free text to an ordered, deduplicated keyword list.
+
+    Real academic search APIs (arXiv, OpenAlex, Semantic Scholar) rank by
+    keyword overlap, not semantic understanding -- sending a full paragraph
+    verbatim dilutes relevance and can collide with unrelated papers on
+    common filler words. Confirmed directly: a raw objective+description
+    paragraph for a traffic-sensor-resilience project matched CERN's ATLAS
+    particle-detector papers on this project's own "ATLAS" name. Filtering
+    stopwords and deduplicating meaningfully improved relevance on both
+    arXiv and OpenAlex in manual verification against the live APIs.
+    """
+    keywords: list[str] = []
+    seen: set[str] = set()
+    for word in _WORD_PATTERN.findall(text):
+        lowered = word.lower()
+        if lowered in _STOPWORDS or lowered in seen:
+            continue
+        seen.add(lowered)
+        keywords.append(word)
+        if len(keywords) >= limit:
+            break
+    return keywords
 
 
 def _format_citation(candidate: PaperCandidate) -> str:
@@ -97,9 +216,10 @@ class ResearchRetrievalService:
         project = self._project_repo.get_by_id(project_id)
         if not project:
             return ""
-        return " ".join(
+        text = " ".join(
             part for part in (project.objective, project.description) if part
-        ).strip()
+        )
+        return " ".join(_extract_keywords(text, _MAX_QUERY_KEYWORDS))
 
     def _search_one_source(
         self, source: PaperSource, query: str

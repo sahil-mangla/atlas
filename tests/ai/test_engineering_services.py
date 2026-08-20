@@ -362,6 +362,102 @@ def test_research_ai_service_accepts_faithfully_reproduced_evidence(
     assert proposal.data.evidence[0].external_id == "arxiv:1234.5678"
 
 
+def test_research_ai_service_rejects_evidence_with_title_altered(
+    assembler: ContextAssemblerService,
+) -> None:
+    """A draft that keeps a real, retrieved external_id but attributes it to
+    a different title must be rejected -- title is what actually prevents
+    misattributing a real paper's identity to fabricated content."""
+    retrieved = [
+        ResearchEvidenceDraft(
+            title="Real Paper",
+            type="paper",
+            origin="arxiv: https://arxiv.org/abs/1234.5678",
+            citation="A. Author (2023). Real Paper. https://arxiv.org/abs/1234.5678",
+            summary="A real, retrieved summary.",
+            external_id="arxiv:1234.5678",
+        )
+    ]
+    draft_data = ResearchProposalDraft(
+        problem_statement="Build atomic engine",
+        objectives=["Speed"],
+        evidence=[
+            ResearchEvidenceDraft(
+                title="A Completely Different Paper",  # altered
+                citation="A. Author (2023). Real Paper. https://arxiv.org/abs/1234.5678",
+                summary="A real, retrieved summary.",
+                external_id="arxiv:1234.5678",  # kept genuine
+            )
+        ],
+    )
+    registry = PromptLoader.load_registry()
+    executor = PromptExecutor(
+        MockAIProvider(draft_data.model_dump_json()), IdentityContextStrategy()
+    )
+    orchestrator = AIOrchestrationService(executor, registry)
+    service = ResearchAIEngineeringService(
+        orchestrator,
+        assembler,
+        ResearchProposalValidator(),
+        retrieval_service=FakeRetrievalService(retrieved),
+    )
+
+    with pytest.raises(InvalidProposalException, match="title"):
+        service.generate(uuid4())
+
+
+def test_research_ai_service_accepts_evidence_with_citation_fields_rewritten(
+    assembler: ContextAssemblerService,
+) -> None:
+    """A draft that keeps the real external_id and title, but rewrites
+    origin/citation/type/summary, is accepted -- confirmed against a live
+    local model (qwen2.5-coder:7b), which reliably rewrites those fields
+    into generic placeholder text ("AI Suggestion"/"AI Generated"/
+    "document") even when explicitly told to reproduce them verbatim.
+    Requiring an exact match there made real research-stage generation
+    fail validation almost every time; external_id + title are what
+    actually carry the anti-fabrication guarantee."""
+    retrieved = [
+        ResearchEvidenceDraft(
+            title="Real Paper",
+            type="paper",
+            origin="arxiv: https://arxiv.org/abs/1234.5678",
+            citation="A. Author (2023). Real Paper. https://arxiv.org/abs/1234.5678",
+            summary="A real, retrieved summary.",
+            external_id="arxiv:1234.5678",
+        )
+    ]
+    draft_data = ResearchProposalDraft(
+        problem_statement="Build atomic engine",
+        objectives=["Speed"],
+        evidence=[
+            ResearchEvidenceDraft(
+                title="Real Paper",  # kept genuine
+                type="document",  # rewritten
+                origin="AI Suggestion",  # rewritten
+                citation="AI Generated",  # rewritten
+                summary="A model-paraphrased summary.",  # rewritten
+                external_id="arxiv:1234.5678",  # kept genuine
+            )
+        ],
+    )
+    registry = PromptLoader.load_registry()
+    executor = PromptExecutor(
+        MockAIProvider(draft_data.model_dump_json()), IdentityContextStrategy()
+    )
+    orchestrator = AIOrchestrationService(executor, registry)
+    service = ResearchAIEngineeringService(
+        orchestrator,
+        assembler,
+        ResearchProposalValidator(),
+        retrieval_service=FakeRetrievalService(retrieved),
+    )
+
+    proposal = service.generate(uuid4())
+
+    assert proposal.data.evidence[0].external_id == "arxiv:1234.5678"
+
+
 def test_research_ai_service_no_grounding_check_without_retrieval_service(
     assembler: ContextAssemblerService,
 ) -> None:

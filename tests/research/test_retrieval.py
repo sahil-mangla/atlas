@@ -7,7 +7,11 @@ from engine.ai.context import IdentityContextStrategy
 from engine.ai.executor import PromptExecutor
 from engine.domain.project import Project
 from engine.project.repository import ProjectRepository
-from engine.research.retrieval import ResearchRetrievalService, _format_citation
+from engine.research.retrieval import (
+    ResearchRetrievalService,
+    _extract_keywords,
+    _format_citation,
+)
 from engine.research.sources.models import PaperCandidate
 from tests.ai.test_adapters import MockAIProvider
 
@@ -38,8 +42,10 @@ class FakeSource:
 
     def __init__(self, candidates: list[PaperCandidate]) -> None:
         self._candidates = candidates
+        self.last_query: str | None = None
 
-    def search(self, _query: str, max_results: int) -> list[PaperCandidate]:
+    def search(self, query: str, max_results: int) -> list[PaperCandidate]:
+        self.last_query = query
         return self._candidates[:max_results]
 
 
@@ -239,3 +245,79 @@ def test_format_citation_handles_many_authors_and_missing_year() -> None:
     )
     citation = _format_citation(candidate)
     assert citation == "A, B, C et al.. T. https://example.org/x"
+
+
+# -- _extract_keywords / _build_query -----------------------------------
+#
+# Regression coverage for a real bug found during a manual end-to-end run:
+# the query builder used to concatenate objective+description verbatim,
+# which matched CERN's ATLAS particle-detector papers on this project's own
+# "ATLAS" name when queried against the real arXiv/OpenAlex APIs.
+
+
+def test_extract_keywords_drops_stopwords() -> None:
+    keywords = _extract_keywords("This is a design for the resilient system", limit=20)
+    assert "this" not in [k.lower() for k in keywords]
+    assert "is" not in [k.lower() for k in keywords]
+    assert "a" not in [k.lower() for k in keywords]
+    assert "for" not in [k.lower() for k in keywords]
+    assert "the" not in [k.lower() for k in keywords]
+    assert "design" in keywords
+    assert "resilient" in keywords
+    assert "system" in keywords
+
+
+def test_extract_keywords_deduplicates_case_insensitively() -> None:
+    keywords = _extract_keywords("Traffic traffic TRAFFIC network Network", limit=20)
+    assert keywords == ["Traffic", "network"]
+
+
+def test_extract_keywords_respects_limit() -> None:
+    text = " ".join(f"word{i}" for i in range(50))
+    assert len(_extract_keywords(text, limit=10)) == 10
+
+
+def test_extract_keywords_preserves_first_occurrence_order_and_casing() -> None:
+    keywords = _extract_keywords("Sensor telemetry Architecture", limit=20)
+    assert keywords == ["Sensor", "telemetry", "Architecture"]
+
+
+def test_extract_keywords_does_not_overfit_to_domain_words() -> None:
+    """A project genuinely about "systems design" must keep those words --
+    the stopword list is standard English only, no domain-specific terms."""
+    keywords = _extract_keywords("systems design methodology", limit=20)
+    assert "systems" in keywords
+    assert "design" in keywords
+
+
+def test_build_query_sends_filtered_keywords_not_the_raw_paragraph() -> None:
+    project = Project(
+        name="P",
+        description=(
+            "Smart-city traffic management systems depend on continuous "
+            "telemetry from physical sensors."
+        ),
+        objective=(
+            "Design a resilient sensor telemetry architecture that preserves "
+            "situational awareness during hardware failures."
+        ),
+    )
+    source = FakeSource([_candidate("1")])
+    service = ResearchRetrievalService(
+        sources=[source],
+        project_repo=FakeProjectRepo(project),
+        prompt_executor=_executor_returning({"summaries": ["s"]}),
+    )
+
+    service.retrieve_evidence(project.id)
+
+    assert source.last_query is not None
+    query_words = source.last_query.lower().split()
+    assert "resilient" in query_words
+    assert "traffic" in query_words
+    # Raw full-sentence stopwords must not survive into the query.
+    assert "a" not in query_words
+    assert "that" not in query_words
+    # Must be meaningfully shorter than the raw concatenation.
+    raw_length = len(project.objective) + len(project.description)
+    assert len(source.last_query) < raw_length

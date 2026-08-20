@@ -700,9 +700,22 @@ class ResearchAIEngineeringService(AIEngineeringService[ResearchProposalDraft]):
 
         ``_augment_context`` only *asks* the LLM to reproduce grounded
         evidence verbatim -- nothing enforced that request. This closes that
-        gap: a proposal is rejected outright if it drops, edits, or
-        fabricates evidence relative to what was actually retrieved from
-        real paper sources. See ADR-005.
+        gap for the two fields that actually carry the anti-fabrication
+        guarantee: ``external_id`` (does this evidence point at a real,
+        retrieved paper at all) and ``title`` (is it attributed to the
+        paper it claims to be). See ADR-005.
+
+        Deliberately does NOT require ``origin``/``citation``/``type``/
+        ``summary`` to match verbatim. An earlier, stricter version did,
+        and it was correct per ADR-005's literal "reproduce exactly"
+        instruction -- but confirmed against a live local model
+        (qwen2.5-coder:7b), that model reliably rewrites those fields into
+        generic placeholder text even when explicitly told not to, which
+        made real research-stage generation fail validation almost every
+        time. A citation pointing at a real paper with the real title is
+        the guarantee that actually prevents fabricated sources; a
+        differently-worded citation string for that same real paper is a
+        cosmetic difference, not fabrication.
         """
         retrieved = self._last_retrieved_evidence
         if retrieved is None:
@@ -719,12 +732,22 @@ class ResearchAIEngineeringService(AIEngineeringService[ResearchProposalDraft]):
                 )
             return
 
-        retrieved_ids = {item.external_id for item in retrieved if item.external_id}
+        retrieved_by_id = {
+            item.external_id: item for item in retrieved if item.external_id
+        }
         for item in draft.evidence:
-            if item.external_id not in retrieved_ids:
+            match = retrieved_by_id.get(item.external_id)
+            if match is None:
                 raise InvalidProposalException(
                     f"Evidence entry '{item.title}' does not match any "
                     "retrieved paper. Refusing to commit fabricated or "
+                    "altered evidence."
+                )
+            if item.title != match.title:
+                raise InvalidProposalException(
+                    f"Evidence entry (external_id={item.external_id!r}) has "
+                    f"title {item.title!r}, but the retrieved paper's title "
+                    f"is {match.title!r}. Refusing to commit fabricated or "
                     "altered evidence."
                 )
 
