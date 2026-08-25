@@ -2,6 +2,8 @@
 
 from typing import Any
 
+from langfuse.decorators import langfuse_context, observe
+
 from engine.ai.adapters._http import post_json
 from engine.ai.config import ProviderConfig
 from engine.ai.exceptions import AIProviderException
@@ -15,6 +17,7 @@ class AnthropicAIProvider(AIProvider):
     def __init__(self, config: ProviderConfig) -> None:
         self._config = config
 
+    @observe(as_type="generation", name="anthropic_generate", capture_input=False, capture_output=False)
     def generate(self, request: AIRequest) -> AIResponse:
         if not self._config.model or not self._config.api_key:
             raise AIProviderException("Anthropic protocol requires api_key and model.")
@@ -51,11 +54,29 @@ class AnthropicAIProvider(AIProvider):
             (block for block in content if "text" in block), {}
         )
         usage = data.get("usage", {})
+        
+        content_str = str(first.get("text", ""))
+        prompt_tokens = int(usage.get("input_tokens", 0))
+        completion_tokens = int(usage.get("output_tokens", 0))
+        
+        langfuse_context.update_current_observation(
+            model=self._config.model,
+            input=[
+                {"role": "system", "content": request.prompt.system_prompt},
+                {"role": "user", "content": request.prompt.user_prompt}
+            ],
+            output=content_str,
+            usage={
+                "input": prompt_tokens,
+                "output": completion_tokens
+            }
+        )
+
         return AIResponse(
-            content=str(first.get("text", "")),
+            content=content_str,
             usage_metrics={
-                "prompt_tokens": int(usage.get("input_tokens", 0)),
-                "completion_tokens": int(usage.get("output_tokens", 0)),
+                "prompt_tokens": prompt_tokens,
+                "completion_tokens": completion_tokens,
             },
             finish_reason=str(data.get("stop_reason", "unknown")),
         )

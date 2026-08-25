@@ -8,6 +8,8 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Any
 
+from langfuse.decorators import langfuse_context, observe
+
 from atlas.capabilities.base import CapabilityName
 from atlas.commands import Command
 from atlas.contracts.envelope import RequestEnvelope, ResponseEnvelope
@@ -22,11 +24,13 @@ from shared.observability.usage_context import (
 logger = logging.getLogger(__name__)
 
 
+@observe(as_type="trace", name="atlas_command", capture_input=False, capture_output=False)
 def instrument_request(
     envelope: RequestEnvelope[Any],
     dispatch: Callable[[RequestEnvelope[Any]], ResponseEnvelope[Any]],
     capability_lookup: Callable[[type[Command]], CapabilityName | None],
     exporter: TraceExporter,
+    **kwargs: Any,
 ) -> ResponseEnvelope[Any]:
     """Dispatch ``envelope`` through ``dispatch``, exporting a ``TraceRecord`` for it.
 
@@ -36,6 +40,12 @@ def instrument_request(
     allowed to break the actual response or replace the original exception:
     an observability feature must not be able to take down request handling.
     """
+    capability = capability_lookup(type(envelope.command))
+    langfuse_context.update_current_trace(
+        name=capability or "Unknown Capability",
+        session_id=str(envelope.request_id),
+    )
+    
     received_at = datetime.now(UTC)
     start = time.perf_counter()
     token = start_capture()

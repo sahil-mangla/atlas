@@ -310,6 +310,7 @@ class Atlas:
             self._dispatch_envelope,
             _COMMAND_CAPABILITY.get,
             self._trace_exporter,
+            langfuse_observation_id=str(envelope.request_id),
         )
 
     def _dispatch_envelope(

@@ -49,3 +49,25 @@ class JsonlFileExporter:
             f.write(record.model_dump_json() + "\n")
             f.flush()
             os.fsync(f.fileno())
+
+
+class CompositeExporter:
+    """Dispatches a trace record to multiple underlying exporters.
+    
+    If one exporter fails, its exception is suppressed and logged, and 
+    dispatch continues to the remaining exporters.
+    """
+
+    def __init__(self, exporters: list[TraceExporter]) -> None:
+        self._exporters = exporters
+
+    def export(self, record: TraceRecord) -> None:
+        import logging
+        logger = logging.getLogger(__name__)
+        for exporter in self._exporters:
+            try:
+                exporter.export(record)
+            except Exception as e:
+                logger.warning(
+                    f"Exporter {exporter.__class__.__name__} failed to export record {record.request_id}: {e}"
+                )

@@ -2,6 +2,8 @@
 
 from typing import Any
 
+from langfuse.decorators import langfuse_context, observe
+
 from engine.ai.adapters._http import post_json
 from engine.ai.config import ProviderConfig
 from engine.ai.exceptions import AIProviderException
@@ -20,6 +22,7 @@ class OpenAICompatibleAIProvider(AIProvider):
     def __init__(self, config: ProviderConfig) -> None:
         self._config = config
 
+    @observe(as_type="generation", name="openai_generate", capture_input=False, capture_output=False)
     def generate(self, request: AIRequest) -> AIResponse:
         if not self._config.endpoint or not self._config.model:
             raise AIProviderException(
@@ -55,11 +58,26 @@ class OpenAICompatibleAIProvider(AIProvider):
         first = choices[0] if choices else {}
         message = first.get("message", {}) if isinstance(first, dict) else {}
         usage = data.get("usage", {}) if isinstance(data.get("usage"), dict) else {}
+        
+        content_str = str(message.get("content", ""))
+        prompt_tokens = int(usage.get("prompt_tokens", 0))
+        completion_tokens = int(usage.get("completion_tokens", 0))
+        
+        langfuse_context.update_current_observation(
+            model=self._config.model,
+            input=messages,
+            output=content_str,
+            usage={
+                "input": prompt_tokens,
+                "output": completion_tokens
+            }
+        )
+
         return AIResponse(
-            content=str(message.get("content", "")),
+            content=content_str,
             usage_metrics={
-                "prompt_tokens": int(usage.get("prompt_tokens", 0)),
-                "completion_tokens": int(usage.get("completion_tokens", 0)),
+                "prompt_tokens": prompt_tokens,
+                "completion_tokens": completion_tokens,
             },
             finish_reason=str(first.get("finish_reason", "unknown")),
         )

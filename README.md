@@ -155,24 +155,31 @@ See the [CLI Reference](#cli-reference) below for the full command set.
 
 ## Observability and Evaluations
 
-Every envelope-based request handled through `Atlas.handle()` can produce a
-structured trace containing its capability, adapter, latency, outcome, and AI
-token usage. Production bootstrap writes daily JSONL traces under
-`<workspace-root>/traces/`; set `ATLAS_INSTRUMENTATION_ENABLED=false` to turn
-this off. Unexpected exceptions are traced and then re-raised, while exporter
-failures never interrupt request handling.
+Every envelope-based request handled through `Atlas.handle()` produces a structured trace containing its capability, adapter, latency, outcome, and AI token usage. 
 
-The platform also includes a YAML-driven evaluation suite for command routing,
-response schemas, multi-step workflows, error handling, and AI execution:
+ATLAS features a built-in **dual-sink observability layer**:
+1. **Local Filesystem Sink**: Production bootstrap writes daily JSONL traces under `<workspace-root>/traces/YYYY-MM-DD.jsonl`.
+2. **Langfuse Cloud / Self-Hosted Sink**: Integrates with [Langfuse](https://langfuse.com) for production LLM observability, tracking prompt inputs, generation outputs, token usage, cost, and end-to-end request hierarchies.
+
+### Configuring Langfuse
+
+To stream traces to Langfuse, provide your keys in `.env`:
+
+```bash
+LANGFUSE_PUBLIC_KEY="pk-lf-..."
+LANGFUSE_SECRET_KEY="sk-lf-..."
+LANGFUSE_HOST="https://cloud.langfuse.com"  # or your self-hosted instance
+```
+
+Set `ATLAS_INSTRUMENTATION_ENABLED=false` to disable tracing completely. Unexpected exceptions are traced and re-raised, while exporter failures are non-blocking and never interrupt request handling.
+
+The platform also includes a YAML-driven evaluation suite for command routing, response schemas, multi-step workflows, error handling, and AI execution:
 
 ```bash
 uv run python -m evals
 ```
 
-Runs are written to `evals/runs/` and compared with the tracked baseline at
-`evals/baselines/latest.json`. See the [observability guide](docs/observability.md)
-and [evaluation guide](docs/evaluations.md) for configuration, task authoring,
-trace fields, and baseline updates.
+Runs are written to `evals/runs/` and compared with the tracked baseline at `evals/baselines/latest.json`. See the [observability guide](docs/observability.md) and [evaluation guide](docs/evaluations.md) for configuration, task authoring, trace fields, and baseline updates.
 
 ## Configuring an AI Provider
 

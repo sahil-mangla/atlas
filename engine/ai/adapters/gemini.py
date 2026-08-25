@@ -8,6 +8,7 @@ from typing import Any
 
 from google import genai
 from google.genai import types
+from langfuse.decorators import langfuse_context, observe
 
 from engine.ai.config import ProviderConfig
 from engine.ai.exceptions import AIProviderException
@@ -67,6 +68,7 @@ class GeminiAIProvider(AIProvider):
             protocol_config.model if protocol_config else None
         ) or configured.gemini_model
 
+    @observe(as_type="generation", name="gemini_generate", capture_input=False, capture_output=False)
     def generate(self, request: AIRequest) -> AIResponse:
         """Process an AIRequest via Gemini.
 
@@ -100,17 +102,32 @@ class GeminiAIProvider(AIProvider):
                 contents=request.prompt.user_prompt,
                 config=types.GenerateContentConfig(**config_values),
             )
+            
+            prompt_tokens = getattr(
+                response.usage_metadata, "prompt_token_count", 0
+            ) or 0
+            completion_tokens = getattr(
+                response.usage_metadata, "candidates_token_count", 0
+            ) or 0
+            
+            langfuse_context.update_current_observation(
+                model=self._model,
+                input=[
+                    {"role": "system", "content": request.prompt.system_prompt},
+                    {"role": "user", "content": request.prompt.user_prompt}
+                ],
+                output=response.text or "",
+                usage={
+                    "input": prompt_tokens,
+                    "output": completion_tokens
+                }
+            )
+
             return AIResponse(
                 content=response.text or "",
                 usage_metrics={
-                    "prompt_tokens": getattr(
-                        response.usage_metadata, "prompt_token_count", 0
-                    )
-                    or 0,
-                    "completion_tokens": getattr(
-                        response.usage_metadata, "candidates_token_count", 0
-                    )
-                    or 0,
+                    "prompt_tokens": prompt_tokens,
+                    "completion_tokens": completion_tokens,
                 },
                 finish_reason=(
                     str(response.candidates[0].finish_reason)

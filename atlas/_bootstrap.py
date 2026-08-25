@@ -327,11 +327,16 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
     )
 
     # 8. Facade Assembly
-    exporter = (
-        JsonlFileExporter(settings.workspace_root / "traces")
-        if settings.instrumentation_enabled
-        else NullExporter()
-    )
+    if settings.instrumentation_enabled:
+        from atlas.observability.langfuse_exporter import LangfuseTraceExporter
+        from atlas.observability.exporter import CompositeExporter
+        
+        exporter = CompositeExporter([
+            JsonlFileExporter(settings.workspace_root / "traces"),
+            LangfuseTraceExporter()
+        ])
+    else:
+        exporter = NullExporter()
     atlas = Atlas(
         _AtlasServices(
             project_creation_service=project_creation_service,

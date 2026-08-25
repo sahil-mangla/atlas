@@ -61,7 +61,7 @@ The default exporter writes append-only JSONL files below:
 There is one JSON object per line. For example:
 
 ```json
-{"request_id":"...","timestamp":"2026-08-20T10:15:00Z","adapter":"ai","capability":"workflow_execution","ai_provider":"ollamaprovider","latency_ms":842.4,"prompt_tokens":1200,"completion_tokens":180,"total_tokens":1380,"cost_usd":null,"outcome":"success","error_code":null}
+{"request_id":"...","timestamp":"2026-08-20T10:15:00Z","adapter":"ai","capability":"workflow_execution","ai_provider":"ollama","latency_ms":842.4,"prompt_tokens":1200,"completion_tokens":180,"total_tokens":1380,"cost_usd":null,"outcome":"success","error_code":null}
 ```
 
 The exporter uses append mode and flushes plus `fsync`s each record. This
@@ -69,6 +69,24 @@ favors durability and simple recovery over maximum write throughput. Trace
 records contain usage metadata, not prompt or completion content; treat the
 trace directory as operational data and apply the host's normal access and
 retention controls.
+
+## Langfuse Integration
+
+In addition to local JSONL trace logging, ATLAS supports native integration with [Langfuse](https://langfuse.com) via `LangfuseTraceExporter` and the `CompositeExporter`.
+
+### How it Works
+1. **Root Trace Span**: When `Atlas.handle()` receives a request envelope, `instrument_request` creates a root trace in Langfuse correlated to the Atlas `request_id`.
+2. **Generation Spans**: Individual AI protocol adapters (`gemini`, `anthropic`, `openai_compatible`, `ollama`) are instrumented with `@observe(as_type="generation")`. These automatically nest within the active request trace.
+3. **Structured Messages**: Prompts and completions are formatted as standard role-based chat messages (`system`, `user`, `assistant`), enabling rich visual trace inspection in the Langfuse dashboard.
+4. **Data Privacy**: Automatic argument capturing is disabled (`capture_input=False`, `capture_output=False`) so only explicitly sanitized metadata, model identifiers, token metrics, and prompts are exported.
+
+### Configuration
+Set the following environment variables in `.env`:
+```bash
+LANGFUSE_PUBLIC_KEY="pk-lf-..."
+LANGFUSE_SECRET_KEY="sk-lf-..."
+LANGFUSE_HOST="https://cloud.langfuse.com"
+```
 
 ## Extension points
 
@@ -79,3 +97,4 @@ possible and never allow exporter exceptions to escape request handling.
 The current schema reserves `TraceOutcome.TIMEOUT`, but timeout-specific
 classification is not emitted yet because provider transport failures do not
 currently distinguish timeouts from other provider errors.
+
