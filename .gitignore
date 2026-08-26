@@ -49,3 +49,7 @@ workspace/
 # platform workspaces), not source. evals/baselines/ IS tracked, so
 # regression detection has continuity across commits.
 evals/runs/
+
+# AI Agent IDEs and extensions
+.agents/
+.continue/
