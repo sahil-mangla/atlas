@@ -24,13 +24,18 @@ from shared.observability.usage_context import (
 logger = logging.getLogger(__name__)
 
 
-@observe(as_type="trace", name="atlas_command", capture_input=False, capture_output=False)
+@observe(
+    as_type="trace",
+    name="atlas_command",
+    capture_input=False,
+    capture_output=False,
+)
 def instrument_request(
     envelope: RequestEnvelope[Any],
     dispatch: Callable[[RequestEnvelope[Any]], ResponseEnvelope[Any]],
     capability_lookup: Callable[[type[Command]], CapabilityName | None],
     exporter: TraceExporter,
-    **kwargs: Any,
+    **_kwargs: Any,
 ) -> ResponseEnvelope[Any]:
     """Dispatch ``envelope`` through ``dispatch``, exporting a ``TraceRecord`` for it.
 
@@ -45,7 +50,7 @@ def instrument_request(
         name=capability or "Unknown Capability",
         session_id=str(envelope.request_id),
     )
-    
+
     received_at = datetime.now(UTC)
     start = time.perf_counter()
     token = start_capture()

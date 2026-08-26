@@ -17,7 +17,12 @@ class OllamaAIProvider(AIProvider):
     def __init__(self, config: ProviderConfig) -> None:
         self._config = config
 
-    @observe(as_type="generation", name="ollama_generate", capture_input=False, capture_output=False)
+    @observe(
+        as_type="generation",
+        name="ollama_generate",
+        capture_input=False,
+        capture_output=False,
+    )
     def generate(self, request: AIRequest) -> AIResponse:
         if not self._config.model:
             raise AIProviderException("Ollama protocol requires a model.")
@@ -46,11 +51,11 @@ class OllamaAIProvider(AIProvider):
             {},
             timeout=self._config.timeout_seconds,
         )
-        
+
         content_str = str(data.get("response", ""))
         prompt_tokens = int(data.get("prompt_eval_count", 0))
         completion_tokens = int(data.get("eval_count", 0))
-        
+
         langfuse_context.update_current_observation(
             model=self._config.model,
             input=[

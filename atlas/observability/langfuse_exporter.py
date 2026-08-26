@@ -15,14 +15,14 @@ logger = logging.getLogger(__name__)
 
 class LangfuseTraceExporter(TraceExporter):
     """Exports Atlas request-level TraceRecords to Langfuse as parent traces.
-    
-    This acts as a bridge between our domain-specific TraceRecord and the 
+
+    This acts as a bridge between our domain-specific TraceRecord and the
     Langfuse tracing backend.
     """
 
     def __init__(self) -> None:
         self._langfuse = Langfuse()
-        
+
         # Verify auth immediately so we can fail fast during bootstrap if keys are wrong
         try:
             self._langfuse.auth_check()
@@ -36,10 +36,10 @@ class LangfuseTraceExporter(TraceExporter):
         """Pushes a completed trace record to Langfuse."""
         try:
             # Check if there is an active Langfuse trace from decorators
-            from langfuse.decorators import langfuse_context
+            from langfuse.decorators import langfuse_context  # noqa: PLC0415
             active_trace_id = langfuse_context.get_current_trace_id()
             trace_id = active_trace_id if active_trace_id else str(record.request_id)
-            
+
             # We map our TraceRecord fields onto Langfuse's trace schema
             self._langfuse.trace(
                 id=trace_id,

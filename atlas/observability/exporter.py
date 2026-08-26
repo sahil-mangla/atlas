@@ -53,8 +53,8 @@ class JsonlFileExporter:
 
 class CompositeExporter:
     """Dispatches a trace record to multiple underlying exporters.
-    
-    If one exporter fails, its exception is suppressed and logged, and 
+
+    If one exporter fails, its exception is suppressed and logged, and
     dispatch continues to the remaining exporters.
     """
 
@@ -62,12 +62,13 @@ class CompositeExporter:
         self._exporters = exporters
 
     def export(self, record: TraceRecord) -> None:
-        import logging
+        import logging  # noqa: PLC0415
         logger = logging.getLogger(__name__)
         for exporter in self._exporters:
             try:
                 exporter.export(record)
             except Exception as e:
                 logger.warning(
-                    f"Exporter {exporter.__class__.__name__} failed to export record {record.request_id}: {e}"
+                    f"Exporter {exporter.__class__.__name__} failed to export "
+                    f"record {record.request_id}: {e}"
                 )

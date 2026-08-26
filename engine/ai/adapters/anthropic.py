@@ -17,7 +17,12 @@ class AnthropicAIProvider(AIProvider):
     def __init__(self, config: ProviderConfig) -> None:
         self._config = config
 
-    @observe(as_type="generation", name="anthropic_generate", capture_input=False, capture_output=False)
+    @observe(
+        as_type="generation",
+        name="anthropic_generate",
+        capture_input=False,
+        capture_output=False,
+    )
     def generate(self, request: AIRequest) -> AIResponse:
         if not self._config.model or not self._config.api_key:
             raise AIProviderException("Anthropic protocol requires api_key and model.")
@@ -54,11 +59,11 @@ class AnthropicAIProvider(AIProvider):
             (block for block in content if "text" in block), {}
         )
         usage = data.get("usage", {})
-        
+
         content_str = str(first.get("text", ""))
         prompt_tokens = int(usage.get("input_tokens", 0))
         completion_tokens = int(usage.get("output_tokens", 0))
-        
+
         langfuse_context.update_current_observation(
             model=self._config.model,
             input=[

@@ -68,7 +68,12 @@ class GeminiAIProvider(AIProvider):
             protocol_config.model if protocol_config else None
         ) or configured.gemini_model
 
-    @observe(as_type="generation", name="gemini_generate", capture_input=False, capture_output=False)
+    @observe(
+        as_type="generation",
+        name="gemini_generate",
+        capture_input=False,
+        capture_output=False,
+    )
     def generate(self, request: AIRequest) -> AIResponse:
         """Process an AIRequest via Gemini.
 
@@ -102,14 +107,14 @@ class GeminiAIProvider(AIProvider):
                 contents=request.prompt.user_prompt,
                 config=types.GenerateContentConfig(**config_values),
             )
-            
+
             prompt_tokens = getattr(
                 response.usage_metadata, "prompt_token_count", 0
             ) or 0
             completion_tokens = getattr(
                 response.usage_metadata, "candidates_token_count", 0
             ) or 0
-            
+
             langfuse_context.update_current_observation(
                 model=self._model,
                 input=[
