@@ -485,7 +485,7 @@ def test_generate_proposal_with_knowledge_orchestration() -> None:
 
     # Verify retrieval occurs before assembly and generation
     knowledge_orchestration.retrieve_for_stage.assert_called_once_with(
-        project_id, WorkflowStage.RESEARCH
+        project_id, WorkflowStage.RESEARCH, "Instructions"
     )
     mock_assembler.assemble_context.assert_called_once_with(
         project_id, knowledge_mock, stage=WorkflowStage.RESEARCH

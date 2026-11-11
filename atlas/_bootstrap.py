@@ -7,9 +7,14 @@ by client adapters. It wires the engine subsystems and returns the public facade
 import logging
 
 from atlas._service import Atlas, _AtlasServices
-from atlas.observability.exporter import JsonlFileExporter, NullExporter
+from atlas.observability.exporter import (
+    JsonlFileExporter,
+    NullExporter,
+    TraceExporter,
+)
 from engine.ai.config import ProviderConfig
 from engine.ai.context import IdentityContextStrategy
+from engine.ai.embedding_factory import EmbeddingFactory
 from engine.ai.engineering_services import (
     ArchitectureAIEngineeringService,
     ArchitectureProposalTransformer,
@@ -25,6 +30,7 @@ from engine.ai.engineering_services import (
     ResearchProposalTransformer,
     ResearchProposalValidator,
 )
+from engine.ai.exceptions import AIProviderException
 from engine.ai.executor import PromptExecutor
 from engine.ai.factory import ProtocolFactory
 from engine.ai.fs_repository import FilesystemProposalRepository
@@ -39,7 +45,7 @@ from engine.architecture.services import (
     InterfaceContractService,
     RiskAnalysisService,
 )
-from engine.config import get_settings
+from engine.config import Settings, get_settings
 from engine.domain.enums import WorkflowStage
 from engine.evaluation.fs_repository import FilesystemEvaluationRepository
 from engine.evaluation.services import (
@@ -56,6 +62,7 @@ from engine.knowledge.extractors import (
 )
 from engine.knowledge.fs_repository import FilesystemKnowledgeRepository
 from engine.knowledge.orchestration import KnowledgeOrchestrationService
+from engine.knowledge.semantic import SemanticKnowledgeRanker
 from engine.knowledge.services import (
     KnowledgeApprovalService,
     KnowledgeCandidateService,
@@ -63,6 +70,7 @@ from engine.knowledge.services import (
     KnowledgeLifecycleService,
     KnowledgeRetrievalService,
 )
+from engine.knowledge.vector_store import SqliteVecStore
 from engine.memory.fs_repository import FilesystemMemoryRepository
 from engine.planning.fs_repository import FilesystemPlanningRepository
 from engine.planning.services import (
@@ -73,6 +81,7 @@ from engine.planning.services import (
     TaskPlanningService,
 )
 from engine.project.fs_repository import FilesystemProjectRepository
+from engine.project.repository import ProjectRepository
 from engine.project.services import (
     ProjectCreationService,
     ProjectLifecycleService,
@@ -115,6 +124,37 @@ from presentation.collectors.collectors import (
 from presentation.orchestration import PlatformOrchestrationService
 from presentation.renderers import RendererRegistry
 from presentation.renderers.base import CliRenderer, JsonRenderer, MarkdownRenderer
+
+logger = logging.getLogger(__name__)
+
+
+def _build_knowledge_ranker(
+    settings: Settings, project_repo: ProjectRepository
+) -> SemanticKnowledgeRanker | None:
+    """Build the optional semantic ranker; ``None`` keeps newest-first retrieval.
+
+    Misconfiguration is logged, not raised: a retrieval enhancement must not
+    stop the platform from starting.
+    """
+    if not settings.embedding_enabled:
+        return None
+    config = ProviderConfig(
+        protocol=settings.embedding_protocol or settings.ai_protocol,
+        endpoint=settings.embedding_endpoint or settings.ai_endpoint,
+        model=settings.embedding_model,
+        api_key=settings.embedding_api_key or settings.ai_api_key,
+        timeout_seconds=settings.ai_timeout_seconds,
+    )
+    try:
+        embedder = EmbeddingFactory().resolve(config, settings)
+    except AIProviderException:
+        logger.warning(
+            "ATLAS_EMBEDDING_ENABLED is set but embeddings are misconfigured; "
+            "semantic knowledge ranking is disabled.",
+            exc_info=True,
+        )
+        return None
+    return SemanticKnowledgeRanker(embedder, SqliteVecStore(project_repo))
 
 
 def _create_platform() -> Atlas:  # noqa: PLR0915
@@ -311,7 +351,11 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
     knowledge_orchestration = KnowledgeOrchestrationService(
         KnowledgeCandidateService(knowledge_repo, KnowledgeDeduplicationService()),
         KnowledgeApprovalService(knowledge_repo, knowledge_lifecycle),
-        KnowledgeRetrievalService(knowledge_repo),
+        KnowledgeRetrievalService(
+            knowledge_repo,
+            _build_knowledge_ranker(settings, project_repo),
+            project_repo,
+        ),
         knowledge_lifecycle,
         extractor_registry,
     )
@@ -327,16 +371,19 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
     )
 
     # 8. Facade Assembly
+    exporter: TraceExporter
     if settings.instrumentation_enabled:
         from atlas.observability.exporter import CompositeExporter  # noqa: PLC0415
         from atlas.observability.langfuse_exporter import (  # noqa: PLC0415
             LangfuseTraceExporter,
         )
 
-        exporter = CompositeExporter([
-            JsonlFileExporter(settings.workspace_root / "traces"),
-            LangfuseTraceExporter()
-        ])
+        exporter = CompositeExporter(
+            [
+                JsonlFileExporter(settings.workspace_root / "traces"),
+                LangfuseTraceExporter(),
+            ]
+        )
     else:
         exporter = NullExporter()
     atlas = Atlas(

@@ -39,6 +39,13 @@ class KnowledgeRetrievalQuery(BaseModel):
     categories: list[KnowledgeCategory] = Field(default_factory=list)
     tags: list[str] = Field(default_factory=list)
     max_entries: int = 20
+    query_text: str = Field(
+        default="",
+        description=(
+            "Free text describing what the caller needs (e.g. the user's "
+            "instructions). Used only for optional semantic ranking."
+        ),
+    )
 
     @model_validator(mode="after")
     def project_scope_only(self) -> "KnowledgeRetrievalQuery":

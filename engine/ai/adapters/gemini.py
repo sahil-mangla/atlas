@@ -4,13 +4,16 @@ Google SDK imports intentionally stay in this module so the rest of the
 application remains provider independent.
 """
 
+from collections.abc import Sequence
 from typing import Any
 
 from google import genai
 from google.genai import types
 from langfuse.decorators import langfuse_context, observe
 
+from engine.ai.adapters._http import parse_embeddings
 from engine.ai.config import ProviderConfig
+from engine.ai.embeddings import EmbeddingProvider
 from engine.ai.exceptions import AIProviderException
 from engine.ai.provider import AIProvider
 from engine.config import Settings, get_settings
@@ -108,24 +111,21 @@ class GeminiAIProvider(AIProvider):
                 config=types.GenerateContentConfig(**config_values),
             )
 
-            prompt_tokens = getattr(
-                response.usage_metadata, "prompt_token_count", 0
-            ) or 0
-            completion_tokens = getattr(
-                response.usage_metadata, "candidates_token_count", 0
-            ) or 0
+            prompt_tokens = (
+                getattr(response.usage_metadata, "prompt_token_count", 0) or 0
+            )
+            completion_tokens = (
+                getattr(response.usage_metadata, "candidates_token_count", 0) or 0
+            )
 
             langfuse_context.update_current_observation(
                 model=self._model,
                 input=[
                     {"role": "system", "content": request.prompt.system_prompt},
-                    {"role": "user", "content": request.prompt.user_prompt}
+                    {"role": "user", "content": request.prompt.user_prompt},
                 ],
                 output=response.text or "",
-                usage={
-                    "input": prompt_tokens,
-                    "output": completion_tokens
-                }
+                usage={"input": prompt_tokens, "output": completion_tokens},
             )
 
             return AIResponse(
@@ -152,4 +152,47 @@ class GeminiAIProvider(AIProvider):
             image_input=False,
             reasoning_support=False,
             context_window=2_000_000,
+        )
+
+
+DEFAULT_GEMINI_EMBEDDING_MODEL = "gemini-embedding-001"
+
+
+class GeminiEmbeddingProvider(EmbeddingProvider):
+    """Embeddings via the Gemini SDK (SDK imports stay in this module)."""
+
+    def __init__(
+        self,
+        config: ProviderConfig | None = None,
+        settings: Settings | None = None,
+    ) -> None:
+        configured = settings or get_settings()
+        self._api_key = (
+            config.api_key if config else None
+        ) or configured.gemini_api_key
+        self._model = (
+            config.model if config else None
+        ) or DEFAULT_GEMINI_EMBEDDING_MODEL
+
+    @property
+    def model_id(self) -> str:
+        return f"GEMINI:{self._model}"
+
+    @observe(name="gemini_embed", capture_input=False, capture_output=False)
+    def embed(self, texts: Sequence[str]) -> list[list[float]]:
+        if not self._api_key:
+            raise AIProviderException(
+                "Gemini embeddings require ATLAS_GEMINI_API_KEY "
+                "(or ATLAS_EMBEDDING_API_KEY)."
+            )
+        try:
+            client = genai.Client(api_key=self._api_key)
+            response = client.models.embed_content(
+                model=self._model, contents=list(texts)
+            )
+        except Exception as error:
+            raise AIProviderException(f"Gemini embedding error: {error}") from error
+        return parse_embeddings(
+            [list(item.values or []) for item in response.embeddings or []],
+            len(texts),
         )

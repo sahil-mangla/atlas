@@ -61,6 +61,32 @@ class Settings(BaseSettings):
         description="Whether request-level trace records are captured and exported.",
     )
 
+    embedding_enabled: bool = Field(
+        default=False,
+        description=(
+            "Rank engineering knowledge by semantic relevance using an embedded "
+            "vector index (.atlas/knowledge.vec.db). Off by default; when off, "
+            "or if embedding fails, knowledge is selected newest-first."
+        ),
+    )
+    embedding_protocol: str | None = Field(
+        default=None,
+        description="Embedding protocol; defaults to ATLAS_AI_PROTOCOL.",
+    )
+    embedding_endpoint: str | None = Field(
+        default=None, description="Embedding endpoint; defaults to ATLAS_AI_ENDPOINT."
+    )
+    embedding_model: str | None = Field(
+        default=None,
+        description=(
+            "Embedding model (not the chat model). Gemini defaults to "
+            "gemini-embedding-001; Ollama and OpenAI-compatible require it."
+        ),
+    )
+    embedding_api_key: str | None = Field(
+        default=None, description="Embedding credential; defaults to ATLAS_AI_API_KEY."
+    )
+
     research_max_candidates: int = Field(
         default=5,
         description="Max paper candidates kept per research proposal generation.",

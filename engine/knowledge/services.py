@@ -1,5 +1,6 @@
 """Business services for candidate review, publication, and retrieval."""
 
+import logging
 from datetime import UTC, datetime
 from hashlib import sha256
 from typing import Any
@@ -28,6 +29,14 @@ from engine.domain.knowledge import (
 from engine.knowledge.exceptions import KnowledgeReviewException
 from engine.knowledge.profiles import STAGE_PROFILES
 from engine.knowledge.repository import KnowledgeRepository
+from engine.knowledge.semantic import SemanticKnowledgeRanker
+from engine.project.repository import ProjectRepository
+
+logger = logging.getLogger(__name__)
+
+# Ranking a single entry can't change selection, so it isn't worth an embedding call.
+_MIN_TO_RANK = 2
+_MAX_QUERY_CHARS = 2000
 
 
 class KnowledgeDeduplicationService:
@@ -312,8 +321,58 @@ class KnowledgeApprovalService:
 
 
 class KnowledgeRetrievalService:
-    def __init__(self, repository: KnowledgeRepository) -> None:
+    """Selects the engineering knowledge handed to a workflow stage.
+
+    Eligibility (active status, stage-profile categories, tags) is always
+    decided deterministically from the repository. When a ``ranker`` is
+    configured it additionally orders and caps those eligible entries by
+    relevance to the project and the caller's query; without one -- or if it
+    fails for any reason -- selection falls back to newest-first.
+    """
+
+    def __init__(
+        self,
+        repository: KnowledgeRepository,
+        ranker: SemanticKnowledgeRanker | None = None,
+        project_repo: ProjectRepository | None = None,
+    ) -> None:
         self.repository = repository
+        self.ranker = ranker
+        self.project_repo = project_repo
+
+    def _query_text(self, query: KnowledgeRetrievalQuery) -> str:
+        """Most specific signal first: caller query, then project objective."""
+        parts = [query.query_text]
+        if self.project_repo and query.project_id:
+            project = self.project_repo.get_by_id(query.project_id)
+            if project:
+                parts.extend((project.objective, project.description))
+        return " ".join(part.strip() for part in parts if part and part.strip())[
+            :_MAX_QUERY_CHARS
+        ]
+
+    def _select(
+        self,
+        query: KnowledgeRetrievalQuery,
+        entries: list[PublishedKnowledge],
+        limit: int,
+    ) -> list[PublishedKnowledge]:
+        """Cap ``entries`` (already newest-first) at ``limit``."""
+        if self.ranker is None or not query.project_id or len(entries) < _MIN_TO_RANK:
+            return entries[:limit]
+        try:
+            query_text = self._query_text(query)
+            if not query_text:
+                return entries[:limit]
+            return self.ranker.rank(query.project_id, entries, query_text, limit)
+        except Exception:
+            logger.warning(
+                "Semantic knowledge ranking failed for project %s; falling back "
+                "to newest-first selection.",
+                query.project_id,
+                exc_info=True,
+            )
+            return entries[:limit]
 
     def retrieve(self, query: KnowledgeRetrievalQuery) -> EngineeringKnowledgeContext:
         if not query.project_id or not query.stage:
@@ -332,7 +391,9 @@ class KnowledgeRetrievalService:
             and (not tags or tags.intersection(entry.tags))
         ]
         entries.sort(key=lambda entry: (-entry.published_at.timestamp(), str(entry.id)))
-        entries = entries[: min(query.max_entries, profile.max_entries)]
+        entries = self._select(
+            query, entries, min(query.max_entries, profile.max_entries)
+        )
         section = (
             "## Engineering Knowledge\nNone\n"
             if not entries
@@ -347,8 +408,10 @@ class KnowledgeRetrievalService:
         )
 
     def retrieve_for_stage(
-        self, project_id: UUID, stage: WorkflowStage
+        self, project_id: UUID, stage: WorkflowStage, query_text: str = ""
     ) -> EngineeringKnowledgeContext:
         return self.retrieve(
-            KnowledgeRetrievalQuery(project_id=project_id, stage=stage)
+            KnowledgeRetrievalQuery(
+                project_id=project_id, stage=stage, query_text=query_text
+            )
         )

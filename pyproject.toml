@@ -11,6 +11,7 @@ dependencies = [
     "pydantic>=2.7.0",
     "pydantic-settings>=2.2.0",
     "pyyaml>=6.0.3",
+    "sqlite-vec>=0.1.9",
 ]
 
 [project.scripts]
@@ -78,6 +79,24 @@ show_error_codes = true
 exclude = [
     "^\\.venv/",
 ]
+
+[[tool.mypy.overrides]]
+# sqlite-vec ships no type stubs or py.typed marker.
+module = ["sqlite_vec"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# langfuse 2.x ships no py.typed marker, so its imports and the @observe
+# decorator are untyped.
+module = ["langfuse", "langfuse.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "engine.ai.adapters.*",
+    "atlas.observability.instrumentation",
+]
+disallow_untyped_decorators = false
 
 [tool.pytest.ini_options]
 minversion = "8.0"

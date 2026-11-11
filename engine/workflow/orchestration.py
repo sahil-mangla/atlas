@@ -234,7 +234,7 @@ class WorkflowOrchestrationService:
         if not self.knowledge_orchestration:
             return executor.generate_proposal(project_id, user_instructions)
         knowledge = self.knowledge_orchestration.retrieve_for_stage(
-            project_id, workflow.current_stage
+            project_id, workflow.current_stage, user_instructions
         )
         service = getattr(executor, "service", None)
         context = None

@@ -37,6 +37,7 @@ class LangfuseTraceExporter(TraceExporter):
         try:
             # Check if there is an active Langfuse trace from decorators
             from langfuse.decorators import langfuse_context  # noqa: PLC0415
+
             active_trace_id = langfuse_context.get_current_trace_id()
             trace_id = active_trace_id if active_trace_id else str(record.request_id)
 
@@ -52,7 +53,7 @@ class LangfuseTraceExporter(TraceExporter):
                     "outcome": record.outcome,
                     "error_code": record.error_code,
                 },
-                tags=["atlas-cli"]
+                tags=["atlas-cli"],
             )
             self._langfuse.flush()
         except Exception as e:

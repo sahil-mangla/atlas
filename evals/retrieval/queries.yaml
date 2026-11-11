@@ -1,0 +1,142 @@
+# Labelled queries for the knowledge-retrieval eval.
+#
+# Each query is a natural-language question; `relevant` lists the documentation
+# sections (ids from evals/retrieval/corpus.py) whose text directly answers it.
+# Labels were written BEFORE any retrieval system was run on them, by the same
+# person who wrote the queries -- see the caveats in the report.
+# Queries were deliberately phrased as questions, not by copying headings.
+- id: q01
+  query: Why can't an AI agent write files directly to the repository?
+  relevant:
+    - docs/architecture/ai-constitution.md#rule-2-no-direct-mutation
+- id: q02
+  query: What happens if committing an approved proposal fails halfway through?
+  relevant:
+    - docs/architecture/ai-constitution.md#rule-5-atomic-commit-fail-safe-rollback
+    - docs/architecture/persistence.md#2-compensating-filesystem-transactions
+- id: q03
+  query: How are malformed or unstructured LLM responses rejected?
+  relevant:
+    - docs/architecture/ai-constitution.md#rule-6-strong-schema-enforcement
+- id: q04
+  query: What has to happen before an AI-generated change is allowed to take effect?
+  relevant:
+    - docs/architecture/ai-constitution.md#rule-4-human-in-the-loop-validation-gate
+    - docs/architecture/architecture-principles.md#7-human-approval-principle
+- id: q05
+  query: How do I add support for a new LLM vendor?
+  relevant:
+    - docs/architecture/extension-guide.md#5-adding-a-protocol-adapter
+    - docs/architecture/multi-protocol-ai-runtime.md#extending-protocols-and-vendors
+- id: q06
+  query: Where on disk is project data stored?
+  relevant:
+    - docs/architecture/persistence.md#filesystem-storage-layout
+- id: q07
+  query: Can an approved knowledge entry be changed after it has been published?
+  relevant:
+    - docs/architecture/persistence.md#3-published-knowledge-immutability-invariant
+    - docs/decisions/adr-003-engineering-knowledge-layer.md#decision
+- id: q08
+  query: How do we avoid corrupted JSON files if the process is killed while writing?
+  relevant:
+    - docs/architecture/persistence.md#4-crash-safe-atomic-writes
+- id: q09
+  query: Which stage can a project move to from the Idea stage?
+  relevant:
+    - docs/architecture/engineering-workflow.md#valid-transitions-registry
+- id: q10
+  query: How many lifecycle stages does a project pass through?
+  relevant:
+    - docs/architecture/engineering-workflow.md#the-engineering-lifecycle-stages
+- id: q11
+  query: How can a roadmap task be traced back to the research that motivated it?
+  relevant:
+    - docs/architecture/traceability.md#the-traceability-lineage
+    - docs/architecture/traceability.md#1-the-traceability-link-model
+    - docs/architecture/architecture-principles.md#10-traceability-by-design
+- id: q12
+  query: Why must the presentation code never import the AI package?
+  relevant:
+    - docs/architecture/presentation-layer.md#engine-isolation
+- id: q13
+  query: What turns typed read models into JSON, markdown or terminal text?
+  relevant:
+    - docs/architecture/presentation-layer.md#renderers
+- id: q14
+  query: How do clients get versioned request and response wrappers?
+  relevant:
+    - docs/architecture/platform-layer.md#request-response-envelope
+    - docs/architecture/platform-layer.md#versioning
+- id: q15
+  query: How do internal exceptions become stable error codes that clients can rely on?
+  relevant:
+    - docs/architecture/application-platform.md#exception-mapping
+    - docs/architecture/platform-layer.md#error-contract
+- id: q16
+  query: Which component wires all repositories and services together at startup?
+  relevant:
+    - docs/architecture/application-platform.md#composition-root-bootstrap-py
+- id: q17
+  query: Why keep the named Atlas methods if a generic handle() entry point exists?
+  relevant:
+    - docs/architecture/client-adapters.md#usage-policy-named-methods-vs-atlas-handle
+    - docs/architecture/platform-layer.md#atlas-handle-usage-policy-architectural-invariant
+- id: q18
+  query: How does the system look up real academic papers before drafting research?
+  relevant:
+    - docs/decisions/adr-005-grounded-research-and-repo-native-review.md#1-grounded-research-retrieval-precedes-proposal-generation
+- id: q19
+  query: Does the generation engine remember anything between calls?
+  relevant:
+    - docs/architecture/ai-constitution.md#rule-1-stateless-ai-generation
+- id: q20
+  query: Are capabilities allowed to contain business logic?
+  relevant:
+    - docs/architecture/platform-layer.md#capability-responsibility-rule-architectural-invariant
+- id: q21
+  query: How are prompt templates versioned, loaded and registered?
+  relevant:
+    - docs/architecture/intelligence-layer.md#3-prompt-management-layer
+    - docs/architecture/system-overview.md#9-prompt-management-layer
+- id: q22
+  query: How is each platform request traced for observability?
+  relevant:
+    - docs/architecture/platform-layer.md#observability
+- id: q23
+  query: Why prefer composing metadata into models instead of using inheritance?
+  relevant:
+    - docs/architecture/architecture-principles.md#3-composition-over-inheritance
+    - docs/architecture/domain-model.md#2-artifact-metadata-composition
+- id: q24
+  query: Why must high-level services not depend on storage details?
+  relevant:
+    - docs/architecture/architecture-principles.md#4-dependency-inversion
+    - docs/architecture/persistence.md#repository-abstraction-dependency-inversion
+- id: q25
+  query: How do I customize which knowledge candidates get extracted from artifacts?
+  relevant:
+    - docs/architecture/extension-guide.md#8-extending-the-knowledge-subsystem
+- id: q26
+  query: How is coding style and type correctness enforced automatically?
+  relevant:
+    - docs/architecture/engineering-constitution.md#code-quality-standards-enforcement
+- id: q27
+  query: What is a snapshot and why are they frozen instead of edited in place?
+  relevant:
+    - docs/architecture/domain-model.md#1-snapshot-models
+    - docs/architecture/architecture-principles.md#5-immutable-snapshots
+- id: q28
+  query: What single entry point should external tools call to drive the platform?
+  relevant:
+    - docs/architecture/application-platform.md#the-facade-atlas-class
+    - docs/decisions/adr-002-application-platform-layer.md#decision
+- id: q29
+  query: How is the workflow kept deterministic so stages cannot be skipped?
+  relevant:
+    - docs/architecture/architecture-principles.md#8-deterministic-workflows
+    - docs/architecture/engineering-workflow.md#workflow-state-machine-transitions
+- id: q30
+  query: Can internals be refactored without breaking existing client integrations?
+  relevant:
+    - docs/decisions/adr-002-application-platform-layer.md#consequences

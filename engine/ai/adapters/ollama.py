@@ -1,11 +1,13 @@
 """Adapter for Ollama's local generation protocol."""
 
+from collections.abc import Sequence
 from typing import Any
 
 from langfuse.decorators import langfuse_context, observe
 
-from engine.ai.adapters._http import post_json
+from engine.ai.adapters._http import parse_embeddings, post_json
 from engine.ai.config import ProviderConfig
+from engine.ai.embeddings import EmbeddingProvider
 from engine.ai.exceptions import AIProviderException
 from engine.ai.provider import AIProvider
 from engine.domain.ai import AIRequest, AIResponse, ProviderCapabilities
@@ -60,13 +62,10 @@ class OllamaAIProvider(AIProvider):
             model=self._config.model,
             input=[
                 {"role": "system", "content": request.prompt.system_prompt},
-                {"role": "user", "content": request.prompt.user_prompt}
+                {"role": "user", "content": request.prompt.user_prompt},
             ],
             output=content_str,
-            usage={
-                "input": prompt_tokens,
-                "output": completion_tokens
-            }
+            usage={"input": prompt_tokens, "output": completion_tokens},
         )
 
         return AIResponse(
@@ -87,3 +86,30 @@ class OllamaAIProvider(AIProvider):
             reasoning_support=False,
             context_window=int(self._config.options.get("context_window", 32768)),
         )
+
+
+class OllamaEmbeddingProvider(EmbeddingProvider):
+    """Embeddings from a local Ollama server (``/api/embed``)."""
+
+    def __init__(self, config: ProviderConfig) -> None:
+        if not config.model:
+            raise AIProviderException(
+                "Ollama embeddings require ATLAS_EMBEDDING_MODEL "
+                "(for example nomic-embed-text)."
+            )
+        self._config = config
+
+    @property
+    def model_id(self) -> str:
+        return f"OLLAMA:{self._config.model}"
+
+    @observe(name="ollama_embed", capture_input=False, capture_output=False)
+    def embed(self, texts: Sequence[str]) -> list[list[float]]:
+        endpoint = (self._config.endpoint or "http://localhost:11434").rstrip("/")
+        data = post_json(
+            endpoint + "/api/embed",
+            {"model": self._config.model, "input": list(texts)},
+            {},
+            timeout=self._config.timeout_seconds,
+        )
+        return parse_embeddings(data.get("embeddings"), len(texts))

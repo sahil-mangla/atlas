@@ -26,6 +26,26 @@ def _is_timeout(error: Exception) -> bool:
     return isinstance(error, URLError) and isinstance(error.reason, TimeoutError)
 
 
+def parse_embeddings(raw: object, expected: int) -> list[list[float]]:
+    """Validate a provider's embedding payload into ``expected`` float vectors.
+
+    A short or malformed payload must fail loudly here: silently pairing the
+    wrong vector with a knowledge entry would corrupt retrieval without any
+    visible error.
+    """
+    if not isinstance(raw, list) or len(raw) != expected:
+        raise AIProviderException(
+            f"Embedding provider returned an unexpected payload "
+            f"(expected {expected} vectors)."
+        )
+    vectors: list[list[float]] = []
+    for item in raw:
+        if not isinstance(item, list) or not item:
+            raise AIProviderException("Embedding provider returned an empty vector.")
+        vectors.append([float(value) for value in item])
+    return vectors
+
+
 def post_json(
     url: str,
     payload: dict[str, Any],

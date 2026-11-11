@@ -1,11 +1,13 @@
 """Adapter for any service implementing the OpenAI chat-completions protocol."""
 
+from collections.abc import Sequence
 from typing import Any
 
 from langfuse.decorators import langfuse_context, observe
 
-from engine.ai.adapters._http import post_json
+from engine.ai.adapters._http import parse_embeddings, post_json
 from engine.ai.config import ProviderConfig
+from engine.ai.embeddings import EmbeddingProvider
 from engine.ai.exceptions import AIProviderException
 from engine.ai.provider import AIProvider
 from engine.domain.ai import (
@@ -72,10 +74,7 @@ class OpenAICompatibleAIProvider(AIProvider):
             model=self._config.model,
             input=messages,
             output=content_str,
-            usage={
-                "input": prompt_tokens,
-                "output": completion_tokens
-            }
+            usage={"input": prompt_tokens, "output": completion_tokens},
         )
 
         return AIResponse(
@@ -108,3 +107,42 @@ class OpenAICompatibleAIProvider(AIProvider):
         if parameters.max_output_tokens is not None:
             payload["max_tokens"] = parameters.max_output_tokens
         return payload
+
+
+class OpenAICompatibleEmbeddingProvider(EmbeddingProvider):
+    """Embeddings from any service implementing OpenAI's ``/embeddings``."""
+
+    def __init__(self, config: ProviderConfig) -> None:
+        if not config.endpoint or not config.model:
+            raise AIProviderException(
+                "OpenAI-compatible embeddings require ATLAS_AI_ENDPOINT (or "
+                "ATLAS_EMBEDDING_ENDPOINT) and ATLAS_EMBEDDING_MODEL."
+            )
+        self._config = config
+
+    @property
+    def model_id(self) -> str:
+        return f"OPENAI_COMPATIBLE:{self._config.model}"
+
+    @observe(name="openai_embed", capture_input=False, capture_output=False)
+    def embed(self, texts: Sequence[str]) -> list[list[float]]:
+        headers = (
+            {"Authorization": f"Bearer {self._config.api_key}"}
+            if self._config.api_key
+            else {}
+        )
+        data = post_json(
+            (self._config.endpoint or "").rstrip("/") + "/embeddings",
+            {"model": self._config.model, "input": list(texts)},
+            headers,
+            timeout=self._config.timeout_seconds,
+        )
+        items = data.get("data")
+        if not isinstance(items, list):
+            raise AIProviderException("Embedding provider returned no 'data' list.")
+        # The API tags each item with its input position; don't trust list order.
+        ordered = sorted(
+            (item for item in items if isinstance(item, dict)),
+            key=lambda item: int(item.get("index", 0)),
+        )
+        return parse_embeddings([item.get("embedding") for item in ordered], len(texts))

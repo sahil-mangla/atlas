@@ -63,6 +63,7 @@ class CompositeExporter:
 
     def export(self, record: TraceRecord) -> None:
         import logging  # noqa: PLC0415
+
         logger = logging.getLogger(__name__)
         for exporter in self._exporters:
             try:

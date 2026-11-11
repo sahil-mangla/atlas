@@ -44,9 +44,9 @@ class KnowledgeOrchestrationService:
         ) = candidates, approval, retrieval, lifecycle, extractors
 
     def retrieve_for_stage(
-        self, project_id: UUID, stage: WorkflowStage
+        self, project_id: UUID, stage: WorkflowStage, query_text: str = ""
     ) -> EngineeringKnowledgeContext:
-        return self.retrieval.retrieve_for_stage(project_id, stage)
+        return self.retrieval.retrieve_for_stage(project_id, stage, query_text)
 
     def submit_candidate(
         self, project_id: UUID, submission: HumanKnowledgeSubmission

@@ -4,7 +4,7 @@ This module provides the primary public interface for the Application Platform L
 """
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, cast
 from uuid import UUID
 
 from atlas.capabilities import (
@@ -305,12 +305,16 @@ class Atlas:
         """Dispatch a versioned RequestEnvelope to the matching capability method."""
         if not self._instrumentation_enabled:
             return self._dispatch_envelope(envelope)
-        return instrument_request(
-            envelope,
-            self._dispatch_envelope,
-            _COMMAND_CAPABILITY.get,
-            self._trace_exporter,
-            langfuse_observation_id=str(envelope.request_id),
+        # ``instrument_request`` is wrapped by langfuse's untyped ``@observe``.
+        return cast(
+            "ResponseEnvelope[Any]",
+            instrument_request(
+                envelope,
+                self._dispatch_envelope,
+                _COMMAND_CAPABILITY.get,
+                self._trace_exporter,
+                langfuse_observation_id=str(envelope.request_id),
+            ),
         )
 
     def _dispatch_envelope(

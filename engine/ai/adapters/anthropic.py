@@ -68,13 +68,10 @@ class AnthropicAIProvider(AIProvider):
             model=self._config.model,
             input=[
                 {"role": "system", "content": request.prompt.system_prompt},
-                {"role": "user", "content": request.prompt.user_prompt}
+                {"role": "user", "content": request.prompt.user_prompt},
             ],
             output=content_str,
-            usage={
-                "input": prompt_tokens,
-                "output": completion_tokens
-            }
+            usage={"input": prompt_tokens, "output": completion_tokens},
         )
 
         return AIResponse(
