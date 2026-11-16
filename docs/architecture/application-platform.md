@@ -28,7 +28,7 @@ ATLAS itself is a local engineering platform, not an end-user application. All u
 - MCP Servers
 - REST APIs
 
-**Rule**: No client may bypass the Application Layer. No client may import directly from `engine/` or call internal Workflow, AI, or Domain services directly.
+**Rule**: No client may bypass the Application Layer. No client may import directly from `atlas_eng/engine/` or call internal Workflow, AI, or Domain services directly.
 
 ---
 
@@ -51,7 +51,7 @@ The platform is constructed via an internal composition root (`_bootstrap.py`) w
 **Rule**: The Bootstrap process is entirely hidden from clients. Clients interact with the initialized platform but never directly interact with the composition root logic.
 
 The distributable package includes `atlas/`; clients obtain a fully wired instance
-through `atlas.create()`. Initialization failures are exposed as `BootstrapError`.
+through `atlas_eng.create()`. Initialization failures are exposed as `BootstrapError`.
 Workflow status reports the readiness evaluation and its blocking issues rather than
 assuming that a stage is ready.
 
@@ -65,7 +65,7 @@ assuming that a stage is ready.
 
 ## Phase 15: Platform Layer
 
-Phase 15 adds three internal/public sub-layers inside `atlas/` -- the Capability Layer (`atlas/capabilities/`), the Contract Layer (`atlas/contracts/`), and the Adapter Boundary (`atlas/adapters/`) -- plus a new `Atlas.handle(RequestEnvelope) -> ResponseEnvelope` method. These formalize, but do not replace, everything above: the `Atlas` Facade, the Command-Result pattern, exception mapping, and the composition root are all unchanged in shape and behavior.
+Phase 15 adds three internal/public sub-layers inside `atlas/` -- the Capability Layer (`atlas_eng/capabilities/`), the Contract Layer (`atlas_eng/contracts/`), and the Adapter Boundary (`atlas_eng/adapters/`) -- plus a new `Atlas.handle(RequestEnvelope) -> ResponseEnvelope` method. These formalize, but do not replace, everything above: the `Atlas` Facade, the Command-Result pattern, exception mapping, and the composition root are all unchanged in shape and behavior.
 
 The "capability-based authorization scopes" future extension listed above now has a concrete seam: `PlatformCapabilityManifest` (typed via the `CapabilityName` enum) is what an adapter negotiates against. Authorization enforcement itself remains unimplemented -- Phase 15 only introduces the manifest a future authorization layer would gate.
 

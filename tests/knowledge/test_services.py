@@ -5,8 +5,8 @@ from uuid import uuid4
 
 import pytest
 
-from engine.domain.ai_drafts import KnowledgeCandidateDraft
-from engine.domain.enums import (
+from atlas_eng.engine.domain.ai_drafts import KnowledgeCandidateDraft
+from atlas_eng.engine.domain.enums import (
     KnowledgeActorType,
     KnowledgeCandidateStatus,
     KnowledgeCategory,
@@ -14,7 +14,7 @@ from engine.domain.enums import (
     PublishedKnowledgeStatus,
     WorkflowStage,
 )
-from engine.domain.knowledge import (
+from atlas_eng.engine.domain.knowledge import (
     HumanKnowledgeSubmission,
     KnowledgeActor,
     KnowledgeCandidate,
@@ -22,8 +22,8 @@ from engine.domain.knowledge import (
     KnowledgeRetrievalQuery,
     PublishedKnowledge,
 )
-from engine.knowledge.exceptions import KnowledgeReviewException
-from engine.knowledge.services import (
+from atlas_eng.engine.knowledge.exceptions import KnowledgeReviewException
+from atlas_eng.engine.knowledge.services import (
     KnowledgeApprovalService,
     KnowledgeCandidateService,
     KnowledgeLifecycleService,

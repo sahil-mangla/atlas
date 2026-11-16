@@ -10,11 +10,11 @@ from uuid import uuid4
 
 import pytest
 
-from engine.domain.project import Project
-from engine.domain.research import Research
-from engine.project.fs_repository import FilesystemProjectRepository
-from engine.research.exceptions import InvalidResearchException
-from engine.research.fs_repository import FilesystemResearchRepository
+from atlas_eng.engine.domain.project import Project
+from atlas_eng.engine.domain.research import Research
+from atlas_eng.engine.project.fs_repository import FilesystemProjectRepository
+from atlas_eng.engine.research.exceptions import InvalidResearchException
+from atlas_eng.engine.research.fs_repository import FilesystemResearchRepository
 
 
 @pytest.fixture

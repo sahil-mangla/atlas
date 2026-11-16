@@ -1,18 +1,18 @@
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from engine.domain.enums import (
+from atlas_eng.engine.domain.enums import (
     KnowledgeActorType,
     KnowledgeCategory,
     KnowledgeSourceType,
 )
-from engine.domain.knowledge import (
+from atlas_eng.engine.domain.knowledge import (
     KnowledgeActor,
     KnowledgePersistenceDocument,
     KnowledgeProvenance,
     PublishedKnowledge,
 )
-from engine.knowledge.serializers import (
+from atlas_eng.engine.knowledge.serializers import (
     deserialize_knowledge_document,
     serialize_knowledge_document,
 )

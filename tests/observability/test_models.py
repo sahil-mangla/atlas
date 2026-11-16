@@ -7,10 +7,10 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
-from atlas.adapters.protocol import AdapterKind
-from atlas.capabilities.base import CapabilityName
-from atlas.contracts.errors import PlatformErrorCode
-from atlas.observability.models import TraceOutcome, TraceRecord
+from atlas_eng.adapters.protocol import AdapterKind
+from atlas_eng.capabilities.base import CapabilityName
+from atlas_eng.contracts.errors import PlatformErrorCode
+from atlas_eng.observability.models import TraceOutcome, TraceRecord
 
 
 def _record(**overrides: object) -> TraceRecord:

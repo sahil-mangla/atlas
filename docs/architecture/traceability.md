@@ -43,7 +43,7 @@ ATLAS guarantees an unbroken, audited path of design and implementation provenan
 Traceability is modeled and enforced using two primary patterns in the domain layer:
 
 ### 1. The Traceability Link Model
-The `TraceabilityLink` (`engine/domain/traceability.py`) is a lightweight value object composed of:
+The `TraceabilityLink` (`atlas_eng/engine/domain/traceability.py`) is a lightweight value object composed of:
 - `source_id`: The unique UUID of the upstream originating concept (e.g. the specific `Evidence` or `ResearchFinding` ID).
 - `description`: An optional text string explaining the nature of the relationship or dependency justification.
 

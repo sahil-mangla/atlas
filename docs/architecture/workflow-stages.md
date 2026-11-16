@@ -23,7 +23,7 @@ AI stage executor.
 
 Every stage transition -- AI-assisted or human-driven -- sets a list of
 default active objectives for the newly entered stage
-(`DEFAULT_STAGE_OBJECTIVES` in `engine/workflow/services.py`), and
+(`DEFAULT_STAGE_OBJECTIVES` in `atlas_eng/engine/workflow/services.py`), and
 `workflow transition` is blocked until those objectives are cleared.
 
 For AI-assisted stages, objectives clear automatically the moment the

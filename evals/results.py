@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from atlas.observability.models import TraceRecord
+from atlas_eng.observability.models import TraceRecord
 
 
 @dataclass(frozen=True)

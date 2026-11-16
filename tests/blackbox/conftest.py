@@ -85,7 +85,7 @@ class Cli:
             [
                 sys.executable,
                 "-c",
-                "from clients.cli.application import main; main()",
+                "from atlas_eng.clients.cli.application import main; main()",
                 *args,
             ],
             cwd=self.cwd,

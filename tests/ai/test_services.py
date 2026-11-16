@@ -3,15 +3,15 @@ from uuid import uuid4
 
 import pytest
 
-from engine.ai.context import IdentityContextStrategy
-from engine.ai.exceptions import InvalidContextException
-from engine.ai.executor import PromptExecutor
-from engine.ai.services import AIOrchestrationService, ContextAssemblerService
-from engine.domain.ai import ContextPayload
-from engine.domain.ai_drafts import ResearchProposalDraft
-from engine.domain.enums import WorkflowStage
-from engine.domain.metadata import ArtifactMetadata, ArtifactStatus
-from engine.prompt.loader import PromptLoader
+from atlas_eng.engine.ai.context import IdentityContextStrategy
+from atlas_eng.engine.ai.exceptions import InvalidContextException
+from atlas_eng.engine.ai.executor import PromptExecutor
+from atlas_eng.engine.ai.services import AIOrchestrationService, ContextAssemblerService
+from atlas_eng.engine.domain.ai import ContextPayload
+from atlas_eng.engine.domain.ai_drafts import ResearchProposalDraft
+from atlas_eng.engine.domain.enums import WorkflowStage
+from atlas_eng.engine.domain.metadata import ArtifactMetadata, ArtifactStatus
+from atlas_eng.engine.prompt.loader import PromptLoader
 from tests.ai.test_adapters import MockAIProvider
 
 

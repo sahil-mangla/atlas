@@ -9,17 +9,17 @@ with constructor injection throughout and no service locator.
 import inspect
 from pathlib import Path
 
-import atlas._bootstrap as bootstrap_module
-from atlas._service import Atlas
-from presentation.collectors.collectors import (
+import atlas_eng._bootstrap as bootstrap_module
+from atlas_eng._service import Atlas
+from atlas_eng.presentation.collectors.collectors import (
     DiagnosticsCollector,
     KnowledgeSummaryCollector,
     ProjectDashboardCollector,
     ResearchSummaryCollector,
     WorkflowStatusCollector,
 )
-from presentation.orchestration import PlatformOrchestrationService
-from presentation.renderers import RendererRegistry
+from atlas_eng.presentation.orchestration import PlatformOrchestrationService
+from atlas_eng.presentation.renderers import RendererRegistry
 from tests.support.test_bootstrap import create_test_platform
 
 

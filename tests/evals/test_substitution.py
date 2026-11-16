@@ -4,10 +4,10 @@ from uuid import uuid4
 
 import pytest
 
-from atlas.adapters.protocol import AdapterContext, AdapterKind
-from atlas.commands import ListProjectsCommand
-from atlas.contracts.envelope import RequestEnvelope, ResponseEnvelope
-from atlas.results import ProjectListResult
+from atlas_eng.adapters.protocol import AdapterContext, AdapterKind
+from atlas_eng.commands import ListProjectsCommand
+from atlas_eng.contracts.envelope import RequestEnvelope, ResponseEnvelope
+from atlas_eng.results import ProjectListResult
 from evals.substitution import (
     InvalidPathError,
     UnknownCaptureReferenceError,

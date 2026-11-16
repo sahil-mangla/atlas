@@ -3,12 +3,12 @@
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from atlas.adapters.protocol import AdapterKind
-from atlas.capabilities.base import CapabilityName
-from atlas.contracts.envelope import ResponseEnvelope
-from atlas.contracts.errors import ErrorEnvelope, PlatformErrorCode
-from atlas.observability.models import TraceOutcome, TraceRecord
-from atlas.results import OperationResult, ProjectListResult
+from atlas_eng.adapters.protocol import AdapterKind
+from atlas_eng.capabilities.base import CapabilityName
+from atlas_eng.contracts.envelope import ResponseEnvelope
+from atlas_eng.contracts.errors import ErrorEnvelope, PlatformErrorCode
+from atlas_eng.observability.models import TraceOutcome, TraceRecord
+from atlas_eng.results import OperationResult, ProjectListResult
 from evals.schema import CheckSpec, StepExpected
 from evals.scoring import score_step
 

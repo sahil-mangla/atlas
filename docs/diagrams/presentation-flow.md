@@ -6,7 +6,7 @@ flowchart TD
         Caller["Any Atlas caller"]
     end
 
-    subgraph AtlasFacade["Atlas Facade (atlas/_service.py)"]
+    subgraph AtlasFacade["Atlas Facade (atlas_eng/_service.py)"]
         ReadModelAPI["get_*_read_model(project_id)"]
         ViewAPI["get_*_view(project_id)"]
         RenderAPI["render(view, renderer, contract)"]
@@ -32,7 +32,7 @@ flowchart TD
         DRM["DiagnosticsReadModel"]
     end
 
-    subgraph Engine["Phase 1-13 Services (engine/*)"]
+    subgraph Engine["Phase 1-13 Services (atlas_eng/engine/*)"]
         ProjectSvc["Project services"]
         WorkflowSvc["Workflow repo + readiness service"]
         ResearchSvc["Research repository"]

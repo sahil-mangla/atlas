@@ -25,11 +25,11 @@ generation to `AIRequest.response_schema`, not just request "some JSON":
   `model_json_schema()` dict, which uses `$defs`/`$ref` for any nested
   submodel (every non-trivial proposal draft has one -- e.g.
   `ResearchProposalDraft` nests `ResearchFindingDraft`/
-  `ResearchEvidenceDraft`). `engine/ai/adapters/gemini.py::_flatten_schema`
+  `ResearchEvidenceDraft`). `atlas_eng/engine/ai/adapters/gemini.py::_flatten_schema`
   inlines every `$ref` against `$defs` before the schema reaches the SDK.
 - **Ollama**: `/api/generate`'s `format` field accepts either the literal
   string `"json"` (any valid JSON) or a full JSON schema object (constrained
-  to that shape). `engine/ai/adapters/ollama.py` forwards
+  to that shape). `atlas_eng/engine/ai/adapters/ollama.py` forwards
   `request.response_schema` itself as `format`, not the generic string --
   otherwise the adapter's `structured_output=True` capability flag would be
   advertising more than it delivers, in violation of the "capability flags
@@ -47,7 +47,7 @@ generation to `AIRequest.response_schema`, not just request "some JSON":
 
 To add a protocol:
 
-1. Implement an `AIProvider` adapter in `engine/ai/adapters/`.
+1. Implement an `AIProvider` adapter in `atlas_eng/engine/ai/adapters/`.
 2. Register its constructor with `ProtocolFactory`.
 
 To use another vendor that already implements a registered protocol (for

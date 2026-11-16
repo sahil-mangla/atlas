@@ -31,14 +31,17 @@ from uuid import UUID
 
 import yaml
 
-from engine.ai.config import ProviderConfig
-from engine.ai.embedding_factory import EmbeddingFactory
-from engine.domain.enums import KnowledgeCategory, WorkflowStage
-from engine.domain.knowledge import KnowledgeRetrievalQuery, PublishedKnowledge
-from engine.knowledge.semantic import SemanticKnowledgeRanker, entry_text
-from engine.knowledge.services import KnowledgeRetrievalService
-from engine.knowledge.vector_store import SqliteVecStore
-from engine.research.retrieval import _STOPWORDS
+from atlas_eng.engine.ai.config import ProviderConfig
+from atlas_eng.engine.ai.embedding_factory import EmbeddingFactory
+from atlas_eng.engine.domain.enums import KnowledgeCategory, WorkflowStage
+from atlas_eng.engine.domain.knowledge import (
+    KnowledgeRetrievalQuery,
+    PublishedKnowledge,
+)
+from atlas_eng.engine.knowledge.semantic import SemanticKnowledgeRanker, entry_text
+from atlas_eng.engine.knowledge.services import KnowledgeRetrievalService
+from atlas_eng.engine.knowledge.vector_store import SqliteVecStore
+from atlas_eng.engine.research.retrieval import _STOPWORDS
 from evals.retrieval.corpus import PROJECT_ID, build_corpus, entry_id_for
 
 QUERIES_PATH = Path(__file__).with_name("queries.yaml")

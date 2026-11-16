@@ -6,24 +6,24 @@ from pathlib import Path
 
 import pytest
 
-from atlas import Atlas
-from atlas._service import _COMMAND_CAPABILITY
-from atlas.adapters.protocol import AdapterContext, AdapterKind
-from atlas.capabilities.base import CapabilityName
-from atlas.commands import (
+from atlas_eng import Atlas
+from atlas_eng._service import _COMMAND_CAPABILITY
+from atlas_eng.adapters.protocol import AdapterContext, AdapterKind
+from atlas_eng.capabilities.base import CapabilityName
+from atlas_eng.commands import (
     Command,
     CreateProjectCommand,
     ExecuteStageCommand,
     LoadProjectCommand,
     TransitionStageCommand,
 )
-from atlas.contracts.envelope import RequestEnvelope
-from atlas.contracts.errors import PlatformErrorCode
-from atlas.observability.exporter import TraceExporter
-from atlas.observability.instrumentation import instrument_request
-from atlas.observability.models import TraceOutcome, TraceRecord
-from atlas.types import WorkflowStage
-from engine.domain.ai_drafts import ResearchProposalDraft
+from atlas_eng.contracts.envelope import RequestEnvelope
+from atlas_eng.contracts.errors import PlatformErrorCode
+from atlas_eng.engine.domain.ai_drafts import ResearchProposalDraft
+from atlas_eng.observability.exporter import TraceExporter
+from atlas_eng.observability.instrumentation import instrument_request
+from atlas_eng.observability.models import TraceOutcome, TraceRecord
+from atlas_eng.types import WorkflowStage
 from tests.ai.test_adapters import MockAIProvider
 from tests.support.test_bootstrap import create_test_platform
 

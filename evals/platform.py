@@ -10,11 +10,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from atlas import Atlas
-from atlas.observability.exporter import TraceExporter
-from atlas.observability.models import TraceRecord
-from atlas.testing import create_test_platform
-from engine.ai.provider import AIProvider
+from atlas_eng import Atlas
+from atlas_eng.engine.ai.provider import AIProvider
+from atlas_eng.observability.exporter import TraceExporter
+from atlas_eng.observability.models import TraceRecord
+from atlas_eng.testing import create_test_platform
 
 
 class RecordingExporter:

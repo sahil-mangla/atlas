@@ -8,11 +8,19 @@ from uuid import UUID
 
 import pytest
 
-import presentation.renderers.base as mod
-from presentation.components import Metric, Section, StatusBadge
-from presentation.renderers import RenderContract, RendererRegistry, RenderResult
-from presentation.renderers.base import CliRenderer, JsonRenderer, MarkdownRenderer
-from presentation.views import ProjectDashboardView
+import atlas_eng.presentation.renderers.base as mod
+from atlas_eng.presentation.components import Metric, Section, StatusBadge
+from atlas_eng.presentation.renderers import (
+    RenderContract,
+    RendererRegistry,
+    RenderResult,
+)
+from atlas_eng.presentation.renderers.base import (
+    CliRenderer,
+    JsonRenderer,
+    MarkdownRenderer,
+)
+from atlas_eng.presentation.views import ProjectDashboardView
 
 PROJECT_ID = UUID("00000000-0000-0000-0000-000000000001")
 
@@ -103,8 +111,10 @@ def test_cli_renderer_is_deterministic() -> None:
 def test_renderers_never_reference_atlas_or_engine() -> None:
     source = mod.__file__
     assert source is not None
-    with Path(source).open() as f:
-        content = f.read()
+    with Path(source).open(encoding="utf-8") as f:
+        # Imports of sibling presentation modules are allowed; every other
+        # mention of the SDK or the engine is not.
+        content = f.read().replace("atlas_eng.presentation.", "")
     assert "atlas" not in content.lower()
     assert "engine" not in content.lower()
 

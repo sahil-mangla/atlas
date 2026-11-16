@@ -52,13 +52,13 @@ The `AIEngineeringService` subclasses (e.g. `ResearchAIEngineeringService`) act 
 4. Construct the `AIProposal` around the resulting typed draft.
 
 ### 3. Prompt Management Layer
-`engine.prompt` exclusively owns prompt definitions, metadata, versioned prompt
+`atlas_eng.engine.prompt` exclusively owns prompt definitions, metadata, versioned prompt
 construction, loading, and registration. `PromptLoader` explicitly constructs the
 known templates and creates one immutable `PromptRegistry` during bootstrap. The
 registry is a passive lookup by draft class; it neither builds nor loads templates.
 
 ### 4. AI Runtime
-`engine.ai` owns provider-independent execution. Bootstrap constructs and injects
+`atlas_eng.engine.ai` owns provider-independent execution. Bootstrap constructs and injects
 `PromptExecutor` into `AIOrchestrationService`; the executor applies context,
 asks the selected template to produce a provider-independent `PromptDocument`,
 creates the `AIRequest`, invokes the provider, and validates JSON into the

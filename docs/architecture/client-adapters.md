@@ -36,7 +36,7 @@ Client (Display)
 
 ## Shared Capabilities
 
-To avoid duplicated formatting logic across similar text-based adapters, the `clients/common` module provides shared presentation utilities:
+To avoid duplicated formatting logic across similar text-based adapters, the `atlas_eng/clients/common` module provides shared presentation utilities:
 
 - **Formatting**: Plain-text tabular rendering, lists, markdown wrapping, tree rendering.
 - **Progress**: CLI-agnostic progress bar math and tracking objects.
@@ -46,9 +46,9 @@ To avoid duplicated formatting logic across similar text-based adapters, the `cl
 ## Implemented Adapters
 
 ### CLI Adapter
-The CLI is the primary testing and interaction interface. It implements parsing via flat `sys.argv` arrays mapped directly to Command DTOs. Its renderer uses `clients/common` to generate rich terminal output.
+The CLI is the primary testing and interaction interface. It implements parsing via flat `sys.argv` arrays mapped directly to Command DTOs. Its renderer uses `atlas_eng/clients/common` to generate rich terminal output.
 
-Since Phase 15, `CLIApplication` also declares an `AdapterContext` (`atlas.adapters.protocol`) and exposes `context` / `negotiate()`, structurally satisfying the `PlatformAdapter` protocol -- see below. Its dispatch loop is unchanged: it continues calling named `Atlas` methods directly rather than `Atlas.handle()`, since it is an in-process caller (see Usage Policy below).
+Since Phase 15, `CLIApplication` also declares an `AdapterContext` (`atlas_eng.adapters.protocol`) and exposes `context` / `negotiate()`, structurally satisfying the `PlatformAdapter` protocol -- see below. Its dispatch loop is unchanged: it continues calling named `Atlas` methods directly rather than `Atlas.handle()`, since it is an in-process caller (see Usage Policy below).
 
 ## Future Adapters
 
@@ -64,7 +64,7 @@ Any adapter built against these stubs in a future phase is expected to implement
 
 ## Phase 15: Platform Adapter Boundary
 
-`atlas.adapters.protocol.PlatformAdapter` is the structural contract (a `@runtime_checkable` `Protocol`, not a base class) any client adapter satisfies:
+`atlas_eng.adapters.protocol.PlatformAdapter` is the structural contract (a `@runtime_checkable` `Protocol`, not a base class) any client adapter satisfies:
 
 ```python
 class PlatformAdapter(Protocol):
@@ -74,7 +74,7 @@ class PlatformAdapter(Protocol):
 ```
 
 - `AdapterContext` (`kind`, `name`, `version`) is the identity a client presents to the platform. `AdapterKind` covers `CLI`, `IDE`, `MCP`, `AI`, `REST`, `DESKTOP`.
-- `PlatformCapabilityManifest` is what the platform tells an adapter it exposes -- `capabilities: tuple[CapabilityName, ...]`, strongly typed via the `CapabilityName` enum (`atlas.capabilities.base`), never raw strings. The manifest is static in Phase 15 (all five capabilities always present) -- the seam for future capability-based authorization scoping.
+- `PlatformCapabilityManifest` is what the platform tells an adapter it exposes -- `capabilities: tuple[CapabilityName, ...]`, strongly typed via the `CapabilityName` enum (`atlas_eng.capabilities.base`), never raw strings. The manifest is static in Phase 15 (all five capabilities always present) -- the seam for future capability-based authorization scoping.
 
 ### Usage Policy: Named Methods vs. `Atlas.handle()`
 

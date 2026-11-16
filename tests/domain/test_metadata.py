@@ -2,7 +2,7 @@
 
 from datetime import UTC, datetime
 
-from engine.domain.metadata import ArtifactMetadata, ArtifactStatus
+from atlas_eng.engine.domain.metadata import ArtifactMetadata, ArtifactStatus
 
 
 def test_artifact_metadata_creation() -> None:

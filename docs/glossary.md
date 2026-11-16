@@ -1,6 +1,6 @@
 # ATLAS Glossary
 
-This glossary defines the canonical engineering and domain terminology used throughout the ATLAS platform. These definitions correspond to the Pydantic domain models in `engine/domain/` and orchestrations in `engine/workflow/` and `engine/ai/`.
+This glossary defines the canonical engineering and domain terminology used throughout the ATLAS platform. These definitions correspond to the Pydantic domain models in `atlas_eng/engine/domain/` and orchestrations in `atlas_eng/engine/workflow/` and `atlas_eng/engine/ai/`.
 
 ---
 
@@ -11,7 +11,7 @@ The top-level aggregate root representing the engineering system context. It hol
 An external interface (e.g., CLI, Desktop, Web, IDE Extension, MCP Server) that interacts with ATLAS. Clients are not part of the engine; they sit above the Application Platform Layer and initiate actions using Commands.
 
 ### Atlas Facade
-The canonical public API (`atlas/_service.py`) for the ATLAS platform. It encapsulates internal engine complexity and presents a unified `Atlas` class to all Client Adapters.
+The canonical public API (`atlas_eng/_service.py`) for the ATLAS platform. It encapsulates internal engine complexity and presents a unified `Atlas` class to all Client Adapters.
 
 ### Command DTO
 An immutable, serializable, transport-independent Data Transfer Object that encapsulates a requested action from a Client Adapter (e.g., `ExecuteStageCommand`).
@@ -83,58 +83,58 @@ The metadata tracing the origin of a knowledge entry (e.g. the source snapshot t
 A deterministic SHA-256 hash computed from normalized title, content, category, and tags to identify and block exact duplicates during candidate submission.
 
 ### Presentation Layer
-The Phase 14 `presentation/` package: an upper, non-engine layer that composes typed, immutable Views from the Atlas facade's read-model API and renders them to concrete output formats. See [Presentation Layer Architecture](architecture/presentation-layer.md).
+The Phase 14 `atlas_eng/presentation/` package: an upper, non-engine layer that composes typed, immutable Views from the Atlas facade's read-model API and renders them to concrete output formats. See [Presentation Layer Architecture](architecture/presentation-layer.md).
 
 ### Atlas Read Model
-An immutable, frozen Pydantic DTO (`presentation/read_models/models.py`) returned by an `Atlas.get_*_read_model` method, sourced from existing Phase 1-13 services and never exposing engine entities or repositories. The sole data source for presentation Collectors.
+An immutable, frozen Pydantic DTO (`atlas_eng/presentation/read_models/models.py`) returned by an `Atlas.get_*_read_model` method, sourced from existing Phase 1-13 services and never exposing engine entities or repositories. The sole data source for presentation Collectors.
 
 ### Collector (Presentation)
-A Phase 14 class (`presentation/collectors/collectors.py`) that calls one or more Atlas read-model methods and aggregates the results into a single immutable View. Collectors own presentation aggregation and derived values; they never render, call repositories, call engine services directly, perform AI work, or mutate engineering state.
+A Phase 14 class (`atlas_eng/presentation/collectors/collectors.py`) that calls one or more Atlas read-model methods and aggregates the results into a single immutable View. Collectors own presentation aggregation and derived values; they never render, call repositories, call engine services directly, perform AI work, or mutate engineering state.
 
 ### View (Presentation)
-A deeply immutable, frozen Pydantic model (`presentation/views/models.py`) composed from Components, representing a fully computed, ephemeral, renderer-independent presentation surface (e.g. `ProjectDashboardView`). Views contain no business logic and no engine models.
+A deeply immutable, frozen Pydantic model (`atlas_eng/presentation/views/models.py`) composed from Components, representing a fully computed, ephemeral, renderer-independent presentation surface (e.g. `ProjectDashboardView`). Views contain no business logic and no engine models.
 
 ### Component (Presentation)
-An immutable leaf presentation object (`StatusBadge`, `Metric`, `Section` in `presentation/components/models.py`) with no rendering logic, no Atlas dependency, and no business logic. Views assemble Components; Components never assemble Views.
+An immutable leaf presentation object (`StatusBadge`, `Metric`, `Section` in `atlas_eng/presentation/components/models.py`) with no rendering logic, no Atlas dependency, and no business logic. Views assemble Components; Components never assemble Views.
 
 ### PlatformOrchestrationService
-The Phase 14 orchestration service (`presentation/orchestration/platform.py`) that selects a Collector and delegates to it. It receives all Collectors via constructor injection and never constructs them itself; it contains no business rules, does not render, and owns no persistence or repositories.
+The Phase 14 orchestration service (`atlas_eng/presentation/orchestration/platform.py`) that selects a Collector and delegates to it. It receives all Collectors via constructor injection and never constructs them itself; it contains no business rules, does not render, and owns no persistence or repositories.
 
 ### Renderer
-A Phase 14 class (`presentation/renderers/base.py`) implementing the `Renderer` protocol that formats an immutable View into a `RenderResult` for one output format (JSON, Markdown, or CLI text). Renderers perform formatting only -- they never call Atlas, never compute business meaning, and never mutate their input view.
+A Phase 14 class (`atlas_eng/presentation/renderers/base.py`) implementing the `Renderer` protocol that formats an immutable View into a `RenderResult` for one output format (JSON, Markdown, or CLI text). Renderers perform formatting only -- they never call Atlas, never compute business meaning, and never mutate their input view.
 
 ### RenderResult
-The frozen dataclass (`presentation/renderers/result.py`) returned by every Renderer, carrying rendered `content`, `media_type`, `renderer` identity, and an immutable (`MappingProxyType`) `metadata` mapping.
+The frozen dataclass (`atlas_eng/presentation/renderers/result.py`) returned by every Renderer, carrying rendered `content`, `media_type`, `renderer` identity, and an immutable (`MappingProxyType`) `metadata` mapping.
 
 ### Platform Capability
-A Phase 15 `atlas/capabilities/` class (`ProjectCapability`, `WorkflowCapability`, `WorkflowExecutionCapability`, `KnowledgeCapability`, `PresentationCapability`) that owns one cohesive slice of the `Atlas` facade's public surface. A thin delegation layer -- see the [Capability Responsibility Rule](architecture/platform-layer.md#capability-responsibility-rule-architectural-invariant).
+A Phase 15 `atlas_eng/capabilities/` class (`ProjectCapability`, `WorkflowCapability`, `WorkflowExecutionCapability`, `KnowledgeCapability`, `PresentationCapability`) that owns one cohesive slice of the `Atlas` facade's public surface. A thin delegation layer -- see the [Capability Responsibility Rule](architecture/platform-layer.md#capability-responsibility-rule-architectural-invariant).
 
 ### Capability Layer
-The Phase 15 `atlas/capabilities/` package decomposing `Atlas` into five Platform Capabilities, internal to `Atlas` and never imported by clients directly.
+The Phase 15 `atlas_eng/capabilities/` package decomposing `Atlas` into five Platform Capabilities, internal to `Atlas` and never imported by clients directly.
 
 ### CapabilityName
-The single `StrEnum` (`atlas/capabilities/base.py`) naming all five Platform Capabilities, reused by the adapter negotiation manifest so no raw capability-name strings exist anywhere in the platform.
+The single `StrEnum` (`atlas_eng/capabilities/base.py`) naming all five Platform Capabilities, reused by the adapter negotiation manifest so no raw capability-name strings exist anywhere in the platform.
 
 ### WorkflowExecutionCapability
 The Phase 15 capability owning AI proposal generation (`execute_stage`) and the two proposal review decisions (`approve_proposal`, `reject_proposal`). Named narrower than a generic "execution" concept to reflect its actual, limited scope.
 
 ### Request Envelope
-`atlas.contracts.envelope.RequestEnvelope[TCommand]` -- a Phase 15 versioned, adapter-attributed wrapper around an existing Command DTO, carrying `api_version`, `request_id`, and the calling `AdapterContext`.
+`atlas_eng.contracts.envelope.RequestEnvelope[TCommand]` -- a Phase 15 versioned, adapter-attributed wrapper around an existing Command DTO, carrying `api_version`, `request_id`, and the calling `AdapterContext`.
 
 ### Response Envelope
-`atlas.contracts.envelope.ResponseEnvelope[TResult]` -- a Phase 15 versioned wrapper around an existing Result DTO or an Error Envelope, enforcing exactly one of `result` / `error` via a model validator.
+`atlas_eng.contracts.envelope.ResponseEnvelope[TResult]` -- a Phase 15 versioned wrapper around an existing Result DTO or an Error Envelope, enforcing exactly one of `result` / `error` via a model validator.
 
 ### Error Envelope
-`atlas.contracts.errors.ErrorEnvelope` -- a Phase 15 stable, serializable representation of a platform-level error, carrying a `PlatformErrorCode`, `message`, and `retryable` flag.
+`atlas_eng.contracts.errors.ErrorEnvelope` -- a Phase 15 stable, serializable representation of a platform-level error, carrying a `PlatformErrorCode`, `message`, and `retryable` flag.
 
 ### UNKNOWN_ERROR
 The one `PlatformErrorCode` member that exists only as a defensive fallback for an unmapped `ApplicationError` subclass. Reaching it at runtime signals a programming defect, never routine application behavior -- see [Platform Layer](architecture/platform-layer.md#error-contract).
 
 ### Platform API Version
-`atlas.contracts.version.PLATFORM_API_VERSION` -- the semver wire-contract version clients negotiate against. Commands/Results may only gain optional fields within a major version.
+`atlas_eng.contracts.version.PLATFORM_API_VERSION` -- the semver wire-contract version clients negotiate against. Commands/Results may only gain optional fields within a major version.
 
 ### Adapter Context
-`atlas.adapters.protocol.AdapterContext` -- the identity (`kind`, `name`, `version`) a Phase 15 client adapter presents to the platform on every request.
+`atlas_eng.adapters.protocol.AdapterContext` -- the identity (`kind`, `name`, `version`) a Phase 15 client adapter presents to the platform on every request.
 
 ### Capability Manifest
-`atlas.adapters.protocol.PlatformCapabilityManifest` -- what the platform tells an adapter it exposes, as a strongly-typed `tuple[CapabilityName, ...]`. Static in Phase 15 (all five capabilities always present); the seam for future capability-based authorization scoping.
+`atlas_eng.adapters.protocol.PlatformCapabilityManifest` -- what the platform tells an adapter it exposes, as a strongly-typed `tuple[CapabilityName, ...]`. Static in Phase 15 (all five capabilities always present); the seam for future capability-based authorization scoping.

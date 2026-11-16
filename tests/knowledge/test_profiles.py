@@ -1,5 +1,5 @@
-from engine.domain.enums import WorkflowStage
-from engine.knowledge.profiles import STAGE_PROFILES
+from atlas_eng.engine.domain.enums import WorkflowStage
+from atlas_eng.engine.knowledge.profiles import STAGE_PROFILES
 
 
 def test_stage_profiles_completeness() -> None:

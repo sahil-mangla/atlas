@@ -1,8 +1,11 @@
 from uuid import uuid4
 
-from engine.domain.enums import ResearchStatus
-from engine.domain.research import ProblemDefinition, Research
-from engine.research.serializers import deserialize_research, serialize_research
+from atlas_eng.engine.domain.enums import ResearchStatus
+from atlas_eng.engine.domain.research import ProblemDefinition, Research
+from atlas_eng.engine.research.serializers import (
+    deserialize_research,
+    serialize_research,
+)
 
 
 def test_serialize_deserialize_research() -> None:

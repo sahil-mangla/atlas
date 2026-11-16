@@ -6,7 +6,7 @@ Mirrors the "explicit, literal, no reflection" table style used by
 
 from __future__ import annotations
 
-from atlas.commands import (
+from atlas_eng.commands import (
     ApproveProposalCommand,
     ArchiveProjectCommand,
     Command,

@@ -10,29 +10,29 @@ from urllib.error import URLError
 import pytest
 from pytest import MonkeyPatch
 
-import atlas._bootstrap as bootstrap
-from engine.ai.adapters._http import post_json
-from engine.ai.adapters.anthropic import AnthropicAIProvider
-from engine.ai.adapters.gemini import GeminiAIProvider
-from engine.ai.adapters.ollama import OllamaAIProvider
-from engine.ai.adapters.openai_compatible import OpenAICompatibleAIProvider
-from engine.ai.config import ProviderConfig
-from engine.ai.context import IdentityContextStrategy
-from engine.ai.exceptions import AIProviderException
-from engine.ai.executor import PromptExecutor
-from engine.ai.factory import ProtocolFactory
-from engine.ai.provider import AIProvider
-from engine.config import Settings
-from engine.domain.ai import (
+import atlas_eng._bootstrap as bootstrap
+from atlas_eng.engine.ai.adapters._http import post_json
+from atlas_eng.engine.ai.adapters.anthropic import AnthropicAIProvider
+from atlas_eng.engine.ai.adapters.gemini import GeminiAIProvider
+from atlas_eng.engine.ai.adapters.ollama import OllamaAIProvider
+from atlas_eng.engine.ai.adapters.openai_compatible import OpenAICompatibleAIProvider
+from atlas_eng.engine.ai.config import ProviderConfig
+from atlas_eng.engine.ai.context import IdentityContextStrategy
+from atlas_eng.engine.ai.exceptions import AIProviderException
+from atlas_eng.engine.ai.executor import PromptExecutor
+from atlas_eng.engine.ai.factory import ProtocolFactory
+from atlas_eng.engine.ai.provider import AIProvider
+from atlas_eng.engine.config import Settings
+from atlas_eng.engine.domain.ai import (
     AIGenerationParameters,
     AIRequest,
     AIToolSchema,
     ContextPayload,
     ProviderCapabilities,
 )
-from engine.domain.ai_drafts import ResearchProposalDraft
-from engine.domain.prompt_document import PromptDocument
-from engine.prompt.templates import ResearchPromptTemplate
+from atlas_eng.engine.domain.ai_drafts import ResearchProposalDraft
+from atlas_eng.engine.domain.prompt_document import PromptDocument
+from atlas_eng.engine.prompt.templates import ResearchPromptTemplate
 from tests.ai.test_adapters import MockAIProvider
 
 _OPENAI_TEMPERATURE = 0.2
@@ -169,7 +169,8 @@ def test_openai_compatible_normalizes_request_and_response() -> None:
     }
 
     with patch(
-        "engine.ai.adapters.openai_compatible.post_json", return_value=fake_response
+        "atlas_eng.engine.ai.adapters.openai_compatible.post_json",
+        return_value=fake_response,
     ) as mocked_post:
         response = provider.generate(request)
 
@@ -210,7 +211,8 @@ def test_openai_compatible_uses_schema_title_as_json_schema_name() -> None:
     }
 
     with patch(
-        "engine.ai.adapters.openai_compatible.post_json", return_value=fake_response
+        "atlas_eng.engine.ai.adapters.openai_compatible.post_json",
+        return_value=fake_response,
     ) as mocked_post:
         provider.generate(request)
 
@@ -236,7 +238,8 @@ def test_openai_compatible_uses_configured_timeout() -> None:
     }
 
     with patch(
-        "engine.ai.adapters.openai_compatible.post_json", return_value=fake_response
+        "atlas_eng.engine.ai.adapters.openai_compatible.post_json",
+        return_value=fake_response,
     ) as mocked_post:
         provider.generate(request)
 
@@ -264,7 +267,7 @@ def test_anthropic_normalizes_request_and_response() -> None:
     }
 
     with patch(
-        "engine.ai.adapters.anthropic.post_json", return_value=fake_response
+        "atlas_eng.engine.ai.adapters.anthropic.post_json", return_value=fake_response
     ) as mocked_post:
         response = provider.generate(request)
 
@@ -300,7 +303,7 @@ def test_ollama_normalizes_request_and_response() -> None:
     }
 
     with patch(
-        "engine.ai.adapters.ollama.post_json", return_value=fake_response
+        "atlas_eng.engine.ai.adapters.ollama.post_json", return_value=fake_response
     ) as mocked_post:
         provider.generate(request)
 
@@ -329,7 +332,7 @@ def test_ollama_omits_format_when_no_response_schema_requested() -> None:
     }
 
     with patch(
-        "engine.ai.adapters.ollama.post_json", return_value=fake_response
+        "atlas_eng.engine.ai.adapters.ollama.post_json", return_value=fake_response
     ) as mocked_post:
         provider.generate(request)
 
@@ -340,7 +343,7 @@ def test_ollama_omits_format_when_no_response_schema_requested() -> None:
 def test_http_helper_translates_transport_errors() -> None:
     with (
         patch(
-            "engine.ai.adapters._http.urlopen",
+            "atlas_eng.engine.ai.adapters._http.urlopen",
             side_effect=URLError("offline"),
         ),
         pytest.raises(AIProviderException, match="AI protocol request failed"),

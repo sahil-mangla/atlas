@@ -1,13 +1,13 @@
 """Tests for the provider-boundary observability hook."""
 
-from engine.ai.adapters.anthropic import AnthropicAIProvider
-from engine.ai.adapters.gemini import GeminiAIProvider
-from engine.ai.adapters.ollama import OllamaAIProvider
-from engine.ai.adapters.openai_compatible import OpenAICompatibleAIProvider
-from engine.ai.config import ProviderConfig
-from engine.ai.observability import capture_response_usage, label_provider
-from engine.domain.ai import AIResponse
-from shared.observability.usage_context import finish_capture, start_capture
+from atlas_eng.engine.ai.adapters.anthropic import AnthropicAIProvider
+from atlas_eng.engine.ai.adapters.gemini import GeminiAIProvider
+from atlas_eng.engine.ai.adapters.ollama import OllamaAIProvider
+from atlas_eng.engine.ai.adapters.openai_compatible import OpenAICompatibleAIProvider
+from atlas_eng.engine.ai.config import ProviderConfig
+from atlas_eng.engine.ai.observability import capture_response_usage, label_provider
+from atlas_eng.engine.domain.ai import AIResponse
+from atlas_eng.shared.observability.usage_context import finish_capture, start_capture
 from tests.ai.test_adapters import MockAIProvider
 
 

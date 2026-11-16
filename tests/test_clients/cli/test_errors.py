@@ -5,7 +5,7 @@
 
 import pytest
 
-from clients.cli.parser import CLIParseError, _uuid
+from atlas_eng.clients.cli.parser import CLIParseError, _uuid
 
 
 def test_uuid_parsing_error() -> None:

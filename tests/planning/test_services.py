@@ -9,20 +9,20 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from engine.domain.enums import PlanningStatus, ResearchStatus
-from engine.domain.metadata import ArtifactMetadata
-from engine.domain.project import Project
-from engine.domain.research import (
+from atlas_eng.engine.domain.enums import PlanningStatus, ResearchStatus
+from atlas_eng.engine.domain.metadata import ArtifactMetadata
+from atlas_eng.engine.domain.project import Project
+from atlas_eng.engine.domain.research import (
     ProblemDefinition,
     Research,
     ResearchSnapshot,
     ResearchSummary,
 )
-from engine.planning.exceptions import (
+from atlas_eng.engine.planning.exceptions import (
     InvalidPlanningOperationException,
 )
-from engine.planning.fs_repository import FilesystemPlanningRepository
-from engine.planning.services import (
+from atlas_eng.engine.planning.fs_repository import FilesystemPlanningRepository
+from atlas_eng.engine.planning.services import (
     DependencyPlanningService,
     MilestonePlanningService,
     PlanningInitializationService,
@@ -30,8 +30,8 @@ from engine.planning.services import (
     ScopePlanningService,
     TaskPlanningService,
 )
-from engine.project.fs_repository import FilesystemProjectRepository
-from engine.research.fs_repository import FilesystemResearchRepository
+from atlas_eng.engine.project.fs_repository import FilesystemProjectRepository
+from atlas_eng.engine.research.fs_repository import FilesystemResearchRepository
 
 
 def create_snapshot(snapshot_id: UUID) -> ResearchSnapshot:

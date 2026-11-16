@@ -1,6 +1,6 @@
 """Tests for the request-scoped AI usage capture contextvar."""
 
-from shared.observability.usage_context import (
+from atlas_eng.shared.observability.usage_context import (
     finish_capture,
     record_usage,
     start_capture,

@@ -4,15 +4,15 @@ import uuid
 
 import pytest
 
-from atlas import Atlas
-from atlas.commands import (
+from atlas_eng import Atlas
+from atlas_eng.commands import (
     ApproveProposalCommand,
     CreateProjectCommand,
     ExecuteStageCommand,
     RejectProposalCommand,
 )
-from atlas.exceptions import ProposalValidationError
-from atlas.types import WorkflowStage
+from atlas_eng.exceptions import ProposalValidationError
+from atlas_eng.types import WorkflowStage
 
 
 def test_execute_stage_and_approve(test_atlas_platform: Atlas) -> None:

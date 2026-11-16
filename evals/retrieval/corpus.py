@@ -13,12 +13,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 from uuid import NAMESPACE_URL, UUID, uuid5
 
-from engine.domain.enums import (
+from atlas_eng.engine.domain.enums import (
     KnowledgeActorType,
     KnowledgeCategory,
     KnowledgeSourceType,
 )
-from engine.domain.knowledge import (
+from atlas_eng.engine.domain.knowledge import (
     KnowledgeActor,
     KnowledgeProvenance,
     PublishedKnowledge,

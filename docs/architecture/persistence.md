@@ -66,7 +66,7 @@ either `atlas-proposals/` subfolder is left entirely to the user.
 ATLAS utilizes JSON for filesystem serialization. Pydantic models are serialized to JSON string structures (e.g. via `serialize_architecture` and `deserialize_architecture` helper modules) before writing to disk.
 
 ### 2. Compensating Filesystem Transactions
-Since local filesystems do not support standard ACID database transactions, ATLAS implements a compensating unit-of-work pattern (`ProposalCommitUnitOfWork` in `engine/ai/unit_of_work.py`):
+Since local filesystems do not support standard ACID database transactions, ATLAS implements a compensating unit-of-work pattern (`ProposalCommitUnitOfWork` in `atlas_eng/engine/ai/unit_of_work.py`):
 
 - **Backup Phase (`begin`)**: Before mutating files during a proposal commit, the unit of work queries the current state of all relevant aggregates (Research, Planning, Architecture, Evaluation) and creates isolated backup copies using Pydantic's `model_copy(deep=True)`.
 - **Compensating Rollback (`rollback`)**: If any step of the proposal validation, transformation, or commit fails:
@@ -80,7 +80,7 @@ To preserve absolute traceability and engineering integrity, published knowledge
 ### 4. Crash-Safe Atomic Writes
 Writing a JSON/Markdown artifact directly to its target path (`path.open("w")`) is not crash-safe: a process kill, power loss, or full disk mid-write leaves a truncated file. Every subsequent read then fails with the aggregate's "invalid/corrupt" exception (e.g. `InvalidArchitectureException`), and there is no way to recover the prior state -- the same class of failure the compensating rollback above exists to prevent for multi-file commits, but which non-atomic single-file writes remained exposed to.
 
-`shared/atomic_write.py::atomic_write_text(path, content)` closes this gap and is used by every `save()` across all nine filesystem repositories (`workflow`, `project`, `evaluation`, `architecture`, `planning`, `memory`, `knowledge`, `research`, `ai` -- both the conversation JSON and the proposal JSON/Markdown writes):
+`atlas_eng/shared/atomic_write.py::atomic_write_text(path, content)` closes this gap and is used by every `save()` across all nine filesystem repositories (`workflow`, `project`, `evaluation`, `architecture`, `planning`, `memory`, `knowledge`, `research`, `ai` -- both the conversation JSON and the proposal JSON/Markdown writes):
 
 1. Write `content` to a temp file in the *same directory* as the target (same filesystem, so the final swap is atomic; the `.{name}.<random>.tmp` prefix keeps it out of any glob that only matches the real filename).
 2. `flush()` and `os.fsync()` the temp file's contents to disk.

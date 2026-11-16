@@ -2,9 +2,17 @@
 
 from uuid import uuid4
 
-from engine.domain.enums import ApprovalStatus, ProposalDecision, WorkflowStage
-from engine.domain.workflow import ProposalReviewEntry, Workflow, WorkflowHistoryEntry
-from engine.workflow.serializers import (
+from atlas_eng.engine.domain.enums import (
+    ApprovalStatus,
+    ProposalDecision,
+    WorkflowStage,
+)
+from atlas_eng.engine.domain.workflow import (
+    ProposalReviewEntry,
+    Workflow,
+    WorkflowHistoryEntry,
+)
+from atlas_eng.engine.workflow.serializers import (
     deserialize_history_entry,
     deserialize_workflow,
     serialize_history_entry,

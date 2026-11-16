@@ -4,8 +4,8 @@ from uuid import uuid4
 
 import pytest
 
-from engine.domain.enums import MemoryCategory
-from engine.domain.memory import Memory, MemoryEntry
+from atlas_eng.engine.domain.enums import MemoryCategory
+from atlas_eng.engine.domain.memory import Memory, MemoryEntry
 
 
 def test_memory_entry_default_values() -> None:

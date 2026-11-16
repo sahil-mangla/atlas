@@ -6,13 +6,13 @@ from uuid import uuid4
 
 import pytest
 
-from engine.domain.project import Project
-from engine.project.exceptions import (
+from atlas_eng.engine.domain.project import Project
+from atlas_eng.engine.project.exceptions import (
     InvalidProjectException,
     ProjectAlreadyExistsException,
     ProjectNotFoundException,
 )
-from engine.project.fs_repository import FilesystemProjectRepository
+from atlas_eng.engine.project.fs_repository import FilesystemProjectRepository
 
 
 def test_fs_repository_init_empty(tmp_path: Path) -> None:

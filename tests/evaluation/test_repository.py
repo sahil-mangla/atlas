@@ -3,14 +3,14 @@ from uuid import uuid4
 
 import pytest
 
-from engine.domain.evaluation import Evaluation
-from engine.domain.project import Project
-from engine.evaluation.exceptions import (
+from atlas_eng.engine.domain.evaluation import Evaluation
+from atlas_eng.engine.domain.project import Project
+from atlas_eng.engine.evaluation.exceptions import (
     EvaluationNotFoundException,
     InvalidEvaluationException,
 )
-from engine.evaluation.fs_repository import FilesystemEvaluationRepository
-from engine.project.fs_repository import FilesystemProjectRepository
+from atlas_eng.engine.evaluation.fs_repository import FilesystemEvaluationRepository
+from atlas_eng.engine.project.fs_repository import FilesystemProjectRepository
 
 
 @pytest.fixture

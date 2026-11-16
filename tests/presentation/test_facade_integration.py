@@ -13,13 +13,13 @@ from uuid import UUID, uuid4
 
 import pytest
 
-import atlas as atlas_pkg
-from atlas._service import Atlas
-from atlas.commands import CreateProjectCommand
-from atlas.exceptions import ApplicationError, ProjectNotFoundError
-from engine.config import Settings
-from presentation.renderers import RenderContract
-from presentation.views import DiagnosticsView, ProjectDashboardView
+import atlas_eng as atlas_pkg
+from atlas_eng._service import Atlas
+from atlas_eng.commands import CreateProjectCommand
+from atlas_eng.engine.config import Settings
+from atlas_eng.exceptions import ApplicationError, ProjectNotFoundError
+from atlas_eng.presentation.renderers import RenderContract
+from atlas_eng.presentation.views import DiagnosticsView, ProjectDashboardView
 from tests.support.test_bootstrap import create_test_platform
 
 AtlasWithProject = tuple[Atlas, UUID]
@@ -150,7 +150,7 @@ def test_atlas_created_via_atlas_create_has_working_presentation(
             ai_api_key=None,
         )
 
-    monkeypatch.setattr("atlas._bootstrap.get_settings", fake_get_settings)
+    monkeypatch.setattr("atlas_eng._bootstrap.get_settings", fake_get_settings)
     real_atlas = atlas_pkg.create()
     result = real_atlas.create_project(
         CreateProjectCommand(name="Real", description="d", objective="o")

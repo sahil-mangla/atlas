@@ -4,15 +4,15 @@ import uuid
 
 import pytest
 
-from atlas import Atlas
-from atlas.commands import (
+from atlas_eng import Atlas
+from atlas_eng.commands import (
     CompleteObjectiveCommand,
     CreateProjectCommand,
     GetWorkflowStatusCommand,
     TransitionStageCommand,
 )
-from atlas.exceptions import ApplicationError, WorkflowNotReadyError
-from atlas.types import WorkflowStage
+from atlas_eng.exceptions import ApplicationError, WorkflowNotReadyError
+from atlas_eng.types import WorkflowStage
 
 
 def test_get_workflow_status(test_atlas_platform: Atlas) -> None:

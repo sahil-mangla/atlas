@@ -15,11 +15,13 @@ from pathlib import Path
 
 import pytest
 
+from tests.architecture.layers import ROOT, layer_module
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
-CAPABILITIES_ROOT = REPO_ROOT / "atlas" / "capabilities"
-CONTRACTS_ROOT = REPO_ROOT / "atlas" / "contracts"
-ADAPTERS_ROOT = REPO_ROOT / "atlas" / "adapters"
-CLIENTS_ROOT = REPO_ROOT / "clients"
+CAPABILITIES_ROOT = REPO_ROOT / ROOT / "capabilities"
+CONTRACTS_ROOT = REPO_ROOT / ROOT / "contracts"
+ADAPTERS_ROOT = REPO_ROOT / ROOT / "adapters"
+CLIENTS_ROOT = REPO_ROOT / ROOT / "clients"
 
 
 def _imported_modules(path: Path) -> set[str]:
@@ -27,9 +29,9 @@ def _imported_modules(path: Path) -> set[str]:
     modules: set[str] = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
-            modules.update(alias.name for alias in node.names)
+            modules.update(layer_module(alias.name) for alias in node.names)
         elif isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
-            modules.add(node.module)
+            modules.add(layer_module(node.module))
     return modules
 
 

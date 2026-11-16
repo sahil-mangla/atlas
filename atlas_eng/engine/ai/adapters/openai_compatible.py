@@ -1,0 +1,148 @@
+"""Adapter for any service implementing the OpenAI chat-completions protocol."""
+
+from collections.abc import Sequence
+from typing import Any
+
+from langfuse.decorators import langfuse_context, observe
+
+from atlas_eng.engine.ai.adapters._http import parse_embeddings, post_json
+from atlas_eng.engine.ai.config import ProviderConfig
+from atlas_eng.engine.ai.embeddings import EmbeddingProvider
+from atlas_eng.engine.ai.exceptions import AIProviderException
+from atlas_eng.engine.ai.provider import AIProvider
+from atlas_eng.engine.domain.ai import (
+    AIGenerationParameters,
+    AIRequest,
+    AIResponse,
+    ProviderCapabilities,
+)
+
+
+class OpenAICompatibleAIProvider(AIProvider):
+    """Execute requests against OpenAI-compatible cloud or local endpoints."""
+
+    def __init__(self, config: ProviderConfig) -> None:
+        self._config = config
+
+    @observe(
+        as_type="generation",
+        name="openai_generate",
+        capture_input=False,
+        capture_output=False,
+    )
+    def generate(self, request: AIRequest) -> AIResponse:
+        if not self._config.endpoint or not self._config.model:
+            raise AIProviderException(
+                "OpenAI-compatible protocol requires endpoint and model."
+            )
+        messages = [
+            {"role": "system", "content": request.prompt.system_prompt},
+            {"role": "user", "content": request.prompt.user_prompt},
+        ]
+        payload: dict[str, Any] = {"model": self._config.model, "messages": messages}
+        if request.response_schema is not None:
+            payload["response_format"] = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": str(request.response_schema.get("title", "response")),
+                    "schema": request.response_schema,
+                },
+            }
+        payload.update(self._normalize_parameters(request.parameters))
+        payload.update(self._config.options)
+        headers = (
+            {"Authorization": f"Bearer {self._config.api_key}"}
+            if self._config.api_key
+            else {}
+        )
+        data = post_json(
+            self._config.endpoint.rstrip("/") + "/chat/completions",
+            payload,
+            headers,
+            timeout=self._config.timeout_seconds,
+        )
+        choices = data.get("choices", [])
+        first = choices[0] if choices else {}
+        message = first.get("message", {}) if isinstance(first, dict) else {}
+        usage = data.get("usage", {}) if isinstance(data.get("usage"), dict) else {}
+
+        content_str = str(message.get("content", ""))
+        prompt_tokens = int(usage.get("prompt_tokens", 0))
+        completion_tokens = int(usage.get("completion_tokens", 0))
+
+        langfuse_context.update_current_observation(
+            model=self._config.model,
+            input=messages,
+            output=content_str,
+            usage={"input": prompt_tokens, "output": completion_tokens},
+        )
+
+        return AIResponse(
+            content=content_str,
+            usage_metrics={
+                "prompt_tokens": prompt_tokens,
+                "completion_tokens": completion_tokens,
+            },
+            finish_reason=str(first.get("finish_reason", "unknown")),
+        )
+
+    def capabilities(self) -> ProviderCapabilities:
+        return ProviderCapabilities(
+            structured_output=True,
+            streaming_support=False,
+            tool_calling=False,
+            image_input=False,
+            reasoning_support=False,
+            context_window=int(self._config.options.get("context_window", 128000)),
+        )
+
+    @staticmethod
+    def _normalize_parameters(parameters: AIGenerationParameters) -> dict[str, Any]:
+        """Map ATLAS generation parameters to OpenAI chat-completions fields."""
+        payload: dict[str, Any] = {}
+        if parameters.temperature is not None:
+            payload["temperature"] = parameters.temperature
+        if parameters.top_p is not None:
+            payload["top_p"] = parameters.top_p
+        if parameters.max_output_tokens is not None:
+            payload["max_tokens"] = parameters.max_output_tokens
+        return payload
+
+
+class OpenAICompatibleEmbeddingProvider(EmbeddingProvider):
+    """Embeddings from any service implementing OpenAI's ``/embeddings``."""
+
+    def __init__(self, config: ProviderConfig) -> None:
+        if not config.endpoint or not config.model:
+            raise AIProviderException(
+                "OpenAI-compatible embeddings require ATLAS_AI_ENDPOINT (or "
+                "ATLAS_EMBEDDING_ENDPOINT) and ATLAS_EMBEDDING_MODEL."
+            )
+        self._config = config
+
+    @property
+    def model_id(self) -> str:
+        return f"OPENAI_COMPATIBLE:{self._config.model}"
+
+    @observe(name="openai_embed", capture_input=False, capture_output=False)
+    def embed(self, texts: Sequence[str]) -> list[list[float]]:
+        headers = (
+            {"Authorization": f"Bearer {self._config.api_key}"}
+            if self._config.api_key
+            else {}
+        )
+        data = post_json(
+            (self._config.endpoint or "").rstrip("/") + "/embeddings",
+            {"model": self._config.model, "input": list(texts)},
+            headers,
+            timeout=self._config.timeout_seconds,
+        )
+        items = data.get("data")
+        if not isinstance(items, list):
+            raise AIProviderException("Embedding provider returned no 'data' list.")
+        # The API tags each item with its input position; don't trust list order.
+        ordered = sorted(
+            (item for item in items if isinstance(item, dict)),
+            key=lambda item: int(item.get("index", 0)),
+        )
+        return parse_embeddings([item.get("embedding") for item in ordered], len(texts))

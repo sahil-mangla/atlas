@@ -9,9 +9,9 @@ import uuid
 
 import pytest
 
-from atlas import Atlas
-from atlas.adapters.protocol import AdapterContext, AdapterKind
-from atlas.commands import (
+from atlas_eng import Atlas
+from atlas_eng.adapters.protocol import AdapterContext, AdapterKind
+from atlas_eng.commands import (
     ArchiveProjectCommand,
     Command,
     CompleteObjectiveCommand,
@@ -21,9 +21,9 @@ from atlas.commands import (
     LoadProjectCommand,
     TransitionStageCommand,
 )
-from atlas.contracts.envelope import RequestEnvelope
-from atlas.contracts.errors import PlatformErrorCode
-from atlas.results import Result
+from atlas_eng.contracts.envelope import RequestEnvelope
+from atlas_eng.contracts.errors import PlatformErrorCode
+from atlas_eng.results import Result
 
 
 def _adapter_context() -> AdapterContext:

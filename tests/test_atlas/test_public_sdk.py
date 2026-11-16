@@ -6,12 +6,12 @@ from uuid import uuid4
 
 from pytest import MonkeyPatch
 
-import atlas._bootstrap as bootstrap
-from atlas import Atlas, create
-from atlas.commands import CreateProjectCommand
-from atlas.results import ProjectResult
-from atlas.types import ProjectStatus
-from engine.config import Settings
+import atlas_eng._bootstrap as bootstrap
+from atlas_eng import Atlas, create
+from atlas_eng.commands import CreateProjectCommand
+from atlas_eng.engine.config import Settings
+from atlas_eng.results import ProjectResult
+from atlas_eng.types import ProjectStatus
 
 
 def test_public_factory_constructs_platform() -> None:

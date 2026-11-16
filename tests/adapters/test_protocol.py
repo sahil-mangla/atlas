@@ -5,15 +5,15 @@ from unittest.mock import MagicMock
 import pytest
 from pydantic import ValidationError
 
-from atlas.adapters.protocol import (
+from atlas_eng.adapters.protocol import (
     AdapterContext,
     AdapterKind,
     PlatformAdapter,
     PlatformCapabilityManifest,
 )
-from atlas.capabilities.base import CapabilityName
-from atlas.contracts.version import PLATFORM_API_VERSION
-from clients.cli.application import CLIApplication
+from atlas_eng.capabilities.base import CapabilityName
+from atlas_eng.clients.cli.application import CLIApplication
+from atlas_eng.contracts.version import PLATFORM_API_VERSION
 
 
 def test_adapter_context_is_frozen() -> None:

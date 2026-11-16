@@ -1,4 +1,4 @@
-from engine.research.exceptions import (
+from atlas_eng.engine.research.exceptions import (
     InvalidResearchOperationException,
     ResearchException,
     ResearchNotFoundException,

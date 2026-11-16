@@ -1,9 +1,9 @@
 from unittest.mock import ANY, Mock
 from uuid import uuid4
 
-from engine.domain.enums import KnowledgeSourceType
-from engine.domain.knowledge import PublishedKnowledge
-from engine.knowledge.orchestration import KnowledgeOrchestrationService
+from atlas_eng.engine.domain.enums import KnowledgeSourceType
+from atlas_eng.engine.domain.knowledge import PublishedKnowledge
+from atlas_eng.engine.knowledge.orchestration import KnowledgeOrchestrationService
 
 
 def test_orchestration_delegation() -> None:

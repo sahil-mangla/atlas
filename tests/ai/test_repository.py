@@ -3,17 +3,24 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from engine.ai.exceptions import InvalidProposalException
-from engine.ai.fs_repository import (
+from atlas_eng.engine.ai.exceptions import InvalidProposalException
+from atlas_eng.engine.ai.fs_repository import (
     FilesystemConversationRepository,
     FilesystemProposalRepository,
 )
-from engine.domain.ai import AIProposal, ContextPayload, PromptTemplateMetadata
-from engine.domain.ai_drafts import ResearchProposalDraft
-from engine.domain.conversation import ConversationMessage, ConversationSession
-from engine.domain.enums import ConversationRole, ProposalStatus, ProposalType
-from engine.domain.project import Project
-from engine.project.repository import ProjectRepository
+from atlas_eng.engine.domain.ai import (
+    AIProposal,
+    ContextPayload,
+    PromptTemplateMetadata,
+)
+from atlas_eng.engine.domain.ai_drafts import ResearchProposalDraft
+from atlas_eng.engine.domain.conversation import (
+    ConversationMessage,
+    ConversationSession,
+)
+from atlas_eng.engine.domain.enums import ConversationRole, ProposalStatus, ProposalType
+from atlas_eng.engine.domain.project import Project
+from atlas_eng.engine.project.repository import ProjectRepository
 
 
 class DummyProjectRepo(ProjectRepository):

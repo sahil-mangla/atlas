@@ -17,7 +17,7 @@ This document defines the primary architectural principles that govern the desig
 ## Core Architectural Principles
 
 ### 1. Domain First
-Domain modeling establishes a shared, conceptual understanding of the problem space independent of technologies. All system structures, dependencies, and business logic flow from the core domain entities (`engine/domain/`). Frameworks, libraries, and databases are treated as outer-ring adapters.
+Domain modeling establishes a shared, conceptual understanding of the problem space independent of technologies. All system structures, dependencies, and business logic flow from the core domain entities (`atlas_eng/engine/domain/`). Frameworks, libraries, and databases are treated as outer-ring adapters.
 
 ### 2. Explicit Dependencies
 Dependencies, configuration parameters, and execution contexts must be declared explicitly. The use of global singletons, shared mutable state, or implicit environments is prohibited. Subsystems must request dependencies from the outside (typically via constructor injection).

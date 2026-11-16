@@ -4,14 +4,18 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from engine.domain.enums import ApprovalStatus, EvaluationStatus, WorkflowStage
-from engine.domain.workflow import Workflow
-from engine.workflow.exceptions import (
+from atlas_eng.engine.domain.enums import (
+    ApprovalStatus,
+    EvaluationStatus,
+    WorkflowStage,
+)
+from atlas_eng.engine.domain.workflow import Workflow
+from atlas_eng.engine.workflow.exceptions import (
     InvalidTransitionException,
     WorkflowNotFoundException,
 )
-from engine.workflow.repository import WorkflowRepository
-from engine.workflow.services import (
+from atlas_eng.engine.workflow.repository import WorkflowRepository
+from atlas_eng.engine.workflow.services import (
     WorkflowHistoryService,
     WorkflowInitializationService,
     WorkflowProgressService,

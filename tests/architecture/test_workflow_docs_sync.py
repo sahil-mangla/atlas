@@ -11,8 +11,8 @@ state machine it claims to document.
 
 from pathlib import Path
 
-from engine.domain.enums import WorkflowStage
-from engine.workflow.services import WorkflowTransitionService
+from atlas_eng.engine.domain.enums import WorkflowStage
+from atlas_eng.engine.workflow.services import WorkflowTransitionService
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 _PIPELINE_DIAGRAM = _REPO_ROOT / "docs" / "diagrams" / "engineering-pipeline.md"

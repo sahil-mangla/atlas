@@ -19,33 +19,33 @@ This document provides a step-by-step guide for engineers extending the ATLAS pl
 To add a new stage to ATLAS, follow this structured progression across the layers:
 
 ### 1. Domain Layer
-- **Enums**: Register the new stage in `WorkflowStage` and the new proposal type in `ProposalType` inside `engine/domain/enums.py`.
-- **Domain Models**: Create a Pydantic model (e.g. in a new file `engine/domain/custom_stage.py`) representing the stage data and snapshot wrapper. Ensure it composes `ArtifactMetadata`.
-- **AI Drafts**: Define the Pydantic draft models in `engine/domain/ai_drafts.py` that describe the JSON structures the LLM will generate.
-- **Exports**: Expose all new structures in `engine/domain/__init__.py`.
+- **Enums**: Register the new stage in `WorkflowStage` and the new proposal type in `ProposalType` inside `atlas_eng/engine/domain/enums.py`.
+- **Domain Models**: Create a Pydantic model (e.g. in a new file `atlas_eng/engine/domain/custom_stage.py`) representing the stage data and snapshot wrapper. Ensure it composes `ArtifactMetadata`.
+- **AI Drafts**: Define the Pydantic draft models in `atlas_eng/engine/domain/ai_drafts.py` that describe the JSON structures the LLM will generate.
+- **Exports**: Expose all new structures in `atlas_eng/engine/domain/__init__.py`.
 
 ### 2. Repository Layer
-- **Interface**: Define the abstract repository interface (e.g., `CustomStageRepository`) in `engine/custom_stage/repository.py` inheriting from `ABC`.
-- **Concrete Filesystem Repository**: Create the filesystem-backed implementation in `engine/custom_stage/fs_repository.py` inheriting from the abstract class.
+- **Interface**: Define the abstract repository interface (e.g., `CustomStageRepository`) in `atlas_eng/engine/custom_stage/repository.py` inheriting from `ABC`.
+- **Concrete Filesystem Repository**: Create the filesystem-backed implementation in `atlas_eng/engine/custom_stage/fs_repository.py` inheriting from the abstract class.
 - **Dependency Inversion**: Inject `ProjectRepository` and call `project_repo.get_project_path(project_id)` to resolve file paths dynamically.
 - **Rollback Hook**: Implement `delete(project_id)` to ensure the repository supports compensating transaction rollback in the commit service.
 
 ### 3. Service Layer
-- Create `engine/custom_stage/services.py` with initialization, composition, and summary services.
+- Create `atlas_eng/engine/custom_stage/services.py` with initialization, composition, and summary services.
 - These services must interact only with abstract repository contracts.
 
 ### 4. Prompt Management and AI Runtime
-- **Prompt Template**: Define a template class in `engine/prompt/templates.py` that inherits from `PromptTemplate`. Override `expected_schema` to return the new draft schema. Register it through `PromptLoader`.
-- **Validator**: Add a `ProposalValidator` subclass in `engine/ai/engineering_services.py` to validate semantic constraints (raising `InvalidProposalException` on errors).
-- **Transformer**: Add a `ProposalTransformer` subclass in `engine/ai/engineering_services.py` mapping draft models to calls on the new stage services.
+- **Prompt Template**: Define a template class in `atlas_eng/engine/prompt/templates.py` that inherits from `PromptTemplate`. Override `expected_schema` to return the new draft schema. Register it through `PromptLoader`.
+- **Validator**: Add a `ProposalValidator` subclass in `atlas_eng/engine/ai/engineering_services.py` to validate semantic constraints (raising `InvalidProposalException` on errors).
+- **Transformer**: Add a `ProposalTransformer` subclass in `atlas_eng/engine/ai/engineering_services.py` mapping draft models to calls on the new stage services.
 - **Engineering Service**: Create the `CustomStageAIEngineeringService` inheriting from `AIEngineeringService[CustomDraftClass]`.
-- **Registration**: Inject the new validator, transformer, and repository into `ProposalCommitService`'s mapping dictionary in `engine/ai/engineering_services.py`.
+- **Registration**: Inject the new validator, transformer, and repository into `ProposalCommitService`'s mapping dictionary in `atlas_eng/engine/ai/engineering_services.py`.
 - Prompt Management owns template definitions; the Multi-Protocol AI Runtime (`PromptExecutor` → `AIProvider`) owns execution and remains protocol-agnostic.
 
 ### 5. Adding a Protocol Adapter
 To introduce a new AI protocol without changing the engineering workflow:
 
-1. Implement an `AIProvider` adapter under `engine/ai/adapters/` that normalizes requests and responses and reports only capabilities it implements.
+1. Implement an `AIProvider` adapter under `atlas_eng/engine/ai/adapters/` that normalizes requests and responses and reports only capabilities it implements.
 2. Register the adapter constructor in the `ProtocolFactory` protocol registry.
 
 To use a new vendor that already speaks a registered protocol (for example OpenAI-compatible), change only `ATLAS_AI_PROTOCOL`, `ATLAS_AI_ENDPOINT`, `ATLAS_AI_MODEL`, and `ATLAS_AI_API_KEY`. No adapter or workflow code changes are required.
@@ -53,9 +53,9 @@ To use a new vendor that already speaks a registered protocol (for example OpenA
 See [Multi-Protocol AI Runtime](multi-protocol-ai-runtime.md).
 
 ### 6. Workflow/Orchestration Layer
-- **Objectives**: Register the default objectives for the new stage in `DEFAULT_STAGE_OBJECTIVES` inside `engine/workflow/services.py`.
+- **Objectives**: Register the default objectives for the new stage in `DEFAULT_STAGE_OBJECTIVES` inside `atlas_eng/engine/workflow/services.py`.
 - **Transitions**: Define valid transition paths for the new stage in `WorkflowTransitionService.VALID_TRANSITIONS` state machine registry.
-- **Executor**: Create a `StageExecutor` subclass for the new stage in `engine/workflow/orchestration.py`.
+- **Executor**: Create a `StageExecutor` subclass for the new stage in `atlas_eng/engine/workflow/orchestration.py`.
 - **Registry**: Register the executor mapping in the `StageServiceRegistry`.
 
 ### 7. Testing Layer
@@ -67,11 +67,11 @@ See [Multi-Protocol AI Runtime](multi-protocol-ai-runtime.md).
 ### 8. Extending the Knowledge Subsystem
 To extend or customize the knowledge extraction and retrieval behavior:
 - **Custom Knowledge Extractor**:
-  1. Implement a new class inheriting from `KnowledgeExtractor` in `engine/knowledge/extractors/`.
+  1. Implement a new class inheriting from `KnowledgeExtractor` in `atlas_eng/engine/knowledge/extractors/`.
   2. Implement the `source_type` property and `extract` method, reading from your subsystem repository deterministically.
-  3. Register your new extractor explicitly in `atlas/_bootstrap.py`'s `ExtractorRegistry` instantiation.
+  3. Register your new extractor explicitly in `atlas_eng/_bootstrap.py`'s `ExtractorRegistry` instantiation.
 - **Custom Retrieval Profile**:
-  1. Define a new `KnowledgeRetrievalProfile` instance in `engine/knowledge/profiles.py` with stage, default categories, default tags, and maximum entries count.
+  1. Define a new `KnowledgeRetrievalProfile` instance in `atlas_eng/engine/knowledge/profiles.py` with stage, default categories, default tags, and maximum entries count.
   2. Register this profile in the static `STAGE_PROFILES` dictionary.
 
 ---

@@ -14,8 +14,8 @@ so ``clients/`` never has to import ``engine`` directly (see
 members defeats that purpose.
 """
 
-import atlas.types as atlas_types
-import engine.domain.enums as engine_enums
+import atlas_eng.engine.domain.enums as engine_enums
+import atlas_eng.types as atlas_types
 
 # (atlas.types member name, engine.domain.enums member name) for every pair
 # that is meant to mirror each other one-to-one.
@@ -33,9 +33,9 @@ _MIRRORED_ENUM_PAIRS = (
 def test_every_declared_mirror_pair_actually_exists() -> None:
     """Guard the table above itself against a typo'd or renamed member."""
     for atlas_name, engine_name in _MIRRORED_ENUM_PAIRS:
-        assert hasattr(atlas_types, atlas_name), f"atlas.types.{atlas_name} missing"
+        assert hasattr(atlas_types, atlas_name), f"atlas_eng.types.{atlas_name} missing"
         assert hasattr(engine_enums, engine_name), (
-            f"engine.domain.enums.{engine_name} missing"
+            f"atlas_eng.engine.domain.enums.{engine_name} missing"
         )
 
 
@@ -46,6 +46,6 @@ def test_sdk_enum_mirrors_have_identical_members() -> None:
         atlas_values = {member.value for member in atlas_enum}
         engine_values = {member.value for member in engine_enum}
         assert atlas_values == engine_values, (
-            f"atlas.types.{atlas_name} {sorted(atlas_values)} does not match "
-            f"engine.domain.enums.{engine_name} {sorted(engine_values)}"
+            f"atlas_eng.types.{atlas_name} {sorted(atlas_values)} does not match "
+            f"atlas_eng.engine.domain.enums.{engine_name} {sorted(engine_values)}"
         )

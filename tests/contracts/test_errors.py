@@ -2,13 +2,13 @@
 
 import pytest
 
-from atlas.contracts.errors import (
+from atlas_eng.contracts.errors import (
     _ERROR_CODE_MAP,
     ErrorEnvelope,
     PlatformErrorCode,
     to_error_envelope,
 )
-from atlas.exceptions import (
+from atlas_eng.exceptions import (
     AIProviderError,
     ApplicationError,
     BootstrapError,

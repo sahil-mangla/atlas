@@ -10,11 +10,11 @@ from uuid import uuid4
 
 import pytest
 
-from engine.domain.planning import Planning
-from engine.domain.project import Project
-from engine.planning.exceptions import InvalidPlanningException
-from engine.planning.fs_repository import FilesystemPlanningRepository
-from engine.project.fs_repository import FilesystemProjectRepository
+from atlas_eng.engine.domain.planning import Planning
+from atlas_eng.engine.domain.project import Project
+from atlas_eng.engine.planning.exceptions import InvalidPlanningException
+from atlas_eng.engine.planning.fs_repository import FilesystemPlanningRepository
+from atlas_eng.engine.project.fs_repository import FilesystemProjectRepository
 
 
 @pytest.fixture

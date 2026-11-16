@@ -2,14 +2,14 @@
 
 from uuid import UUID, uuid4
 
-from presentation.collectors.collectors import (
+from atlas_eng.presentation.collectors.collectors import (
     DiagnosticsCollector,
     KnowledgeSummaryCollector,
     ProjectDashboardCollector,
     ResearchSummaryCollector,
     WorkflowStatusCollector,
 )
-from presentation.read_models import (
+from atlas_eng.presentation.read_models import (
     DiagnosticsReadModel,
     KnowledgeReadModel,
     ProjectReadModel,

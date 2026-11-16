@@ -2,9 +2,9 @@
 
 import pytest
 
-from engine.ai.config import ProviderConfig
-from engine.ai.exceptions import AIProviderException
-from engine.ai.factory import ProviderFactory
+from atlas_eng.engine.ai.config import ProviderConfig
+from atlas_eng.engine.ai.exceptions import AIProviderException
+from atlas_eng.engine.ai.factory import ProviderFactory
 from tests.ai.test_adapters import MockAIProvider
 
 

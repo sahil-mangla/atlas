@@ -1,11 +1,11 @@
 from uuid import UUID, uuid4
 
-from engine.domain.conversation import (
+from atlas_eng.engine.domain.conversation import (
     ConversationMessage,
     ConversationSession,
     MemoryCandidate,
 )
-from engine.domain.enums import ConversationRole
+from atlas_eng.engine.domain.enums import ConversationRole
 
 
 def test_conversation_message() -> None:

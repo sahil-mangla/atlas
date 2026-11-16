@@ -4,7 +4,14 @@ import uuid
 
 import pytest
 
-from atlas.commands import (
+from atlas_eng.clients.cli.commands import (
+    HelpCommand,
+    PresentationExportCommand,
+    PresentationViewCommand,
+    VersionCommand,
+)
+from atlas_eng.clients.cli.parser import CLIParseError, parse_argv
+from atlas_eng.commands import (
     ApproveProposalCommand,
     ArchiveProjectCommand,
     CompleteObjectiveCommand,
@@ -19,14 +26,7 @@ from atlas.commands import (
     ShowKnowledgeCandidateCommand,
     TransitionStageCommand,
 )
-from atlas.types import KnowledgeCandidateStatus, ProposalDecision, WorkflowStage
-from clients.cli.commands import (
-    HelpCommand,
-    PresentationExportCommand,
-    PresentationViewCommand,
-    VersionCommand,
-)
-from clients.cli.parser import CLIParseError, parse_argv
+from atlas_eng.types import KnowledgeCandidateStatus, ProposalDecision, WorkflowStage
 
 
 def test_parse_no_args() -> None:

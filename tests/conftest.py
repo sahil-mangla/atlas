@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from engine.config import Environment, Settings
+from atlas_eng.engine.config import Environment, Settings
 
 
 @pytest.fixture

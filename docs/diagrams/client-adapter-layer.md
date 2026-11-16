@@ -21,7 +21,7 @@ graph TD
         RESTAdapter[REST Adapter]:::adapter
         DesktopAdapter[Desktop Adapter]:::adapter
         
-        Shared[clients/common]:::adapter
+        Shared[atlas_eng/clients/common]:::adapter
         
         CLI --> Shared
         IDEAdapter --> Shared
@@ -50,4 +50,4 @@ graph TD
     Atlas -.->|ResponseEnvelope| IDEAdapter
 ```
 
-Since Phase 15, every adapter above negotiates a `PlatformCapabilityManifest` via `negotiate(atlas)` and presents an `AdapterContext` identity, structurally satisfying `atlas.adapters.protocol.PlatformAdapter`. Only the CLI (in-process) uses named Command DTOs directly; out-of-process/protocol adapters use `Atlas.handle(RequestEnvelope)`. See [Platform Request Dispatch Diagram](platform-request-dispatch.md).
+Since Phase 15, every adapter above negotiates a `PlatformCapabilityManifest` via `negotiate(atlas)` and presents an `AdapterContext` identity, structurally satisfying `atlas_eng.adapters.protocol.PlatformAdapter`. Only the CLI (in-process) uses named Command DTOs directly; out-of-process/protocol adapters use `Atlas.handle(RequestEnvelope)`. See [Platform Request Dispatch Diagram](platform-request-dispatch.md).

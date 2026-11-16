@@ -5,8 +5,8 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-import presentation.components.models as mod
-from presentation.components import Metric, Section, StatusBadge
+import atlas_eng.presentation.components.models as mod
+from atlas_eng.presentation.components import Metric, Section, StatusBadge
 
 
 def test_status_badge_is_frozen() -> None:

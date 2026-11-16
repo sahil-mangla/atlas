@@ -8,10 +8,14 @@ the same commit as the renderer change.
 
 from uuid import UUID
 
-from presentation.components import Metric, Section, StatusBadge
-from presentation.renderers import RenderContract
-from presentation.renderers.base import CliRenderer, JsonRenderer, MarkdownRenderer
-from presentation.views import (
+from atlas_eng.presentation.components import Metric, Section, StatusBadge
+from atlas_eng.presentation.renderers import RenderContract
+from atlas_eng.presentation.renderers.base import (
+    CliRenderer,
+    JsonRenderer,
+    MarkdownRenderer,
+)
+from atlas_eng.presentation.views import (
     DiagnosticsView,
     KnowledgeSummaryView,
     ProjectDashboardView,

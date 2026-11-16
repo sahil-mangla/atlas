@@ -1,8 +1,8 @@
 from uuid import UUID, uuid4
 
-from engine.domain.enums import PlanningStatus, TaskStatus
-from engine.domain.metadata import ArtifactMetadata
-from engine.domain.planning import (
+from atlas_eng.engine.domain.enums import PlanningStatus, TaskStatus
+from atlas_eng.engine.domain.metadata import ArtifactMetadata
+from atlas_eng.engine.domain.planning import (
     AcceptanceCriteria,
     DefinitionOfDone,
     EngineeringDeliverable,

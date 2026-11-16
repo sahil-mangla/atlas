@@ -1,6 +1,6 @@
 from uuid import UUID, uuid4
 
-from engine.domain.workspace import Workspace, WorkspaceArtifact
+from atlas_eng.engine.domain.workspace import Workspace, WorkspaceArtifact
 
 
 def test_workspace_artifact_construction() -> None:

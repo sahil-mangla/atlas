@@ -4,8 +4,11 @@ import json
 import uuid
 from datetime import UTC, datetime
 
-from atlas.exceptions import ApplicationError, InvalidProjectError
-from atlas.results import (
+from atlas_eng.clients.cli.renderer import _RECOVERY_HINTS, CLIRenderer
+from atlas_eng.clients.common.progress import ProgressTracker
+from atlas_eng.clients.common.rendering import RenderContext
+from atlas_eng.exceptions import ApplicationError, InvalidProjectError
+from atlas_eng.results import (
     CommitResult,
     KnowledgeCandidateListResult,
     KnowledgeCandidateResult,
@@ -15,10 +18,12 @@ from atlas.results import (
     ProposalResult,
     WorkflowStatusResult,
 )
-from atlas.types import EvaluationStatus, ProjectStatus, ProposalStatus, WorkflowStage
-from clients.cli.renderer import _RECOVERY_HINTS, CLIRenderer
-from clients.common.progress import ProgressTracker
-from clients.common.rendering import RenderContext
+from atlas_eng.types import (
+    EvaluationStatus,
+    ProjectStatus,
+    ProposalStatus,
+    WorkflowStage,
+)
 
 
 def test_render_project() -> None:

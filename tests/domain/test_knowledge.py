@@ -1,13 +1,13 @@
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from engine.domain.enums import (
+from atlas_eng.engine.domain.enums import (
     KnowledgeActorType,
     KnowledgeCategory,
     KnowledgeSourceType,
     PublishedKnowledgeStatus,
 )
-from engine.domain.knowledge import (
+from atlas_eng.engine.domain.knowledge import (
     KnowledgeActor,
     KnowledgeCandidate,
     KnowledgeProvenance,

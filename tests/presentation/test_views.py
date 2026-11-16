@@ -6,9 +6,9 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
-import presentation.views.models as mod
-from presentation.components import Metric, Section, StatusBadge
-from presentation.views import (
+import atlas_eng.presentation.views.models as mod
+from atlas_eng.presentation.components import Metric, Section, StatusBadge
+from atlas_eng.presentation.views import (
     DiagnosticsView,
     KnowledgeSummaryView,
     ProjectDashboardView,
@@ -92,7 +92,9 @@ def test_views_discriminated_by_kind() -> None:
 def test_view_module_has_no_atlas_or_engine_symbols() -> None:
     source = mod.__file__
     assert source is not None
-    with Path(source).open() as f:
-        content = f.read()
+    with Path(source).open(encoding="utf-8") as f:
+        # Imports of sibling presentation modules are allowed; every other
+        # mention of the SDK or the engine is not.
+        content = f.read().replace("atlas_eng.presentation.", "")
     assert "atlas" not in content.lower()
     assert "engine" not in content.lower()

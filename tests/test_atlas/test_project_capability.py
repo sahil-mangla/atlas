@@ -10,10 +10,10 @@ from uuid import uuid4
 
 import pytest
 
-from atlas.capabilities.project_capability import ProjectCapability
-from atlas.commands import CreateProjectCommand
-from atlas.exceptions import ApplicationError
-from engine.domain.project import Project
+from atlas_eng.capabilities.project_capability import ProjectCapability
+from atlas_eng.commands import CreateProjectCommand
+from atlas_eng.engine.domain.project import Project
+from atlas_eng.exceptions import ApplicationError
 
 
 def _capability(

@@ -1,14 +1,14 @@
 from unittest.mock import Mock
 from uuid import uuid4
 
-from atlas import Atlas
-from atlas._service import _AtlasServices
-from atlas.commands import KnowledgeActorInput, ReviewKnowledgeCandidateCommand
-from atlas.types import KnowledgeActorType, ProposalDecision
-from engine.domain.enums import KnowledgeActorType as EngineKnowledgeActorType
-from engine.domain.enums import ProposalDecision as EngineProposalDecision
-from engine.domain.knowledge import KnowledgeActor as EngineKnowledgeActor
-from engine.workflow.orchestration import WorkflowOrchestrationService
+from atlas_eng import Atlas
+from atlas_eng._service import _AtlasServices
+from atlas_eng.commands import KnowledgeActorInput, ReviewKnowledgeCandidateCommand
+from atlas_eng.engine.domain.enums import KnowledgeActorType as EngineKnowledgeActorType
+from atlas_eng.engine.domain.enums import ProposalDecision as EngineProposalDecision
+from atlas_eng.engine.domain.knowledge import KnowledgeActor as EngineKnowledgeActor
+from atlas_eng.engine.workflow.orchestration import WorkflowOrchestrationService
+from atlas_eng.types import KnowledgeActorType, ProposalDecision
 
 
 def test_review_knowledge_candidate_command_approve() -> None:

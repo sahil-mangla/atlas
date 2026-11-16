@@ -4,15 +4,15 @@ import uuid
 
 import pytest
 
-from atlas import Atlas
-from atlas.commands import (
+from atlas_eng import Atlas
+from atlas_eng.commands import (
     ArchiveProjectCommand,
     CreateProjectCommand,
     ListProjectsCommand,
     LoadProjectCommand,
 )
-from atlas.exceptions import ProjectNotFoundError
-from atlas.types import ProjectStatus
+from atlas_eng.exceptions import ProjectNotFoundError
+from atlas_eng.types import ProjectStatus
 
 EXPECTED_PROJECT_COUNT = 2
 

@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from engine.domain.review import EngineeringReview
+from atlas_eng.engine.domain.review import EngineeringReview
 
 
 def test_engineering_review_creation() -> None:

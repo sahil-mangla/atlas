@@ -4,14 +4,16 @@ from typing import Any
 
 import pytest
 
-from engine.ai.adapters import ollama as ollama_module
-from engine.ai.adapters import openai_compatible as openai_module
-from engine.ai.adapters._http import parse_embeddings
-from engine.ai.adapters.ollama import OllamaEmbeddingProvider
-from engine.ai.adapters.openai_compatible import OpenAICompatibleEmbeddingProvider
-from engine.ai.config import ProviderConfig
-from engine.ai.embedding_factory import EmbeddingFactory
-from engine.ai.exceptions import AIProviderException
+from atlas_eng.engine.ai.adapters import ollama as ollama_module
+from atlas_eng.engine.ai.adapters import openai_compatible as openai_module
+from atlas_eng.engine.ai.adapters._http import parse_embeddings
+from atlas_eng.engine.ai.adapters.ollama import OllamaEmbeddingProvider
+from atlas_eng.engine.ai.adapters.openai_compatible import (
+    OpenAICompatibleEmbeddingProvider,
+)
+from atlas_eng.engine.ai.config import ProviderConfig
+from atlas_eng.engine.ai.embedding_factory import EmbeddingFactory
+from atlas_eng.engine.ai.exceptions import AIProviderException
 
 
 def test_parse_embeddings_rejects_wrong_count_and_empty_vectors() -> None:

@@ -9,14 +9,14 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from engine.domain.enums import ResearchStatus
-from engine.domain.project import Project
-from engine.project.fs_repository import FilesystemProjectRepository
-from engine.research.exceptions import (
+from atlas_eng.engine.domain.enums import ResearchStatus
+from atlas_eng.engine.domain.project import Project
+from atlas_eng.engine.project.fs_repository import FilesystemProjectRepository
+from atlas_eng.engine.research.exceptions import (
     InvalidResearchOperationException,
 )
-from engine.research.fs_repository import FilesystemResearchRepository
-from engine.research.services import (
+from atlas_eng.engine.research.fs_repository import FilesystemResearchRepository
+from atlas_eng.engine.research.services import (
     OpportunityAnalysisService,
     ResearchCaptureService,
     ResearchInitializationService,

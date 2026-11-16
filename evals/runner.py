@@ -6,11 +6,11 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from atlas import Atlas
-from atlas.adapters.protocol import AdapterContext, AdapterKind
-from atlas.commands import Command
-from atlas.contracts.envelope import RequestEnvelope
-from engine.ai.provider import AIProvider
+from atlas_eng import Atlas
+from atlas_eng.adapters.protocol import AdapterContext, AdapterKind
+from atlas_eng.commands import Command
+from atlas_eng.contracts.envelope import RequestEnvelope
+from atlas_eng.engine.ai.provider import AIProvider
 from evals.commands import resolve_command_class
 from evals.platform import RecordingExporter
 from evals.results import StepResult, TaskResult

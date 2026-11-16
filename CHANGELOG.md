@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Package Rename (1.1.0)
+
+- Changed (breaking for Python imports): the distribution is now
+  `atlas-eng`, version 1.1.0, and every module lives under one import root,
+  `atlas_eng`. Previously the wheel installed six generic top-level packages
+  (`atlas`, `engine`, `shared`, `clients`, `presentation`, `interfaces`) that
+  would collide with other installed packages. Migrate imports as
+  `atlas` -> `atlas_eng` and `engine`/`shared`/`clients`/`presentation` ->
+  `atlas_eng.engine` and so on. The `atlas` command and the on-disk project
+  format are unchanged.
+- Changed: living documentation now uses the new paths. Plans, sprint
+  reports and ADRs keep the paths that were current when they were written.
+
 ### Release Polish
 
 - Fixed: the `ANTHROPIC` protocol could not run any stage. The adapter now

@@ -1,44 +1,52 @@
 from unittest.mock import Mock
 from uuid import uuid4
 
-from engine.architecture.repository import ArchitectureRepository
-from engine.domain.architecture import (
+from atlas_eng.engine.architecture.repository import ArchitectureRepository
+from atlas_eng.engine.domain.architecture import (
     ArchitecturalDecision,
     Architecture,
     ArchitectureComponent,
     ArchitectureSnapshot,
     ArchitectureSummary,
 )
-from engine.domain.enums import FindingCategory, FindingSeverity, KnowledgeSourceType
-from engine.domain.evaluation import (
+from atlas_eng.engine.domain.enums import (
+    FindingCategory,
+    FindingSeverity,
+    KnowledgeSourceType,
+)
+from atlas_eng.engine.domain.evaluation import (
     Evaluation,
     EvaluationFinding,
     EvaluationSnapshot,
     EvaluationSummary,
 )
-from engine.domain.knowledge import KnowledgeCandidate
-from engine.domain.metadata import ArtifactMetadata
-from engine.domain.planning import (
+from atlas_eng.engine.domain.knowledge import KnowledgeCandidate
+from atlas_eng.engine.domain.metadata import ArtifactMetadata
+from atlas_eng.engine.domain.planning import (
     Planning,
     PlanningMilestone,
     PlanningSnapshot,
     ScopeDefinition,
 )
-from engine.domain.research import (
+from atlas_eng.engine.domain.research import (
     Assumption,
     Constraint,
     Research,
     ResearchFinding,
     ResearchSnapshot,
 )
-from engine.evaluation.repository import EvaluationRepository
-from engine.knowledge.extractors.architecture import ArchitectureKnowledgeExtractor
-from engine.knowledge.extractors.base import ExtractorRegistry
-from engine.knowledge.extractors.evaluation import EvaluationKnowledgeExtractor
-from engine.knowledge.extractors.planning import PlanningKnowledgeExtractor
-from engine.knowledge.extractors.research import ResearchKnowledgeExtractor
-from engine.planning.repository import PlanningRepository
-from engine.research.repository import ResearchRepository
+from atlas_eng.engine.evaluation.repository import EvaluationRepository
+from atlas_eng.engine.knowledge.extractors.architecture import (
+    ArchitectureKnowledgeExtractor,
+)
+from atlas_eng.engine.knowledge.extractors.base import ExtractorRegistry
+from atlas_eng.engine.knowledge.extractors.evaluation import (
+    EvaluationKnowledgeExtractor,
+)
+from atlas_eng.engine.knowledge.extractors.planning import PlanningKnowledgeExtractor
+from atlas_eng.engine.knowledge.extractors.research import ResearchKnowledgeExtractor
+from atlas_eng.engine.planning.repository import PlanningRepository
+from atlas_eng.engine.research.repository import ResearchRepository
 
 
 def test_research_extractor() -> None:

@@ -6,7 +6,7 @@ import math
 import pytest
 from pydantic import BaseModel
 
-from engine.ai.adapters.scripted import (
+from atlas_eng.engine.ai.adapters.scripted import (
     FAULT_MALFORMED_JSON,
     FAULT_PROVIDER_ERROR,
     FAULT_SCHEMA_VIOLATION,
@@ -14,29 +14,29 @@ from engine.ai.adapters.scripted import (
     ScriptedAIProvider,
     ScriptedEmbeddingProvider,
 )
-from engine.ai.config import ProviderConfig
-from engine.ai.context import IdentityContextStrategy
-from engine.ai.embedding_factory import EmbeddingFactory
-from engine.ai.engineering_services import (
+from atlas_eng.engine.ai.config import ProviderConfig
+from atlas_eng.engine.ai.context import IdentityContextStrategy
+from atlas_eng.engine.ai.embedding_factory import EmbeddingFactory
+from atlas_eng.engine.ai.engineering_services import (
     ArchitectureProposalValidator,
     EvaluationProposalValidator,
     PlanningProposalValidator,
     ResearchProposalValidator,
 )
-from engine.ai.exceptions import AIProviderException, InvalidProposalException
-from engine.ai.executor import PromptExecutor
-from engine.ai.factory import ProtocolFactory
-from engine.ai.observability import label_provider
-from engine.domain.ai import AIRequest, ContextPayload
-from engine.domain.ai_drafts import (
+from atlas_eng.engine.ai.exceptions import AIProviderException, InvalidProposalException
+from atlas_eng.engine.ai.executor import PromptExecutor
+from atlas_eng.engine.ai.factory import ProtocolFactory
+from atlas_eng.engine.ai.observability import label_provider
+from atlas_eng.engine.domain.ai import AIRequest, ContextPayload
+from atlas_eng.engine.domain.ai_drafts import (
     ArchitectureProposalDraft,
     EvaluationProposalDraft,
     EvidenceSummaryBatchDraft,
     PlanningProposalDraft,
     ResearchProposalDraft,
 )
-from engine.domain.prompt_document import PromptDocument
-from engine.prompt.loader import PromptLoader
+from atlas_eng.engine.domain.prompt_document import PromptDocument
+from atlas_eng.engine.prompt.loader import PromptLoader
 
 _REGISTRY = PromptLoader.load_registry()
 _DRAFT_TYPES = sorted(_REGISTRY._templates, key=lambda cls: cls.__name__)

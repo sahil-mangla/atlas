@@ -1,4 +1,4 @@
-from engine.knowledge.exceptions import (
+from atlas_eng.engine.knowledge.exceptions import (
     InvalidKnowledgeException,
     KnowledgeException,
     KnowledgeReviewException,

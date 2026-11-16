@@ -3,7 +3,7 @@ from uuid import UUID, uuid4
 import pytest
 from pydantic import ValidationError
 
-from engine.domain.ai import (
+from atlas_eng.engine.domain.ai import (
     AIProposal,
     AIRequest,
     AIResponse,
@@ -11,8 +11,8 @@ from engine.domain.ai import (
     ContextPayload,
     PromptTemplateMetadata,
 )
-from engine.domain.enums import ProposalStatus, ProposalType
-from engine.domain.prompt_document import PromptDocument
+from atlas_eng.engine.domain.enums import ProposalStatus, ProposalType
+from atlas_eng.engine.domain.prompt_document import PromptDocument
 
 
 def test_ai_tool_schema() -> None:

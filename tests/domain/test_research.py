@@ -1,8 +1,8 @@
 from uuid import UUID, uuid4
 
-from engine.domain.enums import ResearchStatus
-from engine.domain.metadata import ArtifactMetadata
-from engine.domain.research import (
+from atlas_eng.engine.domain.enums import ResearchStatus
+from atlas_eng.engine.domain.metadata import ArtifactMetadata
+from atlas_eng.engine.domain.research import (
     Assumption,
     Constraint,
     Evidence,

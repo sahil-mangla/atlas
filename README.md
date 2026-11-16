@@ -2,7 +2,7 @@
 
 **Where Ideas Become Engineering.**
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/sahil-mangla/atlas/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue)](https://github.com/sahil-mangla/atlas/blob/main/CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/downloads/)
 [![CI](https://github.com/sahil-mangla/atlas/actions/workflows/ci.yml/badge.svg)](https://github.com/sahil-mangla/atlas/actions/workflows/ci.yml)
@@ -97,12 +97,12 @@ pip install .
 pip install git+https://github.com/sahil-mangla/atlas.git
 ```
 
-Either way, this installs the `atlas` command globally in your active Python
-environment.
+Either way, this installs the `atlas-eng` package, which provides the `atlas`
+command and the `atlas_eng` Python package, in your active Python environment.
 
 ```bash
-atlas version
-# ATLAS  1.0.0
+atlas --version
+# ATLAS  1.1.0
 ```
 
 ### Configure
@@ -289,59 +289,59 @@ atlas <group> <sub-command> [flags]
 ## Architecture
 
 ATLAS is organized as a strict layered architecture: a stateless, protocol-
-independent domain and engineering core (`engine/`), a versioned public SDK
+independent domain and engineering core (`atlas_eng/engine/`), a versioned public SDK
 boundary (`atlas/`), a presentation layer that renders read models without
-touching engine internals (`presentation/`), and thin client adapters
-(`clients/`) that translate an external environment (CLI today; MCP, REST,
+touching engine internals (`atlas_eng/presentation/`), and thin client adapters
+(`atlas_eng/clients/`) that translate an external environment (CLI today; MCP, REST,
 and IDE integrations are Version 2 scope) into calls against that SDK.
 
 - **`atlas/`** -- Public Application Platform SDK exposing the `Atlas` facade,
   immutable command/result DTOs, and application exceptions.
-  - **`atlas/capabilities/`** -- Internal Capability Layer decomposing `Atlas`
+  - **`atlas_eng/capabilities/`** -- Internal Capability Layer decomposing `Atlas`
     into five thin delegation classes -- Project, Workflow, WorkflowExecution,
     Knowledge, Presentation.
-  - **`atlas/contracts/`** -- Public Contract Layer -- versioned
+  - **`atlas_eng/contracts/`** -- Public Contract Layer -- versioned
     `RequestEnvelope`/`ResponseEnvelope`, the `PlatformErrorCode` error
     contract, and API versioning.
-  - **`atlas/adapters/`** -- Public Adapter Boundary -- the structural
+  - **`atlas_eng/adapters/`** -- Public Adapter Boundary -- the structural
     `PlatformAdapter` protocol and capability-negotiation manifest every
     client (CLI, IDE, MCP, AI, REST, Desktop) satisfies.
-- **`engine/domain/`** -- Strongly-typed, framework-independent Pydantic
+- **`atlas_eng/engine/domain/`** -- Strongly-typed, framework-independent Pydantic
   models representing the ubiquitous domain language of ATLAS, including the
   Engineering Design Language (EDL) components (`TraceabilityLink`,
   `ArtifactMetadata` composition, `EngineeringReview` contracts), AI proposal
   drafts (`ai_drafts.py`), and review feedback (`ai_feedback.py`).
-- **`engine/project/`** -- Project Subsystem: workspace initialization
+- **`atlas_eng/engine/project/`** -- Project Subsystem: workspace initialization
   (`.atlas/`), loading, metadata discovery, and lifecycle states (initialized,
   active, paused, archived).
-- **`engine/memory/`** -- Memory Subsystem managing dialogue context and
+- **`atlas_eng/engine/memory/`** -- Memory Subsystem managing dialogue context and
   history.
-- **`engine/knowledge/`** -- Knowledge Subsystem: the Engineering Knowledge
+- **`atlas_eng/engine/knowledge/`** -- Knowledge Subsystem: the Engineering Knowledge
   Layer collecting, deduplicating, retrieving (newest-first, or optionally
   semantic via sqlite-vec), and managing reviewed project-scoped engineering
   knowledge.
-- **`engine/workflow/`** -- Workflow Subsystem: execution readiness, phase
+- **`atlas_eng/engine/workflow/`** -- Workflow Subsystem: execution readiness, phase
   transitions, and lifecycle orchestration.
-- **`engine/research/`** -- Research Subsystem: problem definition, evidence
+- **`atlas_eng/engine/research/`** -- Research Subsystem: problem definition, evidence
   gathering, snapshotting, hypothesis validation.
-- **`engine/planning/`** -- Planning Subsystem: decomposing research into
+- **`atlas_eng/engine/planning/`** -- Planning Subsystem: decomposing research into
   scopes, milestones, epics, tasks, subtasks, and dependencies.
-- **`engine/architecture/`** -- Architecture Subsystem: component modeling,
+- **`atlas_eng/engine/architecture/`** -- Architecture Subsystem: component modeling,
   architectural decisions, interface contracts, and risk analysis.
-- **`engine/evaluation/`** -- Evaluation Subsystem: readiness review and
+- **`atlas_eng/engine/evaluation/`** -- Evaluation Subsystem: readiness review and
   stage-completion evaluation.
-- **`engine/ai/`** -- AI Integration Subsystem: protocol adapters (Gemini,
+- **`atlas_eng/engine/ai/`** -- AI Integration Subsystem: protocol adapters (Gemini,
   Anthropic, OpenAI-compatible, Ollama), context assembly, orchestration, and
   stateless engineering proposal services.
-- **`presentation/`** -- Presentation Layer: composes typed, immutable Views
+- **`atlas_eng/presentation/`** -- Presentation Layer: composes typed, immutable Views
   from the Atlas read-model API and renders them to JSON/Markdown/CLI,
   independent of any client adapter.
-- **`clients/`** -- Client adapters (CLI today; MCP/IDE/REST are Version 2)
+- **`atlas_eng/clients/`** -- Client adapters (CLI today; MCP/IDE/REST are Version 2)
   translating external execution environments to the public Atlas SDK.
-- **`shared/`** -- Common utilities and cross-cutting concerns.
-  - **`shared/observability/`** -- Request-scoped AI usage capture shared by
+- **`atlas_eng/shared/`** -- Common utilities and cross-cutting concerns.
+  - **`atlas_eng/shared/observability/`** -- Request-scoped AI usage capture shared by
     the engine provider boundary and the Atlas request boundary.
-- **`atlas/observability/`** -- Trace schema, request instrumentation, and
+- **`atlas_eng/observability/`** -- Trace schema, request instrumentation, and
   pluggable exporters for the platform boundary.
 - **`evals/`** -- YAML task loader, benchmark runner, report generation, and
   baseline regression detection, plus the labelled knowledge-retrieval eval
@@ -436,11 +436,11 @@ Issues and pull requests are welcome:
 
 ## Project Status
 
-ATLAS is at **v1.0.0** -- the first tagged release, following the completion
+ATLAS is at **v1.1.0**, distributed as `atlas-eng`, following the completion
 of all sixteen planned phases (see [`CHANGELOG.md`](CHANGELOG.md) and
 [`docs/reports/`](docs/reports/) for the full history, including the
-seven-sprint Phase 16 production-readiness pass). Version 2 scope --
-additional client adapters (MCP, REST, IDE), a published PyPI package, and
-the performance-review candidates documented in
+seven-sprint Phase 16 production-readiness pass). A PyPI release is in
+preparation. Version 2 scope -- additional client adapters (MCP, REST, IDE)
+and the performance-review candidates documented in
 [`docs/reports/phase-16-sprint-6-performance-review.md`](docs/reports/phase-16-sprint-6-performance-review.md)
 -- is not yet started.

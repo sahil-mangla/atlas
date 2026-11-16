@@ -2,19 +2,19 @@
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from engine.domain.enums import (
+from atlas_eng.engine.domain.enums import (
     KnowledgeActorType,
     KnowledgeCategory,
     KnowledgeSourceType,
     PublishedKnowledgeStatus,
 )
-from engine.domain.knowledge import (
+from atlas_eng.engine.domain.knowledge import (
     KnowledgeActor,
     KnowledgeCandidate,
     KnowledgeProvenance,
     PublishedKnowledge,
 )
-from engine.knowledge.services import KnowledgeDeduplicationService
+from atlas_eng.engine.knowledge.services import KnowledgeDeduplicationService
 
 
 def test_deduplication_exact_match() -> None:

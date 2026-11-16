@@ -3,16 +3,16 @@ from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4
 
-from engine.ai.context import IdentityContextStrategy
-from engine.ai.executor import PromptExecutor
-from engine.domain.project import Project
-from engine.project.repository import ProjectRepository
-from engine.research.retrieval import (
+from atlas_eng.engine.ai.context import IdentityContextStrategy
+from atlas_eng.engine.ai.executor import PromptExecutor
+from atlas_eng.engine.domain.project import Project
+from atlas_eng.engine.project.repository import ProjectRepository
+from atlas_eng.engine.research.retrieval import (
     ResearchRetrievalService,
     _extract_keywords,
     _format_citation,
 )
-from engine.research.sources.models import PaperCandidate
+from atlas_eng.engine.research.sources.models import PaperCandidate
 from tests.ai.test_adapters import MockAIProvider
 
 
@@ -226,7 +226,7 @@ def test_retrieve_evidence_logs_outage_when_all_sources_fail(
         prompt_executor=_executor_returning({"summaries": []}),
     )
 
-    with caplog.at_level("ERROR", logger="engine.research.retrieval"):
+    with caplog.at_level("ERROR", logger="atlas_eng.engine.research.retrieval"):
         evidence = service.retrieve_evidence(project.id)
 
     assert evidence == []

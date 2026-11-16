@@ -9,21 +9,21 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from engine.domain.enums import (
+from atlas_eng.engine.domain.enums import (
     KnowledgeActorType,
     KnowledgeCategory,
     KnowledgeSourceType,
     WorkflowStage,
 )
-from engine.domain.knowledge import (
+from atlas_eng.engine.domain.knowledge import (
     KnowledgeActor,
     KnowledgeProvenance,
     KnowledgeRetrievalQuery,
     PublishedKnowledge,
 )
-from engine.knowledge.semantic import SemanticKnowledgeRanker, entry_text
-from engine.knowledge.services import KnowledgeRetrievalService
-from engine.knowledge.vector_store import (
+from atlas_eng.engine.knowledge.semantic import SemanticKnowledgeRanker, entry_text
+from atlas_eng.engine.knowledge.services import KnowledgeRetrievalService
+from atlas_eng.engine.knowledge.vector_store import (
     SqliteVecStore,
     VectorRecord,
     VectorStoreError,

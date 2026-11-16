@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from engine.ai.factory import ProtocolFactory
-from engine.ai.provider import AIProvider
-from engine.config import Environment, Settings, get_settings
+from atlas_eng.engine.ai.factory import ProtocolFactory
+from atlas_eng.engine.ai.provider import AIProvider
+from atlas_eng.engine.config import Environment, Settings, get_settings
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 _ENV_EXAMPLE = _REPO_ROOT / ".env.example"

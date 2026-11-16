@@ -66,7 +66,7 @@ In ATLAS, AI agents are tools utilized to assist in implementation, speed up exe
 - **Purpose**: Defines standard domain-level entities for traceability, metadata, and reviews.
 - **Inputs**: Object definitions requiring metadata encapsulation or upstream linkage.
 - **Outputs**: Standardized schemas for `ArtifactMetadata`, `TraceabilityLink`, and `EngineeringReview`.
-- **Collaborators**: Serves as a cross-cutting language imported by all domain aggregates (`engine/domain/`).
+- **Collaborators**: Serves as a cross-cutting language imported by all domain aggregates (`atlas_eng/engine/domain/`).
 
 ### 7. Architecture Subsystem
 - **Purpose**: Defines technical system designs, component boundaries, and Architectural Decision Records (ADRs).
@@ -123,7 +123,7 @@ In ATLAS, AI agents are tools utilized to assist in implementation, speed up exe
 - **Collaborators**: Depends exclusively on the Application Platform Layer's read-model API; never calls repositories or engine services directly.
 
 ### 16. Platform Layer
-- **Purpose**: Formalizes the single doorway every client (CLI, IDE, MCP, AI/agent) goes through before reaching an engine subsystem: the Capability Layer (`atlas/capabilities/`), the versioned Contract Layer (`atlas/contracts/`), and the structural Adapter Boundary (`atlas/adapters/`). See [Platform Layer Architecture](platform-layer.md).
+- **Purpose**: Formalizes the single doorway every client (CLI, IDE, MCP, AI/agent) goes through before reaching an engine subsystem: the Capability Layer (`atlas_eng/capabilities/`), the versioned Contract Layer (`atlas_eng/contracts/`), and the structural Adapter Boundary (`atlas_eng/adapters/`). See [Platform Layer Architecture](platform-layer.md).
 - **Inputs**: Existing Command DTOs, wrapped in a versioned `RequestEnvelope`.
 - **Outputs**: Existing Result DTOs or a stable `ErrorEnvelope`, wrapped in a versioned `ResponseEnvelope`.
 - **Collaborators**: Decomposes the Atlas facade; introduces no new engine dependencies.

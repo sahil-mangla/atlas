@@ -1,6 +1,6 @@
 # Engineering Knowledge Layer
 
-Phase 13 introduces `engine/knowledge/` as an independent subsystem for project-scoped engineering knowledge.
+Phase 13 introduces `atlas_eng/engine/knowledge/` as an independent subsystem for project-scoped engineering knowledge.
 
 Workflow communicates with knowledge only through `KnowledgeOrchestrationService`. The AI and prompt runtimes do not import the knowledge subsystem. Retrieved knowledge is passed to AI only through immutable `ContextPayload`.
 

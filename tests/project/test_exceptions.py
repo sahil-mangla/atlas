@@ -1,6 +1,6 @@
 import pytest
 
-from engine.project.exceptions import (
+from atlas_eng.engine.project.exceptions import (
     InvalidProjectException,
     ProjectAlreadyExistsException,
     ProjectException,

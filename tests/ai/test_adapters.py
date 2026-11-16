@@ -1,8 +1,13 @@
-from engine.ai.adapters.gemini import GeminiAIProvider, _flatten_schema
-from engine.ai.provider import AIProvider
-from engine.domain.ai import AIRequest, AIResponse, ContextPayload, ProviderCapabilities
-from engine.domain.ai_drafts import ResearchProposalDraft
-from engine.domain.prompt_document import PromptDocument
+from atlas_eng.engine.ai.adapters.gemini import GeminiAIProvider, _flatten_schema
+from atlas_eng.engine.ai.provider import AIProvider
+from atlas_eng.engine.domain.ai import (
+    AIRequest,
+    AIResponse,
+    ContextPayload,
+    ProviderCapabilities,
+)
+from atlas_eng.engine.domain.ai_drafts import ResearchProposalDraft
+from atlas_eng.engine.domain.prompt_document import PromptDocument
 
 
 class MockAIProvider(AIProvider):

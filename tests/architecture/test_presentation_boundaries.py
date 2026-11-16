@@ -14,7 +14,9 @@ from pathlib import Path
 
 import pytest
 
-PRESENTATION_ROOT = Path(__file__).resolve().parents[2] / "presentation"
+from tests.architecture.layers import ROOT, layer_module
+
+PRESENTATION_ROOT = Path(__file__).resolve().parents[2] / ROOT / "presentation"
 
 FORBIDDEN_PREFIXES = (
     "engine.",
@@ -35,9 +37,9 @@ def _imported_modules(path: Path) -> set[str]:
     modules: set[str] = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
-            modules.update(alias.name for alias in node.names)
+            modules.update(layer_module(alias.name) for alias in node.names)
         elif isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
-            modules.add(node.module)
+            modules.add(layer_module(node.module))
     return modules
 
 

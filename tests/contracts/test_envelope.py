@@ -5,12 +5,12 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
-from atlas.adapters.protocol import AdapterContext, AdapterKind
-from atlas.commands import ListProjectsCommand
-from atlas.contracts.envelope import RequestEnvelope, ResponseEnvelope
-from atlas.contracts.errors import ErrorEnvelope, PlatformErrorCode
-from atlas.contracts.version import PLATFORM_API_VERSION
-from atlas.results import OperationResult
+from atlas_eng.adapters.protocol import AdapterContext, AdapterKind
+from atlas_eng.commands import ListProjectsCommand
+from atlas_eng.contracts.envelope import RequestEnvelope, ResponseEnvelope
+from atlas_eng.contracts.errors import ErrorEnvelope, PlatformErrorCode
+from atlas_eng.contracts.version import PLATFORM_API_VERSION
+from atlas_eng.results import OperationResult
 
 
 def _adapter_context() -> AdapterContext:

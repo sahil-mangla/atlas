@@ -5,16 +5,16 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from atlas.exceptions import ProjectNotFoundError
-from atlas.results import ProjectResult
-from atlas.types import ProjectStatus
-from clients.cli.application import (
+from atlas_eng.clients.cli.application import (
     _EXIT_ERROR,
     _EXIT_OK,
     _EXIT_PARSE_ERROR,
     CLIApplication,
     main,
 )
+from atlas_eng.exceptions import ProjectNotFoundError
+from atlas_eng.results import ProjectResult
+from atlas_eng.types import ProjectStatus
 
 
 def test_cli_app_run_ok(capsys: pytest.CaptureFixture[str]) -> None:
@@ -87,11 +87,11 @@ def test_cli_app_help(capsys: pytest.CaptureFixture[str]) -> None:
 
 
 def test_cli_app_bootstrap_failure(capsys: pytest.CaptureFixture[str]) -> None:
-    from atlas.exceptions import BootstrapError  # noqa: PLC0415
+    from atlas_eng.exceptions import BootstrapError  # noqa: PLC0415
 
     with (
         patch(
-            "clients.cli.application.atlas.create",
+            "atlas_eng.clients.cli.application.atlas_eng.create",
             side_effect=BootstrapError("Failed to init"),
         ),
         patch("sys.exit") as mock_exit,
@@ -108,9 +108,13 @@ def test_main(mock_exit: MagicMock) -> None:
     # Use patch to avoid actually hitting atlas.create() or sys.exit
     with (
         patch(
-            "clients.cli.application.CLIApplication.run", return_value=_EXIT_OK
+            "atlas_eng.clients.cli.application.CLIApplication.run",
+            return_value=_EXIT_OK,
         ) as mock_run,
-        patch("clients.cli.application.atlas.create", return_value=MagicMock()),
+        patch(
+            "atlas_eng.clients.cli.application.atlas_eng.create",
+            return_value=MagicMock(),
+        ),
     ):
         main(["version"])
         mock_run.assert_called_once_with(["version"])

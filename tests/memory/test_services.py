@@ -4,11 +4,11 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from engine.domain.enums import MemoryCategory
-from engine.domain.memory import Memory, MemoryEntry
-from engine.memory.exceptions import MemoryNotFoundException
-from engine.memory.repository import MemoryRepository
-from engine.memory.services import (
+from atlas_eng.engine.domain.enums import MemoryCategory
+from atlas_eng.engine.domain.memory import Memory, MemoryEntry
+from atlas_eng.engine.memory.exceptions import MemoryNotFoundException
+from atlas_eng.engine.memory.repository import MemoryRepository
+from atlas_eng.engine.memory.services import (
     MemoryCaptureService,
     MemoryOrganizationService,
     MemoryRetrievalService,

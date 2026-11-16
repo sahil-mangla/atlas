@@ -6,12 +6,15 @@ from uuid import uuid4
 
 import pytest
 
-from engine.domain.enums import MemoryCategory
-from engine.domain.memory import Memory, MemoryEntry
-from engine.domain.project import Project
-from engine.memory.exceptions import InvalidMemoryException, MemoryNotFoundException
-from engine.memory.fs_repository import FilesystemMemoryRepository
-from engine.project.fs_repository import FilesystemProjectRepository
+from atlas_eng.engine.domain.enums import MemoryCategory
+from atlas_eng.engine.domain.memory import Memory, MemoryEntry
+from atlas_eng.engine.domain.project import Project
+from atlas_eng.engine.memory.exceptions import (
+    InvalidMemoryException,
+    MemoryNotFoundException,
+)
+from atlas_eng.engine.memory.fs_repository import FilesystemMemoryRepository
+from atlas_eng.engine.project.fs_repository import FilesystemProjectRepository
 
 
 @pytest.fixture

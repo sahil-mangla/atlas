@@ -2,7 +2,7 @@
 
 from uuid import uuid4
 
-from engine.domain.traceability import TraceabilityLink
+from atlas_eng.engine.domain.traceability import TraceabilityLink
 
 
 def test_traceability_link_creation() -> None:

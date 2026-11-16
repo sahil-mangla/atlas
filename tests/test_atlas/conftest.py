@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from atlas import Atlas
+from atlas_eng import Atlas
 from tests.support.test_bootstrap import create_test_platform
 
 

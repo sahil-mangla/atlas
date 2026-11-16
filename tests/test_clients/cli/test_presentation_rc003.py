@@ -14,8 +14,8 @@ from pathlib import Path
 
 import pytest
 
-from atlas import Atlas
-from clients.cli.application import _EXIT_ERROR, _EXIT_OK, CLIApplication
+from atlas_eng import Atlas
+from atlas_eng.clients.cli.application import _EXIT_ERROR, _EXIT_OK, CLIApplication
 from tests.support.test_bootstrap import create_test_platform
 
 

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from atlas.contracts.envelope import ResponseEnvelope
-from atlas.observability.models import TraceRecord
+from atlas_eng.contracts.envelope import ResponseEnvelope
+from atlas_eng.observability.models import TraceRecord
 from evals.schema import CheckSpec, Outcome, StepExpected
 from evals.substitution import resolve_path, substitute
 

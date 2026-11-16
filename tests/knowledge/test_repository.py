@@ -5,23 +5,23 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from engine.domain.enums import (
+from atlas_eng.engine.domain.enums import (
     KnowledgeActorType,
     KnowledgeCandidateStatus,
     KnowledgeCategory,
     KnowledgeSourceType,
     PublishedKnowledgeStatus,
 )
-from engine.domain.knowledge import (
+from atlas_eng.engine.domain.knowledge import (
     KnowledgeActor,
     KnowledgeCandidate,
     KnowledgePersistenceDocument,
     KnowledgeProvenance,
     PublishedKnowledge,
 )
-from engine.knowledge.exceptions import InvalidKnowledgeException
-from engine.knowledge.fs_repository import FilesystemKnowledgeRepository
-from engine.knowledge.repository import KnowledgeRepository
+from atlas_eng.engine.knowledge.exceptions import InvalidKnowledgeException
+from atlas_eng.engine.knowledge.fs_repository import FilesystemKnowledgeRepository
+from atlas_eng.engine.knowledge.repository import KnowledgeRepository
 
 
 class MockKnowledgeRepo(KnowledgeRepository):

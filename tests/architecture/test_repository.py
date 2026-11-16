@@ -3,14 +3,14 @@ from uuid import uuid4
 
 import pytest
 
-from engine.architecture.exceptions import (
+from atlas_eng.engine.architecture.exceptions import (
     ArchitectureNotFoundException,
     InvalidArchitectureException,
 )
-from engine.architecture.fs_repository import FilesystemArchitectureRepository
-from engine.domain.architecture import Architecture
-from engine.domain.project import Project
-from engine.project.fs_repository import FilesystemProjectRepository
+from atlas_eng.engine.architecture.fs_repository import FilesystemArchitectureRepository
+from atlas_eng.engine.domain.architecture import Architecture
+from atlas_eng.engine.domain.project import Project
+from atlas_eng.engine.project.fs_repository import FilesystemProjectRepository
 
 
 @pytest.fixture

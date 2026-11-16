@@ -17,23 +17,26 @@ from typing import Any
 
 import pytest
 
-from engine.ai.adapters._http import post_json
-from engine.ai.adapters.anthropic import AnthropicAIProvider
-from engine.ai.adapters.ollama import OllamaAIProvider, OllamaEmbeddingProvider
-from engine.ai.adapters.openai_compatible import (
+from atlas_eng.engine.ai.adapters._http import post_json
+from atlas_eng.engine.ai.adapters.anthropic import AnthropicAIProvider
+from atlas_eng.engine.ai.adapters.ollama import (
+    OllamaAIProvider,
+    OllamaEmbeddingProvider,
+)
+from atlas_eng.engine.ai.adapters.openai_compatible import (
     OpenAICompatibleAIProvider,
     OpenAICompatibleEmbeddingProvider,
 )
-from engine.ai.adapters.scripted import ScriptedAIProvider
-from engine.ai.config import ProviderConfig
-from engine.ai.context import IdentityContextStrategy
-from engine.ai.exceptions import AIProviderException
-from engine.ai.executor import PromptExecutor
-from engine.ai.provider import AIProvider
-from engine.domain.ai import AIRequest, ContextPayload
-from engine.domain.ai_drafts import PlanningProposalDraft
-from engine.domain.prompt_document import PromptDocument
-from engine.prompt.templates import PlanningPromptTemplate
+from atlas_eng.engine.ai.adapters.scripted import ScriptedAIProvider
+from atlas_eng.engine.ai.config import ProviderConfig
+from atlas_eng.engine.ai.context import IdentityContextStrategy
+from atlas_eng.engine.ai.exceptions import AIProviderException
+from atlas_eng.engine.ai.executor import PromptExecutor
+from atlas_eng.engine.ai.provider import AIProvider
+from atlas_eng.engine.domain.ai import AIRequest, ContextPayload
+from atlas_eng.engine.domain.ai_drafts import PlanningProposalDraft
+from atlas_eng.engine.domain.prompt_document import PromptDocument
+from atlas_eng.engine.prompt.templates import PlanningPromptTemplate
 
 Responder = Callable[[str, dict[str, Any]], tuple[int, bytes]]
 

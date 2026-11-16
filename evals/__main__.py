@@ -18,8 +18,8 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
-from engine.ai.config import ProviderConfig
-from engine.ai.factory import ProtocolFactory
+from atlas_eng.engine.ai.config import ProviderConfig
+from atlas_eng.engine.ai.factory import ProtocolFactory
 from evals.baseline import (
     Baseline,
     RegressionFinding,

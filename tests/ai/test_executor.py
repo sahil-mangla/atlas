@@ -4,13 +4,13 @@ from unittest.mock import Mock
 
 import pytest
 
-from engine.ai.context import ContextStrategy, IdentityContextStrategy
-from engine.ai.exceptions import AIProviderException, InvalidProposalException
-from engine.ai.executor import PromptExecutor
-from engine.domain.ai import ContextPayload
-from engine.domain.ai_drafts import ResearchProposalDraft
-from engine.prompt.registry import PromptRegistry
-from engine.prompt.templates import ResearchPromptTemplate
+from atlas_eng.engine.ai.context import ContextStrategy, IdentityContextStrategy
+from atlas_eng.engine.ai.exceptions import AIProviderException, InvalidProposalException
+from atlas_eng.engine.ai.executor import PromptExecutor
+from atlas_eng.engine.domain.ai import ContextPayload
+from atlas_eng.engine.domain.ai_drafts import ResearchProposalDraft
+from atlas_eng.engine.prompt.registry import PromptRegistry
+from atlas_eng.engine.prompt.templates import ResearchPromptTemplate
 from tests.ai.test_adapters import MockAIProvider
 
 

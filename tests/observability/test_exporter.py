@@ -5,10 +5,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
-from atlas.adapters.protocol import AdapterKind
-from atlas.capabilities.base import CapabilityName
-from atlas.observability.exporter import JsonlFileExporter, NullExporter
-from atlas.observability.models import TraceOutcome, TraceRecord
+from atlas_eng.adapters.protocol import AdapterKind
+from atlas_eng.capabilities.base import CapabilityName
+from atlas_eng.observability.exporter import JsonlFileExporter, NullExporter
+from atlas_eng.observability.models import TraceOutcome, TraceRecord
 
 
 def _record(timestamp: datetime | None = None) -> TraceRecord:

@@ -14,24 +14,27 @@ from uuid import uuid4
 
 import pytest
 
-from atlas.capabilities.knowledge_capability import KnowledgeCapability
-from atlas.commands import ListKnowledgeCandidatesCommand, ShowKnowledgeCandidateCommand
-from atlas.contracts.errors import PlatformErrorCode, to_error_envelope
-from atlas.exceptions import (
-    ApplicationError,
-    InvalidTransitionError,
-    KnowledgeReviewError,
-    WorkflowNotReadyError,
+from atlas_eng.capabilities.knowledge_capability import KnowledgeCapability
+from atlas_eng.commands import (
+    ListKnowledgeCandidatesCommand,
+    ShowKnowledgeCandidateCommand,
 )
-from engine.knowledge.exceptions import (
+from atlas_eng.contracts.errors import PlatformErrorCode, to_error_envelope
+from atlas_eng.engine.knowledge.exceptions import (
     InvalidKnowledgeException,
     KnowledgeException,
     KnowledgeReviewException,
 )
-from engine.workflow.exceptions import (
+from atlas_eng.engine.workflow.exceptions import (
     InvalidTransitionException,
     WorkflowException,
     WorkflowNotFoundException,
+)
+from atlas_eng.exceptions import (
+    ApplicationError,
+    InvalidTransitionError,
+    KnowledgeReviewError,
+    WorkflowNotReadyError,
 )
 
 

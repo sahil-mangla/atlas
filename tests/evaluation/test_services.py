@@ -4,8 +4,8 @@ from uuid import uuid4
 
 import pytest
 
-from engine.architecture.fs_repository import FilesystemArchitectureRepository
-from engine.domain.architecture import (
+from atlas_eng.engine.architecture.fs_repository import FilesystemArchitectureRepository
+from atlas_eng.engine.domain.architecture import (
     ArchitecturalDecision,
     Architecture,
     ArchitectureComponent,
@@ -14,14 +14,14 @@ from engine.domain.architecture import (
     ArchitectureSummary,
     QualityAttribute,
 )
-from engine.domain.architecture import (
+from atlas_eng.engine.domain.architecture import (
     Constraint as ArchitectureConstraint,
 )
-from engine.domain.architecture import (
+from atlas_eng.engine.domain.architecture import (
     Risk as ArchitectureRisk,
 )
-from engine.domain.metadata import ArtifactMetadata, ArtifactStatus
-from engine.domain.planning import (
+from atlas_eng.engine.domain.metadata import ArtifactMetadata, ArtifactStatus
+from atlas_eng.engine.domain.planning import (
     EngineeringDeliverable,
     Planning,
     PlanningEpic,
@@ -31,14 +31,14 @@ from engine.domain.planning import (
     PlanningTask,
     ScopeDefinition,
 )
-from engine.domain.project import Project
-from engine.domain.research import (
+from atlas_eng.engine.domain.project import Project
+from atlas_eng.engine.domain.research import (
     Assumption as ResearchAssumption,
 )
-from engine.domain.research import (
+from atlas_eng.engine.domain.research import (
     Constraint as ResearchConstraint,
 )
-from engine.domain.research import (
+from atlas_eng.engine.domain.research import (
     Evidence,
     ProblemDefinition,
     Research,
@@ -46,12 +46,12 @@ from engine.domain.research import (
     ResearchSnapshot,
     ResearchSummary,
 )
-from engine.evaluation.exceptions import (
+from atlas_eng.engine.evaluation.exceptions import (
     EvaluationNotFoundException,
     InvalidEvaluationOperationException,
 )
-from engine.evaluation.fs_repository import FilesystemEvaluationRepository
-from engine.evaluation.services import (
+from atlas_eng.engine.evaluation.fs_repository import FilesystemEvaluationRepository
+from atlas_eng.engine.evaluation.services import (
     ArchitectureEvaluationService,
     EvaluationInitializationService,
     EvaluationSummaryService,
@@ -61,9 +61,9 @@ from engine.evaluation.services import (
     RiskEvaluationService,
     TraceabilityEvaluationService,
 )
-from engine.planning.fs_repository import FilesystemPlanningRepository
-from engine.project.fs_repository import FilesystemProjectRepository
-from engine.research.fs_repository import FilesystemResearchRepository
+from atlas_eng.engine.planning.fs_repository import FilesystemPlanningRepository
+from atlas_eng.engine.project.fs_repository import FilesystemProjectRepository
+from atlas_eng.engine.research.fs_repository import FilesystemResearchRepository
 
 
 @pytest.fixture

@@ -23,22 +23,22 @@ approve anything before it becomes canonical. See
 ### 2.1 What are the major layers, top to bottom?
 
 ```
-clients/        CLI, MCP, REST, IDE adapters — translate raw I/O into Atlas calls
-atlas/          The public facade + platform layer (Commands, Results, Capabilities, Contracts)
-presentation/   Read models → Views → Renderers (JSON / Markdown / CLI text)
-engine/         Domain services: ai, architecture, domain, evaluation, knowledge,
-                memory, planning, project, prompt, research, workflow
-shared/         Cross-cutting utilities (e.g. atomic_write)
+atlas_eng/clients/        CLI, MCP, REST, IDE adapters — translate raw I/O into Atlas calls
+atlas_eng/                The public facade + platform layer (Commands, Results, Capabilities, Contracts)
+atlas_eng/presentation/   Read models → Views → Renderers (JSON / Markdown / CLI text)
+atlas_eng/engine/         Domain services: ai, architecture, domain, evaluation, knowledge,
+                          memory, planning, project, prompt, research, workflow
+atlas_eng/shared/         Cross-cutting utilities (e.g. atomic_write)
 ```
 
 Dependency direction is one-way: `clients` → `atlas` → `presentation`/`engine` →
-`engine/domain`. `engine/domain` and `atlas/exceptions` are the two "core" packages —
+`atlas_eng/engine/domain`. `atlas_eng/engine/domain` and `atlas_eng/exceptions` are the two "core" packages —
 highest fan-in, zero outbound calls — everything depends on them, they depend on
 nothing internal.
 
 ### 2.2 What's the one file to read first?
 
-[`atlas/_service.py`](../atlas/_service.py) — the `Atlas` class. It's the single public
+[`atlas_eng/_service.py`](../atlas_eng/_service.py) — the `Atlas` class. It's the single public
 interface: every client (CLI, MCP, REST, IDE) ultimately calls through it. See
 [`docs/architecture/application-platform.md`](architecture/application-platform.md).
 
@@ -62,12 +62,12 @@ add a new one.
 
 | Symbol | Fan-in | File |
 |---|---|---|
-| `parse_argv` | 49 | `clients/cli/parser.py` |
-| `Atlas.create_project` | 25 | `atlas/_service.py` |
-| `Renderer.render` | 24 | `presentation/renderers/registry.py` |
-| `ProjectRepository.get_project_path` | 20 | `engine/project/repository.py` |
-| `PromptLoader.load_registry` | 16 | `engine/prompt/loader.py` |
-| `ArchitectureRepository.get_by_project_id` | 16 | `engine/architecture/repository.py` |
+| `parse_argv` | 49 | `atlas_eng/clients/cli/parser.py` |
+| `Atlas.create_project` | 25 | `atlas_eng/_service.py` |
+| `Renderer.render` | 24 | `atlas_eng/presentation/renderers/registry.py` |
+| `ProjectRepository.get_project_path` | 20 | `atlas_eng/engine/project/repository.py` |
+| `PromptLoader.load_registry` | 16 | `atlas_eng/engine/prompt/loader.py` |
+| `ArchitectureRepository.get_by_project_id` | 16 | `atlas_eng/engine/architecture/repository.py` |
 
 These are the functions most things route through — good places to look when tracing
 "what breaks if I change X."
@@ -92,10 +92,10 @@ See [`docs/architecture/platform-layer.md`](architecture/platform-layer.md) and
 
 ### 3.2 What are the five "Capabilities"?
 
-`atlas/capabilities/`: `Project`, `Workflow`, `WorkflowExecution`, `Knowledge`,
+`atlas_eng/capabilities/`: `Project`, `Workflow`, `WorkflowExecution`, `Knowledge`,
 `Presentation`. Each is a thin, independently-testable delegation layer that `Atlas`
 composes in `__init__` — they hold no logic of their own beyond mapping engine
-exceptions to platform errors and forwarding to `engine/` services.
+exceptions to platform errors and forwarding to `atlas_eng/engine/` services.
 
 ### 3.3 What is a "Command" and a "Result"?
 
@@ -111,7 +111,7 @@ Command-Result pattern referenced throughout `docs/architecture/application-plat
 
 ### 4.1 What are the actual workflow stages?
 
-`engine/domain/enums.py::WorkflowStage` (9 stages, sequential):
+`atlas_eng/engine/domain/enums.py::WorkflowStage` (9 stages, sequential):
 
 ```
 IDEA → RESEARCH → PROBLEM_DEFINITION → PLANNING → ARCHITECTURE →
@@ -119,14 +119,14 @@ IMPLEMENTATION → REVIEW → ITERATION → COMPLETION
 ```
 
 Of these, four have dedicated AI **stage executors** in
-`engine/workflow/orchestration.py` — `ResearchStageExecutor`,
+`atlas_eng/engine/workflow/orchestration.py` — `ResearchStageExecutor`,
 `PlanningStageExecutor`, `ArchitectureStageExecutor`, `EvaluationStageExecutor` — which
 is what `execute_stage` invokes. Stages with no executor are skippable/human-only; see
 `test_workflow_transition_service_allows_skipping_stages_with_no_executor`.
 
 ### 4.2 How does `transition_stage` decide what's legal?
 
-`WorkflowTransitionService.transition_stage` (`engine/workflow/services.py:247-306`)
+`WorkflowTransitionService.transition_stage` (`atlas_eng/engine/workflow/services.py:247-306`)
 enforces: (a) the target is a legal next stage, (b) readiness — e.g. required
 objectives are completed — before it will move forward, and (c) it records every
 transition to `Workflow.record_transition` history so the sequence is auditable, not
@@ -153,11 +153,11 @@ can unblock readiness manually even without running an AI stage. See
 
 ### 5.1 What AI providers does ATLAS support, and how is a provider chosen?
 
-`engine/ai/adapters/`: `anthropic.py`, `gemini.py`, `ollama.py`,
+`atlas_eng/engine/ai/adapters/`: `anthropic.py`, `gemini.py`, `ollama.py`,
 `openai_compatible.py` — each implements the `AIProvider` protocol
-(`engine/ai/provider.py`: `generate()`, `capabilities()`). `ProtocolFactory`
-(`engine/ai/factory.py`) resolves a provider name string to the matching adapter at
-bootstrap time; nothing in `engine/` above the factory is provider-specific. See
+(`atlas_eng/engine/ai/provider.py`: `generate()`, `capabilities()`). `ProtocolFactory`
+(`atlas_eng/engine/ai/factory.py`) resolves a provider name string to the matching adapter at
+bootstrap time; nothing in `atlas_eng/engine/` above the factory is provider-specific. See
 [`docs/architecture/multi-protocol-ai-runtime.md`](architecture/multi-protocol-ai-runtime.md).
 
 ### 5.2 What is the "AI Constitution" and why does it matter?
@@ -180,10 +180,10 @@ the way it is — read it before changing anything AI-adjacent.
 
 ### 5.3 How does ATLAS stop the AI from hallucinating citations?
 
-Each stage has a `ProposalValidator` in `engine/ai/engineering_services.py`. For
+Each stage has a `ProposalValidator` in `atlas_eng/engine/ai/engineering_services.py`. For
 research, `ResearchProposalValidator.validate` checks that every `Finding` references
 `evidence_indices` that actually exist in the `evidence` list *retrieved before
-generation* (`engine/research/retrieval.py` + `engine/research/sources/`) — an
+generation* (`atlas_eng/engine/research/retrieval.py` + `atlas_eng/engine/research/sources/`) — an
 out-of-range or missing index raises `InvalidProposalException` before the proposal can
 even reach human review. The model cannot cite something it wasn't given.
 
@@ -203,7 +203,7 @@ proposal is persisted (never auto-committed). A human then calls `approve_propos
 A proposal (§5) is stage-specific AI output (a research draft, a plan, …). A
 **knowledge candidate** is a smaller, durable claim — a principle, pattern, standard,
 convention, decision summary, constraint, or lesson learned
-(`KnowledgeCategory` in `engine/domain/enums.py`) — extracted *from* an approved
+(`KnowledgeCategory` in `atlas_eng/engine/domain/enums.py`) — extracted *from* an approved
 artifact or submitted directly by a human, destined for the project's long-lived
 knowledge base. See
 [`docs/architecture/engineering-knowledge-layer.md`](architecture/engineering-knowledge-layer.md).
@@ -224,8 +224,8 @@ Services: `KnowledgeCandidateService.create` → `KnowledgeDeduplicationService.
 
 Every candidate records **who** proposed it — `KnowledgeActorType`: `HUMAN`, `AI`,
 `SYSTEM`, `WORKFLOW`, `PLUGIN`, `IMPORT`, `EXTERNAL` — and its `KnowledgeProvenance`
-(`engine/domain/knowledge.py`). Combined with `TraceabilityLink`
-(`engine/domain/traceability.py`), you can always answer "where did this claim come
+(`atlas_eng/engine/domain/knowledge.py`). Combined with `TraceabilityLink`
+(`atlas_eng/engine/domain/traceability.py`), you can always answer "where did this claim come
 from" without re-reading chat history, because the answer is stored data, not
 conversational context. See
 [`docs/architecture/traceability.md`](architecture/traceability.md) and
@@ -233,7 +233,7 @@ conversational context. See
 
 ### 6.4 How are extractors used?
 
-`engine/knowledge/extractors/` (`architecture.py`, `evaluation.py`, `planning.py`,
+`atlas_eng/engine/knowledge/extractors/` (`architecture.py`, `evaluation.py`, `planning.py`,
 `research.py`) pull candidate knowledge out of an *approved* artifact automatically
 after a stage commits, via `ExtractorRegistry.extract`. This is separate from AI
 proposing knowledge directly — it's ATLAS mining its own already-approved history.
@@ -245,17 +245,17 @@ proposing knowledge directly — it's ATLAS mining its own already-approved hist
 ### 7.1 Where does everything live on disk?
 
 Each `engine/<domain>/fs_repository.py` is a filesystem-backed repository keyed by
-project ID, using `shared/atomic_write.py::atomic_write_text` (fan-in 15 — used
+project ID, using `atlas_eng/shared/atomic_write.py::atomic_write_text` (fan-in 15 — used
 everywhere state is persisted) to avoid partial writes. See
 [`docs/architecture/persistence.md`](architecture/persistence.md) for path resolution
 and compensating-rollback details.
 
-### 7.2 What is `engine/memory/`, and how is it different from an AI chat's context?
+### 7.2 What is `atlas_eng/engine/memory/`, and how is it different from an AI chat's context?
 
-`engine/memory/` is a project-scoped, persistent store for conversation history, design
+`atlas_eng/engine/memory/` is a project-scoped, persistent store for conversation history, design
 outcomes, and context (`MemoryCategory`: `KNOWLEDGE`, `DECISION`, `CONTEXT`,
 `ARTIFACT`) — it survives across sessions and CLI invocations by design (Rule 1 of the
-AI Constitution requires the *generation engine* to be stateless; `engine/memory/` is
+AI Constitution requires the *generation engine* to be stateless; `atlas_eng/engine/memory/` is
 the explicit, inspectable mechanism by which prior context re-enters a new request,
 rather than an opaque chat history).
 
@@ -295,14 +295,14 @@ and baseline updates.
 
 ### 8.1 What clients exist today?
 
-`clients/cli/` is fully implemented (entry point: `clients/cli/application.py:main`).
-`clients/mcp/`, `clients/rest/`, `clients/desktop/`, `clients/ide/` exist as stubs/dirs
+`atlas_eng/clients/cli/` is fully implemented (entry point: `atlas_eng/clients/cli/application.py:main`).
+`atlas_eng/clients/mcp/`, `atlas_eng/clients/rest/`, `atlas_eng/clients/desktop/`, `atlas_eng/clients/ide/` exist as stubs/dirs
 for future adapters — all are meant to call through `Atlas.handle()` (§3.1) rather than
 reimplementing logic.
 
 ### 8.2 How does the CLI turn `sys.argv` into a Command?
 
-`clients/cli/parser.py::parse_argv` (fan-in 49, the single highest-fan-in symbol in the
+`atlas_eng/clients/cli/parser.py::parse_argv` (fan-in 49, the single highest-fan-in symbol in the
 repo) → `CommandParser` builds the typed Command → `Atlas` method → `CLIRenderer`
 formats the Result. See [`docs/architecture/client-adapters.md`](architecture/client-adapters.md)
 and [`docs/usage/cli.md`](usage/cli.md).
@@ -311,12 +311,12 @@ and [`docs/usage/cli.md`](usage/cli.md).
 
 ## 9. Presentation Layer
 
-### 9.1 Why is there a separate `presentation/` layer instead of clients formatting
+### 9.1 Why is there a separate `atlas_eng/presentation/` layer instead of clients formatting
 Results directly?
 
 So that JSON/Markdown/CLI-text output is derived from one typed, immutable pipeline
 instead of three ad hoc formatters: `Atlas.get_*_read_model()` →
-`presentation/collectors/` compose a `View` → `presentation/renderers/registry.py`
+`atlas_eng/presentation/collectors/` compose a `View` → `atlas_eng/presentation/renderers/registry.py`
 picks a `Renderer` (`Renderer.render`, fan-in 24) → `RenderResult`. Presentation code
 never touches repositories or engine services directly — only the read-model API. See
 [`docs/architecture/presentation-layer.md`](architecture/presentation-layer.md) and
@@ -366,7 +366,7 @@ Constitution (§5.2).
 | Output shape | Freeform prose/markdown | Typed, Pydantic-validated domain objects |
 | Evidence citation | Trusted, unverified | Index-checked against the actual retrieved evidence set at generation time |
 | Truth model | Model's answer is final | AI output is a `DRAFT` proposal; requires human `APPROVE` |
-| State across sessions | Lives in one chat transcript | Persisted domain state + dedicated `engine/memory/` |
+| State across sessions | Lives in one chat transcript | Persisted domain state + dedicated `atlas_eng/engine/memory/` |
 | Duplicate/contradictory output | Not prevented | `KnowledgeDeduplicationService.check` before candidate creation |
 | Provenance | None, or "the AI said so" | `KnowledgeProvenance` + `TraceabilityLink` per candidate |
 | Model vendor | Usually fixed to one provider | `ProtocolFactory` swaps Anthropic/Gemini/Ollama/OpenAI-compatible behind one interface |
@@ -394,9 +394,9 @@ following the five-file template (§2.3), a `StageExecutor`, and wiring it into
 
 ### 12.2 How do I add a new AI provider?
 
-Implement `AIProvider` (`generate`, `capabilities`) in `engine/ai/adapters/`, register a
+Implement `AIProvider` (`generate`, `capabilities`) in `atlas_eng/engine/ai/adapters/`, register a
 `_create_<provider>` factory function, and add it to `ProtocolFactory`'s registry in
-`engine/ai/factory.py`. See
+`atlas_eng/engine/ai/factory.py`. See
 [`docs/architecture/multi-protocol-ai-runtime.md`](architecture/multi-protocol-ai-runtime.md).
 
 ### 12.3 How do I add a new View/renderer?
@@ -409,10 +409,10 @@ renderer registration.
 
 ## 13. Quick Reference
 
-- **Entry point**: `clients/cli/application.py::main`
-- **Facade**: `atlas/_service.py::Atlas`
+- **Entry point**: `atlas_eng/clients/cli/application.py::main`
+- **Facade**: `atlas_eng/_service.py::Atlas`
 - **AI Constitution**: [`docs/architecture/ai-constitution.md`](architecture/ai-constitution.md)
 - **Glossary**: [`docs/glossary.md`](glossary.md)
 - **ADR index**: [`docs/README.md`](README.md) §3
 - **All architecture docs**: [`docs/README.md`](README.md)
-- **Domain enums (single source of truth for state values)**: `engine/domain/enums.py`
+- **Domain enums (single source of truth for state values)**: `atlas_eng/engine/domain/enums.py`

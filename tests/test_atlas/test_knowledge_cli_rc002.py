@@ -14,8 +14,8 @@ from uuid import UUID
 
 import pytest
 
-from atlas import Atlas
-from atlas.commands import (
+from atlas_eng import Atlas
+from atlas_eng.commands import (
     ApproveProposalCommand,
     CreateProjectCommand,
     ExecuteStageCommand,
@@ -25,17 +25,17 @@ from atlas.commands import (
     ShowKnowledgeCandidateCommand,
     TransitionStageCommand,
 )
-from atlas.exceptions import ApplicationError
-from atlas.types import (
+from atlas_eng.engine.domain.ai_drafts import (
+    ResearchEvidenceDraft,
+    ResearchFindingDraft,
+    ResearchProposalDraft,
+)
+from atlas_eng.exceptions import ApplicationError
+from atlas_eng.types import (
     KnowledgeActorType,
     KnowledgeCandidateStatus,
     ProposalDecision,
     WorkflowStage,
-)
-from engine.domain.ai_drafts import (
-    ResearchEvidenceDraft,
-    ResearchFindingDraft,
-    ResearchProposalDraft,
 )
 from tests.ai.test_adapters import MockAIProvider
 from tests.support.test_bootstrap import create_test_platform

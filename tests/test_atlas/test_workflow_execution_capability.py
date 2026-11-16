@@ -10,18 +10,18 @@ it. This test exercises the mapping method directly to close that gap.
 
 from unittest.mock import MagicMock
 
-from atlas.capabilities.workflow_execution_capability import (
+from atlas_eng.capabilities.workflow_execution_capability import (
     WorkflowExecutionCapability,
 )
-from atlas.exceptions import (
-    ApplicationError,
-    InvalidTransitionError,
-    WorkflowNotReadyError,
-)
-from engine.workflow.exceptions import (
+from atlas_eng.engine.workflow.exceptions import (
     InvalidTransitionException,
     WorkflowException,
     WorkflowNotFoundException,
+)
+from atlas_eng.exceptions import (
+    ApplicationError,
+    InvalidTransitionError,
+    WorkflowNotReadyError,
 )
 
 

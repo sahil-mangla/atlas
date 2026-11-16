@@ -1,6 +1,6 @@
 from uuid import UUID, uuid4
 
-from engine.domain.engineering_specification import EngineeringSpecification
+from atlas_eng.engine.domain.engineering_specification import EngineeringSpecification
 
 
 def test_engineering_specification_defaults() -> None:

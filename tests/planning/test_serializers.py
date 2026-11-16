@@ -1,8 +1,11 @@
 from uuid import uuid4
 
-from engine.domain.enums import PlanningStatus
-from engine.domain.planning import Planning
-from engine.planning.serializers import deserialize_planning, serialize_planning
+from atlas_eng.engine.domain.enums import PlanningStatus
+from atlas_eng.engine.domain.planning import Planning
+from atlas_eng.engine.planning.serializers import (
+    deserialize_planning,
+    serialize_planning,
+)
 
 
 def test_serialize_deserialize_planning() -> None:

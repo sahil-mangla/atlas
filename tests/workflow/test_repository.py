@@ -6,15 +6,15 @@ from uuid import uuid4
 
 import pytest
 
-from engine.domain.enums import ApprovalStatus, WorkflowStage
-from engine.domain.project import Project
-from engine.domain.workflow import Workflow, WorkflowHistoryEntry
-from engine.project.fs_repository import FilesystemProjectRepository
-from engine.workflow.exceptions import (
+from atlas_eng.engine.domain.enums import ApprovalStatus, WorkflowStage
+from atlas_eng.engine.domain.project import Project
+from atlas_eng.engine.domain.workflow import Workflow, WorkflowHistoryEntry
+from atlas_eng.engine.project.fs_repository import FilesystemProjectRepository
+from atlas_eng.engine.workflow.exceptions import (
     InvalidTransitionException,
     WorkflowNotFoundException,
 )
-from engine.workflow.fs_repository import FilesystemWorkflowRepository
+from atlas_eng.engine.workflow.fs_repository import FilesystemWorkflowRepository
 
 
 @pytest.fixture

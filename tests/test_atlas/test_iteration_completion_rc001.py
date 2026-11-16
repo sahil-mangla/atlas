@@ -16,8 +16,8 @@ from uuid import UUID
 
 import pytest
 
-from atlas import Atlas
-from atlas.commands import (
+from atlas_eng import Atlas
+from atlas_eng.commands import (
     ApproveProposalCommand,
     CompleteObjectiveCommand,
     CreateProjectCommand,
@@ -25,9 +25,7 @@ from atlas.commands import (
     GetWorkflowStatusCommand,
     TransitionStageCommand,
 )
-from atlas.exceptions import ApplicationError
-from atlas.types import WorkflowStage
-from engine.domain.ai_drafts import (
+from atlas_eng.engine.domain.ai_drafts import (
     ArchitectureProposalDraft,
     EvaluationFindingDraft,
     EvaluationProposalDraft,
@@ -35,7 +33,9 @@ from engine.domain.ai_drafts import (
     PlanningProposalDraft,
     ResearchProposalDraft,
 )
-from engine.domain.enums import FindingCategory, FindingSeverity
+from atlas_eng.engine.domain.enums import FindingCategory, FindingSeverity
+from atlas_eng.exceptions import ApplicationError
+from atlas_eng.types import WorkflowStage
 from tests.ai.test_adapters import MockAIProvider
 from tests.support.test_bootstrap import create_test_platform
 

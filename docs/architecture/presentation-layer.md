@@ -1,7 +1,7 @@
 # Phase 14: Presentation Layer
 
 ## Purpose
-This document describes the `presentation/` package: the upper presentation layer that composes typed, immutable views from the Atlas facade's read-model API and renders them to concrete output formats (JSON, Markdown, CLI text).
+This document describes the `atlas_eng/presentation/` package: the upper presentation layer that composes typed, immutable views from the Atlas facade's read-model API and renders them to concrete output formats (JSON, Markdown, CLI text).
 
 ## Responsibilities
 - Define immutable presentation Components, Views, and typed Read Models.
@@ -41,7 +41,7 @@ There are no reverse dependencies. Presentation modules never import `engine.*`,
 
 ## Engine Isolation
 
-`presentation/` never imports `engine.ai`, `engine.workflow`, repositories, persistence, filesystem, or database modules. It communicates exclusively through the Atlas public read-model API:
+`atlas_eng/presentation/` never imports `atlas_eng.engine.ai`, `atlas_eng.engine.workflow`, repositories, persistence, filesystem, or database modules. It communicates exclusively through the Atlas public read-model API:
 
 - `Atlas.get_project_read_model(project_id) -> ProjectReadModel`
 - `Atlas.get_workflow_read_model(project_id) -> WorkflowReadModel`
@@ -49,15 +49,15 @@ There are no reverse dependencies. Presentation modules never import `engine.*`,
 - `Atlas.get_knowledge_read_model(project_id) -> KnowledgeReadModel`
 - `Atlas.get_diagnostics_read_model(project_id) -> DiagnosticsReadModel`
 
-Each read model is an immutable Pydantic DTO (`presentation/read_models/models.py`) sourced from existing Phase 1-13 services and repositories inside `atlas/_service.py`. No engine entity or repository object crosses this boundary -- only plain typed data.
+Each read model is an immutable Pydantic DTO (`atlas_eng/presentation/read_models/models.py`) sourced from existing Phase 1-13 services and repositories inside `atlas_eng/_service.py`. No engine entity or repository object crosses this boundary -- only plain typed data.
 
 ## Read Models
 
-`presentation/read_models/models.py` defines the five read models above. They are `ConfigDict(frozen=True)` Pydantic models with tuple-typed collections. Atlas is their sole producer; collectors are their sole consumer.
+`atlas_eng/presentation/read_models/models.py` defines the five read models above. They are `ConfigDict(frozen=True)` Pydantic models with tuple-typed collections. Atlas is their sole producer; collectors are their sole consumer.
 
 ## Collectors
 
-`presentation/collectors/collectors.py` defines one Collector per View kind:
+`atlas_eng/presentation/collectors/collectors.py` defines one Collector per View kind:
 
 - `ProjectDashboardCollector`
 - `WorkflowStatusCollector`
@@ -69,7 +69,7 @@ Each collector's constructor takes an `Atlas` instance (typed under `TYPE_CHECKI
 
 ## Views
 
-`presentation/views/models.py` defines five frozen, tuple-based Pydantic Views, joined into a discriminated union `PresentationView` on the `kind` field:
+`atlas_eng/presentation/views/models.py` defines five frozen, tuple-based Pydantic Views, joined into a discriminated union `PresentationView` on the `kind` field:
 
 - `ProjectDashboardView`
 - `WorkflowStatusView`
@@ -81,31 +81,31 @@ Views are deeply immutable (frozen models composed of frozen Components and tupl
 
 ## Components
 
-`presentation/components/models.py` defines three immutable leaf components: `StatusBadge`, `Metric`, `Section`. Components contain no rendering logic, no Atlas calls, and no business logic. Views assemble Components; Components never assemble Views.
+`atlas_eng/presentation/components/models.py` defines three immutable leaf components: `StatusBadge`, `Metric`, `Section`. Components contain no rendering logic, no Atlas calls, and no business logic. Views assemble Components; Components never assemble Views.
 
 ## PlatformOrchestrationService
 
-`presentation/orchestration/platform.py` selects a collector and delegates to it -- nothing else. It receives all five collectors through **constructor injection**; it never constructs a collector itself (verified by `tests/support/test_platform_bootstrap.py::test_platform_orchestration_service_does_not_construct_collectors_itself`). It contains no business rules, does not render, and owns no persistence or repositories.
+`atlas_eng/presentation/orchestration/platform.py` selects a collector and delegates to it -- nothing else. It receives all five collectors through **constructor injection**; it never constructs a collector itself (verified by `tests/support/test_platform_bootstrap.py::test_platform_orchestration_service_does_not_construct_collectors_itself`). It contains no business rules, does not render, and owns no persistence or repositories.
 
 ## Renderers
 
-`presentation/renderers/base.py` defines three renderers implementing the `Renderer` protocol (`presentation/renderers/registry.py`):
+`atlas_eng/presentation/renderers/base.py` defines three renderers implementing the `Renderer` protocol (`atlas_eng/presentation/renderers/registry.py`):
 
 - `JsonRenderer` -- `application/json`, deterministic via `json.dumps(..., sort_keys=True)`.
 - `MarkdownRenderer` -- `text/markdown`, one section per view field.
 - `CliRenderer(MarkdownRenderer)` -- `text/plain`, strips Markdown headers line-by-line (see "Renderer Defects Fixed" below).
 
-Renderers consume only immutable Views and a `RenderContract` (`presentation/renderers/contract.py`, itself frozen); they never call Atlas or engine code, never compute business meaning, and never mutate their input view. `RendererRegistry` resolves a renderer by name and raises `ValueError` for an unknown name.
+Renderers consume only immutable Views and a `RenderContract` (`atlas_eng/presentation/renderers/contract.py`, itself frozen); they never call Atlas or engine code, never compute business meaning, and never mutate their input view. `RendererRegistry` resolves a renderer by name and raises `ValueError` for an unknown name.
 
 ## RenderResult
 
-`presentation/renderers/result.py` is a frozen `@dataclass` carrying `content`, `media_type`, `renderer`, and an immutable `metadata` (`MappingProxyType`). It is the sole return type of every renderer.
+`atlas_eng/presentation/renderers/result.py` is a frozen `@dataclass` carrying `content`, `media_type`, `renderer`, and an immutable `metadata` (`MappingProxyType`). It is the sole return type of every renderer.
 
 ## Composition Root
 
-Only `atlas/_bootstrap.py` constructs collectors, the renderer registry, and `PlatformOrchestrationService`. No presentation class constructs its own collaborators at runtime, and there is no service locator.
+Only `atlas_eng/_bootstrap.py` constructs collectors, the renderer registry, and `PlatformOrchestrationService`. No presentation class constructs its own collaborators at runtime, and there is no service locator.
 
-Because `PlatformOrchestrationService`'s collectors each hold a reference back to the live `Atlas` facade (to call its read-model API), presentation wiring cannot be expressed as another field of the `_AtlasServices` dependency-injection dataclass passed to `Atlas.__init__` -- that would require the `Atlas` instance to exist before it exists. `atlas/_bootstrap.py` resolves this in two explicit steps:
+Because `PlatformOrchestrationService`'s collectors each hold a reference back to the live `Atlas` facade (to call its read-model API), presentation wiring cannot be expressed as another field of the `_AtlasServices` dependency-injection dataclass passed to `Atlas.__init__` -- that would require the `Atlas` instance to exist before it exists. `atlas_eng/_bootstrap.py` resolves this in two explicit steps:
 
 1. Construct `Atlas` from `_AtlasServices` (core engine wiring only). At this point `Atlas.get_*_read_model` is already fully functional, since read models only depend on `_AtlasServices` fields.
 2. Using that live `atlas` instance, construct the five collectors, then `PlatformOrchestrationService`, then `RendererRegistry`, and attach them with the internal `atlas._bind_presentation(...)` hook -- called exactly once, only from bootstrap.
@@ -114,11 +114,11 @@ This is still pure constructor injection at every step; the two-phase shape exis
 
 ### Import Cycle
 
-`atlas/_service.py` imports `presentation.read_models`, `presentation.views`, `presentation.orchestration`, and `presentation.renderers` at module scope (Atlas is the producer/consumer of these types). `presentation/collectors/collectors.py` and `presentation/orchestration/platform.py` therefore cannot import `Atlas` at runtime without creating a circular import. Both modules use `from __future__ import annotations` and import `Atlas` only under `TYPE_CHECKING`, from the **public** `atlas` package (not the private `atlas._service` module) -- satisfying both the no-cycle requirement and the "presentation only imports the public Atlas facade" rule.
+`atlas_eng/_service.py` imports `atlas_eng.presentation.read_models`, `atlas_eng.presentation.views`, `atlas_eng.presentation.orchestration`, and `atlas_eng.presentation.renderers` at module scope (Atlas is the producer/consumer of these types). `atlas_eng/presentation/collectors/collectors.py` and `atlas_eng/presentation/orchestration/platform.py` therefore cannot import `Atlas` at runtime without creating a circular import. Both modules use `from __future__ import annotations` and import `Atlas` only under `TYPE_CHECKING`, from the **public** `atlas` package (not the private `atlas_eng._service` module) -- satisfying both the no-cycle requirement and the "presentation only imports the public Atlas facade" rule.
 
 ## Public API
 
-`Atlas` (`atlas/_service.py`) remains the sole public platform entry point. In addition to its existing command methods, it exposes:
+`Atlas` (`atlas_eng/_service.py`) remains the sole public platform entry point. In addition to its existing command methods, it exposes:
 
 ```python
 atlas.get_project_dashboard_view(project_id) -> ProjectDashboardView

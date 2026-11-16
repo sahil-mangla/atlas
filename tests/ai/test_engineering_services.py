@@ -4,8 +4,8 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from engine.ai.context import IdentityContextStrategy
-from engine.ai.engineering_services import (
+from atlas_eng.engine.ai.context import IdentityContextStrategy
+from atlas_eng.engine.ai.engineering_services import (
     ArchitectureAIEngineeringService,
     ArchitectureProposalValidator,
     EvaluationAIEngineeringService,
@@ -16,12 +16,16 @@ from engine.ai.engineering_services import (
     ResearchProposalTransformer,
     ResearchProposalValidator,
 )
-from engine.ai.exceptions import InvalidProposalException
-from engine.ai.executor import PromptExecutor
-from engine.ai.services import AIOrchestrationService, ContextAssemblerService
-from engine.ai.unit_of_work import ProposalCommitUnitOfWork
-from engine.domain.ai import AIProposal, ContextPayload, PromptTemplateMetadata
-from engine.domain.ai_drafts import (
+from atlas_eng.engine.ai.exceptions import InvalidProposalException
+from atlas_eng.engine.ai.executor import PromptExecutor
+from atlas_eng.engine.ai.services import AIOrchestrationService, ContextAssemblerService
+from atlas_eng.engine.ai.unit_of_work import ProposalCommitUnitOfWork
+from atlas_eng.engine.domain.ai import (
+    AIProposal,
+    ContextPayload,
+    PromptTemplateMetadata,
+)
+from atlas_eng.engine.domain.ai_drafts import (
     ArchitectureComponentDraft,
     ArchitectureProposalDraft,
     EvaluationProposalDraft,
@@ -37,8 +41,8 @@ from engine.domain.ai_drafts import (
     ResearchOpportunityDraft,
     ResearchProposalDraft,
 )
-from engine.domain.enums import ProposalStatus, ProposalType
-from engine.prompt.loader import PromptLoader
+from atlas_eng.engine.domain.enums import ProposalStatus, ProposalType
+from atlas_eng.engine.prompt.loader import PromptLoader
 from tests.ai.test_adapters import MockAIProvider
 
 

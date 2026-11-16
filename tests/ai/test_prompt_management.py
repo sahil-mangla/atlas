@@ -3,15 +3,15 @@
 import pytest
 from pydantic import ValidationError
 
-from engine.domain.ai_drafts import (
+from atlas_eng.engine.domain.ai_drafts import (
     ArchitectureProposalDraft,
     EvaluationProposalDraft,
     PlanningProposalDraft,
     ResearchProposalDraft,
     SummaryDraft,
 )
-from engine.prompt.loader import PromptLoader
-from engine.prompt.templates import (
+from atlas_eng.engine.prompt.loader import PromptLoader
+from atlas_eng.engine.prompt.templates import (
     ArchitecturePromptTemplate,
     EvaluationPromptTemplate,
     PlanningPromptTemplate,

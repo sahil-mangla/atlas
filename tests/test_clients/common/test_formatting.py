@@ -2,7 +2,7 @@
 fallback guarantee -- every shared rendering primitive that defaults to a
 Unicode symbol must offer an ASCII-safe path for non-Unicode terminals."""
 
-from clients.common.formatting import render_list, render_tree, truncate
+from atlas_eng.clients.common.formatting import render_list, render_tree, truncate
 
 
 def test_render_list_default_bullet_is_unicode() -> None:

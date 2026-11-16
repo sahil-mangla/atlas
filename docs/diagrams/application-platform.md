@@ -10,12 +10,12 @@ flowchart TD
     end
 
     subgraph AtlasSDK["Application Platform Layer (Atlas SDK)"]
-        AtlasFacade["Atlas Facade (atlas/_service.py)"]
+        AtlasFacade["Atlas Facade (atlas_eng/_service.py)"]
         Commands["Commands DTOs"]
         Results["Results DTOs"]
         Exceptions["Public Exceptions"]
         Handle["Atlas.handle() (Phase 15, preferred for MCP/REST/IDE/AI)"]
-        Capabilities["Capability Layer (atlas/capabilities/)"]
+        Capabilities["Capability Layer (atlas_eng/capabilities/)"]
         Handle --> Capabilities
         AtlasFacade --> Capabilities
     end

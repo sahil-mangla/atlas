@@ -6,10 +6,10 @@ Kept so existing tests retain their historical default provider: a
 
 from pathlib import Path
 
-from atlas import Atlas
-from atlas.observability.exporter import TraceExporter
-from atlas.testing import create_test_platform as _create_test_platform
-from engine.ai.provider import AIProvider
+from atlas_eng import Atlas
+from atlas_eng.engine.ai.provider import AIProvider
+from atlas_eng.observability.exporter import TraceExporter
+from atlas_eng.testing import create_test_platform as _create_test_platform
 from tests.ai.test_adapters import MockAIProvider
 
 

@@ -2,9 +2,9 @@
 
 from uuid import uuid4
 
-from engine.domain.enums import MemoryCategory
-from engine.domain.memory import Memory, MemoryEntry
-from engine.memory.serializers import (
+from atlas_eng.engine.domain.enums import MemoryCategory
+from atlas_eng.engine.domain.memory import Memory, MemoryEntry
+from atlas_eng.engine.memory.serializers import (
     deserialize_entry,
     deserialize_memory,
     serialize_entry,

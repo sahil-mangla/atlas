@@ -1,7 +1,11 @@
 from uuid import UUID, uuid4
 
-from engine.domain.enums import FindingCategory, FindingLifecycleStatus, FindingSeverity
-from engine.domain.evaluation import (
+from atlas_eng.engine.domain.enums import (
+    FindingCategory,
+    FindingLifecycleStatus,
+    FindingSeverity,
+)
+from atlas_eng.engine.domain.evaluation import (
     Evaluation,
     EvaluationFinding,
     EvaluationSnapshot,
@@ -9,7 +13,7 @@ from engine.domain.evaluation import (
     ReadinessDecision,
     RequirementCoverage,
 )
-from engine.domain.metadata import ArtifactMetadata, ArtifactStatus
+from atlas_eng.engine.domain.metadata import ArtifactMetadata, ArtifactStatus
 
 
 def test_evaluation_finding() -> None:

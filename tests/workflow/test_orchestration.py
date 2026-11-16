@@ -4,11 +4,15 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from engine.ai.engineering_services import ProposalCommitService
-from engine.domain.ai import AIProposal, ContextPayload, PromptTemplateMetadata
-from engine.domain.ai_drafts import CommitResult, ResearchProposalDraft
-from engine.domain.ai_feedback import ProposalFeedback
-from engine.domain.enums import (
+from atlas_eng.engine.ai.engineering_services import ProposalCommitService
+from atlas_eng.engine.domain.ai import (
+    AIProposal,
+    ContextPayload,
+    PromptTemplateMetadata,
+)
+from atlas_eng.engine.domain.ai_drafts import CommitResult, ResearchProposalDraft
+from atlas_eng.engine.domain.ai_feedback import ProposalFeedback
+from atlas_eng.engine.domain.enums import (
     ApprovalStatus,
     EvaluationStatus,
     KnowledgeSourceType,
@@ -17,15 +21,15 @@ from engine.domain.enums import (
     ProposalType,
     WorkflowStage,
 )
-from engine.domain.workflow import Workflow
-from engine.workflow.exceptions import WorkflowException
-from engine.workflow.orchestration import (
+from atlas_eng.engine.domain.workflow import Workflow
+from atlas_eng.engine.workflow.exceptions import WorkflowException
+from atlas_eng.engine.workflow.orchestration import (
     StageExecutor,
     StageServiceRegistry,
     WorkflowOrchestrationService,
 )
-from engine.workflow.repository import WorkflowRepository
-from engine.workflow.services import (
+from atlas_eng.engine.workflow.repository import WorkflowRepository
+from atlas_eng.engine.workflow.services import (
     WorkflowReadinessService,
     WorkflowTransitionService,
 )

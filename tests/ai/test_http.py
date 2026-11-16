@@ -7,8 +7,8 @@ from urllib.error import HTTPError, URLError
 
 import pytest
 
-from engine.ai.adapters._http import post_json
-from engine.ai.exceptions import AIProviderException
+from atlas_eng.engine.ai.adapters._http import post_json
+from atlas_eng.engine.ai.exceptions import AIProviderException
 
 
 def _fake_response(body: dict[str, object]) -> Mock:
@@ -27,10 +27,10 @@ def test_post_json_logs_request_duration_on_success(
     request must log how long it actually took."""
     with (
         patch(
-            "engine.ai.adapters._http.urlopen",
+            "atlas_eng.engine.ai.adapters._http.urlopen",
             return_value=_fake_response({"ok": True}),
         ),
-        caplog.at_level(logging.INFO, logger="engine.ai.adapters._http"),
+        caplog.at_level(logging.INFO, logger="atlas_eng.engine.ai.adapters._http"),
     ):
         result = post_json("http://localhost:1234/v1/chat/completions", {}, {})
 
@@ -47,10 +47,10 @@ def test_post_json_logs_request_duration_on_failure(
     timeout), since that is exactly the case a user is trying to diagnose."""
     with (
         patch(
-            "engine.ai.adapters._http.urlopen",
+            "atlas_eng.engine.ai.adapters._http.urlopen",
             side_effect=TimeoutError("timed out"),
         ),
-        caplog.at_level(logging.INFO, logger="engine.ai.adapters._http"),
+        caplog.at_level(logging.INFO, logger="atlas_eng.engine.ai.adapters._http"),
         pytest.raises(AIProviderException),
     ):
         post_json("http://localhost:1234/v1/chat/completions", {}, {})
@@ -64,7 +64,7 @@ def test_post_json_bare_timeout_gives_actionable_message() -> None:
     the fix (raise ATLAS_AI_TIMEOUT_SECONDS), not a generic transport error."""
     with (
         patch(
-            "engine.ai.adapters._http.urlopen",
+            "atlas_eng.engine.ai.adapters._http.urlopen",
             side_effect=TimeoutError("timed out"),
         ),
         pytest.raises(AIProviderException) as exc_info,
@@ -81,7 +81,7 @@ def test_post_json_wrapped_timeout_gives_actionable_message() -> None:
     must be diagnosed identically to a bare TimeoutError."""
     with (
         patch(
-            "engine.ai.adapters._http.urlopen",
+            "atlas_eng.engine.ai.adapters._http.urlopen",
             side_effect=URLError(TimeoutError("timed out")),
         ),
         pytest.raises(AIProviderException) as exc_info,
@@ -102,7 +102,7 @@ def test_post_json_401_gives_api_key_guidance() -> None:
         fp=None,
     )
     with (
-        patch("engine.ai.adapters._http.urlopen", side_effect=error),
+        patch("atlas_eng.engine.ai.adapters._http.urlopen", side_effect=error),
         pytest.raises(AIProviderException) as exc_info,
     ):
         post_json("https://api.example.com", {}, {})
@@ -121,7 +121,7 @@ def test_post_json_403_gives_api_key_guidance() -> None:
         fp=None,
     )
     with (
-        patch("engine.ai.adapters._http.urlopen", side_effect=error),
+        patch("atlas_eng.engine.ai.adapters._http.urlopen", side_effect=error),
         pytest.raises(AIProviderException, match="API key"),
     ):
         post_json("https://api.example.com", {}, {})
@@ -138,7 +138,7 @@ def test_post_json_500_is_not_treated_as_auth_failure() -> None:
         fp=None,
     )
     with (
-        patch("engine.ai.adapters._http.urlopen", side_effect=error),
+        patch("atlas_eng.engine.ai.adapters._http.urlopen", side_effect=error),
         pytest.raises(AIProviderException) as exc_info,
     ):
         post_json("https://api.example.com", {}, {})

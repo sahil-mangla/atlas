@@ -6,7 +6,7 @@ and no network access. This page describes the layers and how to run them.
 ## The SCRIPTED protocol
 
 `ATLAS_AI_PROTOCOL=SCRIPTED` selects a deterministic, offline provider
-(`engine/ai/adapters/scripted.py`). It returns a fixed, schema-valid draft for
+(`atlas_eng/engine/ai/adapters/scripted.py`). It returns a fixed, schema-valid draft for
 every stage, swaps the paper sources for a labelled fixture source, and
 provides a hashed bag-of-words embedder.
 
@@ -60,11 +60,11 @@ call is caught even if the application swallows the error.
 
 ## Writing tests against the platform
 
-`atlas.testing.create_test_platform` builds a real `Atlas` on a temporary
+`atlas_eng.testing.create_test_platform` builds a real `Atlas` on a temporary
 directory with the scripted provider:
 
 ```python
-from atlas.testing import create_test_platform
+from atlas_eng.testing import create_test_platform
 
 platform = create_test_platform(tmp_path)
 ```

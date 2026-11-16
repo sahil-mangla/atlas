@@ -3,14 +3,14 @@ from uuid import uuid4
 
 import pytest
 
-from engine.domain.enums import ProjectStatus, WorkflowStage
-from engine.project.exceptions import (
+from atlas_eng.engine.domain.enums import ProjectStatus, WorkflowStage
+from atlas_eng.engine.project.exceptions import (
     ProjectException,
     ProjectLifecycleException,
     ProjectNotFoundException,
 )
-from engine.project.fs_repository import FilesystemProjectRepository
-from engine.project.services import (
+from atlas_eng.engine.project.fs_repository import FilesystemProjectRepository
+from atlas_eng.engine.project.services import (
     ProjectCreationService,
     ProjectLifecycleService,
     ProjectLoadingService,

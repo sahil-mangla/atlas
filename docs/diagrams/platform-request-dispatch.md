@@ -17,7 +17,7 @@ flowchart TD
 
     Handle -->|"_dispatch lookup by type(command)"| Atlas["Atlas Facade"]
 
-    subgraph CapabilityLayer["Capability Layer (atlas/capabilities/)"]
+    subgraph CapabilityLayer["Capability Layer (atlas_eng/capabilities/)"]
         Project[ProjectCapability]:::capability
         Workflow[WorkflowCapability]:::capability
         WorkflowExec[WorkflowExecutionCapability]:::capability

@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from engine.domain.architecture import (
+from atlas_eng.engine.domain.architecture import (
     ArchitecturalDecision,
     Architecture,
     ArchitectureComponent,
@@ -14,8 +14,8 @@ from engine.domain.architecture import (
     QualityAttribute,
     Risk,
 )
-from engine.domain.enums import ArchitectureStatus
-from engine.domain.metadata import ArtifactMetadata
+from atlas_eng.engine.domain.enums import ArchitectureStatus
+from atlas_eng.engine.domain.metadata import ArtifactMetadata
 
 
 def test_interface_contract() -> None:

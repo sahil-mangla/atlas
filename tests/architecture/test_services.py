@@ -4,12 +4,12 @@ from uuid import uuid4
 
 import pytest
 
-from engine.architecture.exceptions import (
+from atlas_eng.engine.architecture.exceptions import (
     ArchitectureNotFoundException,
     InvalidArchitectureOperationException,
 )
-from engine.architecture.fs_repository import FilesystemArchitectureRepository
-from engine.architecture.services import (
+from atlas_eng.engine.architecture.fs_repository import FilesystemArchitectureRepository
+from atlas_eng.engine.architecture.services import (
     ArchitecturalDecisionService,
     ArchitectureCompositionService,
     ArchitectureInitializationService,
@@ -18,9 +18,9 @@ from engine.architecture.services import (
     InterfaceContractService,
     RiskAnalysisService,
 )
-from engine.domain.enums import ArchitectureStatus
-from engine.domain.metadata import ArtifactMetadata
-from engine.domain.planning import (
+from atlas_eng.engine.domain.enums import ArchitectureStatus
+from atlas_eng.engine.domain.metadata import ArtifactMetadata
+from atlas_eng.engine.domain.planning import (
     EngineeringDeliverable,
     Planning,
     PlanningEpic,
@@ -30,14 +30,14 @@ from engine.domain.planning import (
     PlanningTask,
     ScopeDefinition,
 )
-from engine.domain.project import Project
-from engine.domain.research import (
+from atlas_eng.engine.domain.project import Project
+from atlas_eng.engine.domain.research import (
     Assumption as ResearchAssumption,
 )
-from engine.domain.research import (
+from atlas_eng.engine.domain.research import (
     Constraint as ResearchConstraint,
 )
-from engine.domain.research import (
+from atlas_eng.engine.domain.research import (
     Evidence,
     ProblemDefinition,
     Research,
@@ -45,9 +45,9 @@ from engine.domain.research import (
     ResearchSnapshot,
     ResearchSummary,
 )
-from engine.planning.fs_repository import FilesystemPlanningRepository
-from engine.project.fs_repository import FilesystemProjectRepository
-from engine.research.fs_repository import FilesystemResearchRepository
+from atlas_eng.engine.planning.fs_repository import FilesystemPlanningRepository
+from atlas_eng.engine.project.fs_repository import FilesystemProjectRepository
+from atlas_eng.engine.research.fs_repository import FilesystemResearchRepository
 
 
 @pytest.fixture

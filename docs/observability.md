@@ -18,8 +18,8 @@ Disable it with:
 export ATLAS_INSTRUMENTATION_ENABLED=false
 ```
 
-The setting is read by `engine.config.Settings` and resolved once by
-`atlas/_bootstrap.py`. Production bootstrap wires an enabled instance to
+The setting is read by `atlas_eng.engine.config.Settings` and resolved once by
+`atlas_eng/_bootstrap.py`. Production bootstrap wires an enabled instance to
 `JsonlFileExporter`; direct `Atlas(...)` construction defaults to
 `NullExporter`, which avoids filesystem side effects in tests and SDK usage.
 
@@ -40,9 +40,9 @@ with:
 | `outcome` | `success` or `error` |
 | `error_code` | Stable platform error code for returned errors, otherwise `null` |
 
-AI usage is captured at the provider boundary in `engine.ai.executor` and
+AI usage is captured at the provider boundary in `atlas_eng.engine.ai.executor` and
 passed back to the request boundary through the `ContextVar` in
-`shared.observability.usage_context`. This preserves the one-way dependency
+`atlas_eng.shared.observability.usage_context`. This preserves the one-way dependency
 direction: `engine` does not import `atlas`.
 
 Returned `ResponseEnvelope` errors are traced with their platform error code.

@@ -1,6 +1,6 @@
 """Unit tests for the memory exceptions."""
 
-from engine.memory.exceptions import (
+from atlas_eng.engine.memory.exceptions import (
     InvalidMemoryException,
     MemoryException,
     MemoryNotFoundException,

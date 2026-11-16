@@ -3,11 +3,14 @@ import time
 import httpx
 import pytest
 
-import engine.research.sources.semantic_scholar as semantic_scholar_module
-from engine.research.sources.arxiv import ArxivSource
-from engine.research.sources.base import RateLimiter
-from engine.research.sources.openalex import OpenAlexSource, _reconstruct_abstract
-from engine.research.sources.semantic_scholar import SemanticScholarSource
+import atlas_eng.engine.research.sources.semantic_scholar as semantic_scholar_module
+from atlas_eng.engine.research.sources.arxiv import ArxivSource
+from atlas_eng.engine.research.sources.base import RateLimiter
+from atlas_eng.engine.research.sources.openalex import (
+    OpenAlexSource,
+    _reconstruct_abstract,
+)
+from atlas_eng.engine.research.sources.semantic_scholar import SemanticScholarSource
 
 _ARXIV_ATOM_RESPONSE = """<?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
@@ -170,7 +173,8 @@ def test_semantic_scholar_source_returns_empty_on_rate_limit(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "engine.research.sources.semantic_scholar.time.sleep", lambda _seconds: None
+        "atlas_eng.engine.research.sources.semantic_scholar.time.sleep",
+        lambda _seconds: None,
     )
     transport = httpx.MockTransport(lambda _request: httpx.Response(429))
     source = SemanticScholarSource(client=_client_for(transport))
@@ -185,7 +189,8 @@ def test_semantic_scholar_source_retries_after_rate_limit_then_succeeds(
     """A transient 429 (often shared across an entire egress IP, not caused
     by this caller) must be retried rather than treated as a hard failure."""
     monkeypatch.setattr(
-        "engine.research.sources.semantic_scholar.time.sleep", lambda _seconds: None
+        "atlas_eng.engine.research.sources.semantic_scholar.time.sleep",
+        lambda _seconds: None,
     )
     responses = iter(
         [
@@ -210,7 +215,8 @@ def test_semantic_scholar_source_gives_up_after_max_retries(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "engine.research.sources.semantic_scholar.time.sleep", lambda _seconds: None
+        "atlas_eng.engine.research.sources.semantic_scholar.time.sleep",
+        lambda _seconds: None,
     )
     call_count = 0
 

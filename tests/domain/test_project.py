@@ -7,8 +7,8 @@ and serialization round-trips.
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from engine.domain.enums import ProjectStatus, WorkflowStage
-from engine.domain.project import Project
+from atlas_eng.engine.domain.enums import ProjectStatus, WorkflowStage
+from atlas_eng.engine.domain.project import Project
 
 
 def test_project_defaults() -> None:

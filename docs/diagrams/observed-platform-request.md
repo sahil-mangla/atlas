@@ -10,7 +10,7 @@ flowchart LR
     Capture --> Dispatch[Dispatch command to capability]
     Dispatch --> Engine[Engine services]
     Engine --> Provider[AI provider, when needed]
-    Provider -. token usage .-> Shared[shared.observability.usage_context]
+    Provider -. token usage .-> Shared[atlas_eng.shared.observability.usage_context]
     Shared -. aggregated usage .-> Capture
     Dispatch --> Response[ResponseEnvelope or exception]
     Response --> Record[TraceRecord]

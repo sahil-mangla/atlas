@@ -1,7 +1,7 @@
 # Presentation Layer Extension Guide (Phase 14)
 
 ## Purpose
-Step-by-step guide for adding a new View kind (a new read-only presentation surface) to the `presentation/` package without violating the locked Phase 14 architecture.
+Step-by-step guide for adding a new View kind (a new read-only presentation surface) to the `atlas_eng/presentation/` package without violating the locked Phase 14 architecture.
 
 ## Responsibilities
 - Describe the integration process for a new Read Model, Collector, View, and its wiring through `PlatformOrchestrationService` and the Atlas facade.
@@ -15,7 +15,7 @@ Step-by-step guide for adding a new View kind (a new read-only presentation surf
 ## Adding a New View (e.g. "Evaluation Summary")
 
 ### 1. Read Model
-Add the new immutable DTO to `presentation/read_models/models.py`:
+Add the new immutable DTO to `atlas_eng/presentation/read_models/models.py`:
 
 ```python
 class EvaluationReadModel(ReadModel):
@@ -24,19 +24,19 @@ class EvaluationReadModel(ReadModel):
     ...
 ```
 
-Export it from `presentation/read_models/__init__.py`.
+Export it from `atlas_eng/presentation/read_models/__init__.py`.
 
 ### 2. Atlas Read-Model Method
-Add `get_evaluation_read_model(self, project_id: UUID) -> EvaluationReadModel` to `Atlas` in `atlas/_service.py`. It must:
-- Source data only from an existing Phase 1-13 repository/service already held by `Atlas` (add the repository to `_AtlasServices` as an `Optional[...] = None` field if it isn't already there, mirroring `research_repo`/`planning_repo`/etc., and wire it in `atlas/_bootstrap.py`'s `_AtlasServices(...)` call).
+Add `get_evaluation_read_model(self, project_id: UUID) -> EvaluationReadModel` to `Atlas` in `atlas_eng/_service.py`. It must:
+- Source data only from an existing Phase 1-13 repository/service already held by `Atlas` (add the repository to `_AtlasServices` as an `Optional[...] = None` field if it isn't already there, mirroring `research_repo`/`planning_repo`/etc., and wire it in `atlas_eng/_bootstrap.py`'s `_AtlasServices(...)` call).
 - Return only the immutable DTO -- never the engine domain entity or the repository itself.
-- Map any engine exception the same way existing methods do (see `_map_project_exception` / `_map_workflow_exception` for the pattern), or raise a suitable `atlas.exceptions.ApplicationError` subclass directly.
+- Map any engine exception the same way existing methods do (see `_map_project_exception` / `_map_workflow_exception` for the pattern), or raise a suitable `atlas_eng.exceptions.ApplicationError` subclass directly.
 
 ### 3. Component reuse
-Prefer the existing `StatusBadge`, `Metric`, `Section` components (`presentation/components/models.py`) before adding a new one. Only add a new Component if none of the three fit, and keep it a frozen leaf with no rendering logic, no Atlas dependency, and no business logic.
+Prefer the existing `StatusBadge`, `Metric`, `Section` components (`atlas_eng/presentation/components/models.py`) before adding a new one. Only add a new Component if none of the three fit, and keep it a frozen leaf with no rendering logic, no Atlas dependency, and no business logic.
 
 ### 4. View
-Add the frozen View to `presentation/views/models.py`:
+Add the frozen View to `atlas_eng/presentation/views/models.py`:
 
 ```python
 class EvaluationSummaryView(View):
@@ -45,10 +45,10 @@ class EvaluationSummaryView(View):
     metrics: tuple[Metric, ...] = ()
 ```
 
-Add it to the `PresentationView` discriminated union and export it from `presentation/views/__init__.py`.
+Add it to the `PresentationView` discriminated union and export it from `atlas_eng/presentation/views/__init__.py`.
 
 ### 5. Collector
-Add a `EvaluationSummaryCollector` to `presentation/collectors/collectors.py`:
+Add a `EvaluationSummaryCollector` to `atlas_eng/presentation/collectors/collectors.py`:
 
 ```python
 class EvaluationSummaryCollector:
@@ -63,16 +63,16 @@ class EvaluationSummaryCollector:
 It must call only `get_*_read_model` methods on the injected `Atlas` -- never a repository, never another collector, never an engine service.
 
 ### 6. PlatformOrchestrationService
-Add a new constructor parameter and a `get_evaluation_summary_view` method to `presentation/orchestration/platform.py`. Do **not** construct the collector inside `PlatformOrchestrationService` -- it is received via constructor injection, like every other collector.
+Add a new constructor parameter and a `get_evaluation_summary_view` method to `atlas_eng/presentation/orchestration/platform.py`. Do **not** construct the collector inside `PlatformOrchestrationService` -- it is received via constructor injection, like every other collector.
 
 ### 7. Composition Root
-In `atlas/_bootstrap.py`, construct the new collector and pass it into `PlatformOrchestrationService(...)` alongside the existing five, in the presentation-wiring block that runs after `Atlas` is constructed (see "Composition Root" in [Presentation Layer Architecture](../architecture/presentation-layer.md) for why this happens in two phases). Mirror the same addition in `tests/support/test_bootstrap.py::create_test_platform`, which must stay in lockstep with the production bootstrap.
+In `atlas_eng/_bootstrap.py`, construct the new collector and pass it into `PlatformOrchestrationService(...)` alongside the existing five, in the presentation-wiring block that runs after `Atlas` is constructed (see "Composition Root" in [Presentation Layer Architecture](../architecture/presentation-layer.md) for why this happens in two phases). Mirror the same addition in `tests/support/test_bootstrap.py::create_test_platform`, which must stay in lockstep with the production bootstrap.
 
 ### 8. Atlas Facade Method
 Add `get_evaluation_summary_view(self, project_id: UUID) -> EvaluationSummaryView` to `Atlas`, delegating to `self._require_presentation().get_evaluation_summary_view(project_id)`.
 
 ### 9. Tests
-- **Boundary**: no new test needed -- `tests/architecture/test_presentation_boundaries.py` walks every file under `presentation/` automatically.
+- **Boundary**: no new test needed -- `tests/architecture/test_presentation_boundaries.py` walks every file under `atlas_eng/presentation/` automatically.
 - **Component/View**: add immutability tests in `tests/presentation/test_components.py` / `test_views.py` if a new Component was added.
 - **Collector**: add a `FakeAtlas.get_evaluation_read_model` method and collector tests in `tests/presentation/test_collectors.py`, following the existing pattern -- the fake must expose *only* the read-model API, proving the collector depends on nothing else.
 - **Golden output**: add the new view to the `VIEWS` dict and golden strings in `tests/presentation/test_golden_output.py`.
@@ -84,16 +84,16 @@ Add `get_evaluation_summary_view(self, project_id: UUID) -> EvaluationSummaryVie
 
 Only add a new renderer if a genuinely new output format is required (e.g. HTML). Do not add one speculatively.
 
-1. Implement a class in `presentation/renderers/base.py` (or a new module under `presentation/renderers/`) satisfying the `Renderer` protocol in `presentation/renderers/registry.py`: a `name: str` attribute and `render(view, contract) -> RenderResult`.
+1. Implement a class in `atlas_eng/presentation/renderers/base.py` (or a new module under `atlas_eng/presentation/renderers/`) satisfying the `Renderer` protocol in `atlas_eng/presentation/renderers/registry.py`: a `name: str` attribute and `render(view, contract) -> RenderResult`.
 2. It must consume only the immutable view and `RenderContract`, perform formatting only, and never call Atlas or engine code.
-3. Register it in the `RendererRegistry(...)` construction inside `atlas/_bootstrap.py` (and `tests/support/test_bootstrap.py`).
+3. Register it in the `RendererRegistry(...)` construction inside `atlas_eng/_bootstrap.py` (and `tests/support/test_bootstrap.py`).
 4. Add deterministic-output and golden-output tests in `tests/presentation/test_renderers.py` and `test_golden_output.py`.
 
 ---
 
 ## Common Mistakes to Avoid
 
-- **Importing `atlas._service` instead of `atlas`.** Presentation code must only reference the public `atlas` package (and only under `TYPE_CHECKING`, to avoid the import cycle described in [Presentation Layer Architecture](../architecture/presentation-layer.md)).
+- **Importing `atlas_eng._service` instead of `atlas`.** Presentation code must only reference the public `atlas` package (and only under `TYPE_CHECKING`, to avoid the import cycle described in [Presentation Layer Architecture](../architecture/presentation-layer.md)).
 - **Constructing a collector inside `PlatformOrchestrationService`.** Collectors are always constructor-injected by the composition root.
 - **Calling a repository, engine service, or another collector from inside a collector.** A collector's only collaborator is the injected `Atlas` instance's `get_*_read_model` API.
 - **Putting business logic in a renderer.** If a renderer needs to compute something beyond formatting (e.g. "is this healthy"), that computation belongs in the collector, expressed as a field on the View (e.g. `DiagnosticsView.healthy`).

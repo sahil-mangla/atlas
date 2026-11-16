@@ -1,6 +1,10 @@
 """Tests for atlas.contracts.version -- API version compatibility policy."""
 
-from atlas.contracts.version import PLATFORM_API_VERSION, SCHEMA_VERSION, is_compatible
+from atlas_eng.contracts.version import (
+    PLATFORM_API_VERSION,
+    SCHEMA_VERSION,
+    is_compatible,
+)
 
 
 def test_platform_api_version_is_semver_string() -> None:

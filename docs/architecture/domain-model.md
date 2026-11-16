@@ -16,7 +16,7 @@ This document defines the core domain model structures of the ATLAS platform. It
 
 ## The Project Aggregate Root
 
-The `Project` model (`engine/domain/project.py`) is the root boundary of the system context. It governs the complete engineering project lifecycle:
+The `Project` model (`atlas_eng/engine/domain/project.py`) is the root boundary of the system context. It governs the complete engineering project lifecycle:
 
 - **Lightweight Reference Pattern**: To prevent circular coupling and avoid loading large nested structures, the `Project` aggregate does not embed sub-aggregates directly. Instead, it holds reference identifiers (UUIDs) for:
   - `workspace_id`
@@ -58,7 +58,7 @@ To track modifications and maintain history, ATLAS uses standard versioned snaps
 Each major aggregate supports snapshot freezes (e.g., `ResearchSnapshot`, `PlanningSnapshot`, `ArchitectureSnapshot`, `EvaluationSnapshot`). A snapshot represents a complete, immutable freeze of the aggregate's domain state.
 
 ### 2. Artifact Metadata Composition
-Rather than using deep inheritance, every canonical engineering artifact and snapshot composes `ArtifactMetadata` (`engine/domain/metadata.py`) to handle provenance:
+Rather than using deep inheritance, every canonical engineering artifact and snapshot composes `ArtifactMetadata` (`atlas_eng/engine/domain/metadata.py`) to handle provenance:
 - `id`: Unique UUID.
 - `version`: Monotonically increasing version counter.
 - `created_at`: UTCDatetime stamp.

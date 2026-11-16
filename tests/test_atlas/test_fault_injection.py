@@ -9,16 +9,16 @@ from pathlib import Path
 
 import pytest
 
-from atlas import Atlas
-from atlas.commands import (
+from atlas_eng import Atlas
+from atlas_eng.commands import (
     ApproveProposalCommand,
     CreateProjectCommand,
     ExecuteStageCommand,
     GetWorkflowStatusCommand,
     TransitionStageCommand,
 )
-from atlas.testing import create_test_platform
-from atlas.types import WorkflowStage
+from atlas_eng.testing import create_test_platform
+from atlas_eng.types import WorkflowStage
 
 
 def _snapshot(root: Path) -> dict[str, str]:
