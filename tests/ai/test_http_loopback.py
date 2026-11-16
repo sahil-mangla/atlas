@@ -243,15 +243,6 @@ def test_anthropic_generates_over_http_and_skips_non_text_blocks(
     assert server.last_payload["max_tokens"] > 0
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AIProviderException,
-    reason=(
-        "Known bug: the Anthropic adapter declares structured_output=False, and "
-        "every stage template requests a schema, so the executor rejects every "
-        "stage before any request is sent. ANTHROPIC cannot run the pipeline."
-    ),
-)
 def test_anthropic_can_run_a_stage(server: FakeProviderServer) -> None:
     provider = AnthropicAIProvider(
         ProviderConfig(
@@ -263,6 +254,36 @@ def test_anthropic_can_run_a_stage(server: FakeProviderServer) -> None:
     )
 
     assert _run_planning_stage(provider).scope_statement
+    output_format = server.last_payload["output_config"]["format"]
+    assert output_format["type"] == "json_schema"
+    assert _objects_missing_closed_properties(output_format["schema"]) == []
+
+
+def _objects_missing_closed_properties(schema: Any, path: str = "$") -> list[str]:
+    """Paths of object schemas that do not set ``additionalProperties: false``.
+
+    Anthropic rejects the whole request if any object, however deeply nested,
+    leaves it out.
+    """
+    if isinstance(schema, list):
+        return [
+            missing
+            for index, item in enumerate(schema)
+            for missing in _objects_missing_closed_properties(item, f"{path}[{index}]")
+        ]
+    if not isinstance(schema, dict):
+        return []
+    missing = [
+        found
+        for key, value in schema.items()
+        for found in _objects_missing_closed_properties(value, f"{path}.{key}")
+    ]
+    if (
+        schema.get("type") == "object"
+        and schema.get("additionalProperties") is not False
+    ):
+        missing.append(path)
+    return missing
 
 
 def test_openai_compatible_embeddings_are_reordered_by_index(

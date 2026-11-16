@@ -1,5 +1,6 @@
 import json
 import shutil
+import sys
 from pathlib import Path
 from uuid import uuid4
 
@@ -143,6 +144,10 @@ def test_fs_repository_startup_skip_corrupt(tmp_path: Path) -> None:
     assert len(repo.discover()) == 0
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="chmod cannot make a file unreadable on Windows",
+)
 def test_fs_repository_load_file_os_error(tmp_path: Path) -> None:
     repo = FilesystemProjectRepository(tmp_path)
     project = Project(name="OS Error Load", description="d", objective="o")

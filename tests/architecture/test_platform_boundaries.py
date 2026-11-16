@@ -23,7 +23,7 @@ CLIENTS_ROOT = REPO_ROOT / "clients"
 
 
 def _imported_modules(path: Path) -> set[str]:
-    tree = ast.parse(path.read_text(), filename=str(path))
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     modules: set[str] = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):

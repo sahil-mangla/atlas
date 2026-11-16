@@ -53,6 +53,10 @@ _PRESENTATION_FORMATS = ("cli", "markdown", "json")
 _KNOWLEDGE_LIST_FORMATS = ("cli", "json")
 
 
+_HELP_FLAGS = frozenset({"--help", "-h"})
+_VERSION_FLAGS = frozenset({"--version", "-V"})
+
+
 class CLIParseError(ValueError):
     """Raised when argv cannot be translated to a valid Command DTO."""
 
@@ -92,6 +96,13 @@ class CommandParser:
         """
         if not argv:
             raise CLIParseError("No command given. Run 'atlas help' for usage.")
+
+        # Conventional flags, accepted at any position so that
+        # ``atlas project --help`` works as well as ``atlas --help``.
+        if any(token in _HELP_FLAGS for token in argv):
+            return self._parse_help([])
+        if argv[0] in _VERSION_FLAGS:
+            return self._parse_version([])
 
         group = argv[0]
         dispatch: dict[str, Callable[[list[str]], Command]] = {

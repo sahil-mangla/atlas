@@ -76,7 +76,7 @@ def _unimplemented_capability_flags() -> dict[str, bool]:
     [
         ("GEMINI", GeminiAIProvider, True),
         ("OPENAI_COMPATIBLE", OpenAICompatibleAIProvider, True),
-        ("ANTHROPIC", AnthropicAIProvider, False),
+        ("ANTHROPIC", AnthropicAIProvider, True),
         ("OLLAMA", OllamaAIProvider, True),
     ],
 )

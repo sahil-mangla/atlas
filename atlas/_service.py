@@ -178,6 +178,7 @@ class Atlas:
             workflow_repo=services.workflow_repo,
             orchestration_service=services.orchestration_service,
             proposal_repo=services.proposal_repo,
+            project_repo=services.project_loading_service.repository,
         )
         self._knowledge = KnowledgeCapability(
             orchestration_service=services.orchestration_service,

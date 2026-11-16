@@ -124,7 +124,7 @@ def test_presentation_export_writes_file(
     out, _ = capsys.readouterr()
     assert str(output_path) in out
     assert output_path.exists()
-    written = json.loads(output_path.read_text())
+    written = json.loads(output_path.read_text(encoding="utf-8"))
     assert written["kind"] == "project_dashboard"
 
 

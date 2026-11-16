@@ -10,6 +10,49 @@ from engine.ai.exceptions import AIProviderException
 from engine.ai.provider import AIProvider
 from engine.domain.ai import AIRequest, AIResponse, ProviderCapabilities
 
+# Non-streaming requests must stay under HTTP timeouts, but a stage draft is
+# long structured JSON: too small a cap truncates it mid-object.
+_DEFAULT_MAX_TOKENS = 16000
+
+# JSON-schema keywords Anthropic's structured outputs reject. The draft is
+# validated against the full pydantic model afterwards, so dropping them from
+# the wire schema loses no checking.
+_UNSUPPORTED_SCHEMA_KEYWORDS = frozenset(
+    {
+        "minimum",
+        "maximum",
+        "exclusiveMinimum",
+        "exclusiveMaximum",
+        "multipleOf",
+        "minLength",
+        "maxLength",
+        "pattern",
+        "minItems",
+        "maxItems",
+        "uniqueItems",
+    }
+)
+
+
+def to_structured_output_schema(schema: Any) -> Any:
+    """Adapt a pydantic JSON schema to Anthropic's structured-output subset.
+
+    Every object must set ``additionalProperties: false``, and numeric,
+    string and array constraints are not accepted.
+    """
+    if isinstance(schema, list):
+        return [to_structured_output_schema(item) for item in schema]
+    if not isinstance(schema, dict):
+        return schema
+    adapted = {
+        key: to_structured_output_schema(value)
+        for key, value in schema.items()
+        if key not in _UNSUPPORTED_SCHEMA_KEYWORDS
+    }
+    if adapted.get("type") == "object":
+        adapted["additionalProperties"] = False
+    return adapted
+
 
 class AnthropicAIProvider(AIProvider):
     """Execute standardized ATLAS requests via Anthropic Messages."""
@@ -31,8 +74,15 @@ class AnthropicAIProvider(AIProvider):
             "model": self._config.model,
             "system": request.prompt.system_prompt,
             "messages": [{"role": "user", "content": request.prompt.user_prompt}],
-            "max_tokens": request.parameters.max_output_tokens or 4096,
+            "max_tokens": request.parameters.max_output_tokens or _DEFAULT_MAX_TOKENS,
         }
+        if request.response_schema is not None:
+            payload["output_config"] = {
+                "format": {
+                    "type": "json_schema",
+                    "schema": to_structured_output_schema(request.response_schema),
+                }
+            }
         payload.update(
             {
                 key: value
@@ -85,7 +135,7 @@ class AnthropicAIProvider(AIProvider):
 
     def capabilities(self) -> ProviderCapabilities:
         return ProviderCapabilities(
-            structured_output=False,
+            structured_output=True,
             streaming_support=False,
             tool_calling=False,
             image_input=False,

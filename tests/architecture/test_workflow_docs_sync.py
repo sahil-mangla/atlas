@@ -29,7 +29,7 @@ def _stage_title(stage: WorkflowStage) -> str:
 
 
 def test_pipeline_diagram_has_an_edge_for_every_valid_transition() -> None:
-    content = _PIPELINE_DIAGRAM.read_text()
+    content = _PIPELINE_DIAGRAM.read_text(encoding="utf-8")
     for source, targets in WorkflowTransitionService.VALID_TRANSITIONS.items():
         for target in targets:
             edge = f"{_stage_title(source)} --> {_stage_title(target)}"
@@ -40,7 +40,7 @@ def test_pipeline_diagram_has_an_edge_for_every_valid_transition() -> None:
 
 
 def test_engineering_workflow_doc_lists_every_stage() -> None:
-    content = _ENGINEERING_WORKFLOW_DOC.read_text()
+    content = _ENGINEERING_WORKFLOW_DOC.read_text(encoding="utf-8")
     for stage in WorkflowStage:
         title = stage.value.replace("_", " ").title()
         assert title in content, (
@@ -50,7 +50,7 @@ def test_engineering_workflow_doc_lists_every_stage() -> None:
 
 
 def test_workflow_stages_doc_lists_every_stage() -> None:
-    content = _WORKFLOW_STAGES_DOC.read_text()
+    content = _WORKFLOW_STAGES_DOC.read_text(encoding="utf-8")
     for stage in WorkflowStage:
         assert stage.value.upper() in content, (
             f"WorkflowStage.{stage.name} is not mentioned in "

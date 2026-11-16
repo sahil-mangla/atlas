@@ -1,4 +1,4 @@
-"""Fault injection through the public SDK: a disk failure mid-commit.
+"""Fault injection through the public SDK: a disk failure mid-approval.
 
 Approving a proposal writes several files. If the disk fails partway, the
 project must be left exactly as it was -- no half-written aggregate, no stray
@@ -14,6 +14,7 @@ from atlas.commands import (
     ApproveProposalCommand,
     CreateProjectCommand,
     ExecuteStageCommand,
+    GetWorkflowStatusCommand,
     TransitionStageCommand,
 )
 from atlas.testing import create_test_platform
@@ -33,32 +34,17 @@ def platform(tmp_path: Path) -> Atlas:
     return create_test_platform(tmp_path, instrumentation_enabled=False)
 
 
-# Approving a research proposal performs ten file replacements. The first
-# four write the research aggregate and are covered by the commit's rollback.
-_ROLLED_BACK_WRITES = range(1, 5)
-# The rest (workflow, knowledge, project, proposal record) happen after the
-# snapshot is committed and are not rolled back. Measured behaviour today:
-# the project is left partly updated and the approval cannot be retried; a
-# failed workflow write (8) is even reported as success, and a failed
-# proposal-record write (10) escapes as a raw OSError.
-_UNPROTECTED_WRITES = range(5, 11)
-_KNOWN_BUG = pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Known bug: approval is only atomic for the stage aggregate. A write "
-        "failure after the snapshot commit leaves partial state that a retry "
-        "cannot recover."
-    ),
-)
+# Approving a research proposal performs twelve file replacements: the
+# research aggregate (1-4), workflow (5), knowledge (6-7), the stage
+# transition (8), the project record (9) and the proposal record (10-12).
+_WRITES_DURING_APPROVAL = range(1, 13)
+# A failed stage-transition write is the one case that is not rolled back: the
+# proposal is committed and the result reports the transition as blocked, so
+# the user advances the stage by hand once the disk recovers.
+_TRANSITION_WRITE = 8
 
 
-@pytest.mark.parametrize(
-    "fail_on_write",
-    [
-        *_ROLLED_BACK_WRITES,
-        *(pytest.param(n, marks=_KNOWN_BUG) for n in _UNPROTECTED_WRITES),
-    ],
-)
+@pytest.mark.parametrize("fail_on_write", _WRITES_DURING_APPROVAL)
 def test_disk_failure_during_approval_leaves_project_untouched_and_retryable(
     platform: Atlas,
     tmp_path: Path,
@@ -92,10 +78,19 @@ def test_disk_failure_during_approval_leaves_project_untouched_and_retryable(
         except Exception:
             result = None
     assert writes >= fail_on_write, "the fault was never reached"
-    assert result is None or not result.success
 
-    assert not list(tmp_path.rglob("*.tmp")), "temp files left behind"
-    assert _snapshot(tmp_path) == before
+    if fail_on_write == _TRANSITION_WRITE:
+        assert result is not None
+        assert result.success
+        assert result.transition_blocked
+        platform.transition_stage(TransitionStageCommand(project_id=project.id))
+    else:
+        assert result is None or not result.success
+        assert not list(tmp_path.rglob("*.tmp")), "temp files left behind"
+        assert _snapshot(tmp_path) == before
+        assert platform.approve_proposal(approve).success
 
-    retried = platform.approve_proposal(approve)
-    assert retried.success
+    status = platform.get_workflow_status(
+        GetWorkflowStatusCommand(project_id=project.id)
+    )
+    assert status.current_stage == WorkflowStage.PLANNING

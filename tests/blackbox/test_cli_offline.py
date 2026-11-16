@@ -211,6 +211,52 @@ def test_corrupted_project_file_is_a_clean_error(
     assert "Traceback" not in failed.output
 
 
-@pytest.mark.xfail(strict=True, reason="Plan 2: --help is not a recognised flag yet")
-def test_help_flag_is_supported(cli: Cli) -> None:
-    assert cli("--help").returncode == 0
+@pytest.mark.parametrize(
+    "argv", [("--help",), ("-h",), ("help",), ("project", "--help")]
+)
+def test_help_is_available_in_every_conventional_form(
+    cli: Cli, argv: tuple[str, ...]
+) -> None:
+    result = cli.ok(*argv)
+
+    assert "Usage:" in result.stdout
+    assert result.stderr == ""
+
+
+@pytest.mark.parametrize("flag", ["--version", "-V", "version"])
+def test_version_flags(cli: Cli, flag: str) -> None:
+    assert cli.ok(flag).stdout.strip().startswith("ATLAS")
+
+
+def test_approved_record_says_approved(cli: Cli, project: Callable[[], str]) -> None:
+    project_id = project()
+    cli.ok("workflow", "transition", "--project-id", project_id, "--reason", "go")
+    _approve_stage(cli, project_id, "research")
+
+    (record,) = cli.cwd.rglob("atlas-proposals/approved/*.md")
+    text = record.read_text(encoding="utf-8")
+    assert "**Status**: approved" in text
+    assert "**Status**: draft" not in text
+
+
+def test_exported_view_is_utf8_on_every_platform(
+    cli: Cli, project: Callable[[], str]
+) -> None:
+    """The views contain box-drawing and tick glyphs that cp1252 cannot encode."""
+    project_id = project()
+    target = cli.cwd / "dashboard.txt"
+
+    cli.ok(
+        "presentation",
+        "export",
+        "--project-id",
+        project_id,
+        "--view",
+        "dashboard",
+        "--output",
+        str(target),
+        "--format",
+        "cli",
+    )
+
+    assert target.read_text(encoding="utf-8").strip()

@@ -13,7 +13,7 @@ def test_clients_do_not_import_engine() -> None:
     violations = []
 
     for py_file in clients_dir.rglob("*.py"):
-        content = py_file.read_text()
+        content = py_file.read_text(encoding="utf-8")
         try:
             tree = ast.parse(content)
         except SyntaxError:

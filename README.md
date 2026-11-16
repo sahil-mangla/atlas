@@ -4,7 +4,7 @@
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/sahil-mangla/atlas/blob/main/CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Python 3.13+](https://img.shields.io/badge/python-3.13%2B-blue)](https://www.python.org/downloads/)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/downloads/)
 [![CI](https://github.com/sahil-mangla/atlas/actions/workflows/ci.yml/badge.svg)](https://github.com/sahil-mangla/atlas/actions/workflows/ci.yml)
 
 ATLAS is an AI-native engineering operating system that transforms ideas into
@@ -77,7 +77,7 @@ of everything that was proposed and decided.
 
 ### Prerequisites
 
-- Python >= 3.13
+- Python >= 3.12
 - An API key for at least one supported AI provider (see
   [Configuring an AI Provider](#configuring-an-ai-provider))
 
@@ -370,7 +370,7 @@ package and dependency management during development.
 
 ### Prerequisites
 
-- Python >= 3.13
+- Python >= 3.12
 - uv
 
 ### Installation

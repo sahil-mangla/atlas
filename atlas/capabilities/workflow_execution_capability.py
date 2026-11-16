@@ -38,6 +38,7 @@ from engine.ai.repository import ProposalRepository
 from engine.domain.ai import AIProposal
 from engine.domain.ai_feedback import ProposalFeedback
 from engine.domain.enums import ProposalDecision
+from engine.project.repository import ProjectRepository
 from engine.workflow.exceptions import (
     InvalidTransitionException,
     WorkflowException,
@@ -45,6 +46,7 @@ from engine.workflow.exceptions import (
 )
 from engine.workflow.orchestration import WorkflowOrchestrationService
 from engine.workflow.repository import WorkflowRepository
+from shared.state_snapshot import DirectoryStateSnapshot
 
 
 class WorkflowExecutionCapability:
@@ -55,10 +57,14 @@ class WorkflowExecutionCapability:
         workflow_repo: WorkflowRepository,
         orchestration_service: WorkflowOrchestrationService,
         proposal_repo: ProposalRepository,
+        project_repo: ProjectRepository | None = None,
     ) -> None:
         self._workflow_repo = workflow_repo
         self._orchestration_service = orchestration_service
         self._proposal_repo = proposal_repo
+        # Optional: without it approvals still work but are not rolled back
+        # as a whole when a late write fails.
+        self._project_repo = project_repo
         # Proposal cache is bounded by removal after review completion.
         self._pending_proposals: dict[UUID, tuple[UUID, AIProposal[Any]]] = {}
 
@@ -137,6 +143,56 @@ class WorkflowExecutionCapability:
                 "Proposal does not belong to the requested project."
             )
 
+        # Approval writes the stage aggregate, the workflow, extracted
+        # knowledge, the project record and the proposal record in turn. Only
+        # the first is covered by the commit's own rollback, so capture the
+        # project's state and put it all back if any later step fails;
+        # otherwise the project is left half-approved and cannot be retried.
+        snapshot = self._capture_project_state(command.project_id)
+        original_status = proposal.status
+        try:
+            result = self._approve(command, proposal)
+        except Exception as error:
+            proposal.status = original_status
+            self._pending_proposals[command.proposal_id] = record
+            self._roll_back(snapshot, error)
+            if isinstance(error, ApplicationError):
+                raise
+            raise StageExecutionError(
+                f"Approval failed and was rolled back; nothing was changed. "
+                f"Cause: {error}"
+            ) from error
+        if not result.success:
+            proposal.status = original_status
+            self._roll_back(snapshot, None)
+        return result
+
+    def _capture_project_state(self, project_id: UUID) -> DirectoryStateSnapshot | None:
+        if self._project_repo is None:
+            return None
+        project_path = self._project_repo.get_project_path(project_id)
+        return DirectoryStateSnapshot(
+            (project_path / ".atlas", project_path / "atlas-proposals")
+        )
+
+    @staticmethod
+    def _roll_back(
+        snapshot: DirectoryStateSnapshot | None, cause: Exception | None
+    ) -> None:
+        if snapshot is None:
+            return
+        try:
+            snapshot.restore()
+        except OSError as restore_error:
+            raise StageExecutionError(
+                "Approval failed and could not be fully rolled back "
+                f"({restore_error}); the project may be partly updated. "
+                f"Original cause: {cause or 'commit failed'}"
+            ) from restore_error
+
+    def _approve(
+        self, command: ApproveProposalCommand, proposal: AIProposal[Any]
+    ) -> AppCommitResult:
         try:
             commit_res = self._orchestration_service.process_review_decision(
                 project_id=command.project_id,
@@ -165,6 +221,9 @@ class WorkflowExecutionCapability:
                 )
                 if result.success:
                     self._pending_proposals.pop(command.proposal_id, None)
+                    # Re-render the record so the archived copy says
+                    # "approved" rather than the "draft" it was written as.
+                    self._proposal_repo.save(command.project_id, proposal)
                     self._proposal_repo.archive_approved(command.proposal_id)
                     self._proposal_repo.delete(command.proposal_id)
                 return result

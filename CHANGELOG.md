@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Release Polish
+
+- Fixed: the `ANTHROPIC` protocol could not run any stage. The adapter now
+  requests structured output (`output_config.format`) with a schema adapted
+  to Anthropic's supported subset, and its default `max_tokens` is 16000.
+- Fixed: approving a proposal was only atomic for the stage aggregate. A
+  write failure in any later step (workflow, knowledge, project or proposal
+  record) left the project half-approved and unable to retry. The whole
+  project state is now restored and the failure reported as a clean error.
+- Fixed: the archived proposal record said `Status: draft` after approval.
+- Fixed: `atlas presentation export` wrote files in the platform default
+  encoding, which fails on Windows for the glyphs the views use.
+- Added: `--help`/`-h` (at any position) and `--version`/`-V`.
+- Changed: minimum Python is now 3.12 (was 3.13); CI tests both.
+
 ### Offline Testing
 
 - Added: `SCRIPTED` AI protocol -- a deterministic, offline provider with a

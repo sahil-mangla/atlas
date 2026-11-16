@@ -50,7 +50,7 @@ def test_settings_environ_override() -> None:
         workspace_root=Path("/custom/path"),
     )
     assert settings.environment == Environment.PRODUCTION
-    assert str(settings.workspace_root) == "/custom/path"
+    assert settings.workspace_root == Path("/custom/path")
 
 
 def test_settings_via_env_file(tmp_path: Path) -> None:
@@ -67,7 +67,7 @@ def test_settings_via_env_file(tmp_path: Path) -> None:
     settings = Settings(_env_file=env_file)  # type: ignore[call-arg]
 
     assert settings.environment == Environment.PRODUCTION
-    assert str(settings.workspace_root) == "/custom/path"
+    assert settings.workspace_root == Path("/custom/path")
 
 
 def test_env_example_documents_every_settings_field() -> None:
@@ -78,7 +78,7 @@ def test_env_example_documents_every_settings_field() -> None:
     commented-out block -- so a first-time user can discover it there
     instead of reading engine/config.py.
     """
-    content = _ENV_EXAMPLE.read_text()
+    content = _ENV_EXAMPLE.read_text(encoding="utf-8")
     for field_name in Settings.model_fields:
         env_var = f"ATLAS_{field_name.upper()}"
         assert env_var in content, (
@@ -90,7 +90,7 @@ def test_env_example_documents_every_registered_ai_protocol() -> None:
     """RC-004 regression: every AI protocol the factory can construct must
     have a corresponding block in .env.example, so switching providers is
     discoverable without reading engine/ai/factory.py."""
-    content = _ENV_EXAMPLE.read_text()
+    content = _ENV_EXAMPLE.read_text(encoding="utf-8")
     for protocol in _KNOWN_AI_PROTOCOLS:
         assert protocol in content, (
             f"AI protocol {protocol!r} is not documented in .env.example"

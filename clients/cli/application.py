@@ -239,7 +239,7 @@ class CLIApplication:
             view = self._get_view(command.view, command.project_id)
             rendered = self._atlas.render(view, command.format)
             try:
-                Path(command.output).write_text(rendered.content)
+                Path(command.output).write_text(rendered.content, encoding="utf-8")
             except (OSError, UnicodeEncodeError) as exc:
                 raise ApplicationError(
                     f"Failed to write export to '{command.output}': {exc}"
