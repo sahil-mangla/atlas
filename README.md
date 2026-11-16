@@ -115,6 +115,17 @@ provider -- see [Configuring an AI Provider](#configuring-an-ai-provider) below.
 export ATLAS_GEMINI_API_KEY="your-api-key-here"
 ```
 
+### Try it without an API key
+
+Set `ATLAS_AI_PROTOCOL=SCRIPTED` to run the whole pipeline offline with a
+deterministic built-in provider. The proposals are canned demonstration text,
+not model output -- it shows how ATLAS works before you configure a real
+provider. See [Testing Without an AI Provider](docs/testing.md).
+
+```bash
+export ATLAS_AI_PROTOCOL=SCRIPTED
+```
+
 ### Your First Project
 
 ```bash
@@ -223,7 +234,7 @@ Runs are written to `evals/runs/` and compared with the tracked baseline at `eva
 ## Configuring an AI Provider
 
 ATLAS is provider-agnostic: it talks to any of four protocols through a common
-interface, selected via `ATLAS_AI_PROTOCOL` (defaults to `GEMINI`). `.env.example`
+interface (plus an offline `SCRIPTED` one for demos and tests), selected via `ATLAS_AI_PROTOCOL` (defaults to `GEMINI`). `.env.example`
 has a ready-to-uncomment block for each row below, including OpenAI and
 LM Studio (both are `OPENAI_COMPATIBLE` targets, not separate protocols).
 
@@ -232,6 +243,7 @@ LM Studio (both are `OPENAI_COMPATIBLE` targets, not separate protocols).
 | `GEMINI` | `ATLAS_GEMINI_API_KEY`, `ATLAS_GEMINI_MODEL` | Google's Gemini API. Default provider. Cloud. |
 | `ANTHROPIC` | `ATLAS_AI_API_KEY`, `ATLAS_AI_MODEL` | Anthropic's Messages API. Cloud. |
 | `OPENAI_COMPATIBLE` | `ATLAS_AI_API_KEY`, `ATLAS_AI_MODEL`, `ATLAS_AI_ENDPOINT` | OpenAI itself (cloud), or any OpenAI-compatible endpoint -- including [LM Studio](https://lmstudio.ai)'s local server (`http://localhost:1234/v1`, no API key needed). Give the base URL only -- ATLAS appends `/chat/completions` itself. Endpoint and model are both required; there is no default endpoint. |
+| `SCRIPTED` | none | Offline, deterministic demo and test provider. Returns canned drafts; no key, no network. |
 | `OLLAMA` | `ATLAS_AI_MODEL`, `ATLAS_AI_ENDPOINT` | Local models via [Ollama](https://ollama.com); no API key needed. Endpoint defaults to `http://localhost:11434`. |
 
 All protocols also respect `ATLAS_AI_TIMEOUT_SECONDS` (default `60`, seconds)
@@ -348,6 +360,7 @@ The full architecture reference, ADRs, and diagrams live under
 - [Glossary](docs/glossary.md)
 - [Observability Guide](docs/observability.md)
 - [Evaluation and Regression Guide](docs/evaluations.md)
+- [Testing Without an AI Provider](docs/testing.md)
 - [CHANGELOG](CHANGELOG.md)
 
 ## Development Setup
@@ -401,9 +414,11 @@ uv run pre-commit run --all-files
 
 ### Continuous Integration
 
-Every push and pull request against `main` runs the full verification suite
-(`ruff check`, `ruff format --check`, `mypy`, `pytest`) via
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+Every push and pull request against `main` runs lint and type checks, the
+test suite on Linux, macOS and Windows, the offline eval benchmark, and a
+build-install-run check of the wheel, via
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml). No job needs an API
+key.
 
 ## Contributing
 

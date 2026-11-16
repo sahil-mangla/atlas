@@ -1,9 +1,10 @@
 """Eval runner CLI: `uv run python -m evals [options]`.
 
 Runs the benchmark task suite against a real Atlas platform wired to a real
-AI provider (Ollama by default -- no mock provider path here; this command
-is for actual eval runs, not the runner's own unit tests, which use
-MockAIProvider under tests/evals/).
+AI provider (Ollama by default). Pass ``--ai-protocol SCRIPTED`` for a
+deterministic offline run that needs no model at all: it checks routing,
+schemas, error handling and multi-step workflows, but says nothing about
+model quality.
 
 Also diffs the run against the most recent stored baseline (see
 evals/baseline.py) and prints a regression summary. Pass --update-baseline
@@ -59,6 +60,14 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
         action="store_true",
         help="Promote this run to the new baseline, regardless of outcome.",
     )
+    parser.add_argument(
+        "--no-latency-check",
+        action="store_true",
+        help=(
+            "Do not report latency regressions. Use when this machine differs "
+            "from the one the baseline was captured on (e.g. CI)."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -97,7 +106,6 @@ def _run_all_tasks(
         endpoint=args.ai_endpoint,
         timeout_seconds=args.ai_timeout_seconds,
     )
-    ai_provider = ProtocolFactory().create(args.ai_protocol, provider_config)
 
     task_results = []
     for i, task in enumerate(tasks, 1):
@@ -108,6 +116,10 @@ def _run_all_tasks(
         # ProjectAlreadyExistsException on a slug collision between two
         # different projects). Cheap: it's in-memory service construction,
         # not a network call.
+        # A fresh provider per task too: a provider that supports
+        # ``stubbed_response`` keeps the last stub it was given, which would
+        # otherwise leak one task's canned answer into the next.
+        ai_provider = ProtocolFactory().create(args.ai_protocol, provider_config)
         platform, exporter = build_eval_platform(
             run_dir / "tasks" / task.task_id, ai_provider
         )
@@ -140,6 +152,8 @@ def main(argv: list[str] | None = None) -> int:
     findings: list[RegressionFinding] = []
     if baseline is not None:
         findings = diff_against_baseline(current, baseline)
+        if args.no_latency_check:
+            findings = [f for f in findings if f.kind != "latency"]
         _write_regressions(findings, baseline)
     else:
         _write_line()

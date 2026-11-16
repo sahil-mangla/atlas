@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Offline Testing
+
+- Added: `SCRIPTED` AI protocol -- a deterministic, offline provider with a
+  matching fixture paper source and embedder, so the full pipeline runs with
+  no API key and no network. Fault modes are selected via `ATLAS_AI_MODEL`.
+- Added: `atlas.testing.create_test_platform`, moved from `tests/support/` so
+  evals and downstream users no longer import from the test suite.
+- Added: loopback HTTP adapter tests, black-box CLI tests, disk-failure
+  injection, an installed-wheel smoke script, and a scripted eval baseline.
+  See `docs/testing.md`.
+- Changed: tests run with outbound sockets disabled (`pytest-socket`).
+- Changed: CI runs on Linux, macOS and Windows, runs the eval benchmark
+  offline, and builds, installs and exercises the wheel.
+- Changed: the Langfuse exporter is only constructed when
+  `LANGFUSE_PUBLIC_KEY` and `LANGFUSE_SECRET_KEY` are set. Previously every
+  command, including `atlas version`, made a Langfuse network call.
+- Changed: `python -m evals` builds a fresh provider per task and accepts
+  `--no-latency-check`.
+
 ### Phase 17: Release Candidate Stabilization
 
 #### RC-001 -- Workflow Completion Blocker

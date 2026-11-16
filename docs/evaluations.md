@@ -24,6 +24,20 @@ uv run python -m evals \
   --ai-timeout-seconds 180
 ```
 
+For a deterministic run with no model at all, use the scripted provider. It
+checks routing, schemas, error handling and multi-step workflows, but not
+model quality, and has its own baseline:
+
+```bash
+uv run python -m evals \
+  --ai-protocol SCRIPTED --ai-model scripted \
+  --baseline-path evals/baselines/scripted.json --no-latency-check
+```
+
+`--no-latency-check` skips latency regressions, which are not comparable
+across machines. CI runs exactly this command. See
+[Testing Without an AI Provider](testing.md).
+
 The runner writes timestamped reports to `evals/runs/`. These run artifacts
 are ignored by Git. Each run contains `report.md`, `report.json`, and isolated
 task workspaces.

@@ -25,6 +25,7 @@ dev = [
     "mypy>=1.9.0",
     "pre-commit>=3.6.0",
     "types-pyyaml>=6.0.12.20260815",
+    "pytest-socket>=0.8.1",
 ]
 
 [build-system]
@@ -100,6 +101,9 @@ disallow_untyped_decorators = false
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-addopts = "-ra -q --cov=engine --cov=interfaces --cov=shared --cov=clients --cov-report=term-missing --cov-report=xml"
+# Sockets are disabled so a test that reaches a real service fails instead of
+# passing by accident; loopback stays open for the fake provider server in
+# tests/ai/test_http_loopback.py.
+addopts = "-ra -q --disable-socket --allow-hosts=127.0.0.1,localhost,::1 --cov=engine --cov=interfaces --cov=shared --cov=clients --cov-report=term-missing --cov-report=xml"
 testpaths = ["tests"]
 pythonpath = ["."]

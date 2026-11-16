@@ -7,6 +7,7 @@ from engine.ai.adapters.anthropic import AnthropicAIProvider
 from engine.ai.adapters.gemini import GeminiAIProvider
 from engine.ai.adapters.ollama import OllamaAIProvider
 from engine.ai.adapters.openai_compatible import OpenAICompatibleAIProvider
+from engine.ai.adapters.scripted import ScriptedAIProvider
 from engine.ai.config import ProviderConfig
 from engine.ai.exceptions import AIProviderException
 from engine.ai.provider import AIProvider
@@ -33,6 +34,10 @@ def _create_ollama(config: ProviderConfig, _settings: Settings | None) -> AIProv
     return OllamaAIProvider(config)
 
 
+def _create_scripted(config: ProviderConfig, _settings: Settings | None) -> AIProvider:
+    return ScriptedAIProvider(config)
+
+
 class ProtocolFactory:
     """Resolve registered protocol adapters without provider-specific branching."""
 
@@ -44,6 +49,7 @@ class ProtocolFactory:
             "OPENAI_COMPATIBLE": _create_openai_compatible,
             "ANTHROPIC": _create_anthropic,
             "OLLAMA": _create_ollama,
+            "SCRIPTED": _create_scripted,
         }
         registrations = registry if registry is not None else default_registry
         self._registry = MappingProxyType(

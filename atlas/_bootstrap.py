@@ -5,9 +5,11 @@ by client adapters. It wires the engine subsystems and returns the public facade
 """
 
 import logging
+import os
 
 from atlas._service import Atlas, _AtlasServices
 from atlas.observability.exporter import (
+    CompositeExporter,
     JsonlFileExporter,
     NullExporter,
     TraceExporter,
@@ -98,7 +100,13 @@ from engine.research.services import (
     ResearchOrganizationService,
     ResearchSummaryService,
 )
-from engine.research.sources import ArxivSource, OpenAlexSource, SemanticScholarSource
+from engine.research.sources import (
+    ArxivSource,
+    OpenAlexSource,
+    PaperSource,
+    SemanticScholarSource,
+)
+from engine.research.sources.scripted import ScriptedPaperSource
 from engine.workflow.fs_repository import FilesystemWorkflowRepository
 from engine.workflow.orchestration import (
     ArchitectureStageExecutor,
@@ -155,6 +163,51 @@ def _build_knowledge_ranker(
         )
         return None
     return SemanticKnowledgeRanker(embedder, SqliteVecStore(project_repo))
+
+
+_SCRIPTED_PROTOCOL = "SCRIPTED"
+
+
+def _build_paper_sources(settings: Settings) -> list[PaperSource]:
+    """Real paper APIs, or the offline fixture source under SCRIPTED.
+
+    The scripted protocol promises no network access at all, so it must not
+    reach arXiv, Semantic Scholar or OpenAlex either.
+    """
+    if settings.ai_protocol.upper() == _SCRIPTED_PROTOCOL:
+        return [ScriptedPaperSource()]
+    timeout = settings.research_retrieval_timeout_seconds
+    return [
+        ArxivSource(timeout_seconds=timeout),
+        SemanticScholarSource(timeout_seconds=timeout),
+        OpenAlexSource(timeout_seconds=timeout),
+    ]
+
+
+def _langfuse_configured() -> bool:
+    """True only when the user has supplied Langfuse credentials.
+
+    Constructing the Langfuse exporter performs a network auth check, so it
+    must not happen for users who never asked for Langfuse.
+    """
+    return bool(
+        os.environ.get("LANGFUSE_PUBLIC_KEY") and os.environ.get("LANGFUSE_SECRET_KEY")
+    )
+
+
+def _build_exporter(settings: Settings) -> TraceExporter:
+    if not settings.instrumentation_enabled:
+        return NullExporter()
+    exporters: list[TraceExporter] = [
+        JsonlFileExporter(settings.workspace_root / "traces")
+    ]
+    if _langfuse_configured():
+        from atlas.observability.langfuse_exporter import (  # noqa: PLC0415
+            LangfuseTraceExporter,
+        )
+
+        exporters.append(LangfuseTraceExporter())
+    return CompositeExporter(exporters)
 
 
 def _create_platform() -> Atlas:  # noqa: PLR0915
@@ -247,13 +300,7 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
     architecture_validator = ArchitectureProposalValidator()
     evaluation_validator = EvaluationProposalValidator()
     research_retrieval = ResearchRetrievalService(
-        sources=[
-            ArxivSource(timeout_seconds=settings.research_retrieval_timeout_seconds),
-            SemanticScholarSource(
-                timeout_seconds=settings.research_retrieval_timeout_seconds
-            ),
-            OpenAlexSource(timeout_seconds=settings.research_retrieval_timeout_seconds),
-        ],
+        sources=_build_paper_sources(settings),
         project_repo=project_repo,
         prompt_executor=prompt_executor,
         max_candidates=settings.research_max_candidates,
@@ -371,21 +418,7 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
     )
 
     # 8. Facade Assembly
-    exporter: TraceExporter
-    if settings.instrumentation_enabled:
-        from atlas.observability.exporter import CompositeExporter  # noqa: PLC0415
-        from atlas.observability.langfuse_exporter import (  # noqa: PLC0415
-            LangfuseTraceExporter,
-        )
-
-        exporter = CompositeExporter(
-            [
-                JsonlFileExporter(settings.workspace_root / "traces"),
-                LangfuseTraceExporter(),
-            ]
-        )
-    else:
-        exporter = NullExporter()
+    exporter = _build_exporter(settings)
     atlas = Atlas(
         _AtlasServices(
             project_creation_service=project_creation_service,

@@ -6,6 +6,7 @@ from types import MappingProxyType
 from engine.ai.adapters.gemini import GeminiEmbeddingProvider
 from engine.ai.adapters.ollama import OllamaEmbeddingProvider
 from engine.ai.adapters.openai_compatible import OpenAICompatibleEmbeddingProvider
+from engine.ai.adapters.scripted import ScriptedEmbeddingProvider
 from engine.ai.config import ProviderConfig
 from engine.ai.embeddings import EmbeddingProvider
 from engine.ai.exceptions import AIProviderException
@@ -32,6 +33,12 @@ def _create_ollama(
     return OllamaEmbeddingProvider(config)
 
 
+def _create_scripted(
+    _config: ProviderConfig, _settings: Settings | None
+) -> EmbeddingProvider:
+    return ScriptedEmbeddingProvider()
+
+
 class EmbeddingFactory:
     """Resolve embedding adapters; protocols without an embeddings API are absent.
 
@@ -45,6 +52,7 @@ class EmbeddingFactory:
             "GEMINI": _create_gemini,
             "OPENAI_COMPATIBLE": _create_openai_compatible,
             "OLLAMA": _create_ollama,
+            "SCRIPTED": _create_scripted,
         }
         registrations = registry if registry is not None else default_registry
         self._registry = MappingProxyType(

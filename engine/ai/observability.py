@@ -12,6 +12,7 @@ from engine.ai.adapters.anthropic import AnthropicAIProvider
 from engine.ai.adapters.gemini import GeminiAIProvider
 from engine.ai.adapters.ollama import OllamaAIProvider
 from engine.ai.adapters.openai_compatible import OpenAICompatibleAIProvider
+from engine.ai.adapters.scripted import ScriptedAIProvider
 from engine.ai.provider import AIProvider
 from engine.domain.ai import AIResponse
 from shared.observability.usage_context import record_usage
@@ -21,6 +22,7 @@ _PROVIDER_LABELS: dict[type[AIProvider], str] = {
     AnthropicAIProvider: "anthropic",
     OllamaAIProvider: "ollama",
     OpenAICompatibleAIProvider: "openai_compatible",
+    ScriptedAIProvider: "scripted",
 }
 
 
