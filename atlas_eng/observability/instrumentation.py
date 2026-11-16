@@ -8,13 +8,12 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Any
 
-from langfuse.decorators import langfuse_context, observe
-
 from atlas_eng.capabilities.base import CapabilityName
 from atlas_eng.commands import Command
 from atlas_eng.contracts.envelope import RequestEnvelope, ResponseEnvelope
 from atlas_eng.observability.exporter import TraceExporter
 from atlas_eng.observability.models import TraceOutcome, TraceRecord
+from atlas_eng.shared.observability import tracing
 from atlas_eng.shared.observability.usage_context import (
     AIUsageRecord,
     finish_capture,
@@ -24,7 +23,7 @@ from atlas_eng.shared.observability.usage_context import (
 logger = logging.getLogger(__name__)
 
 
-@observe(
+@tracing.observe(
     as_type="trace",
     name="atlas_command",
     capture_input=False,
@@ -46,7 +45,7 @@ def instrument_request(
     an observability feature must not be able to take down request handling.
     """
     capability = capability_lookup(type(envelope.command))
-    langfuse_context.update_current_trace(
+    tracing.update_current_trace(
         name=capability or "Unknown Capability",
         session_id=str(envelope.request_id),
     )

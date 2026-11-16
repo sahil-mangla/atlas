@@ -3,6 +3,7 @@
 
 import uuid
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -17,7 +18,7 @@ from atlas_eng.commands import (
     LoadProjectCommand,
     TransitionStageCommand,
 )
-from atlas_eng.contracts.envelope import RequestEnvelope
+from atlas_eng.contracts.envelope import RequestEnvelope, ResponseEnvelope
 from atlas_eng.contracts.errors import PlatformErrorCode
 from atlas_eng.engine.domain.ai_drafts import ResearchProposalDraft
 from atlas_eng.observability.exporter import TraceExporter
@@ -123,7 +124,7 @@ def test_unexpected_dispatch_exception_is_traced_and_reraised() -> None:
     envelope = _envelope(CreateProjectCommand(name="P", description="D", objective="O"))
     error = RuntimeError("dispatch exploded")
 
-    def dispatch(_envelope: RequestEnvelope[Command]) -> object:
+    def dispatch(_envelope: RequestEnvelope[Any]) -> ResponseEnvelope[Any]:
         raise error
 
     with pytest.raises(RuntimeError, match="dispatch exploded") as raised:

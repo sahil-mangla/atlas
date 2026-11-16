@@ -2,13 +2,12 @@
 
 from typing import Any
 
-from langfuse.decorators import langfuse_context, observe
-
 from atlas_eng.engine.ai.adapters._http import post_json
 from atlas_eng.engine.ai.config import ProviderConfig
 from atlas_eng.engine.ai.exceptions import AIProviderException
 from atlas_eng.engine.ai.provider import AIProvider
 from atlas_eng.engine.domain.ai import AIRequest, AIResponse, ProviderCapabilities
+from atlas_eng.shared.observability import tracing
 
 # Non-streaming requests must stay under HTTP timeouts, but a stage draft is
 # long structured JSON: too small a cap truncates it mid-object.
@@ -60,7 +59,7 @@ class AnthropicAIProvider(AIProvider):
     def __init__(self, config: ProviderConfig) -> None:
         self._config = config
 
-    @observe(
+    @tracing.observe(
         as_type="generation",
         name="anthropic_generate",
         capture_input=False,
@@ -114,7 +113,7 @@ class AnthropicAIProvider(AIProvider):
         prompt_tokens = int(usage.get("input_tokens", 0))
         completion_tokens = int(usage.get("output_tokens", 0))
 
-        langfuse_context.update_current_observation(
+        tracing.update_current_observation(
             model=self._config.model,
             input=[
                 {"role": "system", "content": request.prompt.system_prompt},

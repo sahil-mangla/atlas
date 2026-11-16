@@ -76,17 +76,26 @@ In addition to local JSONL trace logging, ATLAS supports native integration with
 
 ### How it Works
 1. **Root Trace Span**: When `Atlas.handle()` receives a request envelope, `instrument_request` creates a root trace in Langfuse correlated to the Atlas `request_id`.
-2. **Generation Spans**: Individual AI protocol adapters (`gemini`, `anthropic`, `openai_compatible`, `ollama`) are instrumented with `@observe(as_type="generation")`. These automatically nest within the active request trace.
+2. **Generation Spans**: Individual AI protocol adapters (`gemini`, `anthropic`, `openai_compatible`, `ollama`) are instrumented with `tracing.observe(as_type="generation")`. These automatically nest within the active request trace.
 3. **Structured Messages**: Prompts and completions are formatted as standard role-based chat messages (`system`, `user`, `assistant`), enabling rich visual trace inspection in the Langfuse dashboard.
 4. **Data Privacy**: Automatic argument capturing is disabled (`capture_input=False`, `capture_output=False`) so only explicitly sanitized metadata, model identifiers, token metrics, and prompts are exported.
 
 ### Configuration
-Set the following environment variables in `.env`:
+Langfuse is optional. Install it with `pip install "atlas-eng[langfuse]"`,
+then set the following in the project's `.env` file or the environment
+(values already in the environment win):
 ```bash
 LANGFUSE_PUBLIC_KEY="pk-lf-..."
 LANGFUSE_SECRET_KEY="sk-lf-..."
 LANGFUSE_HOST="https://cloud.langfuse.com"
 ```
+
+Tracing turns on only when both keys are set and the package is installed.
+Otherwise every traced call runs unchanged and Langfuse is never imported.
+If the keys are set but the package is missing, ATLAS logs one warning with
+the install command. All Langfuse calls go through
+`atlas_eng/shared/observability/tracing.py`; adapters never import Langfuse
+directly.
 
 ## Extension points
 

@@ -3,8 +3,6 @@
 from collections.abc import Sequence
 from typing import Any
 
-from langfuse.decorators import langfuse_context, observe
-
 from atlas_eng.engine.ai.adapters._http import parse_embeddings, post_json
 from atlas_eng.engine.ai.config import ProviderConfig
 from atlas_eng.engine.ai.embeddings import EmbeddingProvider
@@ -16,6 +14,7 @@ from atlas_eng.engine.domain.ai import (
     AIResponse,
     ProviderCapabilities,
 )
+from atlas_eng.shared.observability import tracing
 
 
 class OpenAICompatibleAIProvider(AIProvider):
@@ -24,7 +23,7 @@ class OpenAICompatibleAIProvider(AIProvider):
     def __init__(self, config: ProviderConfig) -> None:
         self._config = config
 
-    @observe(
+    @tracing.observe(
         as_type="generation",
         name="openai_generate",
         capture_input=False,
@@ -70,7 +69,7 @@ class OpenAICompatibleAIProvider(AIProvider):
         prompt_tokens = int(usage.get("prompt_tokens", 0))
         completion_tokens = int(usage.get("completion_tokens", 0))
 
-        langfuse_context.update_current_observation(
+        tracing.update_current_observation(
             model=self._config.model,
             input=messages,
             output=content_str,
@@ -124,7 +123,7 @@ class OpenAICompatibleEmbeddingProvider(EmbeddingProvider):
     def model_id(self) -> str:
         return f"OPENAI_COMPATIBLE:{self._config.model}"
 
-    @observe(name="openai_embed", capture_input=False, capture_output=False)
+    @tracing.observe(name="openai_embed", capture_input=False, capture_output=False)
     def embed(self, texts: Sequence[str]) -> list[list[float]]:
         headers = (
             {"Authorization": f"Bearer {self._config.api_key}"}

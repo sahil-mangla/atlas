@@ -100,6 +100,17 @@ pip install git+https://github.com/sahil-mangla/atlas.git
 Either way, this installs the `atlas-eng` package, which provides the `atlas`
 command and the `atlas_eng` Python package, in your active Python environment.
 
+Support for some services is optional, so the base install stays small:
+
+| Extra | Adds | Install |
+|---|---|---|
+| `gemini` | The `GEMINI` protocol (the default) | `pip install ".[gemini]"` |
+| `langfuse` | Sending traces to [Langfuse](https://langfuse.com) | `pip install ".[langfuse]"` |
+| `all` | Both | `pip install ".[all]"` |
+
+The `ANTHROPIC`, `OPENAI_COMPATIBLE`, `OLLAMA` and offline `SCRIPTED`
+protocols need no extra.
+
 ```bash
 atlas --version
 # ATLAS  1.1.0
@@ -213,7 +224,9 @@ ATLAS features a built-in **dual-sink observability layer**:
 
 ### Configuring Langfuse
 
-To stream traces to Langfuse, provide your keys in `.env`:
+To stream traces to Langfuse, install the `langfuse` extra and provide your
+keys in `.env` or the environment. Without both keys, ATLAS never loads
+Langfuse:
 
 ```bash
 LANGFUSE_PUBLIC_KEY="pk-lf-..."
@@ -240,7 +253,7 @@ LM Studio (both are `OPENAI_COMPATIBLE` targets, not separate protocols).
 
 | Protocol | Env var(s) | Notes |
 |---|---|---|
-| `GEMINI` | `ATLAS_GEMINI_API_KEY`, `ATLAS_GEMINI_MODEL` | Google's Gemini API. Default provider. Cloud. |
+| `GEMINI` | `ATLAS_GEMINI_API_KEY`, `ATLAS_GEMINI_MODEL` | Google's Gemini API. Default provider. Cloud. Needs the `gemini` extra. |
 | `ANTHROPIC` | `ATLAS_AI_API_KEY`, `ATLAS_AI_MODEL` | Anthropic's Messages API. Cloud. |
 | `OPENAI_COMPATIBLE` | `ATLAS_AI_API_KEY`, `ATLAS_AI_MODEL`, `ATLAS_AI_ENDPOINT` | OpenAI itself (cloud), or any OpenAI-compatible endpoint -- including [LM Studio](https://lmstudio.ai)'s local server (`http://localhost:1234/v1`, no API key needed). Give the base URL only -- ATLAS appends `/chat/completions` itself. Endpoint and model are both required; there is no default endpoint. |
 | `SCRIPTED` | none | Offline, deterministic demo and test provider. Returns canned drafts; no key, no network. |

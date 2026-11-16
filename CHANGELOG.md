@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Optional Dependencies
+
+- Changed: `google-genai` and `langfuse` are now optional extras
+  (`atlas-eng[gemini]`, `atlas-eng[langfuse]`, `atlas-eng[all]`). The base
+  install needs neither. Using the `GEMINI` protocol without its extra fails
+  with the install command.
+- Changed: Langfuse is loaded only when `LANGFUSE_PUBLIC_KEY` and
+  `LANGFUSE_SECRET_KEY` are set. Previously every command that reached an AI
+  adapter printed a Langfuse warning, and the SDKs loaded on every start:
+  `atlas --version` now takes about 0.15 s on a base install.
+- Fixed: Langfuse keys placed in `.env`, as the docs instructed, were never
+  seen. They are now read from the project's `.env`.
+- Added: `python-dotenv` is declared as a dependency (it was imported but
+  only present transitively).
+
 ### Package Rename (1.1.0)
 
 - Changed (breaking for Python imports): the distribution is now

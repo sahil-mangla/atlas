@@ -5,11 +5,8 @@ application remains provider independent.
 """
 
 from collections.abc import Sequence
+from types import ModuleType
 from typing import Any
-
-from google import genai
-from google.genai import types
-from langfuse.decorators import langfuse_context, observe
 
 from atlas_eng.engine.ai.adapters._http import parse_embeddings
 from atlas_eng.engine.ai.config import ProviderConfig
@@ -18,6 +15,24 @@ from atlas_eng.engine.ai.exceptions import AIProviderException
 from atlas_eng.engine.ai.provider import AIProvider
 from atlas_eng.engine.config import Settings, get_settings
 from atlas_eng.engine.domain.ai import AIRequest, AIResponse, ProviderCapabilities
+from atlas_eng.shared.observability import tracing
+
+_INSTALL_HINT = (
+    "Gemini support is not installed. Install it with: pip install 'atlas-eng[gemini]'"
+)
+
+
+def _genai() -> ModuleType:
+    """Import the Google Gen AI SDK on first use.
+
+    It is an optional extra, and importing it costs about a second, so
+    nothing loads it unless a Gemini request is actually made.
+    """
+    try:
+        from google import genai  # noqa: PLC0415
+    except ImportError as error:
+        raise AIProviderException(_INSTALL_HINT) from error
+    return genai
 
 
 def _inline_refs(node: Any, defs: dict[str, Any]) -> Any:
@@ -71,7 +86,7 @@ class GeminiAIProvider(AIProvider):
             protocol_config.model if protocol_config else None
         ) or configured.gemini_model
 
-    @observe(
+    @tracing.observe(
         as_type="generation",
         name="gemini_generate",
         capture_input=False,
@@ -86,6 +101,7 @@ class GeminiAIProvider(AIProvider):
             raise AIProviderException(
                 "Gemini provider requires ATLAS_GEMINI_API_KEY and ATLAS_GEMINI_MODEL."
             )
+        genai = _genai()
         try:
             config_values: dict[str, Any] = {
                 "system_instruction": request.prompt.system_prompt,
@@ -108,7 +124,7 @@ class GeminiAIProvider(AIProvider):
             response = client.models.generate_content(
                 model=self._model,
                 contents=request.prompt.user_prompt,
-                config=types.GenerateContentConfig(**config_values),
+                config=genai.types.GenerateContentConfig(**config_values),
             )
 
             prompt_tokens = (
@@ -118,7 +134,7 @@ class GeminiAIProvider(AIProvider):
                 getattr(response.usage_metadata, "candidates_token_count", 0) or 0
             )
 
-            langfuse_context.update_current_observation(
+            tracing.update_current_observation(
                 model=self._model,
                 input=[
                     {"role": "system", "content": request.prompt.system_prompt},
@@ -178,13 +194,14 @@ class GeminiEmbeddingProvider(EmbeddingProvider):
     def model_id(self) -> str:
         return f"GEMINI:{self._model}"
 
-    @observe(name="gemini_embed", capture_input=False, capture_output=False)
+    @tracing.observe(name="gemini_embed", capture_input=False, capture_output=False)
     def embed(self, texts: Sequence[str]) -> list[list[float]]:
         if not self._api_key:
             raise AIProviderException(
                 "Gemini embeddings require ATLAS_GEMINI_API_KEY "
                 "(or ATLAS_EMBEDDING_API_KEY)."
             )
+        genai = _genai()
         try:
             client = genai.Client(api_key=self._api_key)
             response = client.models.embed_content(

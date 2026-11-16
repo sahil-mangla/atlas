@@ -9,6 +9,7 @@ from langfuse.api.resources.commons.errors import UnauthorizedError
 
 from atlas_eng.observability.exporter import TraceExporter
 from atlas_eng.observability.models import TraceRecord
+from atlas_eng.shared.observability import tracing
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +37,7 @@ class LangfuseTraceExporter(TraceExporter):
         """Pushes a completed trace record to Langfuse."""
         try:
             # Check if there is an active Langfuse trace from decorators
-            from langfuse.decorators import langfuse_context  # noqa: PLC0415
-
-            active_trace_id = langfuse_context.get_current_trace_id()
+            active_trace_id = tracing.get_current_trace_id()
             trace_id = active_trace_id if active_trace_id else str(record.request_id)
 
             # We map our TraceRecord fields onto Langfuse's trace schema

@@ -1,3 +1,7 @@
+import sys
+
+import pytest
+
 from atlas_eng.engine.ai.adapters.gemini import GeminiAIProvider, _flatten_schema
 from atlas_eng.engine.ai.provider import AIProvider
 from atlas_eng.engine.domain.ai import (
@@ -75,3 +79,29 @@ def _no_refs_remain(node: object) -> bool:
     if isinstance(node, list):
         return all(_no_refs_remain(item) for item in node)
     return True
+
+
+def test_gemini_without_its_extra_explains_how_to_install(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """``google-genai`` is optional; a missing install must say what to run."""
+    from atlas_eng.engine.ai.adapters.gemini import (  # noqa: PLC0415
+        GeminiEmbeddingProvider,
+    )
+    from atlas_eng.engine.ai.config import ProviderConfig  # noqa: PLC0415
+    from atlas_eng.engine.ai.exceptions import AIProviderException  # noqa: PLC0415
+    from atlas_eng.engine.config import Settings  # noqa: PLC0415
+
+    # A None entry in sys.modules makes the import raise ImportError.
+    monkeypatch.setitem(sys.modules, "google.genai", None)
+    settings = Settings(gemini_api_key="key", gemini_model="model")
+    config = ProviderConfig(protocol="GEMINI", api_key="key", model="model")
+    request = AIRequest(
+        prompt=PromptDocument(system_prompt="s", context="", task="t"),
+        context=ContextPayload(serialized_context=""),
+    )
+
+    with pytest.raises(AIProviderException, match=r"atlas-eng\[gemini\]"):
+        GeminiAIProvider(config, settings).generate(request)
+    with pytest.raises(AIProviderException, match=r"atlas-eng\[gemini\]"):
+        GeminiEmbeddingProvider(config, settings).embed(["text"])

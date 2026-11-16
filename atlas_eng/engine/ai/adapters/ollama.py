@@ -3,14 +3,13 @@
 from collections.abc import Sequence
 from typing import Any
 
-from langfuse.decorators import langfuse_context, observe
-
 from atlas_eng.engine.ai.adapters._http import parse_embeddings, post_json
 from atlas_eng.engine.ai.config import ProviderConfig
 from atlas_eng.engine.ai.embeddings import EmbeddingProvider
 from atlas_eng.engine.ai.exceptions import AIProviderException
 from atlas_eng.engine.ai.provider import AIProvider
 from atlas_eng.engine.domain.ai import AIRequest, AIResponse, ProviderCapabilities
+from atlas_eng.shared.observability import tracing
 
 
 class OllamaAIProvider(AIProvider):
@@ -19,7 +18,7 @@ class OllamaAIProvider(AIProvider):
     def __init__(self, config: ProviderConfig) -> None:
         self._config = config
 
-    @observe(
+    @tracing.observe(
         as_type="generation",
         name="ollama_generate",
         capture_input=False,
@@ -58,7 +57,7 @@ class OllamaAIProvider(AIProvider):
         prompt_tokens = int(data.get("prompt_eval_count", 0))
         completion_tokens = int(data.get("eval_count", 0))
 
-        langfuse_context.update_current_observation(
+        tracing.update_current_observation(
             model=self._config.model,
             input=[
                 {"role": "system", "content": request.prompt.system_prompt},
@@ -103,7 +102,7 @@ class OllamaEmbeddingProvider(EmbeddingProvider):
     def model_id(self) -> str:
         return f"OLLAMA:{self._config.model}"
 
-    @observe(name="ollama_embed", capture_input=False, capture_output=False)
+    @tracing.observe(name="ollama_embed", capture_input=False, capture_output=False)
     def embed(self, texts: Sequence[str]) -> list[list[float]]:
         endpoint = (self._config.endpoint or "http://localhost:11434").rstrip("/")
         data = post_json(

@@ -5,7 +5,6 @@ by client adapters. It wires the engine subsystems and returns the public facade
 """
 
 import logging
-import os
 
 from atlas_eng._service import Atlas, _AtlasServices
 from atlas_eng.engine.ai.config import ProviderConfig
@@ -136,6 +135,7 @@ from atlas_eng.presentation.renderers.base import (
     JsonRenderer,
     MarkdownRenderer,
 )
+from atlas_eng.shared.observability import tracing
 
 logger = logging.getLogger(__name__)
 
@@ -188,24 +188,13 @@ def _build_paper_sources(settings: Settings) -> list[PaperSource]:
     ]
 
 
-def _langfuse_configured() -> bool:
-    """True only when the user has supplied Langfuse credentials.
-
-    Constructing the Langfuse exporter performs a network auth check, so it
-    must not happen for users who never asked for Langfuse.
-    """
-    return bool(
-        os.environ.get("LANGFUSE_PUBLIC_KEY") and os.environ.get("LANGFUSE_SECRET_KEY")
-    )
-
-
 def _build_exporter(settings: Settings) -> TraceExporter:
     if not settings.instrumentation_enabled:
         return NullExporter()
     exporters: list[TraceExporter] = [
         JsonlFileExporter(settings.workspace_root / "traces")
     ]
-    if _langfuse_configured():
+    if tracing.is_enabled():
         from atlas_eng.observability.langfuse_exporter import (  # noqa: PLC0415
             LangfuseTraceExporter,
         )

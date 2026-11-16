@@ -75,17 +75,30 @@ name = "atlas-eng"
 version = "1.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "google-genai" },
     { name = "httpx" },
-    { name = "langfuse" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
+    { name = "python-dotenv" },
     { name = "pyyaml" },
     { name = "sqlite-vec" },
 ]
 
+[package.optional-dependencies]
+all = [
+    { name = "google-genai" },
+    { name = "langfuse" },
+]
+gemini = [
+    { name = "google-genai" },
+]
+langfuse = [
+    { name = "langfuse" },
+]
+
 [package.dev-dependencies]
 dev = [
+    { name = "google-genai" },
+    { name = "langfuse" },
     { name = "mypy" },
     { name = "pre-commit" },
     { name = "pytest" },
@@ -97,17 +110,22 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "google-genai", specifier = ">=1.0.0" },
+    { name = "atlas-eng", extras = ["gemini", "langfuse"], marker = "extra == 'all'" },
+    { name = "google-genai", marker = "extra == 'gemini'", specifier = ">=1.0.0" },
     { name = "httpx", specifier = ">=0.27.0" },
-    { name = "langfuse", specifier = "<3.0.0" },
+    { name = "langfuse", marker = "extra == 'langfuse'", specifier = ">=2.0.0,<3.0.0" },
     { name = "pydantic", specifier = ">=2.7.0" },
     { name = "pydantic-settings", specifier = ">=2.2.0" },
+    { name = "python-dotenv", specifier = ">=1.0.0" },
     { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "sqlite-vec", specifier = ">=0.1.9" },
 ]
+provides-extras = ["gemini", "langfuse", "all"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "google-genai", specifier = ">=1.0.0" },
+    { name = "langfuse", specifier = ">=2.0.0,<3.0.0" },
     { name = "mypy", specifier = ">=1.9.0" },
     { name = "pre-commit", specifier = ">=3.6.0" },
     { name = "pytest", specifier = ">=8.0.0" },
