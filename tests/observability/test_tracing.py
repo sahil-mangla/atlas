@@ -1,5 +1,6 @@
 """Optional Langfuse tracing: off by default, on only with keys and the package."""
 
+import os
 import subprocess
 import sys
 from collections.abc import Iterator
@@ -106,6 +107,17 @@ def test_enabled_decorator_delegates_to_langfuse(
     assert seen == [{"name": "op", "as_type": "generation"}]
 
 
+def _minimal_environment() -> dict[str, str]:
+    """No LANGFUSE_* variables, but what the OS needs to start Python.
+
+    Windows cannot start an interpreter without SYSTEMROOT.
+    """
+    keep = ("PATH", "SYSTEMROOT", "WINDIR", "TEMP", "TMP")
+    env = {name: os.environ[name] for name in keep if name in os.environ}
+    env["PYTHONPATH"] = str(REPO_ROOT)
+    return env
+
+
 def test_langfuse_is_never_imported_without_keys(tmp_path: Path) -> None:
     """Importing every traced module, and running a traced call, stays silent."""
     script = (
@@ -120,7 +132,7 @@ def test_langfuse_is_never_imported_without_keys(tmp_path: Path) -> None:
     completed = subprocess.run(
         [sys.executable, "-c", script],
         cwd=tmp_path,
-        env={"PATH": "", "PYTHONPATH": str(REPO_ROOT)},
+        env=_minimal_environment(),
         capture_output=True,
         text=True,
         check=True,

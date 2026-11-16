@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### First-Run Commands
+
+- Added: `atlas demo` runs the whole workflow offline on a throwaway project
+  in a temporary directory, regardless of the user's configuration.
+- Added: `atlas init` writes `.env` for a chosen protocol. API keys are read
+  from a hidden prompt only; an existing `.env` is never replaced without
+  `--force`, which keeps a `.env.bak`; it warns when `.env` is not git-ignored.
+- Added: `atlas doctor` checks the configuration offline and explains each
+  fix; `--live` sends one small real request. Exits 1 on failure.
+- Changed: the CLI starts the platform on first use instead of at launch, so
+  `help`, `version`, `init`, `doctor` and `demo` work with a broken
+  configuration, and platform start-up errors are printed like other errors
+  (on stdout) instead of on stderr.
+
 ### Optional Dependencies
 
 - Changed: `google-genai` and `langfuse` are now optional extras

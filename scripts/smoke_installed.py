@@ -1,4 +1,4 @@
-"""Smoke-test an *installed* ATLAS: run the whole pipeline offline.
+"""Smoke-test an *installed* ATLAS: first-run commands and the full pipeline.
 
 Used by CI after ``pip install dist/*.whl`` into a clean environment, and
 usable by hand to check any install:
@@ -56,7 +56,10 @@ def main() -> int:
             raise SystemExit(f"FAILED: no ID in output:\n{text}")
         return match.group()
 
-    run("version")
+    run("--version")
+    run("--help")
+    run("demo")
+    run("doctor")
     project = (
         "--project-id",
         first_uuid(

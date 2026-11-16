@@ -40,3 +40,22 @@ class PresentationExportCommand(Command):
     view: str
     format: str
     output: str
+
+
+class InitCommand(Command):
+    """CLI sentinel: write a .env configuring an AI protocol."""
+
+    protocol: str | None = None
+    model: str | None = None
+    endpoint: str | None = None
+    force: bool = False
+
+
+class DoctorCommand(Command):
+    """CLI sentinel: check the configuration, optionally with a live request."""
+
+    live: bool = False
+
+
+class DemoCommand(Command):
+    """CLI sentinel: run the whole pipeline offline on a throwaway project."""

@@ -11,7 +11,7 @@ import os
 import re
 import subprocess
 import sys
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -68,7 +68,10 @@ class Cli:
     network_log: Path
     _guard_dir: Path
 
-    def __call__(self, *args: str, env: dict[str, str] | None = None) -> CliResult:
+    def __call__(
+        self, *args: str, env: Mapping[str, str | None] | None = None
+    ) -> CliResult:
+        """Run ``atlas *args``; an ``env`` value of ``None`` unsets that variable."""
         environment = {key: os.environ[key] for key in _SYSTEM_ENV if key in os.environ}
         environment.update(
             {
@@ -80,7 +83,11 @@ class Cli:
                 "ATLAS_AI_PROTOCOL": "SCRIPTED",
             }
         )
-        environment.update(env or {})
+        for name, value in (env or {}).items():
+            if value is None:
+                environment.pop(name, None)
+            else:
+                environment[name] = value
         completed = subprocess.run(
             [
                 sys.executable,
@@ -98,7 +105,7 @@ class Cli:
         )
         return CliResult(completed.returncode, completed.stdout, completed.stderr)
 
-    def ok(self, *args: str, env: dict[str, str] | None = None) -> CliResult:
+    def ok(self, *args: str, env: Mapping[str, str | None] | None = None) -> CliResult:
         """Run a command that is expected to succeed."""
         result = self(*args, env=env)
         assert result.returncode == 0, f"atlas {' '.join(args)}\n{result.output}"

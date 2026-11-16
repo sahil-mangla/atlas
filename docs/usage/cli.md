@@ -4,11 +4,33 @@ The ATLAS CLI provides a command-line interface to the underlying ATLAS engineer
 
 ## Installation
 
-When the `atlas` package is installed, the CLI is available globally:
+When the `atlas-eng` package is installed, the CLI is available globally:
 
 ```bash
-atlas version
+atlas --version
+atlas --help        # also: atlas help, atlas <group> --help
 ```
+
+## Getting Started
+
+These three commands work before any configuration exists, and while it is
+broken; none of them starts the platform with your settings.
+
+- `atlas demo`: Take a throwaway project through every AI stage offline, using
+  built-in canned proposals (no model, no key, no network), in a temporary
+  directory. Prints where the records were written.
+- `atlas init [--protocol <p>] [--model <m>] [--endpoint <url>] [--force]`:
+  Write `.env` in the current directory for one AI protocol. Asks for anything
+  the flags do not supply; API keys are only ever read from a hidden prompt,
+  never from flags. Without a terminal, pass `--protocol`; unanswered values
+  are left commented out. Refuses to replace an existing `.env` unless
+  `--force` is given, and then keeps the old file as `.env.bak`. Warns when
+  `.env` is not ignored by git.
+- `atlas doctor [--live]`: Check the configuration: which `.env` was found,
+  the protocol and its required settings, whether its optional package is
+  installed, the workspace, semantic retrieval and Langfuse. Each problem
+  comes with the fix. Exits 1 if any check fails. `--live` also sends one
+  small request to the configured model (this may cost a few tokens).
 
 ## Usage
 
@@ -25,6 +47,7 @@ atlas <group> <sub-command> [flags]
 - A flag given without a value (e.g. immediately followed by another flag)
   raises a parse error naming the flag that needs a value, rather than
   silently consuming the next flag's name as this flag's value.
+- On/off switches (`--force`, `--live`) take no value.
 
 ### Available Groups
 

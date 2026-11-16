@@ -117,6 +117,9 @@ class CommandParser:
             "presentation": self._parse_presentation,
             "version": self._parse_version,
             "help": self._parse_help,
+            "init": self._parse_init,
+            "doctor": self._parse_doctor,
+            "demo": self._parse_demo,
         }
 
         handler = dispatch.get(group)
@@ -246,6 +249,33 @@ class CommandParser:
         from atlas_eng.clients.cli.commands import VersionCommand  # noqa: PLC0415
 
         return VersionCommand()
+
+    def _parse_init(self, rest: list[str]) -> Command:
+        from atlas_eng.clients.cli.commands import InitCommand  # noqa: PLC0415
+
+        parsed = _parse_flags(
+            rest,
+            optional=["--protocol", "--model", "--endpoint"],
+            switches=["--force"],
+        )
+        return InitCommand(
+            protocol=parsed.get("--protocol"),
+            model=parsed.get("--model"),
+            endpoint=parsed.get("--endpoint"),
+            force="--force" in parsed,
+        )
+
+    def _parse_doctor(self, rest: list[str]) -> Command:
+        from atlas_eng.clients.cli.commands import DoctorCommand  # noqa: PLC0415
+
+        parsed = _parse_flags(rest, switches=["--live"])
+        return DoctorCommand(live="--live" in parsed)
+
+    def _parse_demo(self, rest: list[str]) -> Command:
+        from atlas_eng.clients.cli.commands import DemoCommand  # noqa: PLC0415
+
+        _parse_flags(rest)
+        return DemoCommand()
 
     def _parse_help(self, _rest: list[str]) -> Command:
         from atlas_eng.clients.cli.commands import HelpCommand  # noqa: PLC0415
@@ -466,6 +496,7 @@ def _parse_flags(
     *,
     required: list[str] | None = None,
     optional: list[str] | None = None,
+    switches: list[str] | None = None,
 ) -> dict[str, str]:
     """Parse ``--flag value`` or ``--flag=value`` pairs from a flat token list.
 
@@ -473,6 +504,7 @@ def _parse_flags(
         tokens: Remaining argv tokens after the sub-command.
         required: Flags that must be present.
         optional: Flags that may be present.
+        switches: Flags that take no value; present ones map to ``""``.
 
     Returns:
         Mapping of flag name → value string.
@@ -483,6 +515,7 @@ def _parse_flags(
     """
     required = required or []
     optional = optional or []
+    switch_names = set(switches or [])
     known = set(required) | set(optional)
 
     result: dict[str, str] = {}
@@ -492,7 +525,9 @@ def _parse_flags(
         if not token.startswith("--"):
             raise CLIParseError(f"Unexpected token '{token}'.")
 
-        if "=" in token:
+        if token in switch_names:
+            name, value, consumed = token, "", 1
+        elif "=" in token:
             name, _, value = token.partition("=")
             consumed = 1
         else:
@@ -502,7 +537,7 @@ def _parse_flags(
             value = tokens[i + 1]
             consumed = 2
 
-        if name not in known:
+        if name not in known and name not in switch_names:
             raise CLIParseError(f"Unknown flag '{name}'.")
         if name in result:
             raise CLIParseError(f"Flag '{name}' was specified more than once.")

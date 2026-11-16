@@ -446,6 +446,20 @@ class CLIRenderer:
         suffix = f"\n  {hint}" if hint else ""
         return f"{badge}  {kind}: {error}{suffix}"
 
+    def render_failure(self, message: str) -> str:
+        """Render a CLI-side failure that is not a platform error.
+
+        Args:
+            message: What went wrong and how to fix it.
+
+        Returns:
+            A formatted error string.
+        """
+        badge = render_status_badge(
+            "error", ok=False, use_unicode=self._ctx.use_unicode
+        )
+        return f"{badge}  {message}"
+
     def render_parse_error(self, message: str) -> str:
         """Render a parse error for terminal display.
 
@@ -524,6 +538,12 @@ ATLAS Command Line Interface
 
 Usage:
   atlas <group> <sub-command> [flags]
+
+Getting started:
+  atlas demo                     Run the whole workflow offline on a throwaway project
+  atlas init  [--protocol <p>] [--model <m>] [--endpoint <url>] [--force]
+                                 Write a .env for your AI provider (asks for the key)
+  atlas doctor [--live]          Check the configuration; --live sends one test request
 
 Project commands:
   atlas project create   --name <n> --description <d> --objective <o> [--path <p>]

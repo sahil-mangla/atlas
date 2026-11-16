@@ -96,11 +96,12 @@ def test_cli_app_bootstrap_failure(capsys: pytest.CaptureFixture[str]) -> None:
         ),
         patch("sys.exit") as mock_exit,
     ):
-        main(["version"])
+        # The platform starts on first use, so use a command that needs it.
+        main(["project", "list"])
         mock_exit.assert_called_once_with(_EXIT_ERROR)
-        _, err = capsys.readouterr()
-        assert "BootstrapError" in err
-        assert "Failed to init" in err
+        out, _ = capsys.readouterr()
+        assert "BootstrapError" in out
+        assert "Failed to init" in out
 
 
 @patch("sys.exit")

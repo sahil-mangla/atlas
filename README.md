@@ -116,26 +116,29 @@ atlas --version
 # ATLAS  1.1.0
 ```
 
+### See it work first (no API key)
+
+```bash
+atlas demo
+```
+
+This takes a throwaway project through every AI stage offline, using
+built-in canned proposals instead of a model, and tells you where to find the
+records it wrote. Nothing in your own workspace changes. See
+[Testing Without an AI Provider](docs/testing.md).
+
 ### Configure
 
-ATLAS reads configuration from environment variables (optionally via a `.env`
-file in your working directory). At minimum, set an API key for your chosen
-provider -- see [Configuring an AI Provider](#configuring-an-ai-provider) below.
-
 ```bash
-export ATLAS_GEMINI_API_KEY="your-api-key-here"
+atlas init     # choose a provider; writes .env and asks for the API key
+atlas doctor   # check the configuration; add --live to send one test request
 ```
 
-### Try it without an API key
-
-Set `ATLAS_AI_PROTOCOL=SCRIPTED` to run the whole pipeline offline with a
-deterministic built-in provider. The proposals are canned demonstration text,
-not model output -- it shows how ATLAS works before you configure a real
-provider. See [Testing Without an AI Provider](docs/testing.md).
-
-```bash
-export ATLAS_AI_PROTOCOL=SCRIPTED
-```
+`atlas init` never overwrites an existing `.env` unless you pass `--force`
+(the old file is kept as `.env.bak`), and warns if `.env` is not git-ignored.
+ATLAS reads `.env` from the current directory or any parent; environment
+variables override it. See [Configuring an AI Provider](#configuring-an-ai-provider)
+for every setting.
 
 ### Your First Project
 

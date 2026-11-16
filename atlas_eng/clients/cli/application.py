@@ -31,10 +31,19 @@ from atlas_eng.adapters.protocol import (
 )
 from atlas_eng.capabilities.base import CapabilityName
 from atlas_eng.clients.cli.commands import (
+    DemoCommand,
+    DoctorCommand,
     HelpCommand,
+    InitCommand,
     PresentationExportCommand,
     PresentationViewCommand,
     VersionCommand,
+)
+from atlas_eng.clients.cli.onboarding import (
+    OnboardingError,
+    run_demo,
+    run_doctor,
+    run_init,
 )
 from atlas_eng.clients.cli.parser import CLIParseError, parse_argv
 from atlas_eng.clients.cli.renderer import CLIRenderer
@@ -91,7 +100,10 @@ class CLIApplication:
         atlas_platform: Atlas | None = None,
         renderer: CLIRenderer | None = None,
     ) -> None:
-        self._atlas = atlas_platform or atlas_eng.create()
+        # Created on first use, not here: 'init', 'doctor', 'demo', 'help'
+        # and 'version' must work while the configuration is missing or
+        # broken, and should not pay the platform's start-up cost.
+        self._atlas_platform = atlas_platform
         self._renderer = renderer or CLIRenderer(
             RenderContext(
                 use_unicode=_supports_unicode(),
@@ -102,6 +114,12 @@ class CLIApplication:
         self._adapter_context = AdapterContext(
             kind=AdapterKind.CLI, name="atlas-cli", version=_VERSION
         )
+
+    @property
+    def _atlas(self) -> Atlas:
+        if self._atlas_platform is None:
+            self._atlas_platform = atlas_eng.create()
+        return self._atlas_platform
 
     @property
     def context(self) -> AdapterContext:
@@ -145,14 +163,32 @@ class CLIApplication:
             sys.stdout.write(self._renderer.render_parse_error(str(exc)) + "\n")
             return _EXIT_PARSE_ERROR
 
+        code = _EXIT_OK
         try:
-            output = self._dispatch(command)
+            if isinstance(command, InitCommand | DoctorCommand | DemoCommand):
+                output, code = self._run_onboarding(command)
+            else:
+                output = self._dispatch(command)
         except ApplicationError as exc:
             sys.stdout.write(self._renderer.render_error(exc) + "\n")
             return _EXIT_ERROR
+        except OnboardingError as exc:
+            sys.stdout.write(self._renderer.render_failure(str(exc)) + "\n")
+            return _EXIT_ERROR
 
         sys.stdout.write(output + "\n")
-        return _EXIT_OK
+        return code
+
+    def _run_onboarding(
+        self, command: InitCommand | DoctorCommand | DemoCommand
+    ) -> tuple[str, int]:
+        """Run a first-run command; these never use the configured platform."""
+        if isinstance(command, InitCommand):
+            return run_init(command, cwd=Path.cwd(), out=sys.stdout), _EXIT_OK
+        if isinstance(command, DoctorCommand):
+            report, ok = run_doctor(command, use_unicode=_supports_unicode())
+            return report, _EXIT_OK if ok else _EXIT_ERROR
+        return run_demo(command, out=sys.stdout), _EXIT_OK
 
     # ------------------------------------------------------------------
     # Command dispatch
