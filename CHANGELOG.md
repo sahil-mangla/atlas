@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Repository
+
+- Added: `CONTRIBUTING.md` (setup, checks, layer rules, PR expectations) and
+  `SECURITY.md` (private reporting, and what ATLAS stores and sends where).
+- Changed: `.planning/` is no longer tracked; `.gitignore` already marked it
+  local-only. The files stay on disk.
+- Checked: the full git history contains no committed secrets.
+
 ### Project References
 
 - Added: every `--project-id` accepts a project name, its directory name, or

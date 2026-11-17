@@ -442,13 +442,9 @@ key.
 
 ## Contributing
 
-Issues and pull requests are welcome:
-
-- **Bug reports / feature requests:** use the templates under
-  [`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE/).
-- **Pull requests:** follow the checklist in
-  [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md) --
-  run `pytest`, `mypy`, and `ruff` locally before opening one.
+Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md)
+for setup, checks and where code goes, and [SECURITY.md](SECURITY.md) to
+report a vulnerability privately.
 
 ## License
 
