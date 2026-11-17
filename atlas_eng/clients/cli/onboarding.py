@@ -105,13 +105,18 @@ def run_init(
         if given:
             values[variable.name] = given
             continue
-        if not interactive:
-            if variable.default:
-                values[variable.name] = variable.default
-            continue
-        suffix = f" [{variable.default}]" if variable.default else ""
-        reader = ask_secret if variable.secret else ask
-        answer = reader(f"{variable.prompt}{suffix}: ").strip()
+        answer = ""
+        if interactive:
+            suffix = f" [{variable.default}]" if variable.default else ""
+            reader = ask_secret if variable.secret else ask
+            try:
+                answer = reader(f"{variable.prompt}{suffix}: ").strip()
+            except EOFError:
+                # Input ended (Ctrl-D, or a stdin that only looks like a
+                # terminal, such as NUL on Windows): stop asking and leave
+                # the remaining values for the user to fill in.
+                out.write("\n")
+                interactive = False
         if answer or variable.default:
             values[variable.name] = answer or variable.default
 
@@ -149,16 +154,21 @@ def _choose_protocol(
                 f"Unknown protocol {requested!r}. Choose one of: {known}."
             )
         return setup
+    no_input = OnboardingError(
+        "No terminal to ask in. Pass the protocol: "
+        "atlas init --protocol <GEMINI|ANTHROPIC|OPENAI_COMPATIBLE|OLLAMA|SCRIPTED>"
+    )
     if not interactive:
-        raise OnboardingError(
-            "No terminal to ask in. Pass the protocol: "
-            "atlas init --protocol <GEMINI|ANTHROPIC|OPENAI_COMPATIBLE|OLLAMA|SCRIPTED>"
-        )
+        raise no_input
     out.write("Which AI provider should ATLAS use?\n")
     for index, setup in enumerate(PROTOCOLS, start=1):
         out.write(f"  {index}. {setup.name:<18} {setup.summary}\n")
     while True:
-        answer = ask(f"Choose 1-{len(PROTOCOLS)}: ").strip()
+        try:
+            answer = ask(f"Choose 1-{len(PROTOCOLS)}: ").strip()
+        except EOFError:
+            out.write("\n")
+            raise no_input from None
         if answer.isdigit() and 1 <= int(answer) <= len(PROTOCOLS):
             return PROTOCOLS[int(answer) - 1]
         chosen = protocol_setup(answer)

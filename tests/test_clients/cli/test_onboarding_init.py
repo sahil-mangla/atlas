@@ -3,8 +3,10 @@
 import io
 from pathlib import Path
 
+import pytest
+
 from atlas_eng.clients.cli.commands import InitCommand
-from atlas_eng.clients.cli.onboarding import run_init
+from atlas_eng.clients.cli.onboarding import OnboardingError, run_init
 
 
 def _answers(*values: str):  # type: ignore[no-untyped-def]
@@ -74,3 +76,53 @@ def test_values_with_quotes_round_trip_through_dotenv(tmp_path: Path) -> None:
     )
 
     assert dotenv_values(tmp_path / ".env")["ATLAS_AI_MODEL"] == 'weird "model" name'
+
+
+def _end_of_input(_prompt: str) -> str:
+    raise EOFError
+
+
+def test_end_of_input_while_choosing_asks_for_the_flag(tmp_path: Path) -> None:
+    """Ctrl-D, or a stdin that only claims to be a terminal (NUL on Windows)."""
+    with pytest.raises(OnboardingError, match="--protocol"):
+        run_init(
+            InitCommand(),
+            cwd=tmp_path,
+            out=io.StringIO(),
+            ask=_end_of_input,
+            ask_secret=_end_of_input,
+        )
+
+    assert not (tmp_path / ".env").exists()
+
+
+def test_end_of_input_mid_way_keeps_flags_and_defaults(tmp_path: Path) -> None:
+    message = run_init(
+        InitCommand(protocol="OLLAMA", model="qwen2.5-coder:7b"),
+        cwd=tmp_path,
+        out=io.StringIO(),
+        ask=_end_of_input,
+        ask_secret=_end_of_input,
+    )
+
+    env_file = (tmp_path / ".env").read_text(encoding="utf-8")
+    assert 'ATLAS_AI_ENDPOINT="http://localhost:11434"' in env_file
+    assert 'ATLAS_AI_MODEL="qwen2.5-coder:7b"' in env_file
+    assert "Still to fill in" not in message
+
+
+def test_end_of_input_leaves_unanswered_values_commented_out(tmp_path: Path) -> None:
+    ask, asked = _answers()
+    # Gemini asks for the key first; input ends there, so the model prompt
+    # that follows is never shown.
+    message = run_init(
+        InitCommand(protocol="GEMINI"),
+        cwd=tmp_path,
+        out=io.StringIO(),
+        ask=ask,
+        ask_secret=_end_of_input,
+    )
+
+    assert asked == []
+
+    assert "Still to fill in: ATLAS_GEMINI_API_KEY, ATLAS_GEMINI_MODEL" in message
