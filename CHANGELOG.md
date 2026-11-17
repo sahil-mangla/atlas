@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-18
+
+First release on PyPI, as `atlas-eng`.
+
 ### Packaging and Release
 
 - Added: PyPI metadata (license, classifiers, keywords, project links) and an

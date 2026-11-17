@@ -2,7 +2,7 @@
 
 **Where Ideas Become Engineering.**
 
-[![Version](https://img.shields.io/badge/version-1.1.0-blue)](https://github.com/sahil-mangla/atlas/blob/main/CHANGELOG.md)
+[![PyPI](https://img.shields.io/pypi/v/atlas-eng)](https://pypi.org/project/atlas-eng/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/downloads/)
 [![CI](https://github.com/sahil-mangla/atlas/actions/workflows/ci.yml/badge.svg)](https://github.com/sahil-mangla/atlas/actions/workflows/ci.yml)
@@ -81,7 +81,17 @@ of everything that was proposed and decided.
 
 ### Install
 
-**From source (recommended until a PyPI release is published):**
+```bash
+pip install atlas-eng        # or: pipx install atlas-eng
+```
+
+Or try it without installing anything (needs [uv](https://github.com/astral-sh/uv)):
+
+```bash
+uvx atlas-eng demo
+```
+
+To install from source instead:
 
 ```bash
 git clone https://github.com/sahil-mangla/atlas.git
@@ -89,22 +99,16 @@ cd atlas
 pip install .
 ```
 
-**Directly from GitHub, without cloning:**
-
-```bash
-pip install git+https://github.com/sahil-mangla/atlas.git
-```
-
-Either way, this installs the `atlas-eng` package, which provides the `atlas`
+This installs the `atlas-eng` package, which provides the `atlas`
 command and the `atlas_eng` Python package, in your active Python environment.
 
 Support for some services is optional, so the base install stays small:
 
 | Extra | Adds | Install |
 |---|---|---|
-| `gemini` | The `GEMINI` protocol (the default) | `pip install ".[gemini]"` |
-| `langfuse` | Sending traces to [Langfuse](https://langfuse.com) | `pip install ".[langfuse]"` |
-| `all` | Both | `pip install ".[all]"` |
+| `gemini` | The `GEMINI` protocol (the default) | `pip install "atlas-eng[gemini]"` |
+| `langfuse` | Sending traces to [Langfuse](https://langfuse.com) | `pip install "atlas-eng[langfuse]"` |
+| `all` | Both | `pip install "atlas-eng[all]"` |
 
 The `ANTHROPIC`, `OPENAI_COMPATIBLE`, `OLLAMA` and offline `SCRIPTED`
 protocols need no extra.
@@ -293,8 +297,7 @@ report a vulnerability privately.
 ATLAS is at **v1.1.0**, distributed as `atlas-eng`, following the completion
 of all sixteen planned phases (see [`CHANGELOG.md`](CHANGELOG.md) and
 [`docs/history/reports/`](docs/history/reports) for the full history, including the
-seven-sprint Phase 16 production-readiness pass). A PyPI release is in
-preparation. Version 2 scope -- additional client adapters (MCP, REST, IDE)
+seven-sprint Phase 16 production-readiness pass). Version 2 scope -- additional client adapters (MCP, REST, IDE)
 and the performance-review candidates documented in
 [`docs/history/reports/phase-16-sprint-6-performance-review.md`](docs/history/reports/phase-16-sprint-6-performance-review.md)
 -- is not yet started.
