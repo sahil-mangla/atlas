@@ -23,12 +23,10 @@ project's permanent record. Nothing an AI drafts is ever silently committed.
 - [What ATLAS Does](#what-atlas-does)
 - [Quick Start](#quick-start)
 - [Configuring an AI Provider](#configuring-an-ai-provider)
+- [Optional Features](#optional-features)
 - [CLI Reference](#cli-reference)
-- [Semantic Knowledge Retrieval](#semantic-knowledge-retrieval-optional)
-- [Observability and Evaluations](#observability-and-evaluations)
 - [Architecture](#architecture)
 - [Documentation](#documentation)
-- [Development Setup](#development-setup)
 - [Contributing](#contributing)
 - [License](#license)
 - [Project Status](#project-status)
@@ -183,74 +181,6 @@ or `atlas knowledge reject --feedback <f>` to review one.
 
 See the [CLI Reference](#cli-reference) below for the full command set.
 
-## Semantic Knowledge Retrieval (optional)
-
-By default, each stage is grounded in the newest published knowledge entries.
-Set `ATLAS_EMBEDDING_ENABLED=true` to rank those entries by semantic similarity
-to the project's objective and your instructions instead, using an embedded
-[sqlite-vec](https://github.com/asg017/sqlite-vec) index at
-`.atlas/knowledge.vec.db`. The index is a rebuildable cache: published
-knowledge in `.atlas/knowledge.json` stays the source of truth, and entries are
-embedded lazily on first retrieval. If embedding fails, retrieval falls back to
-newest-first.
-
-```bash
-ATLAS_EMBEDDING_ENABLED=true
-ATLAS_EMBEDDING_MODEL="nomic-embed-text"   # model name for your embedding backend
-# Optional; protocol, endpoint and API key default to the ATLAS_AI_* values.
-# ATLAS_EMBEDDING_PROTOCOL=OLLAMA
-# ATLAS_EMBEDDING_ENDPOINT=http://localhost:11434
-# ATLAS_EMBEDDING_API_KEY=...
-```
-
-Embeddings are supported for the `GEMINI`, `OLLAMA` and `OPENAI_COMPATIBLE`
-protocols; `ANTHROPIC` has no embeddings API. Search is an exact cosine scan
-(no ANN index), one vector per entry. See
-[ADR-006](docs/decisions/adr-006-semantic-knowledge-retrieval.md).
-
-A labelled retrieval eval lives in `evals/retrieval/`:
-
-```bash
-uv run python -m evals.retrieval --model nomic-embed-text   # needs a running Ollama
-```
-
-On its 30 queries over 190 sections of this repo's own docs (a proxy corpus,
-not reviewed knowledge; queries written by the feature's author), `nomic-embed-text`
-gave hit@5 0.90 and MRR@20 0.79, against 0.83 and 0.64 for a BM25 keyword
-baseline and 0.10 and 0.06 for the previous newest-first behaviour. The
-advantage over BM25 is small and mostly within bootstrap noise at this sample
-size. Full numbers are in `evals/retrieval/results.json`.
-
-## Observability and Evaluations
-
-Every envelope-based request handled through `Atlas.handle()` produces a structured trace containing its capability, adapter, latency, outcome, and AI token usage. 
-
-ATLAS features a built-in **dual-sink observability layer**:
-1. **Local Filesystem Sink**: Production bootstrap writes daily JSONL traces under `<workspace-root>/traces/YYYY-MM-DD.jsonl`.
-2. **Langfuse Cloud / Self-Hosted Sink**: Integrates with [Langfuse](https://langfuse.com) for production LLM observability, tracking prompt inputs, generation outputs, token usage, cost, and end-to-end request hierarchies.
-
-### Configuring Langfuse
-
-To stream traces to Langfuse, install the `langfuse` extra and provide your
-keys in `.env` or the environment. Without both keys, ATLAS never loads
-Langfuse:
-
-```bash
-LANGFUSE_PUBLIC_KEY="pk-lf-..."
-LANGFUSE_SECRET_KEY="sk-lf-..."
-LANGFUSE_HOST="https://cloud.langfuse.com"  # or your self-hosted instance
-```
-
-Set `ATLAS_INSTRUMENTATION_ENABLED=false` to disable tracing completely. Unexpected exceptions are traced and re-raised, while exporter failures are non-blocking and never interrupt request handling.
-
-The platform also includes a YAML-driven evaluation suite for command routing, response schemas, multi-step workflows, error handling, and AI execution:
-
-```bash
-uv run python -m evals
-```
-
-Runs are written to `evals/runs/` and compared with the tracked baseline at `evals/baselines/latest.json`. See the [observability guide](docs/observability.md) and [evaluation guide](docs/evaluations.md) for configuration, task authoring, trace fields, and baseline updates.
-
 ## Configuring an AI Provider
 
 ATLAS is provider-agnostic: it talks to any of four protocols through a common
@@ -278,6 +208,17 @@ All settings are read as environment variables prefixed with `ATLAS_` (e.g.
 default `./workspace`). Copy `.env.example` to `.env` and fill in your values
 to configure a project directory instead of exporting variables by hand.
 
+## Optional Features
+
+- **Semantic knowledge retrieval:** rank published knowledge by relevance
+  using an embedded vector index. See
+  [Semantic Knowledge Retrieval](docs/semantic-retrieval.md).
+- **Tracing:** every request is traced to `<workspace>/traces/`, and to
+  [Langfuse](https://langfuse.com) with the `langfuse` extra and keys. See the
+  [Observability Guide](docs/observability.md).
+- **Evaluations:** a YAML benchmark suite, runnable offline or against a real
+  model. See the [Evaluation Guide](docs/evaluations.md).
+
 ## CLI Reference
 
 ```
@@ -286,86 +227,39 @@ atlas <group> <sub-command> [flags]
 
 | Group | Command | Description |
 |---|---|---|
+| `demo` | | Run the whole workflow offline on a throwaway project |
+| `init` | `[--protocol <p>] [--model <m>] [--endpoint <url>] [--force]` | Write `.env` for an AI provider |
+| `doctor` | `[--live]` | Check the configuration |
 | `project` | `create --name <n> --description <d> --objective <o>` | Create a new project workspace |
-| | `load --project-id <uuid>` | Load a project's context |
+| | `load` | Load a project's context |
 | | `list` | List all known projects |
-| | `archive --project-id <uuid>` | Archive an active project |
-| `workflow` | `status --project-id <uuid>` | Show the current stage and readiness |
-| | `transition --project-id <uuid> --reason <r>` | Transition to the next stage |
-| | `complete-objective --project-id <uuid> --objective <o>` | Clear one active objective on a human-driven stage (`problem_definition`, `implementation`, `iteration`, `completion`) |
-| `stage` | `execute --project-id <uuid> --stage <s>` | Generate an AI draft for the current stage |
-| `proposal` | `approve --project-id <uuid> --proposal-id <uuid>` | Approve and commit a draft |
-| | `reject --project-id <uuid> --proposal-id <uuid> --feedback <f>` | Reject a draft with feedback |
-| `knowledge` | `list --project-id <uuid> [--status <s>]` | List engineering-knowledge candidates |
-| | `show --project-id <uuid> --candidate-id <uuid>` | Show one candidate's full content |
-| | `approve --project-id <uuid> --candidate-id <uuid>` | Approve and publish a candidate (one step) |
-| | `reject --project-id <uuid> --candidate-id <uuid> --feedback <f>` | Reject a candidate with feedback |
-| `presentation` | `dashboard\|workflow\|research\|knowledge\|diagnostics --project-id <uuid> [--format <f>]` | Render a composed view to stdout |
-| | `export --project-id <uuid> --view <v> --output <path> [--format <f>]` | Render a view to a file |
+| | `archive` | Archive an active project |
+| | `use --project-id <name\|id>` | Set the current project |
+| `workflow` | `status` | Show the current stage and readiness |
+| | `transition --reason <r>` | Transition to the next stage |
+| | `complete-objective --objective <o>` | Clear one active objective on a human-driven stage (`problem_definition`, `implementation`, `iteration`, `completion`) |
+| `stage` | `execute --stage <s>` | Generate an AI draft for the current stage |
+| `proposal` | `approve --proposal-id <uuid>` | Approve and commit a draft |
+| | `reject --proposal-id <uuid> --feedback <f>` | Reject a draft with feedback |
+| `knowledge` | `list [--status <s>]` | List engineering-knowledge candidates |
+| | `show --candidate-id <uuid>` | Show one candidate's full content |
+| | `approve --candidate-id <uuid>` | Approve and publish a candidate (one step) |
+| | `reject --candidate-id <uuid> --feedback <f>` | Reject a candidate with feedback |
+| `presentation` | `dashboard\|workflow\|research\|knowledge\|diagnostics [--format <f>]` | Render a composed view to stdout |
+| | `export --view <v> --output <path> [--format <f>]` | Render a view to a file |
 
-`<s>` is one of `research`, `planning`, `architecture`, `review`. `<f>` (presentation format) is one of `cli` (default), `markdown`, `json`. Full details:
+Commands that act on a project take `--project-id <name|id>`; leave it out
+to use the current project. `<s>` is one of `research`, `planning`,
+`architecture`, `review`. `<f>` (presentation format) is one of `cli` (default), `markdown`, `json`. Full details:
 [docs/usage/cli.md](docs/usage/cli.md).
 
 ## Architecture
 
-ATLAS is organized as a strict layered architecture: a stateless, protocol-
-independent domain and engineering core (`atlas_eng/engine/`), a versioned public SDK
-boundary (`atlas/`), a presentation layer that renders read models without
-touching engine internals (`atlas_eng/presentation/`), and thin client adapters
-(`atlas_eng/clients/`) that translate an external environment (CLI today; MCP, REST,
-and IDE integrations are Version 2 scope) into calls against that SDK.
-
-- **`atlas/`** -- Public Application Platform SDK exposing the `Atlas` facade,
-  immutable command/result DTOs, and application exceptions.
-  - **`atlas_eng/capabilities/`** -- Internal Capability Layer decomposing `Atlas`
-    into five thin delegation classes -- Project, Workflow, WorkflowExecution,
-    Knowledge, Presentation.
-  - **`atlas_eng/contracts/`** -- Public Contract Layer -- versioned
-    `RequestEnvelope`/`ResponseEnvelope`, the `PlatformErrorCode` error
-    contract, and API versioning.
-  - **`atlas_eng/adapters/`** -- Public Adapter Boundary -- the structural
-    `PlatformAdapter` protocol and capability-negotiation manifest every
-    client (CLI, IDE, MCP, AI, REST, Desktop) satisfies.
-- **`atlas_eng/engine/domain/`** -- Strongly-typed, framework-independent Pydantic
-  models representing the ubiquitous domain language of ATLAS, including the
-  Engineering Design Language (EDL) components (`TraceabilityLink`,
-  `ArtifactMetadata` composition, `EngineeringReview` contracts), AI proposal
-  drafts (`ai_drafts.py`), and review feedback (`ai_feedback.py`).
-- **`atlas_eng/engine/project/`** -- Project Subsystem: workspace initialization
-  (`.atlas/`), loading, metadata discovery, and lifecycle states (initialized,
-  active, paused, archived).
-- **`atlas_eng/engine/memory/`** -- Memory Subsystem managing dialogue context and
-  history.
-- **`atlas_eng/engine/knowledge/`** -- Knowledge Subsystem: the Engineering Knowledge
-  Layer collecting, deduplicating, retrieving (newest-first, or optionally
-  semantic via sqlite-vec), and managing reviewed project-scoped engineering
-  knowledge.
-- **`atlas_eng/engine/workflow/`** -- Workflow Subsystem: execution readiness, phase
-  transitions, and lifecycle orchestration.
-- **`atlas_eng/engine/research/`** -- Research Subsystem: problem definition, evidence
-  gathering, snapshotting, hypothesis validation.
-- **`atlas_eng/engine/planning/`** -- Planning Subsystem: decomposing research into
-  scopes, milestones, epics, tasks, subtasks, and dependencies.
-- **`atlas_eng/engine/architecture/`** -- Architecture Subsystem: component modeling,
-  architectural decisions, interface contracts, and risk analysis.
-- **`atlas_eng/engine/evaluation/`** -- Evaluation Subsystem: readiness review and
-  stage-completion evaluation.
-- **`atlas_eng/engine/ai/`** -- AI Integration Subsystem: protocol adapters (Gemini,
-  Anthropic, OpenAI-compatible, Ollama), context assembly, orchestration, and
-  stateless engineering proposal services.
-- **`atlas_eng/presentation/`** -- Presentation Layer: composes typed, immutable Views
-  from the Atlas read-model API and renders them to JSON/Markdown/CLI,
-  independent of any client adapter.
-- **`atlas_eng/clients/`** -- Client adapters (CLI today; MCP/IDE/REST are Version 2)
-  translating external execution environments to the public Atlas SDK.
-- **`atlas_eng/shared/`** -- Common utilities and cross-cutting concerns.
-  - **`atlas_eng/shared/observability/`** -- Request-scoped AI usage capture shared by
-    the engine provider boundary and the Atlas request boundary.
-- **`atlas_eng/observability/`** -- Trace schema, request instrumentation, and
-  pluggable exporters for the platform boundary.
-- **`evals/`** -- YAML task loader, benchmark runner, report generation, and
-  baseline regression detection, plus the labelled knowledge-retrieval eval
-  (`evals/retrieval/`).
+ATLAS is a strict layered system under one package, `atlas_eng`: a stateless
+domain and engineering core (`engine/`), a versioned public SDK at the top
+level, a presentation layer that renders read models, and thin clients (the
+CLI today). See the [Package Map](docs/architecture/package-map.md) and the
+[System Overview](docs/architecture/system-overview.md).
 
 ## Documentation
 
@@ -383,63 +277,6 @@ The full architecture reference, ADRs, and diagrams live under
 - [Testing Without an AI Provider](docs/testing.md)
 - [Project History](docs/history/README.md) -- original blueprint, phase plans and sprint reports
 - [CHANGELOG](CHANGELOG.md)
-
-## Development Setup
-
-ATLAS uses [uv](https://github.com/astral-sh/uv) for fast, reproducible
-package and dependency management during development.
-
-### Prerequisites
-
-- Python >= 3.12
-- uv
-
-### Installation
-
-```bash
-git clone https://github.com/sahil-mangla/atlas.git
-cd atlas
-uv sync
-cp .env.example .env
-```
-
-### Local Development Workflow
-
-Three tools are pre-configured for code quality:
-
-- **Ruff** -- formatting and linting
-- **mypy** -- strict static type checking
-- **pytest** -- automated testing and coverage
-
-```bash
-# Lint and format
-uv run ruff check . --fix
-uv run ruff format .
-
-# Type check
-uv run mypy .
-
-# Test
-uv run pytest
-
-# Run the platform benchmark against the configured/default AI provider
-uv run python -m evals
-```
-
-### Pre-commit Hooks
-
-```bash
-uv run pre-commit install
-uv run pre-commit run --all-files
-```
-
-### Continuous Integration
-
-Every push and pull request against `main` runs lint and type checks, the
-test suite on Linux, macOS and Windows, the offline eval benchmark, and a
-build-install-run check of the wheel, via
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml). No job needs an API
-key.
 
 ## Contributing
 

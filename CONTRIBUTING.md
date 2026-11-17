@@ -28,6 +28,12 @@ uv run python -m evals --ai-protocol SCRIPTED --ai-model scripted \
   --baseline-path evals/baselines/scripted.json --no-latency-check
 ```
 
+To run the formatting, lint and type checks on every commit:
+
+```bash
+uv run pre-commit install
+```
+
 Tests run with outbound network access blocked. Anything that needs a model
 uses the offline `SCRIPTED` protocol; see
 [Testing Without an AI Provider](docs/testing.md) for the test layers and how

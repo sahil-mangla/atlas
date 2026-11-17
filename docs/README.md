@@ -18,13 +18,17 @@ Request traces, AI usage capture, exporters, configuration, and operational beha
 ### 1c. [Evaluation and Regression Guide](evaluations.md)
 YAML benchmark tasks, real-provider runs, reports, and baseline comparison.
 
-### 1d. [Testing Without an AI Provider](testing.md)
+### 1d. [Semantic Knowledge Retrieval](semantic-retrieval.md)
+Optional relevance ranking of published knowledge with an embedded vector index, and its evaluation.
+
+### 1e. [Testing Without an AI Provider](testing.md)
 The offline `SCRIPTED` protocol, the test layers, and how CI runs with no keys.
 
 ### 2. Architecture Reference
 - **[Application Platform Layer](architecture/application-platform.md)**: The public Atlas SDK boundary, commands, results, and exception contract.
 - **[Client Adapter Layer](architecture/client-adapters.md)**: Presentation and transport bindings exposing the Atlas SDK to external execution environments.
 - **[CLI Usage Guide](usage/cli.md)**: Usage documentation for the ATLAS CLI client adapter.
+- **[Package Map](architecture/package-map.md)**: What each package under `atlas_eng/` is responsible for.
 - **[Architecture Principles](architecture/architecture-principles.md)**: Core design values (e.g. Domain First, Dependency Inversion, Immutability).
 - **[System Overview](architecture/system-overview.md)**: Product vision and the 11 major subsystems' boundaries and responsibilities.
 - **[Layered Architecture](architecture/layered-architecture.md)**: Vertical execution flows and commit mutations across layers.

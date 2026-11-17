@@ -15,6 +15,10 @@ All notable changes to this project will be documented in this file.
 - Changed: the license now names its holder (`sahil-mangla`).
 - Changed: the blueprint, phase plans, sprint reports and progress log moved
   to `docs/history/`, with links and path mentions updated.
+- Changed: the README is now a quickstart (463 -> about 300 lines). Semantic
+  retrieval moved to `docs/semantic-retrieval.md`, the package list to
+  `docs/architecture/package-map.md`, and development setup to
+  `CONTRIBUTING.md`; the CLI table lists the new commands.
 - Fixed: every link in `docs/README.md` was an absolute `file:///` path on
   the author's machine, so none worked anywhere else. They are now relative.
 
