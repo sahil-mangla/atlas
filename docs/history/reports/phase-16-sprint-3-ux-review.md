@@ -2,7 +2,7 @@
 
 **Status:** Locked
 **Scope:** CLI (help, discoverability, progress reporting, diagnostics), Presentation (dashboard, markdown, JSON, CLI rendering), Error Experience.
-**Reference:** [docs/plans/phase-16-production-readiness.md](../plans/phase-16-production-readiness.md), Section 6.
+**Reference:** [docs/history/plans/phase-16-production-readiness.md](../plans/phase-16-production-readiness.md), Section 6.
 
 ---
 

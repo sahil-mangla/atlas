@@ -927,15 +927,15 @@ tests/test_atlas/test_knowledge_commands.py  # ReviewKnowledgeCandidateCommand o
 | `docs/README.md` | Index new documents |
 | `README.md` | Add `engine/knowledge/`; fix Memory subsystem description |
 | `CHANGELOG.md` | Phase 13 entry |
-| `PROGRESS.md` | Phase 13 tracking |
+| `docs/history/PROGRESS.md` | Phase 13 tracking |
 
 ### 10.3 Blueprint Updates (informational)
 
 | Document | Changes |
 |---|---|
-| `Blueprint/06-memory-architecture.md` | Cross-reference; clarify Memory scope |
-| `Blueprint/09-service-contracts.md` | KnowledgeOrchestrationService + DeduplicationService contracts |
-| `Blueprint/10-domain-models.md` | Knowledge entities, KnowledgeActor, persistence document |
+| `docs/history/blueprint/06-memory-architecture.md` | Cross-reference; clarify Memory scope |
+| `docs/history/blueprint/09-service-contracts.md` | KnowledgeOrchestrationService + DeduplicationService contracts |
+| `docs/history/blueprint/10-domain-models.md` | Knowledge entities, KnowledgeActor, persistence document |
 
 ---
 

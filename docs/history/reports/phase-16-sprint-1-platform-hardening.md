@@ -2,7 +2,7 @@
 
 **Status:** Locked
 **Scope:** `atlas/` public SDK -- commands, results, contracts, exceptions, types, capabilities, bootstrap; `engine/config.py`; `clients/cli/application.py` bootstrap/error boundary.
-**Reference:** [docs/plans/phase-16-production-readiness.md](../plans/phase-16-production-readiness.md), Section 4.
+**Reference:** [docs/history/plans/phase-16-production-readiness.md](../plans/phase-16-production-readiness.md), Section 4.
 
 ---
 

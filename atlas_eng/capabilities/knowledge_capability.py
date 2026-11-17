@@ -3,7 +3,7 @@
 Relocated verbatim from ``atlas/_service.py``'s pre-Phase-15
 ``Atlas.review_knowledge_candidate``. This is a thin delegation layer --
 see the Capability Responsibility Rule in
-``docs/plans/phase-15-platform-layer.md`` §3.5.
+``docs/history/plans/phase-15-platform-layer.md`` §3.5.
 
 Note: ``get_knowledge_read_model`` is owned by ``PresentationCapability``,
 not this class -- in the current codebase it lives in the same "Phase 14

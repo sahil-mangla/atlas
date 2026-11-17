@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Phase numbering is continuous from project inception (git history, `docs/plans/`,
+Phase numbering is continuous from project inception (git history, `docs/history/plans/`,
 `CHANGELOG.md`, and commit messages all agree on this sequence). This file previously
 tracked only Phases 0-5 in detail and then jumped straight to "Phase 15," which made
 it look like a second, disconnected numbering scheme had started -- it had not; this
@@ -22,11 +22,11 @@ Reconciled below against `git log` and `docs/`.
 - [x] Application layer implementation and stabilization.
 - [x] Client architecture (CLI and adapter groundwork).
 
-  (Tracked via commit history rather than individual `docs/plans/phase-N-*.md`
+  (Tracked via commit history rather than individual `docs/history/plans/phase-N-*.md`
   files, which only began at Phase 13; see `git log` for the exact commits.)
 
 ### Phase 13 -- Engineering Knowledge Layer
-- [x] Complete. See `docs/plans/phase-13-engineering-knowledge-layer.md`.
+- [x] Complete. See `docs/history/plans/phase-13-engineering-knowledge-layer.md`.
 
 ### Phase 14 -- Presentation Layer Stabilization
 - [x] Complete. See `docs/architecture/presentation-layer.md`.
@@ -41,14 +41,14 @@ Reconciled below against `git log` and `docs/`.
 - [x] Engineering Constitution established (`docs/architecture/engineering-constitution.md`)
 
 ### Phase 16 -- Production Readiness & Release Engineering
-See `docs/plans/phase-16-production-readiness.md`.
-- [x] Sprint 1: Platform Hardening -- see `docs/reports/phase-16-sprint-1-platform-hardening.md`
-- [x] Sprint 2: Codebase Consistency & Engineering Baseline -- see `docs/reports/phase-16-sprint-2-repository-consistency.md` and `docs/reports/phase-16-sprint-2-code-quality.md`
-- [x] Sprint 3: User Experience -- see `docs/reports/phase-16-sprint-3-ux-review.md`
-- [x] Sprint 4: Documentation Audit -- see `docs/reports/phase-16-sprint-4-documentation-audit.md`
-- [x] Sprint 5: End-to-End Validation -- see `docs/reports/phase-16-sprint-5-end-to-end-validation.md`
-- [x] Sprint 6: Performance Review -- see `docs/reports/phase-16-sprint-6-performance-review.md`
-- [x] Sprint 7: Release Engineering -- see `docs/reports/phase-16-sprint-7-release-engineering.md`
+See `docs/history/plans/phase-16-production-readiness.md`.
+- [x] Sprint 1: Platform Hardening -- see `docs/history/reports/phase-16-sprint-1-platform-hardening.md`
+- [x] Sprint 2: Codebase Consistency & Engineering Baseline -- see `docs/history/reports/phase-16-sprint-2-repository-consistency.md` and `docs/history/reports/phase-16-sprint-2-code-quality.md`
+- [x] Sprint 3: User Experience -- see `docs/history/reports/phase-16-sprint-3-ux-review.md`
+- [x] Sprint 4: Documentation Audit -- see `docs/history/reports/phase-16-sprint-4-documentation-audit.md`
+- [x] Sprint 5: End-to-End Validation -- see `docs/history/reports/phase-16-sprint-5-end-to-end-validation.md`
+- [x] Sprint 6: Performance Review -- see `docs/history/reports/phase-16-sprint-6-performance-review.md`
+- [x] Sprint 7: Release Engineering -- see `docs/history/reports/phase-16-sprint-7-release-engineering.md`
 
 ### Phase 17 -- Release Candidate Stabilization
 In progress. Fixes the remaining first-time-user blockers found after Phase
@@ -95,7 +95,7 @@ In progress. Fixes the remaining first-time-user blockers found after Phase
   flag-parsing edge cases. See `CHANGELOG.md`.
 
 Phase 17 (Release Candidate Stabilization): all 8 RC items complete. See
-`docs/reports/release-candidate-stabilization.md` for the full report,
+`docs/history/reports/release-candidate-stabilization.md` for the full report,
 including its Remaining Issues / not-yet-verified notes.
 
 ## Current Task

@@ -1,8 +1,8 @@
 # Phase 16 -- Sprint 2: Repository Consistency Report
 
 **Status:** Locked
-**Scope:** Phase numbering, historical roadmap references, `PROGRESS.md` consistency, documentation cross-references, ADR sequence.
-**Reference:** [docs/plans/phase-16-production-readiness.md](../plans/phase-16-production-readiness.md), Section 5.1.
+**Scope:** Phase numbering, historical roadmap references, `docs/history/PROGRESS.md` consistency, documentation cross-references, ADR sequence.
+**Reference:** [docs/history/plans/phase-16-production-readiness.md](../plans/phase-16-production-readiness.md), Section 5.1.
 
 ---
 
@@ -10,7 +10,7 @@
 
 ### What was wrong
 
-`PROGRESS.md` tracked a `Phase 0`-`Phase 5` checklist in detail, then jumped directly
+`docs/history/PROGRESS.md` tracked a `Phase 0`-`Phase 5` checklist in detail, then jumped directly
 to a `Phase 15: Platform Layer` section, with a note admitting "phase numbering above
 this line has not tracked actual project phase count since Phase 5." Read at face
 value, this looked like the project had switched to an entirely separate, disconnected
@@ -27,18 +27,18 @@ the full history confirm it: `07793a6 stabilize phase 7 intelligence layer`,
 `65b480f Phase 14: Presentation Layer Stabilization and docs`,
 `057b474 Phase 15: Platform Layer capability, contract, and adapter boundary`.
 
-What actually happened is narrower: `PROGRESS.md`'s checklist stopped being updated
+What actually happened is narrower: `docs/history/PROGRESS.md`'s checklist stopped being updated
 in step with the rest of the project somewhere around Phase 5/6, and wasn't picked
 back up again until Phase 15. Phases 6-12 happened and are real, but were tracked
 only through commit messages and code, not through this file's checklist. The
-per-phase design-doc convention (`docs/plans/phase-N-*.md`) itself only started at
+per-phase design-doc convention (`docs/history/plans/phase-N-*.md`) itself only started at
 Phase 13 -- Phase 14's design landed directly in `docs/architecture/presentation-layer.md`
-instead of a `docs/plans/phase-14-*.md` file, which is a minor convention gap, not an
+instead of a `docs/history/plans/phase-14-*.md` file, which is a minor convention gap, not an
 error (noted below).
 
 ### Resolution
 
-`PROGRESS.md` has been rewritten to reflect the single continuous numbering:
+`docs/history/PROGRESS.md` has been rewritten to reflect the single continuous numbering:
 Phases 0-5 (foundation), Phases 6-12 (engine subsystems and application layer,
 referenced by commit history since no per-phase doc exists for that span), Phase 13
 (Engineering Knowledge Layer), Phase 14 (Presentation Layer), Phase 15 (Platform
@@ -48,7 +48,7 @@ already establishes and removes the misleading gap.
 
 ### Also fixed while reconciling
 
-- `PROGRESS.md`'s dangling `Current Task: Engineering Constitution` checkbox was
+- `docs/history/PROGRESS.md`'s dangling `Current Task: Engineering Constitution` checkbox was
   unchecked, but `docs/architecture/engineering-constitution.md` already exists as a
   complete, substantive document (56 lines, not a stub). Marked complete under Phase 15,
   where the rest of that phase's platform-boundary documentation landed.
@@ -90,14 +90,14 @@ is left for Sprint 4's Documentation Audit, which owns `docs/decisions/` more br
 ## 4. Documentation Cross-References
 
 Spot-checked references introduced or touched during Sprint 1/2 work
-(`docs/plans/phase-16-production-readiness.md`, the two Sprint reports, `PROGRESS.md`,
+(`docs/history/plans/phase-16-production-readiness.md`, the two Sprint reports, `docs/history/PROGRESS.md`,
 `CHANGELOG.md`) resolve to real files. A repository-wide broken-link sweep across all
 of `docs/` is Sprint 4 (Documentation Audit) scope and was not performed here.
 
 ## 5. Verification
 
 No code changes in this report -- documentation and tracking files only
-(`PROGRESS.md`, `CHANGELOG.md`). Full regression suite re-verified unaffected:
+(`docs/history/PROGRESS.md`, `CHANGELOG.md`). Full regression suite re-verified unaffected:
 
 ```
 uv run pytest       -> full suite passes

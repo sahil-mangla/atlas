@@ -4,7 +4,7 @@ Internal implementation detail of the ``Atlas`` facade -- not part of the
 public SDK surface and never imported by client adapters directly (clients
 only ever see ``Atlas``, per ADR-002). Decomposes the facade into five
 narrow, independently testable delegation objects. See the Capability
-Responsibility Rule in ``docs/plans/phase-15-platform-layer.md`` §3.5.
+Responsibility Rule in ``docs/history/plans/phase-15-platform-layer.md`` §3.5.
 """
 
 from atlas_eng.capabilities.knowledge_capability import KnowledgeCapability

@@ -146,7 +146,7 @@ class Atlas:
     objects (``atlas/capabilities/``) -- Project, Workflow, WorkflowExecution,
     Knowledge, Presentation -- each a thin, independently-testable delegation
     layer over the exact same Phase 1-14 services this facade always used.
-    See docs/plans/phase-15-platform-layer.md for the full design.
+    See docs/history/plans/phase-15-platform-layer.md for the full design.
     """
 
     def __init__(
@@ -308,7 +308,7 @@ class Atlas:
     # The single doorway every out-of-process or protocol-driven client (MCP,
     # REST, IDE, AI/agent) is expected to call through. Named methods above
     # remain permanently supported for CLI, tests, internal tooling, and
-    # direct SDK consumers -- see docs/plans/phase-15-platform-layer.md §4.2.
+    # direct SDK consumers -- see docs/history/plans/phase-15-platform-layer.md §4.2.
 
     def handle(self, envelope: RequestEnvelope[Any]) -> ResponseEnvelope[Any]:
         """Dispatch a versioned RequestEnvelope to the matching capability method."""

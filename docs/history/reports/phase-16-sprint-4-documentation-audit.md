@@ -2,7 +2,7 @@
 
 **Status:** Locked
 **Scope:** README, architecture documentation, ADRs, diagrams, guides, glossary, installation guide, contribution guide, examples.
-**Reference:** [docs/plans/phase-16-production-readiness.md](../plans/phase-16-production-readiness.md), Section 7.
+**Reference:** [docs/history/plans/phase-16-production-readiness.md](../plans/phase-16-production-readiness.md), Section 7.
 
 ---
 
@@ -21,7 +21,7 @@
 
 Sprint 2's Repository Consistency Report already investigated this and concluded, from git history, that the missing `adr-001` identifier is **intentional**: `architecture-baseline-v1.md` is the project's first formal architecture decision in substance (its own title is literally "ADR-001: Establish ATLAS v1.0 Architecture Baseline") -- it simply predates the `adr-NNN` filename convention that `adr-002` onward adopted. Sprint 2 explicitly deferred the naming fix itself to this sprint, since Sprint 4 owns `docs/decisions/` more broadly.
 
-**Action taken this sprint:** renamed `docs/decisions/architecture-baseline-v1.md` -> `docs/decisions/adr-001-architecture-baseline-v1.md` (`git mv`, preserving history) and swept the one live cross-reference (`docs/README.md`'s index link). The two other places that mention the old filename (`docs/plans/phase-16-production-readiness.md` and Sprint 2's own report) are historical narrative describing the repository's state *at the time of investigation* and are left untouched -- consistent with not editing a locked sprint's report content.
+**Action taken this sprint:** renamed `docs/decisions/architecture-baseline-v1.md` -> `docs/decisions/adr-001-architecture-baseline-v1.md` (`git mv`, preserving history) and swept the one live cross-reference (`docs/README.md`'s index link). The two other places that mention the old filename (`docs/history/plans/phase-16-production-readiness.md` and Sprint 2's own report) are historical narrative describing the repository's state *at the time of investigation* and are left untouched -- consistent with not editing a locked sprint's report content.
 
 **Outcome recorded:** intentional pre-convention document, now renamed into the sequence it always belonged to.
 

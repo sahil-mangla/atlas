@@ -2,7 +2,7 @@
 
 **Status:** Locked
 **Scope:** Repeated repository loads, unnecessary serialization, duplicated object creation, disk I/O, startup latency, algorithmic complexity, memory growth, long-lived object retention.
-**Reference:** [docs/plans/phase-16-production-readiness.md](../plans/phase-16-production-readiness.md), Section 9.
+**Reference:** [docs/history/plans/phase-16-production-readiness.md](../plans/phase-16-production-readiness.md), Section 9.
 
 This sprint is explicitly **not** an optimization phase (Section 9): its job is to identify and document engineering inefficiencies, not to restructure the architecture around them. Findings below are reviewed and quantified; none are fixed here unless the fix was already a trivial, risk-free byproduct of investigation. All are candidates for a future, evidence-driven optimization pass (Version 2), consistent with the plan's own instruction that "performance improvements should only be implemented when supported by measurable evidence."
 

@@ -3,7 +3,7 @@
 Relocated verbatim from ``atlas/_service.py``'s pre-Phase-15 ``Atlas``
 methods (the "Phase 14: typed read models" and "Phase 14: presentation
 views and rendering" sections). This is a thin delegation layer -- see the
-Capability Responsibility Rule in ``docs/plans/phase-15-platform-layer.md``
+Capability Responsibility Rule in ``docs/history/plans/phase-15-platform-layer.md``
 §3.5.
 
 This is the one capability requiring the deferred-attach pattern: its

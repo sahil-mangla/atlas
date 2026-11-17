@@ -1,7 +1,7 @@
 """Static import-boundary guard for the Phase 15 platform layer.
 
 Verifies the capability/contract/adapter dependency rules from
-docs/plans/phase-15-platform-layer.md §3.2/§9.3:
+docs/history/plans/phase-15-platform-layer.md §3.2/§9.3:
 
     atlas/capabilities/* -> engine/* (only the repos/services Atlas already used)
     atlas/capabilities/* never imports another atlas/capabilities/* module

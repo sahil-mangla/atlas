@@ -11,6 +11,12 @@ All notable changes to this project will be documented in this file.
 - Changed: `.planning/` is no longer tracked; `.gitignore` already marked it
   local-only. The files stay on disk.
 - Checked: the full git history contains no committed secrets.
+- Added: `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1).
+- Changed: the license now names its holder (`sahil-mangla`).
+- Changed: the blueprint, phase plans, sprint reports and progress log moved
+  to `docs/history/`, with links and path mentions updated.
+- Fixed: every link in `docs/README.md` was an absolute `file:///` path on
+  the author's machine, so none worked anywhere else. They are now relative.
 
 ### Project References
 
@@ -378,7 +384,7 @@ each independently tested and committed.
   (no behavior change, consistency only).
 - Removed: dead `Settings.debug` / `Settings.log_level` configuration fields --
   declared and documented but never read anywhere in the codebase.
-- See `docs/reports/phase-16-sprint-1-platform-hardening.md` for the full report.
+- See `docs/history/reports/phase-16-sprint-1-platform-hardening.md` for the full report.
 
 #### Sprint 2 -- Codebase Consistency & Engineering Baseline
 - Fixed: `ContextPayload.memory_entries` / `knowledge_entry_ids` `default_factory=list`
@@ -388,8 +394,8 @@ each independently tested and committed.
   exception-naming consistency, PEP 695 generic syntax, pathlib usage, line length);
   repository is now Ruff-clean and `ruff format --check`-clean.
 - mypy: 0 errors (from 4).
-- See `docs/reports/phase-16-sprint-2-code-quality.md` and
-  `docs/reports/phase-16-sprint-2-repository-consistency.md`.
+- See `docs/history/reports/phase-16-sprint-2-code-quality.md` and
+  `docs/history/reports/phase-16-sprint-2-repository-consistency.md`.
 
 #### Sprint 3 -- User Experience
 - Fixed: the `"cli"` presentation renderer (`media_type="text/plain"`) no longer
@@ -402,7 +408,7 @@ each independently tested and committed.
   ellipses now respect it too.
 - Removed: dead `RenderContext.use_color` / `.verbose` fields (declared, never
   read anywhere) and the false "ANSI colors" claim in `docs/usage/cli.md`.
-- See `docs/reports/phase-16-sprint-3-ux-review.md` for the full report,
+- See `docs/history/reports/phase-16-sprint-3-ux-review.md` for the full report,
   including two documented-but-not-fixed findings (unwired progress reporting;
   diagnostics messages without recovery guidance).
 
@@ -421,7 +427,7 @@ each independently tested and committed.
 - Documented, not fixed: no `CONTRIBUTING.md` or `examples/` directory exists (routed
   to Sprint 7, which already owns GitHub templates and example projects); `.env.example`
   remains permission-blocked in this environment (carried forward from Sprint 1).
-- See `docs/reports/phase-16-sprint-4-documentation-audit.md` for the full report.
+- See `docs/history/reports/phase-16-sprint-4-documentation-audit.md` for the full report.
 
 #### Sprint 5 -- End-to-End Validation
 - Fixed (critical): `ContextAssemblerService.assemble_context` (`engine/ai/services.py`)
@@ -443,7 +449,7 @@ each independently tested and committed.
 - Added: `tests/test_atlas/test_end_to_end_validation.py` -- real facade-level
   coverage for a successful stage commit, a reject-then-retry recovery flow, an
   invalid project ID, and an empty project's diagnostics.
-- See `docs/reports/phase-16-sprint-5-end-to-end-validation.md` for the full report.
+- See `docs/history/reports/phase-16-sprint-5-end-to-end-validation.md` for the full report.
 
 #### Sprint 6 -- Performance Review
 - Reviewed (no code changes -- review-only sprint per plan Section 9): startup
@@ -457,7 +463,7 @@ each independently tested and committed.
   ._pending_proposals`'s unbounded in-process growth for proposals that are
   generated but never reviewed (relevant only once a long-running server
   adapter exists, which is Version 2 scope).
-- See `docs/reports/phase-16-sprint-6-performance-review.md` for the full report.
+- See `docs/history/reports/phase-16-sprint-6-performance-review.md` for the full report.
 
 #### Sprint 7 -- Release Engineering
 - Fixed (release-blocking): `pyproject.toml`'s `[tool.hatch.build.targets.wheel]`
@@ -479,7 +485,7 @@ each independently tested and committed.
   scaffolding existed before.
 - Version: bumped `pyproject.toml` from `0.1.0` to `1.0.0`; consolidated both
   `[Unreleased]` sections (Phase 15 and Phase 16) into this `[1.0.0]` release.
-- See `docs/reports/phase-16-sprint-7-release-engineering.md` for the full
+- See `docs/history/reports/phase-16-sprint-7-release-engineering.md` for the full
   report, including the Release Checklist and the repository-identity decision
   (git remote naming) left for explicit user action rather than performed here.
 
@@ -503,4 +509,4 @@ each independently tested and committed.
 - Initialized repository structure.
 - Defined product identity and tagline.
 - Established engineering blueprint file hierarchy.
-- Completed the vision document `Blueprint/01-vision.md`.
+- Completed the vision document `docs/history/blueprint/01-vision.md`.

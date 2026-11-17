@@ -2,7 +2,7 @@
 
 **Status:** Locked
 **Scope:** Package metadata, semantic versioning, release notes, CHANGELOG, dependency review, licensing, repository cleanliness, GitHub templates, example projects, release checklist, repository & release identity.
-**Reference:** [docs/plans/phase-16-production-readiness.md](../plans/phase-16-production-readiness.md), Section 10.
+**Reference:** [docs/history/plans/phase-16-production-readiness.md](../plans/phase-16-production-readiness.md), Section 10.
 
 ---
 

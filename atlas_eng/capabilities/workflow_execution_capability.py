@@ -5,7 +5,7 @@ methods. Named ``WorkflowExecutionCapability`` -- not a generic "execution"
 concept -- because its scope is intentionally narrow: AI stage execution
 (proposal generation) and the two proposal review decisions, nothing else.
 This is a thin delegation layer -- see the Capability Responsibility Rule in
-``docs/plans/phase-15-platform-layer.md`` §3.5.
+``docs/history/plans/phase-15-platform-layer.md`` §3.5.
 """
 
 from typing import Any

@@ -2,7 +2,7 @@
 
 Relocated verbatim from ``atlas/_service.py``'s pre-Phase-15 ``Atlas``
 methods. This is a thin delegation layer -- see the Capability
-Responsibility Rule in ``docs/plans/phase-15-platform-layer.md`` §3.5.
+Responsibility Rule in ``docs/history/plans/phase-15-platform-layer.md`` §3.5.
 """
 
 from uuid import UUID

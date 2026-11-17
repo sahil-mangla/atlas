@@ -112,7 +112,7 @@ docs/architecture/workflow-stages.md
 docs/usage/cli.md
 README.md
 CHANGELOG.md
-PROGRESS.md
+docs/history/PROGRESS.md
 tests/support/test_bootstrap.py
 tests/test_atlas/test_knowledge_commands.py
 tests/test_atlas/test_workflow_commands.py
@@ -231,7 +231,7 @@ clients/cli/renderer.py
 docs/usage/cli.md
 README.md
 CHANGELOG.md
-PROGRESS.md
+docs/history/PROGRESS.md
 tests/test_atlas/test_knowledge_commands.py (updated)
 tests/test_atlas/test_platform_handle.py (updated)
 tests/test_atlas/test_knowledge_cli_rc002.py (new)
@@ -336,7 +336,7 @@ clients/cli/renderer.py
 docs/usage/cli.md
 README.md
 CHANGELOG.md
-PROGRESS.md
+docs/history/PROGRESS.md
 tests/test_clients/cli/test_parser.py (updated)
 tests/test_clients/cli/test_presentation_rc003.py (new)
 ```
@@ -419,7 +419,7 @@ existed and never updated afterward.
 .env.example
 README.md
 CHANGELOG.md
-PROGRESS.md
+docs/history/PROGRESS.md
 tests/test_config.py (updated)
 ```
 
@@ -483,7 +483,7 @@ the workflow.
   `docs/architecture/extension-guide.md`, `docs/architecture/architecture-principles.md`,
   `docs/architecture/workflow-stages.md`, `docs/usage/cli.md`, `README.md`)
   for the same class of drift -- none of the others enumerate the full
-  transition graph, so none had this bug. `docs/plans/*.md` were
+  transition graph, so none had this bug. `docs/history/plans/*.md` were
   deliberately left untouched: they are historical records of what was
   planned at the time (like commit messages), not living documentation.
 - Confirmed, by temporarily reverting the two doc fixes and re-running the
@@ -509,7 +509,7 @@ the workflow.
 docs/architecture/engineering-workflow.md
 docs/diagrams/engineering-pipeline.md
 CHANGELOG.md
-PROGRESS.md
+docs/history/PROGRESS.md
 tests/architecture/test_workflow_docs_sync.py (new)
 ```
 
@@ -591,7 +591,7 @@ path at all).
 engine/ai/adapters/_http.py
 clients/cli/renderer.py
 CHANGELOG.md
-PROGRESS.md
+docs/history/PROGRESS.md
 tests/ai/test_http.py (updated)
 ```
 
@@ -701,7 +701,7 @@ clients/cli/renderer.py
 clients/common/formatting.py
 atlas/types.py
 CHANGELOG.md
-PROGRESS.md
+docs/history/PROGRESS.md
 tests/architecture/test_sdk_enum_mirrors.py (new)
 tests/test_clients/common/test_formatting.py (new)
 tests/test_clients/common/__init__.py (new)
@@ -864,7 +864,7 @@ atlas/capabilities/{project_capability,knowledge_capability,presentation_capabil
 clients/cli/application.py
 clients/cli/parser.py
 CHANGELOG.md
-PROGRESS.md
+docs/history/PROGRESS.md
 docs/architecture/persistence.md
 docs/architecture/multi-protocol-ai-runtime.md
 docs/decisions/adr-005-grounded-research-and-repo-native-review.md
@@ -947,12 +947,12 @@ enforcement gap, among 26 other issues.
   independently confirmed to fail without the fix where practical. Whether
   ATLAS as a whole is ready for a `v1.0.0` tag is a broader question than
   Phase 17's scope (it also depends on the two open items already tracked
-  in `PROGRESS.md`'s Release Checklist -- repository identity/git remote
+  in `docs/history/PROGRESS.md`'s Release Checklist -- repository identity/git remote
   naming and the release tag itself, both explicitly left to the user) and
   is not this report's call to make unilaterally.
 
 Do not treat ATLAS as release-ready on the basis of this report alone --
 this report documents that RC-001 through RC-008 have each been verified
-individually; it is not itself a release sign-off. See `PROGRESS.md` for
+individually; it is not itself a release sign-off. See `docs/history/PROGRESS.md` for
 current sequencing and the two open release-checklist items left to the
 user.

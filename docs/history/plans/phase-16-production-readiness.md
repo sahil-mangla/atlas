@@ -173,11 +173,11 @@ Review and resolve repository-wide consistency issues, including:
 
 - phase numbering across documentation
 - historical roadmap references
-- PROGRESS.md consistency
+- docs/history/PROGRESS.md consistency
 - documentation cross-references
 - implementation-plan numbering
 
-Known entering condition: `PROGRESS.md` tracks a `Phase 0`–`Phase 5` checklist scheme, while `docs/plans/` and recent commits (`Phase 13`, `Phase 14`, `Phase 15`) use a second, higher, non-overlapping numbering scheme. `PROGRESS.md` itself already flags this ("phase numbering above this line has not tracked actual project phase count since Phase 5"). This sprint resolves the discrepancy — either by reconciling the two schemes into one, or by explicitly documenting the split and superseding the stale scheme — rather than allowing Phase 16 to add a third convention on top.
+Known entering condition: `docs/history/PROGRESS.md` tracks a `Phase 0`–`Phase 5` checklist scheme, while `docs/history/plans/` and recent commits (`Phase 13`, `Phase 14`, `Phase 15`) use a second, higher, non-overlapping numbering scheme. `docs/history/PROGRESS.md` itself already flags this ("phase numbering above this line has not tracked actual project phase count since Phase 5"). This sprint resolves the discrepancy — either by reconciling the two schemes into one, or by explicitly documenting the split and superseding the stale scheme — rather than allowing Phase 16 to add a third convention on top.
 
 **Deliverable:** Repository Consistency Report
 
@@ -474,7 +474,7 @@ Review and update as required:
 
 - README.md
 - CHANGELOG.md
-- PROGRESS.md
+- docs/history/PROGRESS.md
 - Architecture documentation
 - ADRs
 - Guides
@@ -497,7 +497,7 @@ Phase 16 is complete when:
 - No outstanding Pydantic serialization warnings in the test run.
 - Full regression suite passes.
 - Documentation is synchronized, including ADR sequence validation.
-- Repository consistency (phase numbering, roadmap references, PROGRESS.md, cross-references) is resolved.
+- Repository consistency (phase numbering, roadmap references, docs/history/PROGRESS.md, cross-references) is resolved.
 - Representative workflows are validated.
 - Release checklist is complete, including repository identity/naming resolution.
 - ATLAS is ready to be tagged as **v1.0.0 Release Candidate**.

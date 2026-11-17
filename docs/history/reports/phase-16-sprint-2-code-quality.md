@@ -2,7 +2,7 @@
 
 **Status:** Locked
 **Scope:** Ruff cleanup, mypy cleanup, Pydantic warning, dead code, naming, imports, docstrings.
-**Reference:** [docs/plans/phase-16-production-readiness.md](../plans/phase-16-production-readiness.md), Sections 5.2-5.3.
+**Reference:** [docs/history/plans/phase-16-production-readiness.md](../plans/phase-16-production-readiness.md), Sections 5.2-5.3.
 
 ---
 

@@ -721,14 +721,14 @@ AST-based static checks in `tests/architecture/test_platform_boundaries.py` (sam
 | `docs/diagrams/request-lifecycle.md` | Add envelope variant of the request lifecycle |
 | `README.md` | Add `atlas/capabilities/`, `atlas/contracts/`, `atlas/adapters/` under the `atlas/` package-structure bullet |
 | `CHANGELOG.md` | Phase 15 entry |
-| `PROGRESS.md` | Phase 15 tracking |
+| `docs/history/PROGRESS.md` | Phase 15 tracking |
 
 ### 10.3 Blueprint Updates (informational)
 
 | Document | Changes |
 |---|---|
-| `Blueprint/09-service-contracts.md` | Add `PlatformAdapter` protocol and envelope contracts alongside existing service contracts |
-| `Blueprint/05-system-architecture.md` | Cross-reference the new internal seam (no structural change to the diagram's boundary — it already shows `atlas/` as the single boundary clients cross) |
+| `docs/history/blueprint/09-service-contracts.md` | Add `PlatformAdapter` protocol and envelope contracts alongside existing service contracts |
+| `docs/history/blueprint/05-system-architecture.md` | Cross-reference the new internal seam (no structural change to the diagram's boundary — it already shows `atlas/` as the single boundary clients cross) |
 
 ---
 
@@ -907,7 +907,7 @@ Waves below may run in parallel within a wave; each wave depends on the prior wa
 
 **T6.3 — Documentation**
 - `read_first`: §10 of this plan (full documentation change list, including the verbatim-reproduction requirements for the Capability Responsibility Rule §3.5, the handle() usage policy §4.2, and the `UNKNOWN_ERROR` intent §2.2)
-- `action`: Write `docs/architecture/platform-layer.md`, `docs/decisions/adr-004-platform-capability-contract-layer.md`, `docs/diagrams/platform-request-dispatch.md`; update `docs/architecture/application-platform.md`, `docs/architecture/client-adapters.md`, `docs/glossary.md`, `docs/diagrams/application-platform.md`, `docs/diagrams/client-adapter-layer.md`, `docs/diagrams/request-lifecycle.md`, `README.md`, `CHANGELOG.md`, `PROGRESS.md` per §10.1/§10.2.
+- `action`: Write `docs/architecture/platform-layer.md`, `docs/decisions/adr-004-platform-capability-contract-layer.md`, `docs/diagrams/platform-request-dispatch.md`; update `docs/architecture/application-platform.md`, `docs/architecture/client-adapters.md`, `docs/glossary.md`, `docs/diagrams/application-platform.md`, `docs/diagrams/client-adapter-layer.md`, `docs/diagrams/request-lifecycle.md`, `README.md`, `CHANGELOG.md`, `docs/history/PROGRESS.md` per §10.1/§10.2.
 - `acceptance_criteria`: Every file listed in §10.1/§10.2 exists/is updated; the three locked invariants (§3.5, §4.2, §2.2's `UNKNOWN_ERROR` note) appear verbatim (or near-verbatim, same substantive content) in both `platform-layer.md` and ADR-004.
 
 ---

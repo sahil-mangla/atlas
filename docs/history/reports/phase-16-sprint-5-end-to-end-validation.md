@@ -2,7 +2,7 @@
 
 **Status:** Locked
 **Scope:** Complete engineering pipeline (Project -> Workflow -> Research -> Planning -> Architecture -> Evaluation -> Engineering Knowledge -> Presentation), validated through the public Atlas facade with representative scenarios.
-**Reference:** [docs/plans/phase-16-production-readiness.md](../plans/phase-16-production-readiness.md), Section 8.
+**Reference:** [docs/history/plans/phase-16-production-readiness.md](../plans/phase-16-production-readiness.md), Section 8.
 
 ---
 

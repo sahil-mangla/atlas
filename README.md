@@ -376,11 +376,12 @@ The full architecture reference, ADRs, and diagrams live under
 - [CLI Usage Guide](docs/usage/cli.md)
 - [System Overview](docs/architecture/system-overview.md)
 - [Engineering Workflow](docs/architecture/engineering-workflow.md)
-- [Architecture Decision Records](docs/decisions/)
+- [Architecture Decision Records](docs/decisions)
 - [Glossary](docs/glossary.md)
 - [Observability Guide](docs/observability.md)
 - [Evaluation and Regression Guide](docs/evaluations.md)
 - [Testing Without an AI Provider](docs/testing.md)
+- [Project History](docs/history/README.md) -- original blueprint, phase plans and sprint reports
 - [CHANGELOG](CHANGELOG.md)
 
 ## Development Setup
@@ -454,9 +455,9 @@ report a vulnerability privately.
 
 ATLAS is at **v1.1.0**, distributed as `atlas-eng`, following the completion
 of all sixteen planned phases (see [`CHANGELOG.md`](CHANGELOG.md) and
-[`docs/reports/`](docs/reports/) for the full history, including the
+[`docs/history/reports/`](docs/history/reports) for the full history, including the
 seven-sprint Phase 16 production-readiness pass). A PyPI release is in
 preparation. Version 2 scope -- additional client adapters (MCP, REST, IDE)
 and the performance-review candidates documented in
-[`docs/reports/phase-16-sprint-6-performance-review.md`](docs/reports/phase-16-sprint-6-performance-review.md)
+[`docs/history/reports/phase-16-sprint-6-performance-review.md`](docs/history/reports/phase-16-sprint-6-performance-review.md)
 -- is not yet started.
