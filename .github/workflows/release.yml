@@ -1,0 +1,217 @@
+name: Release
+
+# Pushing a tag like v1.1.0 builds the package once, publishes it to
+# TestPyPI, installs what TestPyPI serves on every OS, and only then
+# publishes the same files to PyPI and creates the GitHub release.
+#
+# Running the workflow by hand ("Run workflow") is a dry run: it stops after
+# the TestPyPI checks and never touches PyPI.
+#
+# Publishing uses PyPI Trusted Publishing (OIDC): no API token is stored.
+# One-time setup is described in RELEASING.md.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv python install 3.12
+
+      - name: Read the package version
+        id: version
+        run: |
+          version=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Package version: $version"
+
+      - name: Check the tag matches the version
+        if: github.ref_type == 'tag'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if [ "$GITHUB_REF_NAME" != "v$VERSION" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match version $VERSION in pyproject.toml"
+            exit 1
+          fi
+
+      - name: Check the changelog has a section for this version
+        if: github.ref_type == 'tag'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if ! grep -q "^## \[$VERSION\]" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no '## [$VERSION]' section"
+            exit 1
+          fi
+
+      - run: uv build
+      - name: Validate the distributions
+        run: uvx twine check --strict dist/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  publish-testpypi:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/project/atlas-eng/${{ needs.build.outputs.version }}/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          # TestPyPI never accepts a version twice; a dry run may already
+          # have uploaded this one.
+          skip-existing: true
+
+  verify-testpypi:
+    needs: [build, publish-testpypi]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv python install 3.12
+      - name: Install the wheel TestPyPI serves
+        shell: bash
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          # Only ATLAS itself comes from TestPyPI; its dependencies come from
+          # PyPI. Mixing the two indexes for dependencies would let a
+          # look-alike package on TestPyPI be installed instead.
+          uv venv --python 3.12 "$RUNNER_TEMP/venv"
+          for attempt in 1 2 3 4 5 6; do
+            if uvx pip download --no-deps --only-binary :all: \
+                --index-url https://test.pypi.org/simple/ \
+                -d "$RUNNER_TEMP/wheel" "atlas-eng==$VERSION"; then
+              break
+            fi
+            echo "Not on the TestPyPI index yet; retrying in 20s"
+            sleep 20
+          done
+          uv pip install --python "$RUNNER_TEMP/venv" "$RUNNER_TEMP"/wheel/*.whl
+      - name: Run it
+        shell: bash
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then bin="Scripts"; ext=".exe"; else bin="bin"; ext=""; fi
+          atlas="$RUNNER_TEMP/venv/$bin/atlas$ext"
+          "$atlas" --version | grep -F "$VERSION"
+          cp scripts/smoke_installed.py "$RUNNER_TEMP/"
+          cd "$RUNNER_TEMP"
+          "venv/$bin/python$ext" smoke_installed.py "$atlas"
+
+  publish-pypi:
+    # Tag pushes only: a manual run is a dry run and stops above.
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    needs: [build, verify-testpypi]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/atlas-eng/${{ needs.build.outputs.version }}/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+
+  verify-pypi:
+    needs: [build, publish-pypi]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.12", "3.13"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv python install ${{ matrix.python }}
+      - name: pip install atlas-eng from PyPI
+        shell: bash
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          uv venv --python ${{ matrix.python }} "$RUNNER_TEMP/venv"
+          for attempt in 1 2 3 4 5 6; do
+            if uv pip install --python "$RUNNER_TEMP/venv" --no-cache "atlas-eng[all]==$VERSION"; then
+              break
+            fi
+            echo "Not on the PyPI index yet; retrying in 20s"
+            sleep 20
+          done
+      - name: Run it
+        shell: bash
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then bin="Scripts"; ext=".exe"; else bin="bin"; ext=""; fi
+          atlas="$RUNNER_TEMP/venv/$bin/atlas$ext"
+          "$atlas" --version | grep -F "$VERSION"
+          cp scripts/smoke_installed.py "$RUNNER_TEMP/"
+          cd "$RUNNER_TEMP"
+          "venv/$bin/python$ext" smoke_installed.py "$atlas"
+      - name: uvx atlas-eng (no install)
+        if: matrix.os == 'ubuntu-latest' && matrix.python == '3.12'
+        shell: bash
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+        run: uvx --no-cache "atlas-eng@$VERSION" --version | grep -F "$VERSION"
+
+  github-release:
+    needs: [build, verify-pypi]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - name: Create the GitHub release from the changelog section
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          awk -v v="$VERSION" '
+            $0 ~ "^## \\[" v "\\]" { found = 1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md > notes.md
+          prerelease=""
+          if echo "$VERSION" | grep -qE '(a|b|rc)[0-9]+$'; then prerelease="--prerelease"; fi
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --title "ATLAS $VERSION" --notes-file notes.md --verify-tag $prerelease

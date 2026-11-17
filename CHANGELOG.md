@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Packaging and Release
+
+- Added: PyPI metadata (license, classifiers, keywords, project links) and an
+  `atlas-eng` command alias, so `uvx atlas-eng demo` works without installing.
+  The README's relative links are rewritten to GitHub URLs for the PyPI page.
+- Added: `.github/workflows/release.yml`: a version tag builds once, publishes
+  to TestPyPI, installs that on every OS, then publishes the same files to
+  PyPI, verifies the install, and creates the GitHub release. Uses Trusted
+  Publishing; no stored token. See `RELEASING.md`.
+- Added: a CI job that runs the tests against the lowest allowed version of
+  every dependency.
+- Fixed: the `langfuse` extra allowed 2.0-2.20, which lack the decorator API
+  ATLAS uses; the minimum is now 2.21.0.
+- Fixed: the sdist would have included any untracked local file not ignored
+  by the repository's own `.gitignore`; it now lists its contents
+  explicitly.
+
 ### Repository
 
 - Added: `CONTRIBUTING.md` (setup, checks, layer rules, PR expectations) and

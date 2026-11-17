@@ -47,6 +47,19 @@ jobs:
       - name: pytest (unit, loopback HTTP, black-box CLI)
         run: uv run pytest
 
+  lowest-dependencies:
+    # The declared minimum versions are what a user with older packages
+    # installed gets. Re-resolving rewrites uv.lock, which is harmless in a
+    # throwaway checkout; --no-sync keeps `uv run` from undoing it.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv python install 3.12
+      - run: uv sync --resolution lowest-direct --python 3.12
+      - name: pytest against the lowest allowed versions
+        run: uv run --no-sync pytest --no-cov
+
   offline-evals:
     runs-on: ubuntu-latest
     steps:
