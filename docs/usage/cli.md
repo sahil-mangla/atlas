@@ -49,6 +49,21 @@ atlas <group> <sub-command> [flags]
   silently consuming the next flag's name as this flag's value.
 - On/off switches (`--force`, `--live`) take no value.
 
+### Choosing a Project
+
+Every `--project-id` accepts a full ID, a project name (any case), the
+project's directory name, or a unique start of its ID (at least four
+characters; `atlas project list` shows the first eight). Leave the flag out
+to use the current project, which is:
+
+1. the one set by `atlas project use --project-id <name|id>`, or else the
+   last one created with `atlas project create`;
+2. otherwise, the only project that is not archived, if there is just one.
+
+If neither applies, the command asks you to pass `--project-id` or run
+`atlas project use`. The choice is kept in `.atlas-current-project` in the
+workspace root, so each workspace remembers its own.
+
 ### Available Groups
 
 #### `project`

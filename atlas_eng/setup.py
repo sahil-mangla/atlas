@@ -365,6 +365,13 @@ def diagnose(*, live: bool = False) -> ConfigurationReport:
     return ConfigurationReport(tuple(checks))
 
 
+def workspace_root() -> Path:
+    """The configured workspace directory, resolved, without starting ATLAS."""
+    env_path = find_dotenv(usecwd=True)
+    settings = Settings(_env_file=env_path or None)  # type: ignore[call-arg]
+    return settings.workspace_root.resolve()
+
+
 def make_demo_workspace() -> Path:
     """A fresh directory for ``atlas demo`` to write its throwaway project to."""
     return Path(tempfile.mkdtemp(prefix="atlas-demo-"))

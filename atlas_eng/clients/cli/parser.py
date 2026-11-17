@@ -64,6 +64,14 @@ class CLIParseError(ValueError):
     """Raised when argv cannot be translated to a valid Command DTO."""
 
 
+class MissingFlagsError(CLIParseError):
+    """Required flags were not given; ``flags`` names them, in order."""
+
+    def __init__(self, flags: list[str]) -> None:
+        super().__init__(f"Missing required flags: {', '.join(flags)}.")
+        self.flags = tuple(flags)
+
+
 # ---------------------------------------------------------------------------
 # Parser
 # ---------------------------------------------------------------------------
@@ -137,7 +145,7 @@ class CommandParser:
         if not rest:
             raise CLIParseError(
                 "Missing project sub-command. "
-                "Valid sub-commands: create, load, list, archive."
+                "Valid sub-commands: create, load, list, archive, use."
             )
         sub = rest[0]
         args = rest[1:]
@@ -150,8 +158,11 @@ class CommandParser:
             return ListProjectsCommand()
         if sub == "archive":
             return self._project_archive(args)
+        if sub == "use":
+            return self._project_use(args)
         raise CLIParseError(
-            f"Unknown project sub-command '{sub}'. Valid: create, load, list, archive."
+            f"Unknown project sub-command '{sub}'. "
+            "Valid: create, load, list, archive, use."
         )
 
     def _parse_workflow(self, rest: list[str]) -> Command:
@@ -304,6 +315,13 @@ class CommandParser:
     def _project_load(args: list[str]) -> LoadProjectCommand:
         parsed = _parse_flags(args, required=["--project-id"])
         return LoadProjectCommand(project_id=_uuid(parsed["--project-id"]))
+
+    @staticmethod
+    def _project_use(args: list[str]) -> Command:
+        from atlas_eng.clients.cli.commands import UseProjectCommand  # noqa: PLC0415
+
+        parsed = _parse_flags(args, required=["--project-id"])
+        return UseProjectCommand(project_id=_uuid(parsed["--project-id"]))
 
     @staticmethod
     def _project_archive(args: list[str]) -> ArchiveProjectCommand:
@@ -547,7 +565,7 @@ def _parse_flags(
 
     missing = [f for f in required if f not in result]
     if missing:
-        raise CLIParseError(f"Missing required flags: {', '.join(missing)}.")
+        raise MissingFlagsError(missing)
     return result
 
 

@@ -59,3 +59,9 @@ class DoctorCommand(Command):
 
 class DemoCommand(Command):
     """CLI sentinel: run the whole pipeline offline on a throwaway project."""
+
+
+class UseProjectCommand(Command):
+    """CLI sentinel: make a project the default for commands that omit it."""
+
+    project_id: UUID

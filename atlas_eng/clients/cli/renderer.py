@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 from typing import Any
+from uuid import UUID
 
 from atlas_eng.clients.common.formatting import (
     render_key_value,
@@ -159,11 +160,14 @@ class CLIRenderer:
         body = render_key_value(pairs)
         return f"{heading}\n{body}"
 
-    def render_project_list(self, result: ProjectListResult) -> str:
+    def render_project_list(
+        self, result: ProjectListResult, current_id: UUID | None = None
+    ) -> str:
         """Render a list of projects as a table.
 
         Args:
             result: The project list result DTO.
+            current_id: The current project, named under the table if listed.
 
         Returns:
             Formatted table string.
@@ -188,7 +192,9 @@ class CLIRenderer:
             ["ID", "Name", "Status", "Objective"],
             rows,
         )
-        return f"{heading}\n\n{table}"
+        current = next((p for p in result.projects if p.id == current_id), None)
+        footer = f"\n\nCurrent project: {current.name}" if current else ""
+        return f"{heading}\n\n{table}{footer}"
 
     # ------------------------------------------------------------------
     # Workflow results
@@ -539,6 +545,10 @@ ATLAS Command Line Interface
 Usage:
   atlas <group> <sub-command> [flags]
 
+  Every --project-id accepts a project name or the start of its ID, and may
+  be left out to use the current project (the last one created, or chosen
+  with 'atlas project use').
+
 Getting started:
   atlas demo                     Run the whole workflow offline on a throwaway project
   atlas init  [--protocol <p>] [--model <m>] [--endpoint <url>] [--force]
@@ -550,6 +560,7 @@ Project commands:
   atlas project load     --project-id <uuid>
   atlas project list
   atlas project archive  --project-id <uuid>
+  atlas project use      --project-id <name|id>   Set the current project
 
 Workflow commands:
   atlas workflow status              --project-id <uuid>

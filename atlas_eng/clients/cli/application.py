@@ -37,6 +37,7 @@ from atlas_eng.clients.cli.commands import (
     InitCommand,
     PresentationExportCommand,
     PresentationViewCommand,
+    UseProjectCommand,
     VersionCommand,
 )
 from atlas_eng.clients.cli.onboarding import (
@@ -45,7 +46,14 @@ from atlas_eng.clients.cli.onboarding import (
     run_doctor,
     run_init,
 )
-from atlas_eng.clients.cli.parser import CLIParseError, parse_argv
+from atlas_eng.clients.cli.parser import CLIParseError, MissingFlagsError, parse_argv
+from atlas_eng.clients.cli.project_reference import (
+    PROJECT_FLAG,
+    CurrentProjectStore,
+    ProjectReferenceError,
+    default_project,
+    resolve_given_reference,
+)
 from atlas_eng.clients.cli.renderer import CLIRenderer
 from atlas_eng.clients.common.capabilities import CLI_CAPABILITIES
 from atlas_eng.clients.common.rendering import RenderContext
@@ -66,6 +74,8 @@ from atlas_eng.commands import (
 )
 from atlas_eng.contracts.version import PLATFORM_API_VERSION
 from atlas_eng.exceptions import ApplicationError
+from atlas_eng.results import ProjectResult
+from atlas_eng.setup import workspace_root
 
 if TYPE_CHECKING:
     from atlas_eng import Atlas
@@ -111,6 +121,11 @@ class CLIApplication:
             )
         )
         self._capabilities = CLI_CAPABILITIES
+        # Remembered on disk only for the real platform; an injected one (as
+        # in tests) keeps the choice in memory.
+        self._current_project = CurrentProjectStore(
+            None if atlas_platform is not None else workspace_root
+        )
         self._adapter_context = AdapterContext(
             kind=AdapterKind.CLI, name="atlas-cli", version=_VERSION
         )
@@ -157,11 +172,15 @@ class CLIApplication:
         Returns:
             An integer exit code (0 = success, 1 = error, 2 = parse error).
         """
+        tokens = list(sys.argv[1:] if argv is None else argv)
         try:
-            command = parse_argv(argv)
-        except CLIParseError as exc:
+            command = self._parse(tokens)
+        except (CLIParseError, ProjectReferenceError) as exc:
             sys.stdout.write(self._renderer.render_parse_error(str(exc)) + "\n")
             return _EXIT_PARSE_ERROR
+        except ApplicationError as exc:
+            sys.stdout.write(self._renderer.render_error(exc) + "\n")
+            return _EXIT_ERROR
 
         code = _EXIT_OK
         try:
@@ -178,6 +197,22 @@ class CLIApplication:
 
         sys.stdout.write(output + "\n")
         return code
+
+    def _parse(self, tokens: list[str]) -> Command:
+        """Parse ``tokens``, resolving project names and the current project."""
+        tokens = resolve_given_reference(tokens, self._list_projects)
+        try:
+            return parse_argv(tokens)
+        except MissingFlagsError as exc:
+            if PROJECT_FLAG not in exc.flags:
+                raise
+            project_id = default_project(
+                self._current_project.get(), self._list_projects()
+            )
+            return parse_argv([*tokens, PROJECT_FLAG, str(project_id)])
+
+    def _list_projects(self) -> list[ProjectResult]:
+        return self._atlas.list_projects(ListProjectsCommand()).projects
 
     def _run_onboarding(
         self, command: InitCommand | DoctorCommand | DemoCommand
@@ -214,7 +249,22 @@ class CLIApplication:
 
         if isinstance(command, CreateProjectCommand):
             proj_res = self._atlas.create_project(command)
-            return self._renderer.render_project(proj_res)
+            self._current_project.set(proj_res.id)
+            return (
+                self._renderer.render_project(proj_res)
+                + "\n\nThis is now the current project: commands that take "
+                "--project-id use it when the flag is left out."
+            )
+
+        if isinstance(command, UseProjectCommand):
+            use_res = self._atlas.load_project(
+                LoadProjectCommand(project_id=command.project_id)
+            )
+            self._current_project.set(use_res.id)
+            return (
+                f"Now using project '{use_res.name}' ({str(use_res.id)[:8]}). "
+                "Commands that take --project-id use it when the flag is left out."
+            )
 
         if isinstance(command, LoadProjectCommand):
             load_res = self._atlas.load_project(command)
@@ -222,7 +272,9 @@ class CLIApplication:
 
         if isinstance(command, ListProjectsCommand):
             list_res = self._atlas.list_projects(command)
-            return self._renderer.render_project_list(list_res)
+            return self._renderer.render_project_list(
+                list_res, current_id=self._current_project.get()
+            )
 
         if isinstance(command, ArchiveProjectCommand):
             arch_res = self._atlas.archive_project(command)

@@ -148,21 +148,26 @@ atlas project create --name "My Project" \
   --description "A short description of what this is." \
   --objective "The core goal this project exists to achieve."
 
-# Note the project ID printed above, then check its status
-atlas workflow status --project-id <project-id>
+# The new project is now the current one, so --project-id can be left out
+atlas workflow status
 
 # Advance into the Research stage
-atlas workflow transition --project-id <project-id> --reason "Starting research."
+atlas workflow transition --reason "Starting research."
 
 # Generate an AI research proposal
-atlas stage execute --project-id <project-id> --stage research
+atlas stage execute --stage research
 
 # Review the generated proposal (printed above), then approve or reject it
-atlas proposal approve --project-id <project-id> --proposal-id <proposal-id>
+atlas proposal approve --proposal-id <proposal-id>
 # ...or, to send it back with feedback instead:
-atlas proposal reject --project-id <project-id> --proposal-id <proposal-id> \
+atlas proposal reject --proposal-id <proposal-id> \
   --feedback "Needs more evidence on X."
 ```
+
+Wherever a command takes `--project-id`, you can give a project name
+(`--project-id "My Project"`) or the start of its ID as shown by
+`atlas project list`, or leave it out to use the current project. Switch the
+current project with `atlas project use --project-id <name>`.
 
 Repeat `stage execute` / `proposal approve` for each subsequent AI-assisted
 stage (`planning`, `architecture`, `review`) as the project progresses. Once
@@ -172,9 +177,8 @@ before running `workflow transition` again -- see [Progressing through a
 human-driven stage](docs/architecture/workflow-stages.md#progressing-through-a-human-driven-stage).
 
 Each committed stage proposal may also extract engineering-knowledge
-candidates -- run `atlas knowledge list --project-id <project-id>` to see
-them, `atlas knowledge show --project-id <project-id> --candidate-id
-<candidate-id>` for full detail, and `atlas knowledge approve` (publishes)
+candidates -- run `atlas knowledge list` to see them, `atlas knowledge show
+--candidate-id <candidate-id>` for full detail, and `atlas knowledge approve` (publishes)
 or `atlas knowledge reject --feedback <f>` to review one.
 
 See the [CLI Reference](#cli-reference) below for the full command set.

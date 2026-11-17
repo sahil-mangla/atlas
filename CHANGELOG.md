@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Project References
+
+- Added: every `--project-id` accepts a project name, its directory name, or
+  a unique ID prefix (the list only ever showed eight characters), and can be
+  left out to use the current project.
+- Added: `atlas project use --project-id <name|id>`. `project create` makes
+  the new project current, and `project list` names the current project.
+  The choice is stored per workspace in `.atlas-current-project`.
+
 ### First-Run Commands
 
 - Added: `atlas demo` runs the whole workflow offline on a throwaway project

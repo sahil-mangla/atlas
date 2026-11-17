@@ -124,3 +124,56 @@ def test_version_and_help_do_not_start_the_platform(cli: Cli) -> None:
     assert cli.ok("--version", env=env).stdout.startswith("ATLAS")
     assert "Getting started" in cli.ok("--help", env=env).stdout
     assert not (cli.cwd / "workspace").exists()
+
+
+def test_a_whole_stage_without_typing_a_single_id(cli: Cli) -> None:
+    cli.ok(
+        "project",
+        "create",
+        "--name",
+        "Rollback Tool",
+        "--description",
+        "d",
+        "--objective",
+        "o",
+    )
+    cli.ok("workflow", "transition", "--reason", "start")
+    drafted = cli.ok("stage", "execute", "--stage", "research")
+    # Proposal IDs still need the flag; the project is implied.
+    approved = cli.ok("proposal", "approve", "--proposal-id", drafted.first_uuid())
+    assert "committed" in approved.stdout
+
+    status = cli.ok("workflow", "status", "--project-id", "rollback tool")
+    assert "planning" in status.stdout
+
+
+def test_current_project_survives_between_commands_and_can_be_switched(
+    cli: Cli,
+) -> None:
+    for name in ("First", "Second"):
+        cli.ok(
+            "project",
+            "create",
+            "--name",
+            name,
+            "--description",
+            "d",
+            "--objective",
+            "o",
+        )
+
+    assert "Current project: Second" in cli.ok("project", "list").stdout
+    cli.ok("project", "use", "--project-id", "first")
+    assert "Current project: First" in cli.ok("project", "list").stdout
+    assert (cli.cwd / "workspace" / ".atlas-current-project").is_file()
+
+
+def test_unknown_project_name_is_a_parse_error(cli: Cli) -> None:
+    cli.ok(
+        "project", "create", "--name", "Only", "--description", "d", "--objective", "o"
+    )
+
+    result = cli("workflow", "status", "--project-id", "missing")
+
+    assert result.returncode == 2
+    assert "No project matches 'missing'" in result.stdout

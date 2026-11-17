@@ -97,6 +97,9 @@ class Cli:
             ],
             cwd=self.cwd,
             env=environment,
+            # Never inherit pytest's stdin: if it is a terminal, commands that
+            # prompt (atlas init) would wait for input until the timeout.
+            stdin=subprocess.DEVNULL,
             capture_output=True,
             text=True,
             encoding="utf-8",
