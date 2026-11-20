@@ -95,11 +95,17 @@ from atlas_eng.engine.research.services import (
 )
 from atlas_eng.engine.research.sources import (
     ArxivSource,
+    BraveSearchSource,
+    GitHubSource,
+    HackerNewsSource,
     OpenAlexSource,
     PaperSource,
     SemanticScholarSource,
 )
-from atlas_eng.engine.research.sources.scripted import ScriptedPaperSource
+from atlas_eng.engine.research.sources.scripted import (
+    ScriptedMarketSource,
+    ScriptedPaperSource,
+)
 from atlas_eng.engine.workflow.fs_repository import FilesystemWorkflowRepository
 from atlas_eng.engine.workflow.orchestration import (
     ArchitectureStageExecutor,
@@ -186,6 +192,24 @@ def _build_paper_sources(settings: Settings) -> list[PaperSource]:
         SemanticScholarSource(timeout_seconds=timeout),
         OpenAlexSource(timeout_seconds=timeout),
     ]
+
+
+def _build_market_sources(settings: Settings) -> list[PaperSource]:
+    """Sources for existing products and discussions; none when switched off."""
+    if not settings.research_market_sources:
+        return []
+    if settings.ai_protocol.upper() == _SCRIPTED_PROTOCOL:
+        return [ScriptedMarketSource()]
+    timeout = settings.research_retrieval_timeout_seconds
+    sources: list[PaperSource] = [
+        GitHubSource(timeout_seconds=timeout, token=settings.github_token),
+        HackerNewsSource(timeout_seconds=timeout),
+    ]
+    if settings.brave_api_key:
+        sources.append(
+            BraveSearchSource(settings.brave_api_key, timeout_seconds=timeout)
+        )
+    return sources
 
 
 def _build_exporter(settings: Settings) -> TraceExporter:
@@ -297,6 +321,8 @@ def _create_platform() -> Atlas:  # noqa: PLR0915
         project_repo=project_repo,
         prompt_executor=prompt_executor,
         max_candidates=settings.research_max_candidates,
+        market_sources=_build_market_sources(settings),
+        max_market_candidates=settings.research_max_market_candidates,
     )
     research_ai = ResearchAIEngineeringService(
         ai_orchestrator, context_assembler, research_validator, research_retrieval

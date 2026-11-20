@@ -21,7 +21,10 @@ YAML benchmark tasks, real-provider runs, reports, and baseline comparison.
 ### 1d. [Semantic Knowledge Retrieval](semantic-retrieval.md)
 Optional relevance ranking of published knowledge with an embedded vector index, and its evaluation.
 
-### 1e. [Testing Without an AI Provider](testing.md)
+### 1e. [Market and Competitor Research](market-research.md)
+Searching GitHub, Hacker News and (with a key) the web for existing products, so research names alternatives and gaps.
+
+### 1f. [Testing Without an AI Provider](testing.md)
 The offline `SCRIPTED` protocol, the test layers, and how CI runs with no keys.
 
 ### 2. Architecture Reference

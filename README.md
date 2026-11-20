@@ -217,6 +217,9 @@ to configure a project directory instead of exporting variables by hand.
 - **Semantic knowledge retrieval:** rank published knowledge by relevance
   using an embedded vector index. See
   [Semantic Knowledge Retrieval](docs/semantic-retrieval.md).
+- **Market and competitor research:** research also finds existing
+  open-source projects and launch discussions, and commercial competitors with
+  a Brave key. See [Market and competitor research](docs/market-research.md).
 - **Tracing:** every request is traced to `<workspace>/traces/`, and to
   [Langfuse](https://langfuse.com) with the `langfuse` extra and keys. See the
   [Observability Guide](docs/observability.md).

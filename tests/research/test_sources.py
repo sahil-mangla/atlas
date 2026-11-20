@@ -6,6 +6,9 @@ import pytest
 import atlas_eng.engine.research.sources.semantic_scholar as semantic_scholar_module
 from atlas_eng.engine.research.sources.arxiv import ArxivSource
 from atlas_eng.engine.research.sources.base import RateLimiter
+from atlas_eng.engine.research.sources.brave import BraveSearchSource
+from atlas_eng.engine.research.sources.github import GitHubSource
+from atlas_eng.engine.research.sources.hackernews import HackerNewsSource
 from atlas_eng.engine.research.sources.openalex import (
     OpenAlexSource,
     _reconstruct_abstract,
@@ -333,3 +336,155 @@ def test_openalex_source_handles_explicit_null_author() -> None:
     assert len(results) == 1
     assert results[0].authors == ["Known Author"]
     assert source.last_call_failed is False
+
+
+def test_github_source_parses_repositories_and_sends_token() -> None:
+    seen: dict[str, httpx.Request] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["request"] = request
+        return httpx.Response(
+            200,
+            json={
+                "items": [
+                    {
+                        "full_name": "example/rental-app",
+                        "html_url": "https://github.com/example/rental-app",
+                        "description": "Rent camera gear.",
+                        "stargazers_count": 900,
+                        "pushed_at": "2026-03-04T10:00:00Z",
+                        "language": "Python",
+                    },
+                    {"full_name": "broken/entry"},
+                ]
+            },
+        )
+
+    source = GitHubSource(
+        client=_client_for(httpx.MockTransport(handler)), token="secret"
+    )
+
+    results = source.search("camera rental marketplace photographers owners fleet", 5)
+
+    assert len(results) == 1
+    assert results[0].kind == "repository"
+    assert results[0].external_id == "github:example/rental-app"
+    assert results[0].abstract == (
+        "Rent camera gear. (900 stars, last pushed 2026-03-04, Python)"
+    )
+    request = seen["request"]
+    assert request.headers["Authorization"] == "Bearer secret"
+    # Repository search needs every word to match, so the query is shortened.
+    assert request.url.params["q"] == "camera rental marketplace photographers"
+
+
+def test_github_source_narrows_the_query_until_something_matches() -> None:
+    queries: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        queries.append(request.url.params["q"])
+        items = (
+            [{"full_name": "a/b", "html_url": "https://github.com/a/b"}]
+            if len(queries[-1].split()) == 2
+            else []
+        )
+        return httpx.Response(200, json={"items": items})
+
+    source = GitHubSource(client=_client_for(httpx.MockTransport(handler)))
+
+    results = source.search("camera rental marketplace photographers owners", 5)
+
+    assert [r.title for r in results] == ["a/b"]
+    assert queries == [
+        "camera rental marketplace photographers",
+        "camera rental marketplace",
+        "camera rental",
+    ]
+    assert source.last_call_failed is False
+
+
+def test_github_source_returns_empty_on_rate_limit() -> None:
+    transport = httpx.MockTransport(lambda _request: httpx.Response(403))
+    source = GitHubSource(client=_client_for(transport))
+
+    assert source.search("anything", max_results=5) == []
+    assert source.last_call_failed is True
+
+
+def test_hackernews_source_links_to_the_discussion() -> None:
+    payload = {
+        "hits": [
+            {
+                "objectID": "123",
+                "title": "Show HN: Camera rental for photographers",
+                "url": "https://example.com/launch",
+                "author": "founder",
+                "points": 88,
+                "num_comments": 31,
+                "created_at": "2025-06-01T08:00:00.000Z",
+                "story_text": None,
+            },
+            {"objectID": "456"},
+        ]
+    }
+    transport = httpx.MockTransport(lambda _request: httpx.Response(200, json=payload))
+    source = HackerNewsSource(client=_client_for(transport))
+
+    results = source.search("camera rental", max_results=5)
+
+    assert len(results) == 1
+    assert results[0].kind == "discussion"
+    assert results[0].url == "https://news.ycombinator.com/item?id=123"
+    assert results[0].year == 2025
+    assert results[0].authors == ["founder"]
+    assert results[0].abstract.endswith("(88 points, 31 comments).")
+
+
+def test_hackernews_source_returns_empty_on_bad_json() -> None:
+    transport = httpx.MockTransport(lambda _request: httpx.Response(200, text="oops"))
+    source = HackerNewsSource(client=_client_for(transport))
+
+    assert source.search("anything", max_results=5) == []
+    assert source.last_call_failed is True
+
+
+def test_brave_source_searches_for_competitors_and_strips_markup() -> None:
+    seen: dict[str, httpx.Request] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["request"] = request
+        return httpx.Response(
+            200,
+            json={
+                "web": {
+                    "results": [
+                        {
+                            "title": "<strong>LensRentals</strong> &amp; more",
+                            "url": "https://lensrentals.example/",
+                            "description": "Rent <strong>cameras</strong> online.",
+                        },
+                        {"title": "No url"},
+                    ]
+                }
+            },
+        )
+
+    source = BraveSearchSource("key", client=_client_for(httpx.MockTransport(handler)))
+
+    results = source.search("camera rental", max_results=5)
+
+    assert len(results) == 1
+    assert results[0].title == "LensRentals & more"
+    assert results[0].abstract == "Rent cameras online."
+    assert results[0].kind == "web page"
+    assert results[0].external_id == "https://lensrentals.example/"
+    assert seen["request"].headers["X-Subscription-Token"] == "key"
+    assert seen["request"].url.params["q"] == "camera rental alternatives competitors"
+
+
+def test_brave_source_returns_empty_on_http_error() -> None:
+    transport = httpx.MockTransport(lambda _request: httpx.Response(401))
+    source = BraveSearchSource("bad", client=_client_for(transport))
+
+    assert source.search("anything", max_results=5) == []
+    assert source.last_call_failed is True

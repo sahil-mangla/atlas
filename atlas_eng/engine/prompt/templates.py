@@ -96,7 +96,11 @@ class ResearchPromptTemplate(PromptTemplate):
                 "`opportunities` only by referencing that evidence via "
                 "`evidence_indices`. If no 'GROUNDED EVIDENCE' section is "
                 "present, leave `evidence` as an empty list rather than "
-                "fabricating sources or citations."
+                "fabricating sources or citations.\n\n"
+                "Evidence may be papers, repositories, discussions or web pages. "
+                "Where it shows existing products or tools, name them in the "
+                "findings, and make each opportunity a gap those alternatives "
+                "leave unaddressed, citing the evidence that shows the gap."
             ),
             context=context.serialized_context,
             task=(
@@ -266,11 +270,12 @@ class EvidenceSummaryPromptTemplate(PromptTemplate):
     ) -> PromptDocument:
         return PromptDocument(
             system_prompt=(
-                "You are condensing real paper abstracts for an engineering "
-                "research review. Return only JSON conforming to the supplied "
-                "schema. Summarize only what is stated in each abstract -- do "
-                "not add claims, numbers, or conclusions the abstract does not "
-                "contain. Produce exactly one summary per abstract, in the "
+                "You are condensing real source descriptions (paper abstracts, "
+                "repository descriptions, discussion posts or web page snippets) "
+                "for an engineering research review. Return only JSON conforming to "
+                "the supplied schema. Summarize only what is stated in each "
+                "description -- do not add claims, numbers, or conclusions it does not "
+                "contain. Produce exactly one summary per description, in the "
                 "same order they are given, each 1-3 sentences focused on the "
                 "engineering-relevant claim."
             ),

@@ -161,6 +161,9 @@ def _extract_keywords(text: str, limit: int) -> list[str]:
 
 
 def _format_citation(candidate: PaperCandidate) -> str:
+    if candidate.kind != "paper":
+        year = f" ({candidate.year})" if candidate.year else ""
+        return f"{candidate.title} [{candidate.kind}]{year}. {candidate.url}"
     if not candidate.authors:
         author_str = "Unknown Author"
     elif len(candidate.authors) > _MAX_CITED_AUTHORS:
@@ -202,14 +205,18 @@ def _dedupe(
 class ResearchRetrievalService:
     """Queries real paper sources and turns the results into grounded evidence."""
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         sources: list[PaperSource],
         project_repo: ProjectRepository,
         prompt_executor: PromptExecutor,
         max_candidates: int = 5,
+        market_sources: list[PaperSource] | None = None,
+        max_market_candidates: int = 5,
     ) -> None:
         self._sources = sources
+        self._market_sources = market_sources or []
+        self._max_market_candidates = max_market_candidates
         self._project_repo = project_repo
         self._prompt_executor = prompt_executor
         self._max_candidates = max_candidates
@@ -225,7 +232,7 @@ class ResearchRetrievalService:
         return " ".join(_extract_keywords(text, _MAX_QUERY_KEYWORDS))
 
     def _search_one_source(
-        self, source: PaperSource, query: str
+        self, source: PaperSource, query: str, max_results: int
     ) -> list[PaperCandidate]:
         """Call a single source defensively.
 
@@ -234,7 +241,7 @@ class ResearchRetrievalService:
         not take down the other sources or the whole retrieval call.
         """
         try:
-            return source.search(query, self._max_candidates)
+            return source.search(query, max_results)
         except Exception:
             logger.exception(
                 "Paper source %r raised unexpectedly for query %r; treating "
@@ -244,27 +251,29 @@ class ResearchRetrievalService:
             )
             return []
 
-    def _search_all_sources(self, query: str) -> list[PaperCandidate]:
-        if not self._sources:
+    def _search_all_sources(
+        self, sources: list[PaperSource], query: str, max_results: int
+    ) -> list[PaperCandidate]:
+        if not sources:
             return []
 
-        with ThreadPoolExecutor(max_workers=len(self._sources)) as executor:
+        with ThreadPoolExecutor(max_workers=len(sources)) as executor:
             per_source_results = list(
                 executor.map(
-                    lambda source: self._search_one_source(source, query),
-                    self._sources,
+                    lambda source: self._search_one_source(source, query, max_results),
+                    sources,
                 )
             )
 
         failed = sum(
-            1 for source in self._sources if getattr(source, "last_call_failed", False)
+            1 for source in sources if getattr(source, "last_call_failed", False)
         )
-        if failed == len(self._sources):
+        if failed == len(sources):
             logger.error(
-                "All %d paper sources failed or were unreachable for this "
-                "query; evidence will be empty due to an outage, not because "
-                "no relevant papers exist.",
-                len(self._sources),
+                "All %d sources failed or were unreachable for this query; "
+                "evidence will be empty due to an outage, not because "
+                "nothing relevant exists.",
+                len(sources),
             )
 
         return _interleave(per_source_results)
@@ -308,7 +317,15 @@ class ResearchRetrievalService:
         if not query:
             return []
 
-        candidates = _dedupe(self._search_all_sources(query), self._max_candidates)
+        candidates = _dedupe(
+            self._search_all_sources(self._sources, query, self._max_candidates),
+            self._max_candidates,
+        ) + _dedupe(
+            self._search_all_sources(
+                self._market_sources, query, self._max_market_candidates
+            ),
+            self._max_market_candidates,
+        )
         if not candidates:
             return []
 
@@ -316,7 +333,7 @@ class ResearchRetrievalService:
         return [
             ResearchEvidenceDraft(
                 title=candidate.title,
-                type="paper",
+                type=candidate.kind,
                 origin=f"{candidate.source}: {candidate.url}",
                 citation=_format_citation(candidate),
                 summary=summary,

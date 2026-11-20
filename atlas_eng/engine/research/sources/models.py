@@ -17,6 +17,13 @@ class PaperCandidate(BaseModel):
     url: str = Field(description="Canonical URL for the paper or its landing page.")
     abstract: str = Field(default="", description="Abstract or summary text.")
     source: str = Field(description="Name of the retrieval source, e.g. 'arxiv'.")
+    kind: str = Field(
+        default="paper",
+        description=(
+            "What was found: 'paper', or for market and competitor research "
+            "'repository', 'discussion' or 'web page'."
+        ),
+    )
     external_id: str = Field(
         description="Source-specific identifier (arXiv ID, DOI, OpenAlex ID) "
         "used to deduplicate candidates found by multiple sources."

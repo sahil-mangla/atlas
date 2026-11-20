@@ -28,6 +28,37 @@ class PaperSource(Protocol):
         ...
 
 
+_MARKET_QUERY_WORDS = 5
+
+
+def shorten_query(query: str, words: int = _MARKET_QUERY_WORDS) -> str:
+    """Keep the first few keywords of a research query.
+
+    Paper search tolerates a long keyword list, but product and repository
+    search require every word to match, so a long query finds nothing.
+    """
+    return " ".join(query.split()[:words])
+
+
+_NARROWING_WIDTHS = (4, 3, 2)
+
+
+def narrowing_queries(query: str) -> list[str]:
+    """Progressively shorter versions of a query, longest first.
+
+    GitHub and Hacker News match every word, so a specific query often finds
+    nothing while its first two or three words find plenty. Sources try each
+    in turn and keep the first that returns results.
+    """
+    words = query.split()
+    attempts: list[str] = []
+    for width in _NARROWING_WIDTHS:
+        attempt = " ".join(words[:width])
+        if attempt and attempt not in attempts:
+            attempts.append(attempt)
+    return attempts
+
+
 class RateLimiter:
     """Blocks until at least ``min_interval_seconds`` has passed since the
     last call, so a source doesn't exceed its provider's request-rate policy

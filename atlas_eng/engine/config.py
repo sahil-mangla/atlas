@@ -91,6 +91,29 @@ class Settings(BaseSettings):
         default=5,
         description="Max paper candidates kept per research proposal generation.",
     )
+    research_market_sources: bool = Field(
+        default=True,
+        description=(
+            "Also search for existing products and discussions (GitHub, Hacker "
+            "News, and Brave Search when a key is set), not only papers. The "
+            "project's keywords are sent to those services."
+        ),
+    )
+    research_max_market_candidates: int = Field(
+        default=5,
+        description="Max market and competitor candidates kept per proposal.",
+    )
+    github_token: str | None = Field(
+        default=None,
+        description="Optional GitHub token; raises the repository search limit.",
+    )
+    brave_api_key: str | None = Field(
+        default=None,
+        description=(
+            "Brave Search API key. Enables web search for commercial "
+            "competitors; without it only GitHub and Hacker News are searched."
+        ),
+    )
     research_retrieval_timeout_seconds: int = Field(
         default=15,
         description="HTTP timeout, in seconds, per paper-source API call.",

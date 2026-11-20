@@ -321,3 +321,46 @@ def test_build_query_sends_filtered_keywords_not_the_raw_paragraph() -> None:
     # Must be meaningfully shorter than the raw concatenation.
     raw_length = len(project.objective) + len(project.description)
     assert len(source.last_query) < raw_length
+
+
+def test_retrieve_evidence_adds_market_evidence_after_papers() -> None:
+    project = Project(name="P", description="photo rental", objective="marketplace")
+    repo = PaperCandidate(
+        title="example/rental-app",
+        url="https://github.com/example/rental-app",
+        abstract="An open-source rental app (900 stars).",
+        source="github",
+        kind="repository",
+        external_id="github:example/rental-app",
+    )
+    papers, market = FakeSource([_candidate("p1")]), FakeSource([repo])
+    service = ResearchRetrievalService(
+        sources=[papers],
+        market_sources=[market],
+        project_repo=FakeProjectRepo(project),
+        prompt_executor=_executor_returning({"summaries": ["paper", "competitor"]}),
+    )
+
+    evidence = service.retrieve_evidence(project.id)
+
+    assert [(e.type, e.external_id) for e in evidence] == [
+        ("paper", "p1"),
+        ("repository", "github:example/rental-app"),
+    ]
+    assert evidence[1].origin == "github: https://github.com/example/rental-app"
+    assert evidence[1].citation == (
+        "example/rental-app [repository]. https://github.com/example/rental-app"
+    )
+    assert market.last_query == papers.last_query
+
+
+def test_retrieve_evidence_keeps_papers_when_market_sources_find_nothing() -> None:
+    project = Project(name="P", description="d", objective="o")
+    service = ResearchRetrievalService(
+        sources=[FakeSource([_candidate("p1")])],
+        market_sources=[FakeSource([])],
+        project_repo=FakeProjectRepo(project),
+        prompt_executor=_executor_returning({"summaries": ["paper"]}),
+    )
+
+    assert [e.external_id for e in service.retrieve_evidence(project.id)] == ["p1"]

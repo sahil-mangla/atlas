@@ -50,3 +50,46 @@ class ScriptedPaperSource:
         """Return up to ``max_results`` fixed placeholder candidates."""
         self.last_call_failed = False
         return list(_FIXTURES[:max_results])
+
+
+_MARKET_FIXTURES = (
+    PaperCandidate(
+        title="[Demo fixture] example-org/design-review-tool",
+        url="https://atlas-demo.invalid/repos/1",
+        abstract=(
+            "Placeholder repository used by the offline scripted source. It "
+            "stands in for an existing open-source alternative "
+            "(120 stars, last pushed 2024-01-01)."
+        ),
+        source="scripted-market",
+        kind="repository",
+        external_id="scripted-market:demo-1",
+    ),
+    PaperCandidate(
+        title="[Demo fixture] Show HN: a design review assistant",
+        year=2024,
+        url="https://atlas-demo.invalid/discussions/1",
+        abstract=(
+            "Placeholder discussion used by the offline scripted source. It "
+            "stands in for a launch thread where users describe what current "
+            "tools leave out (45 points, 12 comments)."
+        ),
+        source="scripted-market",
+        kind="discussion",
+        external_id="scripted-market:demo-2",
+    ),
+)
+
+
+class ScriptedMarketSource:
+    """A market-research source that needs no network and never fails."""
+
+    name = "scripted-market"
+
+    def __init__(self) -> None:
+        self.last_call_failed = False
+
+    def search(self, _query: str, max_results: int) -> list[PaperCandidate]:
+        """Return up to ``max_results`` fixed placeholder candidates."""
+        self.last_call_failed = False
+        return list(_MARKET_FIXTURES[:max_results])
