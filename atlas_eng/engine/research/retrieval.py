@@ -222,13 +222,23 @@ class ResearchRetrievalService:
         self._max_candidates = max_candidates
         self._summary_template = EvidenceSummaryPromptTemplate()
 
-    def _build_query(self, project_id: UUID) -> str:
+    def _build_query(self, project_id: UUID, *, market: bool = False) -> str:
+        """Keywords for a search.
+
+        Market search leads with the description, which names what the
+        product is, because those sources match on their first few words;
+        the objective, which opens with what the user wants, comes first for
+        papers.
+        """
         project = self._project_repo.get_by_id(project_id)
         if not project:
             return ""
-        text = " ".join(
-            part for part in (project.objective, project.description) if part
+        parts = (
+            (project.description, project.objective)
+            if market
+            else (project.objective, project.description)
         )
+        text = " ".join(part for part in parts if part)
         return " ".join(_extract_keywords(text, _MAX_QUERY_KEYWORDS))
 
     def _search_one_source(
@@ -322,7 +332,9 @@ class ResearchRetrievalService:
             self._max_candidates,
         ) + _dedupe(
             self._search_all_sources(
-                self._market_sources, query, self._max_market_candidates
+                self._market_sources,
+                self._build_query(project_id, market=True),
+                self._max_market_candidates,
             ),
             self._max_market_candidates,
         )

@@ -20,7 +20,7 @@ _MIN_INTERVAL_SECONDS = 2.0
 
 
 class GitHubSource:
-    """Searches public repositories, most-starred first."""
+    """Searches public repositories by relevance."""
 
     name = "github"
 
@@ -55,12 +55,7 @@ class GitHubSource:
             headers["Authorization"] = f"Bearer {self._token}"
         response = self._client.get(
             _BASE_URL,
-            params={
-                "q": query,
-                "sort": "stars",
-                "order": "desc",
-                "per_page": max_results,
-            },
+            params={"q": query, "per_page": max_results},
             headers=headers,
         )
         response.raise_for_status()

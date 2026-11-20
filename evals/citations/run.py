@@ -129,6 +129,8 @@ class IdeaResult:
     calls: list[Call] = field(default_factory=list)
     knowledge_candidates: int = 0
     atlas_wall_s: float = 0.0
+    #: Evidence types, the items found and the findings drawn from them.
+    research_notes: dict[str, Any] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -255,6 +257,34 @@ class _Recorder:
         return self._inner.capabilities()
 
 
+def _research_notes(content: dict[str, Any]) -> dict[str, Any]:
+    evidence = content.get("evidence", [])
+    types: dict[str, int] = {}
+    for item in evidence:
+        types[item.get("type", "paper")] = types.get(item.get("type", "paper"), 0) + 1
+    return {
+        "evidence_types": types,
+        "market_items": [
+            {
+                "type": item.get("type"),
+                "title": item.get("title"),
+                "origin": item.get("origin"),
+                "summary": item.get("summary"),
+            }
+            for item in evidence
+            if item.get("type", "paper") != "paper"
+        ],
+        "findings": [
+            {"title": f.get("title"), "summary": f.get("summary")}
+            for f in content.get("findings", [])
+        ],
+        "opportunities": [
+            {"title": o.get("title"), "description": o.get("description")}
+            for o in content.get("opportunities", [])
+        ],
+    }
+
+
 def _parse_citation(evidence: dict[str, Any]) -> Citation:
     citation = str(evidence.get("citation", ""))
     authors_part = citation.split(" (", 1)[0] if " (" in citation else ""
@@ -322,6 +352,7 @@ def run_atlas(
                     )
                 )
                 if stage == "research":
+                    result.research_notes = _research_notes(proposal.content)
                     result.atlas_citations = [
                         _parse_citation(e)
                         for e in proposal.content.get("evidence", [])
@@ -420,6 +451,22 @@ def main(argv: list[str] | None = None) -> int:  # noqa: PLR0912, PLR0915
     parser.add_argument("--limit", type=int, default=0, help="Only the first N ideas.")
     parser.add_argument("--out", type=Path, default=HERE / "results.json")
     parser.add_argument(
+        "--ideas",
+        type=Path,
+        default=HERE / "ideas.yaml",
+        help="YAML file of ideas to run.",
+    )
+    parser.add_argument(
+        "--market",
+        action="store_true",
+        help="Search for existing products too, not only papers.",
+    )
+    parser.add_argument(
+        "--skip-baseline",
+        action="store_true",
+        help="Do not run the plain-prompting arm.",
+    )
+    parser.add_argument(
         "--only", action="append", default=[], help="Run only this idea (repeatable)."
     )
     parser.add_argument(
@@ -442,7 +489,7 @@ def main(argv: list[str] | None = None) -> int:  # noqa: PLR0912, PLR0915
             "claude-opus-5-5" if args.provider == "claude-code" else "qwen2.5-coder:7b"
         )
 
-    ideas = yaml.safe_load((HERE / "ideas.yaml").read_text(encoding="utf-8"))["ideas"]
+    ideas = yaml.safe_load(args.ideas.read_text(encoding="utf-8"))["ideas"]
     if args.only:
         ideas = [idea for idea in ideas if idea["name"] in args.only]
     if args.limit:
@@ -461,8 +508,8 @@ def main(argv: list[str] | None = None) -> int:  # noqa: PLR0912, PLR0915
             "ATLAS_AI_TIMEOUT_SECONDS": "900",
             "ATLAS_INSTRUMENTATION_ENABLED": "false",
             "ATLAS_EMBEDDING_ENABLED": "false",
-            # The eval measures paper citations, so keep market research out.
-            "ATLAS_RESEARCH_MARKET_SOURCES": "false",
+            # Paper-citation runs keep market research out of the numbers.
+            "ATLAS_RESEARCH_MARKET_SOURCES": "true" if args.market else "false",
         }
     )
     for name in ("LANGFUSE_PUBLIC_KEY", "LANGFUSE_SECRET_KEY"):
@@ -506,8 +553,10 @@ def main(argv: list[str] | None = None) -> int:  # noqa: PLR0912, PLR0915
             if idea["name"] in done:
                 continue
             _say(f"[{index}/{len(ideas)}] {idea['name']}")
-            citations, tokens, latency, error = run_baseline(
-                client, args.endpoint, args.model, idea, claude_code
+            citations, tokens, latency, error = (
+                ([], {}, 0.0, "")
+                if args.skip_baseline
+                else run_baseline(client, args.endpoint, args.model, idea, claude_code)
             )
             result = run_atlas(idea, sandbox / f"ws-{index}", recorder_box, args.stages)
             result.baseline_citations, result.baseline_tokens = citations, tokens
@@ -631,6 +680,7 @@ def _load_idea(raw: dict[str, Any]) -> IdeaResult:
         "atlas_wall_s",
     ):
         setattr(result, name, raw[name])
+    result.research_notes = raw.get("research_notes", {})
     return result
 
 

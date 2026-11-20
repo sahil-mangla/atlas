@@ -1,0 +1,39 @@
+# Founder-style product ideas for the market-research check (evals/citations).
+#
+# Written before any run and not tuned afterwards. These are products a
+# founder or designer might bring, where the useful question is "what already
+# exists and what does it miss", not "which papers are relevant".
+
+ideas:
+  - name: Camera Gear Rental
+    kind: product
+    description: A marketplace where photographers rent camera gear from each other, with insurance for damage.
+    objective: Let a photographer rent a lens for a weekend from someone nearby without worrying about damage or no-shows.
+  - name: Freelancer Invoice Chasing
+    kind: product
+    description: A tool that sends polite, escalating payment reminders for freelancers whose clients pay late.
+    objective: Get freelancers paid on time without awkward emails.
+  - name: Neighbourhood Tool Library
+    kind: product
+    description: An app for a neighbourhood to share tools such as drills and ladders, with booking and a deposit.
+    objective: Stop people buying tools they use once a year.
+  - name: Gym Meal Prep Planner
+    kind: product
+    description: A weekly meal-prep planner for people who lift weights, built around protein targets and a grocery budget.
+    objective: Plan a week of high-protein meals and one shopping list in a few minutes.
+  - name: Yoga Teacher Booking
+    kind: product
+    description: A booking and payments page for independent yoga teachers running classes in rented studios.
+    objective: Let a solo teacher fill classes and get paid without a studio platform taking a large cut.
+  - name: Restaurant Waste Tracker
+    kind: product
+    description: A tablet app for small restaurants to log food waste in seconds and see what to order less of.
+    objective: Cut food waste and cost in a small restaurant without extra staff time.
+  - name: Language Exchange Matching
+    kind: product
+    description: An app that pairs people who want to practise each other's language for short scheduled video calls.
+    objective: Make practice with a native speaker as easy as booking a coffee.
+  - name: Podcast Clip Maker
+    kind: product
+    description: A tool that finds the best moments in a podcast episode and turns them into captioned short videos.
+    objective: Let a solo podcaster promote every episode without editing video.

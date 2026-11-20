@@ -1,0 +1,1664 @@
+{
+ "started": "2026-11-20T11:18:10.932546+00:00",
+ "provider": "claude-code",
+ "model": "claude-opus-5-5",
+ "api_equivalent_cost_usd": 2.1749,
+ "claude_code_model_usage": {
+  "claude-haiku-5-5": {
+   "input": 91483,
+   "output": 2853
+  },
+  "claude-opus-5-5": {
+   "input": 127858,
+   "output": 70293
+  }
+ },
+ "embed_model": "nomic-embed-text",
+ "machine": {
+  "python": "3.13.12",
+  "os": "Darwin 25.6.0",
+  "chip": "Apple M4",
+  "memory_bytes": "17179869184"
+ },
+ "ollama_version": [
+  "ollama version is 0.40.2"
+ ],
+ "summary": {
+  "ideas": 8,
+  "plain_all": {
+   "total": 0,
+   "verified": 0,
+   "misattributed": 0,
+   "not_found": 0,
+   "unchecked": 0,
+   "verified_pct": 0.0,
+   "misattributed_pct": 0.0,
+   "not_found_pct": 0.0,
+   "unchecked_pct": 0.0,
+   "median_relevance_of_verified": null
+  },
+  "atlas_all": {
+   "total": 40,
+   "verified": 40,
+   "misattributed": 0,
+   "not_found": 0,
+   "unchecked": 0,
+   "verified_pct": 100.0,
+   "misattributed_pct": 0.0,
+   "not_found_pct": 0.0,
+   "unchecked_pct": 0.0,
+   "median_relevance_of_verified": 0.526
+  },
+  "plain_research": {
+   "total": 0,
+   "verified": 0,
+   "misattributed": 0,
+   "not_found": 0,
+   "unchecked": 0,
+   "verified_pct": 0.0,
+   "misattributed_pct": 0.0,
+   "not_found_pct": 0.0,
+   "unchecked_pct": 0.0,
+   "median_relevance_of_verified": null
+  },
+  "atlas_research": {
+   "total": 0,
+   "verified": 0,
+   "misattributed": 0,
+   "not_found": 0,
+   "unchecked": 0,
+   "verified_pct": 0.0,
+   "misattributed_pct": 0.0,
+   "not_found_pct": 0.0,
+   "unchecked_pct": 0.0,
+   "median_relevance_of_verified": null
+  },
+  "plain_engineering": {
+   "total": 0,
+   "verified": 0,
+   "misattributed": 0,
+   "not_found": 0,
+   "unchecked": 0,
+   "verified_pct": 0.0,
+   "misattributed_pct": 0.0,
+   "not_found_pct": 0.0,
+   "unchecked_pct": 0.0,
+   "median_relevance_of_verified": null
+  },
+  "atlas_engineering": {
+   "total": 0,
+   "verified": 0,
+   "misattributed": 0,
+   "not_found": 0,
+   "unchecked": 0,
+   "verified_pct": 0.0,
+   "misattributed_pct": 0.0,
+   "not_found_pct": 0.0,
+   "unchecked_pct": 0.0,
+   "median_relevance_of_verified": null
+  },
+  "atlas_ideas_with_no_evidence": 0,
+  "stages": {
+   "research": {
+    "reached": 8,
+    "first_try_pct": 100.0,
+    "eventual_pct": 100.0,
+    "calls": 16,
+    "latency_s_p50": 51.28,
+    "latency_s_p95": 103.37,
+    "prompt_tokens_mean": 7991,
+    "prompt_tokens_max": 24062,
+    "completion_tokens_mean": 4393
+   },
+   "planning": {
+    "reached": 0,
+    "first_try_pct": 0.0,
+    "eventual_pct": 0.0,
+    "calls": 0,
+    "latency_s_p50": 0.0,
+    "latency_s_p95": 0.0,
+    "prompt_tokens_mean": 0,
+    "prompt_tokens_max": 0,
+    "completion_tokens_mean": 0
+   },
+   "architecture": {
+    "reached": 0,
+    "first_try_pct": 0.0,
+    "eventual_pct": 0.0,
+    "calls": 0,
+    "latency_s_p50": 0.0,
+    "latency_s_p95": 0.0,
+    "prompt_tokens_mean": 0,
+    "prompt_tokens_max": 0,
+    "completion_tokens_mean": 0
+   },
+   "review": {
+    "reached": 0,
+    "first_try_pct": 0.0,
+    "eventual_pct": 0.0,
+    "calls": 0,
+    "latency_s_p50": 0.0,
+    "latency_s_p95": 0.0,
+    "prompt_tokens_mean": 0,
+    "prompt_tokens_max": 0,
+    "completion_tokens_mean": 0
+   }
+  },
+  "projects_completed_pct": 0.0,
+  "per_project": {
+   "wall_s_median": 0.0,
+   "model_calls_median": 0.0,
+   "tokens_median": 0.0,
+   "knowledge_candidates_median": 0.0
+  },
+  "plain_prompt": {
+   "latency_s_p50": 0.0,
+   "prompt_tokens_mean": 0,
+   "completion_tokens_mean": 0,
+   "errors": 0
+  },
+  "max_prompt_tokens_seen": 24062,
+  "failed_calls": 0
+ },
+ "ideas": [
+  {
+   "name": "Camera Gear Rental",
+   "kind": "product",
+   "baseline_citations": [],
+   "baseline_tokens": {},
+   "baseline_latency_s": 0.0,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "Seeing Behind the Camera: Identifying the Authorship of a Photograph",
+     "authors": [
+      "Christopher Thomas",
+      "Adriana Kovashka"
+     ],
+     "year": 2015,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Seeing Behind the Camera: Identifying the Authorship of a Photograph",
+     "relevance": 0.556
+    },
+    {
+     "title": "Who clicks there!: Anonymizing the photographer in a camera saturated society",
+     "authors": [
+      "Peter Schaffer",
+      "Djamila Aouada",
+      "Shishir Nagaraja"
+     ],
+     "year": 2011,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Who clicks there!: Anonymizing the photographer in a camera saturated society",
+     "relevance": 0.614
+    },
+    {
+     "title": "An Egocentric Look at Video Photographer Identity",
+     "authors": [
+      "Yedid Hoshen",
+      "Shmuel Peleg"
+     ],
+     "year": 2014,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "An Egocentric Look at Video Photographer Identity",
+     "relevance": 0.539
+    },
+    {
+     "title": "Measuring Racial Disparities in Rent Growth Under Algorithmic Landlord Concentration in U.S. Metros",
+     "authors": [
+      "Advay Ranade"
+     ],
+     "year": 2026,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Measuring Racial Disparities in Rent Growth Under Algorithmic Landlord Concentration in U.S. Metros",
+     "relevance": 0.441
+    },
+    {
+     "title": "GEAR: A General Evaluation Framework for Abductive Reasoning",
+     "authors": [
+      "Kaiyu He",
+      "Peilin Wu",
+      "Mian Zhang"
+     ],
+     "year": 2025,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "GEAR: A General Evaluation Framework for Abductive Reasoning",
+     "relevance": 0.518
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Photographers who need a specific lens or body for a short time, such as a weekend, have no trusted peer-to-peer way to rent it from someone nearby. Owners worry about damage, theft and renters who do"
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 5246,
+     "completion_tokens": 1102,
+     "latency_s": 11.87,
+     "prompt_chars": 11522,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 8106,
+     "completion_tokens": 6086,
+     "latency_s": 53.29,
+     "prompt_chars": 12930,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 15,
+   "atlas_wall_s": 77.0,
+   "research_notes": {
+    "evidence_types": {
+     "paper": 5,
+     "repository": 4,
+     "discussion": 1
+    },
+    "market_items": [
+     {
+      "type": "repository",
+      "title": "aerostatic69-app/artora",
+      "origin": "github: https://github.com/aerostatic69-app/artora",
+      "summary": "A GitHub repository for a marketplace where photographers sell their artwork (0 stars, last pushed 2026-08-03)."
+     },
+     {
+      "type": "discussion",
+      "title": "Ask HN: How can I delete my Instagram?",
+      "origin": "hackernews: https://news.ycombinator.com/item?id=45528158",
+      "summary": "An Ask HN post from a user whose Facebook account, used as the single sign-on for Instagram, was disabled as 'inauthentic' with no appeal and a policy link that returned a 404. As a result, the user cannot access or delete their Instagram photo content, and they ask what recourse exists, believing GDPR does not apply to them as a non-EU citizen."
+     },
+     {
+      "type": "repository",
+      "title": "Ifaj-Hossan-Omi/Reliable-Online-Studio_WebApp",
+      "origin": "github: https://github.com/Ifaj-Hossan-Omi/Reliable-Online-Studio_WebApp",
+      "summary": "A PHP web app repository for 'Reliable Online Studio,' a planned system where clients hire photographers to complete projects based on their skills (2 stars, last pushed 2022-07-01)."
+     },
+     {
+      "type": "repository",
+      "title": "ImranMolla2003/GalleryMint",
+      "origin": "github: https://github.com/ImranMolla2003/GalleryMint",
+      "summary": "A Django-based photo marketplace where photographers can create albums and upload photos, and customers can browse and buy them (0 stars, last pushed 2026-09-13)."
+     },
+     {
+      "type": "repository",
+      "title": "msftsean/vibecoded_marathon_photos",
+      "origin": "github: https://github.com/msftsean/vibecoded_marathon_photos",
+      "summary": "A 'vibe coded' TypeScript app for a two-sided race-photo marketplace where runners find photos by bib number and photographers earn 70% of each sale (1 star, last pushed 2026-01-30)."
+     }
+    ],
+    "findings": [
+     {
+      "title": "Existing photographer marketplaces trade images or services, not equipment",
+      "summary": "The photographer marketplaces we found all sell photos or services: artora (selling artwork), GalleryMint (a Django album and photo store), vibecoded_marathon_photos (race photos found by bib number, with a 70% photographer revenue share) and Reliable Online Studio (hiring photographers for projects). None models physical gear as inventory, time-bound bookings, deposits, handover, return or damage claims. All are small, early-stage projects (0 to 2 stars), so at most they offer patterns for two-sided payouts and seller profiles, not rental logic."
+     },
+     {
+      "title": "Two-sided payout and seller-profile patterns exist, but trust and liability do not",
+      "summary": "vibecoded_marathon_photos shows a two-sided revenue split, and Reliable Online Studio shows clients matched to photographers by skill. Neither covers what a rental adds: escrow or security deposits, no-show penalties, insurance, or settling disputes over a physical object's condition."
+     },
+     {
+      "title": "Published photos can reveal the photographer's location",
+      "summary": "Schaffer et al. show that viewpoint clues in published photos can locate the photographer, and that obfuscation and anonymous publishing do not protect camera-location information. Gear listings usually include photos taken at the owner's home, so they could reveal where expensive equipment is kept. This makes listing-photo privacy and showing only approximate location a security requirement, not a nice-to-have."
+     },
+     {
+      "title": "Shared media can identify the person who made it",
+      "summary": "Research shows that a photographer can be identified from high-level image features (Thomas & Kovashka) and from camera motion in egocentric video, with over 90% accuracy (Hoshen & Peleg). Hoshen & Peleg list theft prevention as a possible application. For this marketplace the main point is privacy: photos and sample shots that users upload can expose who they are. Using these methods to verify gear or prevent theft is unproven here and would need more research."
+     },
+     {
+      "title": "Depending on a third-party login risks locking users out of their content",
+      "summary": "The Ask HN thread describes a user whose Facebook single sign-on account was disabled with no appeal, leaving them unable to reach or delete their Instagram content. In a rental marketplace, active bookings, deposits held and claim records depend on account access. Relying only on a social login, with no appeal or deletion path, would create serious operational and trust failures."
+     },
+     {
+      "title": "Some retrieved evidence does not apply to gear rental",
+      "summary": "The studies on REIT-driven rent growth and the GEAR framework for abductive reasoning match on words like 'rent' and 'gear' only. They say nothing about peer-to-peer equipment rental, insurance or marketplace trust. This shows the evidence gathered so far is thin, and that research on insurance, deposits and no-show reduction still has to be collected."
+     }
+    ],
+    "opportunities": [
+     {
+      "title": "Rental features that existing photographer marketplaces lack",
+      "description": "Build the transaction model that artora, GalleryMint, vibecoded_marathon_photos and Reliable Online Studio don't have: physical items with serial numbers, calendar availability for weekend booking windows, security-deposit holds, and handover and return states. The same model would let photographers who already use image marketplaces rent out idle gear."
+     },
+     {
+      "title": "A condition and handover record that supports claims",
+      "description": "Use in-app check-in and check-out where both parties confirm timestamped photos, the serial number and a condition checklist. These become a tamper-evident record linked to deposits and insurance claims, which is the trust and liability layer no existing marketplace we reviewed provides."
+     },
+     {
+      "title": "Privacy-preserving listings and pickup",
+      "description": "Remove EXIF and GPS data from uploads automatically, warn owners when a photo's background shows identifiable surroundings, show fuzzed location areas before booking, and offer public meeting places for handover. This protects owners from the location-inference risks described in the research."
+     },
+     {
+      "title": "Accounts that can always be recovered and exported",
+      "description": "Offer first-party login alongside social login, a human appeal path for suspended accounts, and full export and deletion of rental and claim history. This avoids the lockout failure in the Ask HN thread and is a trust feature to market to owners of high-value gear."
+     }
+    ]
+   }
+  },
+  {
+   "name": "Freelancer Invoice Chasing",
+   "kind": "product",
+   "baseline_citations": [],
+   "baseline_tokens": {},
+   "baseline_latency_s": 0.0,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "AIRCC-Clim: a user-friendly tool for generating regional probabilistic climate change scenarios and risk measures",
+     "authors": [
+      "Francisco Estrada",
+      "Oscar Calder\u00f3n-Bustamante",
+      "Wouter Botzen"
+     ],
+     "year": 2021,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "AIRCC-Clim: A user-friendly tool for generating regional probabilistic climate change scenarios and risk measures",
+     "relevance": 0.454
+    },
+    {
+     "title": "The significance of second language pronunciation in corporate communication and its implications for professional success",
+     "authors": [
+      "Ewa Kusz"
+     ],
+     "year": 2026,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "The significance of second language pronunciation in corporate communication and its implications for professional success",
+     "relevance": 0.439
+    },
+    {
+     "title": "An RNN-Survival Model to Decide Email Send Times",
+     "authors": [
+      "Harvineet Singh",
+      "Moumita Sinha",
+      "Atanu R. Sinha"
+     ],
+     "year": 2020,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "An RNN-Survival Model to Decide Email Send Times",
+     "relevance": 0.594
+    },
+    {
+     "title": "English for Sociologists: A Communicative and Competence-based Approach",
+     "authors": [
+      "Joseph Jack Horgan",
+      "Tatjana Sinkus"
+     ],
+     "year": 2025,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "English for Sociologists: A Communicative and Competence-based Approach",
+     "relevance": 0.497
+    },
+    {
+     "title": "Space-time distributions",
+     "authors": [
+      "Mihaela Time"
+     ],
+     "year": 1998,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Space-time distributions",
+     "relevance": 0.403
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Freelancers often get paid late, and chasing payment is awkward. Following up by hand takes time and can strain the client relationship, so many freelancers put it off or skip it, which makes the dela"
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 5302,
+     "completion_tokens": 919,
+     "latency_s": 9.7,
+     "prompt_chars": 12088,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 7514,
+     "completion_tokens": 5781,
+     "latency_s": 51.28,
+     "prompt_chars": 11727,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 14,
+   "atlas_wall_s": 69.5,
+   "research_notes": {
+    "evidence_types": {
+     "paper": 5,
+     "repository": 1,
+     "discussion": 1
+    },
+    "market_items": [
+     {
+      "type": "repository",
+      "title": "ncreighton/95c1086a-ai-agents-automation-invoice",
+      "origin": "github: https://github.com/ncreighton/95c1086a-ai-agents-automation-invoice",
+      "summary": "An N8N workflow repository (0 stars) that uses AI agents to send personalized, timed invoice payment reminders and escalations. It claims to integrate with existing invoicing tools."
+     },
+     {
+      "type": "discussion",
+      "title": "Unpaid \u2013 AI payment reminders that verify, escalate, and auto-reply",
+      "origin": "hackernews: https://news.ycombinator.com/item?id=47082761",
+      "summary": "A Show HN post for Unpaid, a tool that connects to Xero, QuickBooks or Stripe and uses Claude to write unique payment reminders: a courtesy notice before the due date, then a 5-stage escalation. It automatically checks customers' payment claims against accounting data, pauses reminders when an invoice is disputed, and resends invoices on request. It is built with FastAPI, SQLAlchemy, Next.js, APScheduler and PostgreSQL, and the author says it was tested with live accounts rather than a sandbox."
+     }
+    ],
+    "findings": [
+     {
+      "title": "Unpaid already offers AI-written escalating reminders, but only through an accounting platform",
+      "summary": "Unpaid connects to Xero, QuickBooks or Stripe and uses Claude to write a unique reminder at each step: a courtesy notice before the due date, then a 5-stage escalation. It checks customers' 'I already paid' claims against accounting data, pauses reminders on disputed invoices and resends invoices on request. Its whole design depends on reading invoice and payment status from one of those three platforms, so freelancers who invoice with PDFs, email, Word templates or bank transfers fall outside it."
+     },
+     {
+      "title": "Stopping on payment or dispute is a core safety feature",
+      "summary": "Unpaid's main differentiators are verifying payment claims, pausing on disputes and replying automatically. This suggests that the biggest risk in automated chasing is reminding a client who has already paid or who has a legitimate dispute. That is exactly the kind of 'awkward email' this project aims to remove. Any new tool needs a reliable way to tell when to stop."
+     },
+     {
+      "title": "The N8N template approach is unproven and assumes technical skill",
+      "summary": "The ncreighton N8N repository offers AI-agent workflows for personalized, timed invoice reminders and escalations that hook into existing invoicing tools. It has 0 stars and no reported results, and it requires setting up and running N8N workflows. That is a poor fit for non-technical freelancers who want something that works out of the box."
+     },
+     {
+      "title": "Choosing send times per recipient from past engagement works",
+      "summary": "The RNN-Survival model (RNN-S) predicts each recipient's time-to-open from their history of email interactions. On a dataset of a million customers it beat standard survival analysis, and the predictions can be used to pick good send times. Neither existing reminder tool in the evidence says it adapts send timing to each client's behaviour; both describe fixed escalation stages."
+     },
+     {
+      "title": "Clear professional communication affects how the sender is seen",
+      "summary": "Research on corporate communication in Poland found that clear, intelligible English is linked to confidence and professional image in workplace interactions, including Finance and Customer Service. This loosely supports the idea that the clarity and tone of reminders matter, especially when the freelancer and client do not share a first language. The evidence is indirect: it concerns spoken pronunciation, not written payment reminders."
+     },
+     {
+      "title": "Much of the retrieved evidence is unrelated to the problem",
+      "summary": "The papers on climate scenario emulation, an English coursebook for sociologists and space-time foliations have nothing to do with invoice chasing. The evidence on this domain is thin: one Show HN product, one unproven repository and one paper on send-time optimization. Market sizing, how late-payment behaviour works, and which reminder wording works best have not been researched."
+     }
+    ],
+    "opportunities": [
+     {
+      "title": "Reminder chasing without an accounting platform",
+      "description": "Build a lightweight way to log invoices (upload a PDF, forward an email, or enter details by hand) along with simple payment confirmation: a one-click 'mark paid' link in reminder notifications, parsing of client replies, and optional bank or PayPal webhooks. This serves the freelancers Unpaid leaves out because it requires Xero, QuickBooks or Stripe, without the N8N setup work the template repository requires."
+     },
+     {
+      "title": "Freelancer-controlled tone and escalation policy",
+      "description": "Offer escalation 'personas' per client (for example, a long-term friendly client versus a new or high-risk one), with a tone limit at each stage and optional approval before each send. Unpaid generates messages on its own across a fixed 5-stage sequence; this gives the freelancer explicit control over how the relationship is handled, which matters for keeping clients."
+     },
+     {
+      "title": "Payment-aware stop conditions as a first-class feature",
+      "description": "Build a rule-based check, run before every send, that blocks a reminder if any payment, dispute, promise-to-pay or out-of-office signal has been seen, and notifies the freelancer instead. This applies Unpaid's verify-and-pause idea to the integration-free setting, where payment signals are less certain."
+     },
+     {
+      "title": "Per-client send timing",
+      "description": "Pick when to send each reminder from the client's past reply and payment-response times, starting with simple heuristics and moving to RNN-Survival-style time-to-response models as data builds up across users. Neither Unpaid nor the N8N template describes adapting timing to each client."
+     },
+     {
+      "title": "Measure outcomes by time-to-payment",
+      "description": "Track days-to-payment and on-time payment rates by escalation stage and message style, and use them to tune the sequences. None of the existing tools publishes outcome data, and the evidence gap shows the domain itself is under-researched."
+     }
+    ]
+   }
+  },
+  {
+   "name": "Neighbourhood Tool Library",
+   "kind": "product",
+   "baseline_citations": [],
+   "baseline_tokens": {},
+   "baseline_latency_s": 0.0,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "SafeStep: AI-powered Travel Assistance for Elderly People with Frailty or Dementia",
+     "authors": [
+      "Elderly People with Frailty or Dementia Azul Debenedetti",
+      "David Gamez",
+      "Franco Such"
+     ],
+     "year": 2026,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "SafeStep: AI-powered Travel Assistance for Elderly People with Frailty or Dementia",
+     "relevance": 0.546
+    },
+    {
+     "title": "Urban Food Sharing: Rules, Tools and Networks",
+     "authors": [
+      "Anna Ray Davies"
+     ],
+     "year": 2019,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Urban Food Sharing: Rules, Tools and Networks",
+     "relevance": 0.539
+    },
+    {
+     "title": "Neighbourhood shortcuts in building damage assessment from very-high-resolution satellite imagery: diagnosis and a building-evidence plug-in",
+     "authors": [
+      "JianChong Guo",
+      "YuTing Wan",
+      "Kefan Li"
+     ],
+     "year": 2026,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Neighbourhood shortcuts in building damage assessment from very-high-resolution satellite imagery: diagnosis and a building-evidence plug-in",
+     "relevance": 0.567
+    },
+    {
+     "title": "Urban Food Sharing: Rules, tools and networks",
+     "authors": [
+      "Anna Ray Davies"
+     ],
+     "year": 2019,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Urban Food Sharing: Rules, Tools and Networks",
+     "relevance": 0.539
+    },
+    {
+     "title": "Implicit Recursive Characteristics of STOP",
+     "authors": [
+      "Mike H. Ji"
+     ],
+     "year": 2019,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Implicit Recursive Characteristics of STOP",
+     "relevance": 0.423
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Households buy tools such as drills, ladders and lawnmowers that they use maybe once a year, while neighbours a few doors away own the same items and leave them idle. The Neighbourhood Tool Library ne"
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 5284,
+     "completion_tokens": 1257,
+     "latency_s": 11.81,
+     "prompt_chars": 11108,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 8253,
+     "completion_tokens": 6622,
+     "latency_s": 57.47,
+     "prompt_chars": 13514,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 13,
+   "atlas_wall_s": 77.2,
+   "research_notes": {
+    "evidence_types": {
+     "paper": 5,
+     "repository": 2,
+     "discussion": 3
+    },
+    "market_items": [
+     {
+      "type": "repository",
+      "title": "Willysupreme/Neighbourshare",
+      "origin": "github: https://github.com/Willysupreme/Neighbourshare",
+      "summary": "Neighbourshare is a GitHub repository for a neighbourhood tool-sharing app, written in TypeScript. It has 0 stars and was last pushed on 2026-08-20."
+     },
+     {
+      "type": "discussion",
+      "title": "Show HN: I Built a India Neighborhood App",
+      "origin": "hackernews: https://news.ycombinator.com/item?id=40249643",
+      "summary": "A Show HN post for Neighar, a neighbourhood social network for India, openly compared to Nextdoor. It lets residents of the same neighbourhood share local news, recommendations and events. The author positions it between WhatsApp's closed circles and Facebook's openness, and it supports almost all Indian languages. The post had 2 points and no comments."
+     },
+     {
+      "type": "repository",
+      "title": "arjaesj/toolbankS",
+      "origin": "github: https://github.com/arjaesj/toolbankS",
+      "summary": "toolbankS is a GitHub repository for a neighbourhood tool-sharing app, written in JavaScript. It has 0 stars and was last pushed on 2020-10-19."
+     },
+     {
+      "type": "discussion",
+      "title": "Ask HN: Would you use an app to share and rent tools within your neighborood?",
+      "origin": "hackernews: https://news.ycombinator.com/item?id=19385050",
+      "summary": "An Ask HN post asking whether people would use an app to share or rent rarely used tools, such as lawnmowers and ladders, to others within a set geographic area like their neighbourhood. The post had 9 points and 14 comments."
+     },
+     {
+      "type": "discussion",
+      "title": "RailsRumble Apps that Deserve to Be Startups",
+      "origin": "hackernews: https://news.ycombinator.com/item?id=782428",
+      "summary": "A Hacker News post by a Rails Rumble 2009 contestant listing 11 entries, each built in 48 hours, that the author thought could become startups. The list includes a spec-sharing tool, personal landing pages, a group restaurant picker, peer-to-peer website uptime monitoring (Neighborhood Watch), a tech-meetup site, and dinners with strangers. The post had 80 points and 61 comments."
+     }
+    ],
+    "findings": [
+     {
+      "title": "Existing open-source tool-sharing apps are small and show no uptake",
+      "summary": "The only tool-sharing implementations retrieved are Neighbourshare (TypeScript, 0 stars, last pushed August 2026) and toolbankS (JavaScript, 0 stars, apparently abandoned since October 2020). Neither shows any adoption, and their summaries don't say whether they support booking or deposits. Building a basic tool-listing app has been tried. Getting people to use one has not been shown to work."
+     },
+     {
+      "title": "Demand for neighbourhood tool sharing exists but is only weakly confirmed",
+      "summary": "An Ask HN thread asked whether people would share or rent rarely used tools such as lawnmowers and ladders within their neighbourhood. It got 9 points and 14 comments. That shows some interest and matches this project's 'used once a year' premise, but it is too small to prove demand, and the thread doesn't show whether people would actually lend their own tools."
+     },
+     {
+      "title": "General neighbourhood platforms don't handle lending",
+      "summary": "Neighar, a neighbourhood social network for India openly compared to Nextdoor, focuses on local news, recommendations and events. It positions itself between WhatsApp's closed circles and Facebook's openness. Nothing in its description covers a tool inventory, booking calendar, deposits or return tracking. These platforms gather neighbours together, but lending on them stays informal messaging."
+     },
+     {
+      "title": "Sharing schemes depend on rules and networks as much as on tools",
+      "summary": "Davies' research on urban food sharing frames sharing in terms of 'rules, tools and networks', using case studies from around the world. It treats sharing as a governance and community problem as well as a technology problem, and asks whether sharing makes cities more sustainable. This is a different domain, so it carries over only partly. It still suggests that membership rules, accountability norms and existing social networks will decide adoption as much as app features will."
+     }
+    ],
+    "opportunities": [
+     {
+      "title": "One loan flow covering booking, deposit and handover",
+      "description": "Neighbourshare and toolbankS show that tool-listing apps exist, but there is no evidence they handle a full loan: booking without conflicts, a deposit hold, photo check-in and check-out, and automatic deposit release. General neighbourhood apps like Neighar don't handle lending at all. A complete, reliable loan flow is the gap to fill."
+     },
+     {
+      "title": "Rules each neighbourhood can set for itself",
+      "description": "The 'rules, tools and networks' framing suggests governance drives adoption. Let each neighbourhood set its own rules: invite-only membership, a deposit level for each tool category, borrowing limits, late-return penalties and a lightweight dispute process. Existing tool-sharing repos and neighbourhood social apps don't show any of this."
+     },
+     {
+      "title": "Build on the neighbourhood networks people already use",
+      "description": "Neighar-style apps and WhatsApp circles already bring neighbours together but leave lending informal. Offer shareable tool links, requests that can be posted into group chats, and onboarding by invite from existing groups. This would start supply and demand from those networks instead of competing with them."
+     },
+     {
+      "title": "Track purchases avoided as the main success measure",
+      "description": "Demand evidence is weak (a small Ask HN thread), and existing repos show no uptake. Track 'would you have bought this?' at each return, along with how often each tool is used. This tests the core premise early and gives evidence of impact that the existing alternatives don't provide."
+     }
+    ]
+   }
+  },
+  {
+   "name": "Gym Meal Prep Planner",
+   "kind": "product",
+   "baseline_citations": [],
+   "baseline_tokens": {},
+   "baseline_latency_s": 0.0,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "AlphaFold predicts the most complex protein knot and composite protein knots",
+     "authors": [
+      "Maarten A. Brems",
+      "Robert Runkel",
+      "Todd O. Yeates"
+     ],
+     "year": 2022,
+     "status": "verified",
+     "title_similarity": 0.95,
+     "matched_title": "<scp>AlphaFold</scp>\n                    predicts the most complex protein knot and composite protein knots",
+     "relevance": 0.498
+    },
+    {
+     "title": "Segmentation opportunities for the EAS brand: an account planner's perspective",
+     "authors": [
+      "Katherine B. Macon"
+     ],
+     "year": 2010,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Segmentation opportunities for the EAS brand: an account planner's perspective",
+     "relevance": 0.512
+    },
+    {
+     "title": "Amino acid composition and thermal stability of protein structures: the free energy geography of the Protein Data Bank",
+     "authors": [
+      "Antonio Deiana",
+      "Kana Shimizu",
+      "Andrea Giansanti"
+     ],
+     "year": 2010,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Amino acid composition and thermal stability of protein structures: the free energy geography of the Protein Data Bank",
+     "relevance": 0.558
+    },
+    {
+     "title": "Close Quarters: Part One",
+     "authors": [
+      "Carly Ann Plank"
+     ],
+     "year": 2018,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Close Quarters: Part One",
+     "relevance": 0.44
+    },
+    {
+     "title": "Localization of Energetic Frustration in Proteins",
+     "authors": [
+      "A. Brenda Guzovsky",
+      "Nicholas P. Schafer",
+      "Peter G. Wolynes"
+     ],
+     "year": 2018,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Localization of Energetic Frustration in Proteins",
+     "relevance": 0.502
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "People who lift weights need to hit a daily protein target while staying within a weekly grocery budget, yet planning a week of batch-cookable, high-protein meals and turning it into one consolidated "
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 5631,
+     "completion_tokens": 1126,
+     "latency_s": 11.63,
+     "prompt_chars": 11883,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 8198,
+     "completion_tokens": 6934,
+     "latency_s": 59.77,
+     "prompt_chars": 13317,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 14,
+   "atlas_wall_s": 82.1,
+   "research_notes": {
+    "evidence_types": {
+     "paper": 5,
+     "repository": 3,
+     "discussion": 2
+    },
+    "market_items": [
+     {
+      "type": "repository",
+      "title": "Green-Tea/mealplan",
+      "origin": "github: https://github.com/Green-Tea/mealplan",
+      "summary": "A TypeScript repository for a weekly meal prep planner (0 stars)."
+     },
+     {
+      "type": "discussion",
+      "title": "Show HN: Forkcast, a meal planner and tracker with focus on weekly planning",
+      "origin": "hackernews: https://news.ycombinator.com/item?id=50070055",
+      "summary": "Forkcast is a self-hostable (Docker, AGPL) Hono + React PWA meal planner and calorie tracker built around planning the week against calorie and macro goals, logging recipes as ingredients, and generating grocery lists from the plan, with food data from Open Food Facts and a local editable catalog. Optional AI features (using the user's own Anthropic key) import recipes from photos and read nutrition labels; the app was largely built by steering Claude Code and deliberately avoids a real database or multi-user support."
+     },
+     {
+      "type": "repository",
+      "title": "ebenezerdon/prepmate-weekly-meal-prep-planner",
+      "origin": "github: https://github.com/ebenezerdon/prepmate-weekly-meal-prep-planner",
+      "summary": "An HTML repository named PrepMate, a weekly meal prep planner (0 stars)."
+     },
+     {
+      "type": "discussion",
+      "title": "Wellness Accountability Community",
+      "origin": "hackernews: https://news.ycombinator.com/item?id=21984384",
+      "summary": "A post announcing a Slack-based wellness accountability community where members share daily wellness goals, confirm completion, get morning reminders, and receive weekly summaries of check-ins and completions; the author hopes it serves as a proof of concept toward an MVP."
+     },
+     {
+      "type": "repository",
+      "title": "suhanitomar888/Meal-Preparation-Planner",
+      "origin": "github: https://github.com/suhanitomar888/Meal-Preparation-Planner",
+      "summary": "A web app built with HTML, CSS, JavaScript, and API integration that helps users plan meals, find recipes, view nutrition information, and generate shopping lists, with a chatbot for meal suggestions and user support (2 stars)."
+     }
+    ],
+    "findings": [
+     {
+      "title": "Forkcast plans the week around macros and builds grocery lists, but its summary never mentions budget",
+      "summary": "Forkcast is a self-hostable (Docker, AGPL) Hono + React PWA. It plans the week against calorie and macro goals, logs recipes as ingredients, generates grocery lists from the plan, and gets food data from Open Food Facts plus a local editable catalog. Optional AI features import recipes from photos and read nutrition labels, using the user's own Anthropic key. It is single-user by design and deliberately avoids a real database. Its summary does not mention grocery prices, budget limits, or automatically choosing meals to hit a protein target at minimum cost. The user still builds the plan by hand."
+     },
+     {
+      "title": "Open-source meal-prep planners are small, little-used, and their summaries don't mention protein or budget",
+      "summary": "Green-Tea/mealplan (TypeScript, 0 stars) and PrepMate (HTML, 0 stars) are basic weekly meal-prep planners. suhanitomar888/Meal-Preparation-Planner (2 stars) offers recipe search, nutrition information, shopping lists and a chatbot for meal suggestions. None of their summaries mentions optimizing for a protein target, a grocery budget, or batch cooking for lifters. Low adoption suggests no established open-source tool owns this niche."
+     },
+     {
+      "title": "Protein-product buyers fall into distinct segments; student athletes are cheaper to reach and weight-loss framing is discouraged",
+      "summary": "The EAS study compared three segments for a protein brand: women who work out regularly, competitive student athletes, and people trying to lose weight. It recommends prioritizing student athletes because they cost less to reach, and advises against weight-loss positioning. This fits a lifter-focused, budget-aware planner and argues for framing it around performance and muscle-building rather than dieting."
+     },
+     {
+      "title": "Weekly check-ins and summaries are a known way to support goal adherence",
+      "summary": "The Wellness Accountability Community used daily goal sharing, completion confirmations, morning reminders and weekly summaries as a proof of concept for an MVP. A weekly meal-prep loop (plan, shop, prep, review) could reuse the same rhythm to help users stick to protein and budget targets."
+     },
+     {
+      "title": "Most of the retrieved 'protein' research is structural biology, not nutrition",
+      "summary": "Several retrieved papers are about protein molecular structure: knot topology in AlphaFold predictions, how amino acid composition affects thermal stability, and localized energetic frustration. One retrieved item is an unrelated memoir. None of these covers dietary protein requirements, food protein content, or food prices, so the evidence base has no grounded nutrition or pricing science."
+     }
+    ],
+    "opportunities": [
+     {
+      "title": "Automatic plan generation that maximizes protein per unit of cost",
+      "description": "Forkcast lets users plan against macro goals but leaves the planning to them, and its summary mentions no budget. The small open-source planners' summaries mention neither protein targets nor budgets. Build an optimizer that, given a protein floor and a weekly budget, picks a batch-cookable set of recipes and portions that meets the target at the lowest cost. This fills a gap none of the identified alternatives covers."
+     },
+     {
+      "title": "One shopping list priced against the budget and matched to package sizes",
+      "description": "Forkcast and Meal-Preparation-Planner generate grocery or shopping lists, but their summaries show no cost estimate or budget check. Produce one deduplicated list for the week, rounded to real package sizes, with a running total compared against the budget and suggested swaps (e.g., a cheaper protein source) when the plan goes over."
+     },
+     {
+      "title": "Batch-prep schedule tailored to lifters",
+      "description": "None of the identified planners' summaries mentions turning a weekly plan into a small number of prep sessions. Group recipes by shared ingredients and cooking method into one or two prep sessions, with portion counts per container, so the plan can actually be carried out in a lifter's week."
+     },
+     {
+      "title": "Performance-focused positioning for cost-sensitive student athletes",
+      "description": "Aim initial onboarding and defaults at student athletes and regular gym-goers with a performance and protein message rather than weight loss, in line with the EAS segmentation findings. A budget-first design suits this cost-sensitive group."
+     },
+     {
+      "title": "Weekly review to support adherence",
+      "description": "Add a lightweight end-of-week review: protein target hit, money spent compared with budget, and meals actually eaten. Use it to adjust next week's plan, borrowing the reminder and weekly-summary pattern from the accountability community. None of the meal planner summaries describes this."
+     }
+    ]
+   }
+  },
+  {
+   "name": "Yoga Teacher Booking",
+   "kind": "product",
+   "baseline_citations": [],
+   "baseline_tokens": {},
+   "baseline_latency_s": 0.0,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "Extension of Fill's perfect rejection sampling algorithm to general chains",
+     "authors": [
+      "James Allen Fill",
+      "Motoya Machida",
+      "Duncan J. Murdoch"
+     ],
+     "year": 2001,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Extension of Fill's perfect rejection sampling algorithm to general chains",
+     "relevance": 0.382
+    },
+    {
+     "title": "Theatre Australia: Australia's magazine of the performing arts 2(9) April 1978",
+     "authors": [
+      "Robert M. Page",
+      "Lucy Wagner",
+      "Bruce Kappett"
+     ],
+     "year": 1978,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Theatre Australia: Australia's magazine of the performing arts 2(9) April 1978",
+     "relevance": 0.396
+    },
+    {
+     "title": "Extension of Fill's perfect rejection sampling algorithm to general chains (Extended abstract)",
+     "authors": [
+      "James Allen Fill",
+      "Motoya Machida",
+      "Duncan J. Murdoch"
+     ],
+     "year": 2001,
+     "status": "verified",
+     "title_similarity": 0.995,
+     "matched_title": "Extension of Fill\u2019s perfect rejection sampling algorithm to general chains (Extended abstract)",
+     "relevance": 0.391
+    },
+    {
+     "title": "An interesting spectral gap problem, from Jim Fill",
+     "authors": [
+      "James Allen Fill"
+     ],
+     "year": 2025,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "An interesting spectral gap problem, from Jim Fill",
+     "relevance": 0.479
+    },
+    {
+     "title": "DeepSolo++: Let Transformer Decoder with Explicit Points Solo for Multilingual Text Spotting",
+     "authors": [
+      "Maoyuan Ye",
+      "Jing Zhang",
+      "Shanshan Zhao"
+     ],
+     "year": 2023,
+     "status": "verified",
+     "title_similarity": 0.921,
+     "matched_title": "DeepSolo: Let Transformer Decoder with Explicit Points Solo for Text Spotting",
+     "relevance": 0.397
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Independent yoga teachers who rent studio space by the hour carry the rent risk for every class they run. They need a simple, low-fee way to publish group classes, take prepayment, manage capacity, an"
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 5793,
+     "completion_tokens": 1271,
+     "latency_s": 12.71,
+     "prompt_chars": 11862,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 8352,
+     "completion_tokens": 7322,
+     "latency_s": 63.49,
+     "prompt_chars": 13856,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 15,
+   "atlas_wall_s": 87.2,
+   "research_notes": {
+    "evidence_types": {
+     "paper": 5,
+     "repository": 1,
+     "discussion": 4
+    },
+    "market_items": [
+     {
+      "type": "repository",
+      "title": "alfarukky/Fluta",
+      "origin": "github: https://github.com/alfarukky/Fluta",
+      "summary": "Fluta is a TypeScript SaaS platform for independent laundry stores. It manages daily operations in one place: orders, services, pickup/delivery, quotes, payments, and staff. Each store also gets a simple booking and order-tracking page, and customers don't need to create an account. The repository has 0 stars."
+     },
+     {
+      "type": "discussion",
+      "title": "Show HN: A booking page that handles payment and sends a Zoom/Meet/Discord link",
+      "origin": "hackernews: https://news.ycombinator.com/item?id=50520744",
+      "summary": "A solo developer built a booking page for consultants, coaches, and tutors. Customers pick a time, pay if the session is paid, and the system creates a call link on Discord, Zoom, or Google Meet and sends it by email. A Discord bot (/setup, /book) creates a private voice channel 15 minutes before the session that only the creator and the booker can see. Instead of fixed prices, a booking is an offer starting from a base price, which the creator accepts or declines."
+     },
+     {
+      "type": "discussion",
+      "title": "Show HN: GatiNow \u2013 branded booking pages with built-in payments",
+      "origin": "hackernews: https://news.ycombinator.com/item?id=49382733",
+      "summary": "GatiNow is a Show HN project offering branded booking pages with built-in payments. The post gives no other details."
+     },
+     {
+      "type": "discussion",
+      "title": "Show HN: Skedular, a Smart Booking and Workspace Management Platform",
+      "origin": "hackernews: https://news.ycombinator.com/item?id=46012284",
+      "summary": "Skedular is a booking and workspace management platform for councils, co-working spaces, and local businesses. It manages rooms, desks, and other bookable assets across multiple locations and teams, with public booking pages and an operator dashboard. The developer describes an API-first design built with Next.js, a .NET backend, PostGIS, and Kafka events, and asks for feedback on UX, data modeling, and scaling."
+     },
+     {
+      "type": "discussion",
+      "title": "Show HN: Lapsula \u2013 Simple appointment booking app with WhatsApp integration",
+      "origin": "hackernews: https://news.ycombinator.com/item?id=42674910",
+      "summary": "Lapsula is a simple appointment booking SaaS built with Svelte and tRPC to help small businesses move from phone bookings to online booking pages. It aims to be simpler than tools like Cal.com and Setmore. It offers WhatsApp Business automation and optional Stripe payments."
+     }
+    ],
+    "findings": [
+     {
+      "title": "Booking pages with payment built in are common, but they are built for 1:1 appointments",
+      "summary": "Several recent tools combine a public booking page with payment. The Show HN paid booking page targets consultants, coaches and tutors: customers pick a time, pay, and get a Zoom, Meet or Discord link. GatiNow offers branded booking pages with built-in payments. Lapsula offers simple appointment booking with optional Stripe payments. All of them describe one customer booking one time slot. None of the retrieved descriptions mention multi-seat group classes, capacity limits or waitlists. Booking plus payment is therefore not a differentiator in itself."
+     },
+     {
+      "title": "Simplicity and familiar messaging channels are a selling point against Cal.com and Setmore",
+      "summary": "Lapsula presents itself as simpler than Cal.com and Setmore. Its goal is to move small businesses from phone bookings to online booking pages, and it uses WhatsApp Business automation for communication. The Show HN booking page sends call links by email and uses a Discord bot. This suggests that small operators value low setup effort and want reminders on the channels their customers already use."
+     },
+     {
+      "title": "Space-booking platforms serve the room owner, not the person renting the room",
+      "summary": "Skedular manages rooms, desks and other bookable assets across locations, with public booking pages and an operator dashboard. It is aimed at councils, co-working spaces and local businesses, and is built API-first on Next.js, .NET, PostGIS and Kafka. Its model puts the venue operator at the centre. The described feature set does not cover an independent teacher who rents a room by the hour and resells it as seats in a class. Its architecture is also much heavier than a solo teacher's page needs."
+     },
+     {
+      "title": "Vertical tools for independent operators let customers book without an account",
+      "summary": "Fluta is a small vertical SaaS for independent laundry stores. Each store gets a simple booking and order-tracking page, and customers do not need an account. Payments are handled alongside other operations. No-account customer checkout is a pattern worth adopting for drop-in yoga students. Fluta has 0 stars, so it shows the pattern exists, not that it has been adopted."
+     },
+     {
+      "title": "Pricing flexibility already exists in 1:1 tools; fixed class pricing still needs modelling",
+      "summary": "The Show HN booking page uses offers instead of fixed prices: a booking is an offer from a base price that the creator accepts or declines. That suits bespoke 1:1 work. Group classes usually need fixed per-seat prices, class packs or drop-in rates, and none of these appear in the retrieved tool descriptions."
+     },
+     {
+      "title": "Most of the retrieved academic evidence is off-topic",
+      "summary": "Five of the ten retrieved sources have nothing to do with booking, payments or yoga. Three are perfect-sampling and spectral-gap papers by Fill et al., one is DeepSolo++ text spotting, and one is a 1978 Theatre Australia table of contents. They give no basis for design decisions. The evidence base is limited to five small Show HN or GitHub projects, so further research is needed."
+     }
+    ],
+    "opportunities": [
+     {
+      "title": "Group-class booking with capacity and waitlist",
+      "description": "Model each class as a session with N seats, per-seat pricing, automatic waitlist promotion when someone cancels, and drop-in or class-pack options. The tools in the evidence (the Show HN paid booking page, GatiNow, Lapsula) only describe 1:1 bookings, so this is the core gap to address."
+     },
+     {
+      "title": "Rent-aware class economics for teachers who rent space",
+      "description": "Let the teacher enter the studio rent for each slot and see live break-even status: seats needed and seats sold. Add alerts before the studio's cancellation deadline so the teacher can cancel or merge a class that won't cover its rent. Skedular serves the venue operator, and the appointment tools don't model a cost of delivery, so neither covers the renter's side."
+     },
+     {
+      "title": "Zero-account student checkout with magic-link management",
+      "description": "Adopt the no-account pattern seen in Fluta for a yoga context. Students book and pay with just an email or phone number, then manage bookings, cancel within the policy window or join the waitlist through signed links."
+     },
+     {
+      "title": "Transparent, low-fee direct payouts",
+      "description": "Connect each teacher's own payment processor account so money goes straight to them. Show the processor fee and any platform fee separately on the checkout and payout screens. The fee structure of GatiNow, Lapsula and the Show HN booking page is not given in the evidence, so a clearly stated low or zero platform take is a possible way to stand out."
+     },
+     {
+      "title": "Reminders and cancellations over familiar messaging channels",
+      "description": "Send confirmations, reminders and waitlist offers by email and optionally WhatsApp, following Lapsula's WhatsApp integration and the Show HN page's automated messaging. Tailor these messages to group-class events such as \"a spot opened up\" or \"class cancelled, refund issued\"."
+     },
+     {
+      "title": "Targeted follow-up research to close the evidence gap",
+      "description": "Replace the off-topic academic sources with focused research. Interview independent teachers about studio rent models, refund norms and current tools. Compare processor fee schedules. Review established group-class schedulers so their feature set and take rates can be benchmarked directly."
+     }
+    ]
+   }
+  },
+  {
+   "name": "Restaurant Waste Tracker",
+   "kind": "product",
+   "baseline_citations": [],
+   "baseline_tokens": {},
+   "baseline_latency_s": 0.0,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "A Bayesian Approach for Predicting Food and Beverage Sales in Staff Canteens and Restaurants",
+     "authors": [
+      "Konstantin Posch",
+      "Christian Truden",
+      "Philipp Hungerl\u00e4nder"
+     ],
+     "year": 2020,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "A Bayesian approach for predicting food and beverage sales in staff canteens and restaurants",
+     "relevance": 0.6
+    },
+    {
+     "title": "Waste not, warm not: poverty, hunger and climate change in a circular food system",
+     "authors": [
+      "Karen McConnell Brooks",
+      "Brooks",
+      "Karen"
+     ],
+     "year": 2016,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Waste not, warm not: poverty, hunger and climate change in a circular food system",
+     "relevance": 0.606
+    },
+    {
+     "title": "A Machine Learning Framework for Predicting Restaurant Food Waste to Support Sustainable Food Management",
+     "authors": [
+      "Md Mehedi Hasan Naeem",
+      "Md Ashraful Islam",
+      "Moumita Barua"
+     ],
+     "year": 2026,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "A Machine Learning Framework for Predicting Restaurant Food Waste to Support Sustainable Food Management",
+     "relevance": 0.659
+    },
+    {
+     "title": "What\u2019s the condition of your lake, river, or coastline? Support SPLASSH and find out.",
+     "authors": [
+      "Lisa G. Adams"
+     ],
+     "year": 2014,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "What\u2019s the condition of your lake, river, or coastline? Support SPLASSH and find out.",
+     "relevance": 0.459
+    },
+    {
+     "title": "Leveraging Context to Support Automated Food Recognition in Restaurants",
+     "authors": [
+      "Vinay Bettadapura",
+      "Edison Thomaz",
+      "Aman Parnami"
+     ],
+     "year": 2015,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Leveraging Context to Support Automated Food Recognition in Restaurants",
+     "relevance": 0.606
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Small restaurants throw away a meaningful share of the food they buy, but they rarely measure it. Staff have no spare time to record waste, and owners order stock by gut feel. Existing restaurant soft"
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 7958,
+     "completion_tokens": 1275,
+     "latency_s": 12.5,
+     "prompt_chars": 20004,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 24062,
+     "completion_tokens": 13879,
+     "latency_s": 103.37,
+     "prompt_chars": 14075,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 16,
+   "atlas_wall_s": 120.3,
+   "research_notes": {
+    "evidence_types": {
+     "paper": 5,
+     "repository": 3,
+     "discussion": 2
+    },
+    "market_items": [
+     {
+      "type": "repository",
+      "title": "shivanelli01/TableTreck",
+      "origin": "github: https://github.com/shivanelli01/TableTreck",
+      "summary": "A GitHub repository (0 stars, written in CSS) describing a mobile app for table reservations that aims to cut waiting times and food waste. Listed features include restaurant discovery, real-time food availability, a budget calculator, interactive menus, and personalized suggestions."
+     },
+     {
+      "type": "discussion",
+      "title": "Show HN: I Built Tabtix: A POS and QR Ordering System for Hotels and Restaurants",
+      "origin": "hackernews: https://news.ycombinator.com/item?id=43867766",
+      "summary": "A Show HN post about Tabtix, a lightweight POS and QR-code ordering system for hotels and restaurants built with React, Tailwind, and Laravel. Guests order by QR code without installing an app, orders go straight to the kitchen, bar, or cashier, and managers track everything on one dashboard. It needs no special hardware, and the author says 7 hotels in Egypt are ready to onboard."
+     },
+     {
+      "type": "repository",
+      "title": "yashrajjain726/Device-Compatibility-Web-Application",
+      "origin": "github: https://github.com/yashrajjain726/Device-Compatibility-Web-Application",
+      "summary": "A GitHub repository (0 stars) for a responsive, restaurant-themed web application with menu sections, built with HTML5, CSS3, JavaScript, jQuery, Bootstrap, and AJAX/JSON to display well on mobile, tablet, and desktop."
+     },
+     {
+      "type": "discussion",
+      "title": "Yelp keeps Deal business running, CEO says in exclusive interview",
+      "origin": "hackernews: https://news.ycombinator.com/item?id=2973627",
+      "summary": "A post sharing an interview in which Yelp's CEO says the company is continuing its deals business, cut from 30 to 15 dedicated sales staff, and prefers in-site coupons to Groupon-style emails. He also says fewer than 100 users a day opt out of Facebook Instant Personalization and that Yelp uses a proprietary filter against fake reviews. Other topics include Yelp's relationship with Google and competition from Foursquare. It has little direct engineering relevance to food waste."
+     },
+     {
+      "type": "repository",
+      "title": "Marvoh1/Restaurant-Reviews-App",
+      "origin": "github: https://github.com/Marvoh1/Restaurant-Reviews-App",
+      "summary": "A GitHub repository (1 star) for a course project that turns a static restaurant reviews site into a responsive, accessible web app. Stage One also starts converting it into a Progressive Web App by caching assets for offline use."
+     }
+    ],
+    "findings": [
+     {
+      "title": "POS data alone can drive interpretable per-item demand forecasts",
+      "summary": "Posch et al. show that interpretable Bayesian generalized additive models trained only on POS data forecast daily sales per menu item well enough to support stock ordering. They were tested on 20 months of real data from a casual restaurant and a staff canteen. The models handle multiple seasonalities, trend changes, gaps, and outliers, which are typical of small-restaurant data. Because the models are interpretable, they suit recommendations that a non-technical owner has to trust, such as 'order less of X'."
+     },
+     {
+      "title": "Restaurant waste prediction lacks measured ground truth",
+      "summary": "The most recent ML framework for restaurant food waste (Naeem et al., 2026) had to build a synthetic waste target from stated assumptions because no measured waste data was available. Its Random Forest results (R\u00b2 0.817, MAE 6.19 kg) therefore show modelling feasibility, not real-world accuracy. Its top predictors were menu diversity, operational area, and temporal activity. The missing piece is routine, item-level waste logging at the point of disposal."
+     },
+     {
+      "title": "Context-aided photo recognition is viable for restaurant dishes but has not been applied to waste",
+      "summary": "Bettadapura et al. recognize restaurant food photos by combining computer vision with location and the restaurant's online menu. They train on menu images and evaluate across 10 restaurants and 5 cuisines. Narrowing the candidate set to a known menu is directly useful for a single-restaurant waste logger. However, the work targets plated dishes for diet journaling, not partially eaten plates, trimmings, or spoiled raw ingredients."
+     },
+     {
+      "title": "Existing restaurant tools cover ordering and reservations, not back-of-house waste measurement",
+      "summary": "Tabtix is a lightweight POS and QR ordering system with a manager dashboard and no special hardware. TableTreck is a reservation and discovery app that cites food waste as a motivation but offers only real-time availability, menus, and suggestions. Neither records what is thrown away or links waste back to purchasing. Tabtix does show that small venues will adopt hardware-free, browser-based tools, and that POS-style sales data can be captured cheaply."
+     },
+     {
+      "title": "Responsive and offline-capable web stacks are well-trodden for restaurant apps",
+      "summary": "Responsive restaurant web apps that work across phone, tablet, and desktop (Device-Compatibility-Web-Application) and Progressive Web App asset caching for offline use (Restaurant-Reviews-App) are common patterns. A tablet waste logger can be built as an offline-first PWA, so it needs no app-store install and keeps working when kitchen Wi-Fi is poor."
+     },
+     {
+      "title": "Waste reduction has clear environmental upside, but its economic effects are uneven",
+      "summary": "Brooks argues that cutting food loss and waste reliably reduces greenhouse gas emissions, but the economic effects create winners and losers, and recovered food does not simply feed the hungry. For this product, the value proposition should centre on the restaurant's own cost savings from buying less, with emissions as a secondary benefit. It should not lean on redistribution claims."
+     }
+    ],
+    "opportunities": [
+     {
+      "title": "Measured waste ground truth as a product byproduct",
+      "description": "Existing waste-prediction research relies on synthetic targets, and existing restaurant tools such as Tabtix and TableTreck do not record waste at all. A fast tablet logger would produce the first real item-level waste time series in each restaurant. That data can later validate or recalibrate published approaches such as the Random Forest framework's predictors."
+     },
+     {
+      "title": "Waste-adjusted order recommendations from interpretable sales forecasts",
+      "description": "Combine POS-only, interpretable per-item demand forecasts with logged waste rates to produce explainable 'order less of X this week' suggestions. Published sales forecasting stops at predicting demand and does not include waste feedback, and POS tools like Tabtix track sales without linking them to waste or purchasing."
+     },
+     {
+      "title": "Menu-constrained photo-assisted logging",
+      "description": "Use the restaurant's own menu and ingredient list to narrow the recognition candidates, an idea from context-aided food recognition, so the app can pre-select the likely item from a quick photo and staff only confirm it. Prior work recognizes plated dishes for diet journaling. Recognizing waste remains an open gap and should be tested against plain tap-to-log."
+     },
+     {
+      "title": "Hardware-free, offline-first PWA for low-cost adoption",
+      "description": "Deliver the logger as an offline-capable Progressive Web App on any tablet, following the hardware-free approach Tabtix uses for ordering and standard PWA caching patterns. This removes the scale and integration costs that put waste tracking out of reach for small restaurants."
+     },
+     {
+      "title": "Cost-first value reporting",
+      "description": "Report waste mainly as money lost per item and per week, with emissions avoided as a secondary metric. This follows evidence that the environmental benefits of waste reduction are clear while the wider economic and redistribution effects are mixed, so the restaurant's own savings are the most credible motivator."
+     }
+    ]
+   }
+  },
+  {
+   "name": "Language Exchange Matching",
+   "kind": "product",
+   "baseline_citations": [],
+   "baseline_tokens": {},
+   "baseline_latency_s": 0.0,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "Turkish Native Language Identification V2",
+     "authors": [
+      "Ahmet Yavuz Uluslu",
+      "Gerold Schneider"
+     ],
+     "year": 2023,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Turkish Native Language Identification V2",
+     "relevance": 0.533
+    },
+    {
+     "title": "Exploring language contact and use among globally mobile populations: a qualitative study of English-speaking short-stay academic sojourners in the Republic of Korea",
+     "authors": [
+      "Aaron W. Pooley"
+     ],
+     "year": 2017,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Exploring language contact and use among globally mobile populations: a qualitative study of English-speaking short-stay academic sojourners in the Republic of Korea",
+     "relevance": 0.61
+    },
+    {
+     "title": "On The Model Size Selection For Speaker Identification",
+     "authors": [
+      "Marcos Faundez-Zanuy"
+     ],
+     "year": 2022,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "On The Model Size Selection For Speaker Identification",
+     "relevance": 0.477
+    },
+    {
+     "title": "Engage, empower, evolve:developing an institutional teaching philosophy to engage staff",
+     "authors": [
+      "Pamela Humphreys"
+     ],
+     "year": 2020,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Engage, empower, evolve:developing an institutional teaching philosophy to engage staff",
+     "relevance": 0.508
+    },
+    {
+     "title": "A New Nonlinear speaker parameterization algorithm for speaker identification",
+     "authors": [
+      "Mohamed Chetouani",
+      "Marcos Faundez-Zanuy",
+      "Bruno Gas"
+     ],
+     "year": 2022,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "A New Nonlinear speaker parameterization algorithm for speaker identification",
+     "relevance": 0.518
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Language learners find it hard to get regular, low-effort practice with native speakers. To find a reciprocal partner (A speaks B's target language and B speaks A's), agree a time across time zones, a"
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 6250,
+     "completion_tokens": 1176,
+     "latency_s": 12.27,
+     "prompt_chars": 13861,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 8150,
+     "completion_tokens": 7415,
+     "latency_s": 66.34,
+     "prompt_chars": 13471,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 17,
+   "atlas_wall_s": 87.2,
+   "research_notes": {
+    "evidence_types": {
+     "paper": 5,
+     "repository": 3,
+     "discussion": 2
+    },
+    "market_items": [
+     {
+      "type": "repository",
+      "title": "iphyze/mahjong-mobile-app",
+      "origin": "github: https://github.com/iphyze/mahjong-mobile-app",
+      "summary": "A JavaScript platform that pairs people who want to play mahjong (0 stars, last pushed 2025-03-18)."
+     },
+     {
+      "type": "discussion",
+      "title": "Launch HN: Scrimba (YC S20) \u2013 Interactive video for learning to code",
+      "origin": "hackernews: https://news.ycombinator.com/item?id=24579699",
+      "summary": "Scrimba (YC S20) merges an IDE and a video player so students can pause coding screencasts and edit, run and debug the instructor's code inside the player. This avoids copying code line by line and setting up a local development environment. Scrimba is built in Imba, a language that compiles to JavaScript. It offers a 75-hour Frontend Developer Career Path for $19/month that pairs students in study groups, and over 3000 people have enrolled."
+     },
+     {
+      "type": "repository",
+      "title": "DISB-Corp/CoffeeChatApp",
+      "origin": "github: https://github.com/DISB-Corp/CoffeeChatApp",
+      "summary": "A Python script that randomly pairs people from a CSV list for coffee chats and writes the new pairs back to the original list. It never pairs two people who have been paired before (0 stars, last pushed 2024-11-13)."
+     },
+     {
+      "type": "discussion",
+      "title": "Show HN: Simo.io \u2013 Security-first wired open-source Smart Home System for pros",
+      "origin": "hackernews: https://news.ycombinator.com/item?id=46229092",
+      "summary": "SIMO.io is an open-source, wired smart home system for professional installations that puts security first. It uses an on-premises Ubuntu/Django hub, an Ethernet/PoE backbone with no radios, DIN-rail I/O panels that keep critical loops running if the hub fails, and PoE ceiling room units. Other features include role-based per-component permissions, Python script automations that can be generated from natural language, nightly local backups, and mobile-first commissioning."
+     },
+     {
+      "type": "repository",
+      "title": "sirrah23/Secret-Santa",
+      "origin": "github: https://github.com/sirrah23/Secret-Santa",
+      "summary": "A simple JavaScript web app that pairs people for Secret Santa and emails each person their assignment (0 stars, last pushed 2015-12-24)."
+     }
+    ],
+    "findings": [
+     {
+      "title": "Existing open-source pairing tools are generic and ignore reciprocity and scheduling",
+      "summary": "The pairing tools found pair people at random or by a single shared interest. DISB-Corp/CoffeeChatApp randomly pairs people from a CSV list and avoids repeat pairings. sirrah23/Secret-Santa assigns pairs and emails each person. iphyze/mahjong-mobile-app pairs people who want to play mahjong. None of them models two-way complementarity (A's native language is B's target language and vice versa), proficiency, time zones or availability, and none books or hosts a call. They are also tiny projects (0 stars) and do not prove there is market demand. CoffeeChatApp's 'never pair the same people twice' rule is a useful building block. Language exchange will probably want the opposite as an option, letting a user re-book a partner they liked."
+     },
+     {
+      "title": "Peer pairing is already used to support learning in commercial products",
+      "summary": "Scrimba (YC S20) pairs students in study groups as part of a paid ($19/month) career path with over 3000 people enrolled. This suggests learners will pay for structured peer pairing alongside content. Scrimba's pairing is cohort-based study grouping for coding, not one-to-one reciprocal language practice, and the source gives no data on how pairs are formed or how well they are retained."
+     },
+     {
+      "title": "Mobile, multimodal communication drives real-world language contact",
+      "summary": "A qualitative study of English-speaking short-stay academics in Korea found that a mobile instant messaging app was central to their contact with Korean speakers. That contact depended on shared fluency with mobile technology and on multimodal communication (images, photos, video, audio), which the author calls 'sociolinguistic digital acuity'. For this app, that points to a mobile-first experience where text, images and voice messages before and after a call support the video session. The study is qualitative, focused on one country and from 2017, so it supports design direction but not quantitative targets."
+     },
+     {
+      "title": "Learner text carries detectable L1 signals, but the evidence covers a narrow set of languages",
+      "summary": "Native Language Identification work on L2 Turkish shows that Part-of-Speech n-gram and function-word models can detect L1-specific transfer effects in learner writing, and the code and data are public. This hints that short writing samples could help with proficiency or background signals at onboarding, or with tailoring session prompts. The study covers only one target language and three L1s (Albanian, Arabic, Persian), uses essay-length texts and is not aimed at measuring proficiency. It cannot be assumed to transfer to the many language pairs a matching app needs."
+     },
+     {
+      "title": "Speaker identification reaches high accuracy in controlled settings",
+      "summary": "Speaker identification research reports identification rates of 97.55% with MFCC features, 98.78% when NPC features are combined with MFCC, and up to 100% with linear initialization. Choosing model size per speaker also improves identification rates. These results could support checking that the person on a call is the account holder. They are lab results on clean data and do not cover compressed, noisy, multilingual video-call audio, or the privacy and consent cost of collecting voiceprints."
+     },
+     {
+      "title": "Structuring practice is an organisational design problem, not only a technical one",
+      "summary": "Work on an institutional teaching philosophy concludes that the process of developing shared practice matters as much as the final artefact. For peer language exchange, which has no teacher, this indirectly suggests that session norms (such as splitting time between the two languages, conversation prompts and correction etiquette) should be developed with users, not imposed. The source is about how a language college engages its staff, so it is weak evidence here."
+     }
+    ],
+    "opportunities": [
+     {
+      "title": "Reciprocal, availability-aware matching engine",
+      "description": "Build a matcher that existing generic pairing tools (CoffeeChatApp, Secret-Santa, the mahjong pairing app) don't provide. It would take two-way language complementarity as a hard constraint and rank candidates by proficiency fit, time-zone and availability overlap, reliability score and pairing history. Unlike CoffeeChatApp's strict no-repeat rule, it would let users choose between finding new partners and re-booking favourites."
+     },
+     {
+      "title": "One-tap booking from match to calendar to call",
+      "description": "Combine matching, time-zone-aware slot proposals, calendar invites, reminders and an in-app video room into one flow. None of the pairing tools found books or hosts sessions; they stop at producing pairs or sending emails. This is the core of the 'as easy as booking a coffee' promise."
+     },
+     {
+      "title": "Mobile-first multimodal companion around each call",
+      "description": "Add in-app messaging with images, voice notes and shared vocabulary before and after the video call, reflecting the finding that mobile, multimodal channels drive real language contact. This keeps pairs engaged between sessions and makes it easier to book the next one."
+     },
+     {
+      "title": "Structured session templates co-designed with users",
+      "description": "Provide optional session formats (time split per language, topic prompts, correction preferences). Generic pairing tools don't offer these, and Scrimba's study groups target coding, not conversation. Develop the formats iteratively with early users, since the evidence suggests the process of building shared practice affects adoption."
+     },
+     {
+      "title": "Research spike: lightweight proficiency and background signals",
+      "description": "Test whether short onboarding writing samples or feedback after each session can calibrate self-reported levels, starting from the public NLI code and data for Turkish. Treat this as an optional improvement to match quality, gated on showing it works across the launch language pairs."
+     },
+     {
+      "title": "Tiered trust and safety with optional advanced verification",
+      "description": "Launch with verification, ratings, reporting and blocking. Evaluate speaker-verification techniques only as an optional, consent-based tier, and only after benchmarking them on real call audio, because the published accuracy figures come from controlled conditions."
+     }
+    ]
+   }
+  },
+  {
+   "name": "Podcast Clip Maker",
+   "kind": "product",
+   "baseline_citations": [],
+   "baseline_tokens": {},
+   "baseline_latency_s": 0.0,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "PodReels: Human-AI Co-Creation of Video Podcast Teasers",
+     "authors": [
+      "Sitong Wang",
+      "Zheng Ning",
+      "Anh Truong"
+     ],
+     "year": 2023,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "PodReels: Human-AI Co-Creation of Video Podcast Teasers",
+     "relevance": 0.707
+    },
+    {
+     "title": "PodSumm -- Podcast Audio Summarization",
+     "authors": [
+      "Aneesh Vartakavi",
+      "Amanmeet Garg"
+     ],
+     "year": 2020,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "PodSumm -- Podcast Audio Summarization",
+     "relevance": 0.655
+    },
+    {
+     "title": "A Baseline Analysis for Podcast Abstractive Summarization",
+     "authors": [
+      "Chujie Zheng",
+      "Harry Jiannan Wang",
+      "Kunpeng Zhang"
+     ],
+     "year": 2020,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "A Baseline Analysis for Podcast Abstractive Summarization",
+     "relevance": 0.637
+    },
+    {
+     "title": "FreeMask: Rethinking the Importance of Attention Masks for Zero-Shot Video Editing",
+     "authors": [
+      "Lingling Cai",
+      "Kang Zhao",
+      "Hangjie Yuan"
+     ],
+     "year": 2024,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "FreeMask: Rethinking the Importance of Attention Masks for Zero-Shot Video Editing",
+     "relevance": 0.584
+    },
+    {
+     "title": "Zero-Shot Video Editing Using Off-The-Shelf Image Diffusion Models",
+     "authors": [
+      "Wen Wang",
+      "Yan Jiang",
+      "Kangyang Xie"
+     ],
+     "year": 2023,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Zero-Shot Video Editing Using Off-The-Shelf Image Diffusion Models",
+     "relevance": 0.567
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Solo podcasters need short, captioned vertical clips to promote each episode, but finding the best 30\u201390 second moments in an hour-long, conversational and noisy recording and then editing them into v"
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 5685,
+     "completion_tokens": 1056,
+     "latency_s": 10.68,
+     "prompt_chars": 12617,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 8074,
+     "completion_tokens": 7072,
+     "latency_s": 60.51,
+     "prompt_chars": 12874,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 16,
+   "atlas_wall_s": 80.3,
+   "research_notes": {
+    "evidence_types": {
+     "paper": 5,
+     "repository": 3,
+     "discussion": 2
+    },
+    "market_items": [
+     {
+      "type": "repository",
+      "title": "techakash32/Clipping-Tool-Free-By-AI",
+      "origin": "github: https://github.com/techakash32/Clipping-Tool-Free-By-AI",
+      "summary": "This is a free Python tool (2 stars) that uses AI to find the best moments in long videos and automatically turn them into short clips ready to share."
+     },
+     {
+      "type": "discussion",
+      "title": "Show HN: I made a tool to find the best time to buy your new phone",
+      "origin": "hackernews: https://news.ycombinator.com/item?id=40106153",
+      "summary": "This is a Show HN post about a website that tracks the lifecycles of Samsung and Google phones and warns about upcoming sales seasons so buyers can time their purchases. It currently covers only those two Android brands."
+     },
+     {
+      "type": "repository",
+      "title": "FubarXS/stream-clip-detector",
+      "origin": "github: https://github.com/FubarXS/stream-clip-detector",
+      "summary": "This is a free Python tool (0 stars) that finds the best moments in stream recordings."
+     },
+     {
+      "type": "discussion",
+      "title": "Show HN: Remy \u2013 an AI agent that finds the best clips from the world's videos",
+      "origin": "hackernews: https://news.ycombinator.com/item?id=42054777",
+      "summary": "Remy is an AI agent with a chat interface on top of a video search engine. It finds clips matching a user's query inside long-form videos such as YouTube videos, interviews and podcasts. The post says it searches billions of videos in seconds, clips in real time, and uses web search to find recent videos. It is positioned as consumer-focused clipping, unlike creator tools such as Opus, Klap and Veed.io."
+     },
+     {
+      "type": "repository",
+      "title": "bhutanibhanu/clipping-tool",
+      "origin": "github: https://github.com/bhutanibhanu/clipping-tool",
+      "summary": "This is a local-first Python clipping tool (0 stars). It transcribes long-form video on the user's machine, uses Claude to find the best moments, and renders captioned clips in 9:16 vertical format."
+     }
+    ],
+    "findings": [
+     {
+      "title": "Human-AI co-creation cuts creator effort when making teasers",
+      "summary": "PodReels was built from audience comments and creator interviews about what makes a good teaser. In its user study it significantly reduced mental demand and made creators more efficient at turning hour-long video podcasts into short teasers. This suggests the best design is not full automation but AI-proposed moments that the creator quickly confirms. PodReels targets video podcasters specifically."
+     },
+     {
+      "title": "Podcast content is long, conversational and noisy, which defeats generic summarizers",
+      "summary": "The TREC 2020 Spotify baseline analysis found that podcasts are longer, more conversational and noisier than news, and include ads and sponsorship segments. This makes news-tuned models a poor fit. PodSumm needed fine-tuning on an augmented, annotator-labeled podcast dataset to reach ROUGE-F1/2/L of 0.63/0.53/0.63. Moment selection therefore needs podcast-specific handling, including removal of ad and sponsor segments."
+     },
+     {
+      "title": "Transcribe-then-select is the dominant pipeline pattern",
+      "summary": "PodSumm transcribes audio to text and then uses a text summary to guide audio selection. The open-source bhutanibhanu/clipping-tool works the same way: it transcribes locally, asks an LLM (Claude) to pick the best moments, and renders captioned 9:16 clips. A word-timed transcript is therefore the shared backbone for both moment selection and captioning."
+     },
+     {
+      "title": "Open-source clippers exist but are immature and assume video input",
+      "summary": "Clipping-Tool-Free-By-AI (2 stars) clips long videos, stream-clip-detector (0 stars) finds highlights in stream recordings, and bhutanibhanu/clipping-tool (0 stars) transcribes long-form video and renders captioned vertical clips. All three are small projects with little adoption, and all describe video as their source. None says it handles audio-only podcasts or podcast-specific concerns such as ad segments."
+     },
+     {
+      "title": "The commercial market is split between creator tools and consumer clip search",
+      "summary": "The Remy Show HN post names Opus, Klap and Veed.io as creator-focused clipping tools. It positions Remy as consumer-focused: a chat agent that searches billions of long-form videos, including podcasts, and clips matches to a query in real time. The market already has automated video clipping, so the product needs to stand out on fit for solo podcasters rather than on clipping alone."
+     },
+     {
+      "title": "Generative video editing is unstable and unnecessary for captioned clips",
+      "summary": "Zero-shot diffusion video editing methods (vid2vid-zero, FreeMask) need extra mechanisms such as cross-frame modeling and mask selection to avoid flicker, blur and temporal inconsistency. Captioned promo clips only need cutting, reframing, caption overlay and simple generated visuals. Deterministic rendering is therefore the safer and cheaper choice, and diffusion-based editing should stay out of the core pipeline."
+     }
+    ],
+    "opportunities": [
+     {
+      "title": "Audio-only podcast to captioned vertical video",
+      "description": "Turn audio-only episodes (MP3 or RSS feed) into 9:16 clips with generated visuals (waveform, cover art, speaker name cards) and word-synced captions. The open-source clippers (Clipping-Tool-Free-By-AI, stream-clip-detector, bhutanibhanu/clipping-tool) and PodReels all assume video source material, which leaves audio-only solo podcasters unserved."
+     },
+     {
+      "title": "Podcast-aware moment selection with ad/sponsor filtering",
+      "description": "Build a selection stage that removes ads, sponsor reads and intro/outro segments first. It then scores candidate moments for standalone coherence, hook strength and emotional or insight density, and snaps boundaries to sentence ends. Podcast noise is a documented failure mode for generic summarizers, and none of the open-source clippers mentions handling it."
+     },
+     {
+      "title": "Minimal-effort approve-and-post review flow",
+      "description": "Use PodReels' co-creation finding, but trim the flow for a solo creator: show the top 3\u20135 ranked clips with a one-line reason for each, a preview, and one-click approve or boundary nudge. The target is under 5 minutes per episode. This sits between fully automatic clippers that give no rationale and PodReels, which was built for video-podcast teaser workflows."
+     },
+     {
+      "title": "RSS-triggered per-episode automation",
+      "description": "Watch the podcaster's RSS feed and generate clip candidates automatically whenever a new episode is published, so every episode gets promoted without a manual upload. The creator tools (Opus, Klap, Veed.io) are framed around creator-initiated clipping, and Remy is framed around consumer search, so feed-driven automation for solo podcasters is a gap worth confirming."
+     },
+     {
+      "title": "Deterministic, low-cost rendering pipeline",
+      "description": "Render with deterministic cut, crop, overlay and caption burn-in instead of generative video models. This avoids the flicker and consistency problems documented for diffusion editing, keeps cost per episode low, and allows a local-first option like bhutanibhanu/clipping-tool for privacy-conscious podcasters."
+     }
+    ]
+   }
+  }
+ ]
+}

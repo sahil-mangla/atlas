@@ -351,7 +351,11 @@ def test_retrieve_evidence_adds_market_evidence_after_papers() -> None:
     assert evidence[1].citation == (
         "example/rental-app [repository]. https://github.com/example/rental-app"
     )
-    assert market.last_query == papers.last_query
+    # Market search leads with the description; papers lead with the objective.
+    assert market.last_query is not None
+    assert market.last_query.startswith("photo rental")
+    assert papers.last_query is not None
+    assert papers.last_query.startswith("marketplace")
 
 
 def test_retrieve_evidence_keeps_papers_when_market_sources_find_nothing() -> None:
