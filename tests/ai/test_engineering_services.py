@@ -706,7 +706,82 @@ def test_architecture_validator_rejects_unknown_component_reference() -> None:
             )
         ],
     )
-    with pytest.raises(InvalidProposalException, match="unknown or self"):
+    with pytest.raises(InvalidProposalException, match=r"unknown or self.*'Missing'"):
+        ArchitectureProposalValidator().validate(draft)
+
+
+def _components(deps: dict[str, list[str]]) -> list[ArchitectureComponentDraft]:
+    return [
+        ArchitectureComponentDraft(
+            name=name, description="Role", internal_dependencies=depends_on
+        )
+        for name, depends_on in deps.items()
+    ]
+
+
+def test_architecture_draft_resolves_loose_dependency_names() -> None:
+    # Shapes taken from real Claude Opus drafts that the exact-match check rejected.
+    draft = ArchitectureProposalDraft(
+        design_summary="Summary",
+        components=_components(
+            {
+                "Snapshot Store": [],
+                "Propagation Gateway": ["Snapshot Store"],
+                "Edge Relay": [
+                    "Propagation Gateway",
+                    "Snapshot Store (object-storage replica)",
+                ],
+                "Telemetry Pipeline & SLO Monitoring": [],
+                "Server-side SDK (Go, Java, Node.js, Python)": [
+                    "Propagation Gateway or Edge Relay",
+                    "telemetry pipeline",
+                ],
+                "Benchmark Harness": ["Server-side SDK", " Edge Relay "],
+                "Propagation Tracker & Audit Feed": [],
+                "Kill Switch": ["Propagation Tracker", "Audit Feed"],
+            }
+        ),
+    )
+
+    deps = {c.name: c.internal_dependencies for c in draft.components}
+    assert deps["Edge Relay"] == ["Propagation Gateway", "Snapshot Store"]
+    assert deps["Server-side SDK (Go, Java, Node.js, Python)"] == [
+        "Propagation Gateway",
+        "Edge Relay",
+        "Telemetry Pipeline & SLO Monitoring",
+    ]
+    assert deps["Benchmark Harness"] == [
+        "Server-side SDK (Go, Java, Node.js, Python)",
+        "Edge Relay",
+    ]
+    assert deps["Kill Switch"] == ["Propagation Tracker & Audit Feed"]
+    ArchitectureProposalValidator().validate(draft)
+
+
+def test_architecture_draft_leaves_ambiguous_reference_for_validator() -> None:
+    draft = ArchitectureProposalDraft(
+        design_summary="Summary",
+        components=_components(
+            {"Billing API": [], "Billing Worker": [], "UI": ["Billing"]}
+        ),
+    )
+
+    assert draft.components[2].internal_dependencies == ["Billing"]
+    with pytest.raises(InvalidProposalException, match="'UI' depends on 'Billing'"):
+        ArchitectureProposalValidator().validate(draft)
+
+
+def test_architecture_validator_names_dependency_cycle() -> None:
+    draft = ArchitectureProposalDraft(
+        design_summary="Summary",
+        components=_components(
+            {"SDK": ["Telemetry"], "Telemetry": ["Kill Switch"], "Kill Switch": ["SDK"]}
+        ),
+    )
+
+    with pytest.raises(
+        InvalidProposalException, match="cycle: SDK -> Telemetry -> Kill Switch -> SDK"
+    ):
         ArchitectureProposalValidator().validate(draft)
 
 

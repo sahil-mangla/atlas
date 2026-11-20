@@ -119,6 +119,32 @@ class ResearchProposalValidator(ProposalValidator[ResearchProposalDraft]):
                 )
 
 
+def _find_dependency_cycle(graph: dict[str, list[str]]) -> list[str]:
+    """Return one dependency cycle as a path that ends where it starts, or []."""
+    visiting: list[str] = []
+    done: set[str] = set()
+
+    def visit(node: str) -> list[str]:
+        if node in visiting:
+            return [*visiting[visiting.index(node) :], node]
+        if node in done:
+            return []
+        visiting.append(node)
+        for neighbour in graph.get(node, []):
+            cycle = visit(neighbour)
+            if cycle:
+                return cycle
+        visiting.pop()
+        done.add(node)
+        return []
+
+    for node in graph:
+        cycle = visit(node)
+        if cycle:
+            return cycle
+    return []
+
+
 class PlanningProposalValidator(ProposalValidator[PlanningProposalDraft]):
     def validate(self, draft: PlanningProposalDraft) -> None:
         if not draft.scope_statement.strip():
@@ -144,14 +170,29 @@ class ArchitectureProposalValidator(ProposalValidator[ArchitectureProposalDraft]
                 raise InvalidProposalException(
                     "Component descriptions cannot be empty."
                 )
-            if any(
-                dependency not in known_components or dependency == component.name
+            invalid = [
+                dependency
                 for dependency in component.internal_dependencies
-            ):
+                if dependency not in known_components
+                or dependency == component.name.strip()
+            ]
+            if invalid:
                 raise InvalidProposalException(
                     "Architecture component dependency references an unknown "
-                    "or self component."
+                    f"or self component: {component.name.strip()!r} depends on "
+                    f"{', '.join(repr(name) for name in invalid)}."
                 )
+        cycle = _find_dependency_cycle(
+            {
+                component.name.strip(): component.internal_dependencies
+                for component in draft.components
+            }
+        )
+        if cycle:
+            raise InvalidProposalException(
+                "Architecture component dependencies form a cycle: "
+                f"{' -> '.join(cycle)}."
+            )
         if any(
             not value.strip()
             for decision in draft.decisions
@@ -445,7 +486,7 @@ class ArchitectureProposalTransformer(ProposalTransformer[ArchitectureProposalDr
                 owned_data=component.owned_data,
                 external_dependencies=component.external_dependencies,
             )
-            component_ids[component.name] = created.id
+            component_ids[component.name.strip()] = created.id
             for interface in component.public_interfaces:
                 self.interface_service.add_interface_contract(
                     project_id=project_id,
@@ -460,7 +501,7 @@ class ArchitectureProposalTransformer(ProposalTransformer[ArchitectureProposalDr
             for dependency in component.internal_dependencies:
                 self.component_model.add_internal_dependency(
                     project_id=project_id,
-                    component_id=component_ids[component.name],
+                    component_id=component_ids[component.name.strip()],
                     depends_on_id=component_ids[dependency],
                 )
 

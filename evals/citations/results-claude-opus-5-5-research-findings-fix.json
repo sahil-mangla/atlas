@@ -1,0 +1,3763 @@
+{
+ "started": "2026-11-18T12:57:01.832503+00:00",
+ "provider": "claude-code",
+ "model": "claude-opus-5-5",
+ "api_equivalent_cost_usd": 4.9844,
+ "claude_code_model_usage": {
+  "claude-haiku-5-5": {
+   "input": 199692,
+   "output": 9238
+  },
+  "claude-opus-5-5": {
+   "input": 274203,
+   "output": 179098
+  }
+ },
+ "embed_model": "nomic-embed-text",
+ "machine": {
+  "python": "3.13.12",
+  "os": "Darwin 25.6.0",
+  "chip": "Apple M4",
+  "memory_bytes": "17179869184"
+ },
+ "ollama_version": [
+  "ollama version is 0.40.2"
+ ],
+ "summary": {
+  "ideas": 20,
+  "plain_all": {
+   "total": 100,
+   "verified": 92,
+   "misattributed": 0,
+   "not_found": 0,
+   "unchecked": 8,
+   "verified_pct": 92.0,
+   "misattributed_pct": 0.0,
+   "not_found_pct": 0.0,
+   "unchecked_pct": 8.0,
+   "median_relevance_of_verified": 0.669
+  },
+  "atlas_all": {
+   "total": 90,
+   "verified": 74,
+   "misattributed": 0,
+   "not_found": 0,
+   "unchecked": 16,
+   "verified_pct": 82.2,
+   "misattributed_pct": 0.0,
+   "not_found_pct": 0.0,
+   "unchecked_pct": 17.8,
+   "median_relevance_of_verified": 0.635
+  },
+  "plain_research": {
+   "total": 50,
+   "verified": 47,
+   "misattributed": 0,
+   "not_found": 0,
+   "unchecked": 3,
+   "verified_pct": 94.0,
+   "misattributed_pct": 0.0,
+   "not_found_pct": 0.0,
+   "unchecked_pct": 6.0,
+   "median_relevance_of_verified": 0.71
+  },
+  "atlas_research": {
+   "total": 50,
+   "verified": 41,
+   "misattributed": 0,
+   "not_found": 0,
+   "unchecked": 9,
+   "verified_pct": 82.0,
+   "misattributed_pct": 0.0,
+   "not_found_pct": 0.0,
+   "unchecked_pct": 18.0,
+   "median_relevance_of_verified": 0.667
+  },
+  "plain_engineering": {
+   "total": 50,
+   "verified": 45,
+   "misattributed": 0,
+   "not_found": 0,
+   "unchecked": 5,
+   "verified_pct": 90.0,
+   "misattributed_pct": 0.0,
+   "not_found_pct": 0.0,
+   "unchecked_pct": 10.0,
+   "median_relevance_of_verified": 0.59
+  },
+  "atlas_engineering": {
+   "total": 40,
+   "verified": 33,
+   "misattributed": 0,
+   "not_found": 0,
+   "unchecked": 7,
+   "verified_pct": 82.5,
+   "misattributed_pct": 0.0,
+   "not_found_pct": 0.0,
+   "unchecked_pct": 17.5,
+   "median_relevance_of_verified": 0.555
+  },
+  "atlas_ideas_with_no_evidence": 2,
+  "stages": {
+   "research": {
+    "reached": 20,
+    "first_try_pct": 85.0,
+    "eventual_pct": 90.0,
+    "calls": 44,
+    "latency_s_p50": 30.84,
+    "latency_s_p95": 55.63,
+    "prompt_tokens_mean": 5509,
+    "prompt_tokens_max": 13188,
+    "completion_tokens_mean": 3063
+   },
+   "planning": {
+    "reached": 0,
+    "first_try_pct": 0.0,
+    "eventual_pct": 0.0,
+    "calls": 0,
+    "latency_s_p50": 0.0,
+    "latency_s_p95": 0.0,
+    "prompt_tokens_mean": 0,
+    "prompt_tokens_max": 0,
+    "completion_tokens_mean": 0
+   },
+   "architecture": {
+    "reached": 0,
+    "first_try_pct": 0.0,
+    "eventual_pct": 0.0,
+    "calls": 0,
+    "latency_s_p50": 0.0,
+    "latency_s_p95": 0.0,
+    "prompt_tokens_mean": 0,
+    "prompt_tokens_max": 0,
+    "completion_tokens_mean": 0
+   },
+   "review": {
+    "reached": 0,
+    "first_try_pct": 0.0,
+    "eventual_pct": 0.0,
+    "calls": 0,
+    "latency_s_p50": 0.0,
+    "latency_s_p95": 0.0,
+    "prompt_tokens_mean": 0,
+    "prompt_tokens_max": 0,
+    "completion_tokens_mean": 0
+   }
+  },
+  "projects_completed_pct": 0.0,
+  "per_project": {
+   "wall_s_median": 0.0,
+   "model_calls_median": 0.0,
+   "tokens_median": 0.0,
+   "knowledge_candidates_median": 0.0
+  },
+  "plain_prompt": {
+   "latency_s_p50": 22.3,
+   "prompt_tokens_mean": 1591,
+   "completion_tokens_mean": 2216,
+   "errors": 0
+  },
+  "max_prompt_tokens_seen": 13188,
+  "failed_calls": 0
+ },
+ "ideas": [
+  {
+   "name": "Sensor Fault Tolerance",
+   "kind": "research",
+   "baseline_citations": [
+    {
+     "title": "Towards Robust Deep Reinforcement Learning for Traffic Signal Control: Demand Surges, Incidents and Sensor Failures",
+     "authors": [
+      "Filipe Rodrigues",
+      "Carlos Lisboa Azevedo"
+     ],
+     "year": 2019,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Towards Robust Deep Reinforcement Learning for Traffic Signal Control: Demand Surges, Incidents and Sensor Failures",
+     "relevance": 0.712
+    },
+    {
+     "title": "Detecting Errors and Imputing Missing Data for Single-Loop Surveillance Systems",
+     "authors": [
+      "Chao Chen",
+      "Jaimyoung Kwon",
+      "John Rice",
+      "Alexander Skabardonis",
+      "Pravin Varaiya"
+     ],
+     "year": 2003,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Detecting Errors and Imputing Missing Data for Single-Loop Surveillance Systems",
+     "relevance": 0.666
+    },
+    {
+     "title": "Detecting Erroneous Loop Detector Data in a Freeway Traffic Management System",
+     "authors": [
+      "Leslie N. Jacobson",
+      "Nancy L. Nihan",
+      "John D. Bender"
+     ],
+     "year": 1990,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "DETECTING ERRONEOUS LOOP DETECTOR DATA IN A FREEWAY TRAFFIC MANAGEMENT SYSTEM",
+     "relevance": 0.738
+    },
+    {
+     "title": "New Procedure for Detector Data Screening in Traffic Management Systems",
+     "authors": [
+      "Rod E. Turochy",
+      "Brian L. Smith"
+     ],
+     "year": 2000,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "New Procedure for Detector Data Screening in Traffic Management Systems",
+     "relevance": 0.695
+    },
+    {
+     "title": "Traffic Detector Errors and Diagnostics",
+     "authors": [
+      "Leonard Chen",
+      "Adolf D. May"
+     ],
+     "year": 1987,
+     "status": "unchecked",
+     "title_similarity": 0.5,
+     "matched_title": "Fig. 6. Example of errors appearing during diagnostics of cylinder deactivation.",
+     "relevance": 0.753
+    }
+   ],
+   "baseline_tokens": {
+    "prompt": 1599,
+    "completion": 2262
+   },
+   "baseline_latency_s": 24.56,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "A Graph-Based Control Interface for Traffic Signals on Heterogeneous Road Networks",
+     "authors": [
+      "Bertil Braun"
+     ],
+     "year": 2026,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "A Graph-Based Control Interface for Traffic Signals on Heterogeneous Road Networks",
+     "relevance": 0.644
+    },
+    {
+     "title": "Self-wiring in neural nets of point-like cortical neurons fails to reproduce cytoarchitectural differences",
+     "authors": [
+      "Fail M. Gafarov"
+     ],
+     "year": 2006,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "SELF-WIRING IN NEURAL NETS OF POINT-LIKE CORTICAL NEURONS FAILS TO REPRODUCE CYTOARCHITECTURAL DIFFERENCES",
+     "relevance": 0.478
+    },
+    {
+     "title": "Robust Single-Agent Reinforcement Learning for Regional Traffic Signal Control Under Demand Fluctuations",
+     "authors": [
+      "Qiang Li",
+      "Jin Niu",
+      "Lina Yu"
+     ],
+     "year": 2025,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Robust Single-Agent Reinforcement Learning for Regional Traffic Signal Control Under Demand Fluctuations",
+     "relevance": 0.646
+    },
+    {
+     "title": "Jam-avoiding adaptive cruise control (ACC) and its impact on traffic dynamics",
+     "authors": [
+      "Arne Kesting",
+      "Martin Treiber",
+      "Martin Sch\u00f6nhof"
+     ],
+     "year": 2006,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Jam-Avoiding Adaptive Cruise Control (ACC) and its Impact on Traffic Dynamics",
+     "relevance": 0.561
+    },
+    {
+     "title": "Flexible Time-Triggered Sampling in Smart Sensor-Based Wireless Control Systems",
+     "authors": [
+      "Feng Xia",
+      "Wenhong Zhao"
+     ],
+     "year": 2008,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Flexible Time-Triggered Sampling in Smart Sensor-Based Wireless Control Systems",
+     "relevance": 0.617
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Traffic signal controllers that use inductive loop detectors (actuated and adaptive control) fail badly when detectors break, get stuck on or off, chatter, or report noisy counts and occupancy. Today,"
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 4060,
+     "completion_tokens": 851,
+     "latency_s": 16.2,
+     "prompt_chars": 7913,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 6995,
+     "completion_tokens": 5374,
+     "latency_s": 51.68,
+     "prompt_chars": 10381,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 15,
+   "atlas_wall_s": 75.9
+  },
+  {
+   "name": "Federated Keyboard",
+   "kind": "research",
+   "baseline_citations": [
+    {
+     "title": "Federated Learning of Gboard Language Models with Differential Privacy",
+     "authors": [
+      "Zheng Xu",
+      "Yanxiang Zhang",
+      "Galen Andrew",
+      "Christopher A. Choquette-Choo",
+      "Peter Kairouz",
+      "H. Brendan McMahan",
+      "Jesse Rosenstock",
+      "Yuanbo Zhang"
+     ],
+     "year": 2023,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Federated Learning of Gboard Language Models with Differential Privacy",
+     "relevance": 0.71
+    },
+    {
+     "title": "Federated Learning for Mobile Keyboard Prediction",
+     "authors": [
+      "Andrew Hard",
+      "Kanishka Rao",
+      "Rajiv Mathews",
+      "Swaroop Ramaswamy",
+      "Fran\u00e7oise Beaufays",
+      "Sean Augenstein",
+      "Hubert Eichner",
+      "Chlo\u00e9 Kiddon",
+      "Daniel Ramage"
+     ],
+     "year": 2018,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Federated Learning for Mobile Keyboard Prediction",
+     "relevance": 0.785
+    },
+    {
+     "title": "Learning Differentially Private Recurrent Language Models",
+     "authors": [
+      "H. Brendan McMahan",
+      "Daniel Ramage",
+      "Kunal Talwar",
+      "Li Zhang"
+     ],
+     "year": 2018,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Learning Differentially Private Recurrent Language Models",
+     "relevance": 0.664
+    },
+    {
+     "title": "Communication-Efficient Learning of Deep Networks from Decentralized Data",
+     "authors": [
+      "H. Brendan McMahan",
+      "Eider Moore",
+      "Daniel Ramage",
+      "Seth Hampson",
+      "Blaise Ag\u00fcera y Arcas"
+     ],
+     "year": 2017,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Communication-Efficient Learning of Deep Networks from Decentralized Data",
+     "relevance": 0.665
+    },
+    {
+     "title": "Practical and Private (Deep) Learning without Sampling or Shuffling",
+     "authors": [
+      "Peter Kairouz",
+      "Brendan McMahan",
+      "Shuang Song",
+      "Om Thakkar",
+      "Abhradeep Thakurta",
+      "Zheng Xu"
+     ],
+     "year": 2021,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Practical and Private (Deep) Learning without Sampling or Shuffling",
+     "relevance": 0.642
+    }
+   ],
+   "baseline_tokens": {
+    "prompt": 1586,
+    "completion": 2133
+   },
+   "baseline_latency_s": 20.4,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "VAFL: a Method of Vertical Asynchronous Federated Learning",
+     "authors": [
+      "Tianyi Chen",
+      "Xiao Jin",
+      "Yuejiao Sun"
+     ],
+     "year": 2020,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "VAFL: a Method of Vertical Asynchronous Federated Learning",
+     "relevance": 0.601
+    },
+    {
+     "title": "Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms",
+     "authors": [
+      "Ehsan Hallaji",
+      "Roozbeh Razavi-Far",
+      "Mehrdad Saif"
+     ],
+     "year": 2022,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Federated and Transfer Learning: A\u00a0Survey on Adversaries and Defense Mechanisms",
+     "relevance": 0.601
+    },
+    {
+     "title": "Momentum Gradient Descent Federated Learning with Local Differential Privacy",
+     "authors": [
+      "Mengde Han",
+      "Tianqing Zhu",
+      "Wanlei Zhou"
+     ],
+     "year": 2022,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Momentum Gradient Descent Federated Learning with Local Differential Privacy",
+     "relevance": 0.623
+    },
+    {
+     "title": "Federated Deep Learning for Privacy-Preserving Cardiovascular Disease Risk Prediction",
+     "authors": [
+      "Hyunho Mo",
+      "Djura Smits",
+      "Mahlet A. Birhanu"
+     ],
+     "year": 2026,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Federated deep learning for privacy-preserving cardiovascular disease risk prediction",
+     "relevance": 0.633
+    },
+    {
+     "title": "Learning From Static Context in Federated Time Series Forecasting",
+     "authors": [
+      "Viktor Walter",
+      "Andreas Wagner",
+      "Fabian Stricker"
+     ],
+     "year": 2026,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Learning From Static Context in Federated Time Series Forecasting",
+     "relevance": 0.623
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Train a next-word prediction language model on many mobile phones without sending raw typed text, or anything that can be used to rebuild it, to a server. Users' typing data is non-IID, small and very"
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 3817,
+     "completion_tokens": 779,
+     "latency_s": 10.07,
+     "prompt_chars": 7400,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 6882,
+     "completion_tokens": 5872,
+     "latency_s": 60.27,
+     "prompt_chars": 10065,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 16,
+   "atlas_wall_s": 82.3
+  },
+  {
+   "name": "CRDT Editor",
+   "kind": "research",
+   "baseline_citations": [
+    {
+     "title": "Conflict-free Replicated Data Types",
+     "authors": [
+      "Marc Shapiro",
+      "Nuno Pregui\u00e7a",
+      "Carlos Baquero",
+      "Marek Zawirski"
+     ],
+     "year": 2011,
+     "status": "verified",
+     "title_similarity": 0.921,
+     "matched_title": "Conflict-Free Replicated Data Types CRDTs",
+     "relevance": 0.647
+    },
+    {
+     "title": "Replicated abstract data types: Building blocks for collaborative applications",
+     "authors": [
+      "Hyun-Gul Roh",
+      "Myeongjae Jeon",
+      "Jin-Soo Kim",
+      "Joonwon Lee"
+     ],
+     "year": 2011,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Replicated abstract data types: Building blocks for collaborative applications",
+     "relevance": 0.671
+    },
+    {
+     "title": "A Conflict-Free Replicated JSON Datatype",
+     "authors": [
+      "Martin Kleppmann",
+      "Alastair R. Beresford"
+     ],
+     "year": 2017,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "A Conflict-Free Replicated JSON Datatype",
+     "relevance": 0.602
+    },
+    {
+     "title": "Local-First Software: You Own Your Data, in Spite of the Cloud",
+     "authors": [
+      "Martin Kleppmann",
+      "Adam Wiggins",
+      "Peter van Hardenberg",
+      "Mark McGranaghan"
+     ],
+     "year": 2019,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Local-first software: you own your data, in spite of the cloud",
+     "relevance": 0.527
+    },
+    {
+     "title": "Collaborative Text Editing with Eg-walker: Better, Faster, Smaller",
+     "authors": [
+      "Joseph Gentle",
+      "Martin Kleppmann"
+     ],
+     "year": 2025,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Collaborative Text Editing with Eg-walker: Better, Faster, Smaller",
+     "relevance": 0.702
+    }
+   ],
+   "baseline_tokens": {
+    "prompt": 1589,
+    "completion": 1994
+   },
+   "baseline_latency_s": 20.82,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "Conflict-free Replicated Data Types: An Overview",
+     "authors": [
+      "Nuno Pregui\u00e7a"
+     ],
+     "year": 2018,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Conflict-free Replicated Data Types: An Overview",
+     "relevance": 0.653
+    },
+    {
+     "title": "Conflict-Free Replicated Data Types for Neural Network Model Merging: A Two-Layer Architecture Enabling CRDT-Compliant Model Merging Across 26 Strategies",
+     "authors": [
+      "Ryan Gillespie"
+     ],
+     "year": 2026,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Conflict-Free Replicated Data Types for Neural Network Model Merging: A Two-Layer Architecture Enabling CRDT-Compliant Model Merging Across 26 Strategies",
+     "relevance": 0.662
+    },
+    {
+     "title": "Conflict-free Replicated Data Types (CRDTs)",
+     "authors": [
+      "Nuno Pregui\u00e7a",
+      "Carlos Baquero",
+      "Marc Shapiro"
+     ],
+     "year": 2018,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Conflict-Free Replicated Data Types CRDTs",
+     "relevance": 0.612
+    },
+    {
+     "title": "Real-time Collaborative Multi-Level Modeling by Conflict-Free Replicated Data Types",
+     "authors": [
+      "Istvan David",
+      "Eugene Syriani"
+     ],
+     "year": 2022,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Real-time collaborative multi-level modeling by conflict-free replicated data types",
+     "relevance": 0.715
+    },
+    {
+     "title": "A Datalog Framework for Conflict-Free Replicated Data Types",
+     "authors": [
+      "Elena Yanakieva",
+      "Annette Bieniusa",
+      "Stefania Dumbrava"
+     ],
+     "year": 2026,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "A Datalog Framework for Conflict-Free Replicated Data Types",
+     "relevance": 0.636
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Build a collaborative text editor where each peer edits a local replica while offline. Peers exchange updates directly, with no central server to order operations or settle conflicts. The core problem"
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 3488,
+     "completion_tokens": 668,
+     "latency_s": 8.59,
+     "prompt_chars": 6013,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 6775,
+     "completion_tokens": 5528,
+     "latency_s": 51.0,
+     "prompt_chars": 9673,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 15,
+   "atlas_wall_s": 66.9
+  },
+  {
+   "name": "Carbon Aware Scheduler",
+   "kind": "research",
+   "baseline_citations": [
+    {
+     "title": "Let's Wait Awhile: How Temporal Workload Shifting Can Reduce Carbon Emissions in the Cloud",
+     "authors": [
+      "Philipp Wiesner",
+      "Ilja Behnke",
+      "Dominik Scheinert",
+      "Kordian Gontarska",
+      "Lauritz Thamsen"
+     ],
+     "year": 2021,
+     "status": "unchecked",
+     "title_similarity": 0.536,
+     "matched_title": "Spatio-Temporal Shifting to Reduce Carbon, Water, and Land Use Footprints of Cloud Workloads",
+     "relevance": 0.731
+    },
+    {
+     "title": "Carbon-Aware Computing for Datacenters",
+     "authors": [
+      "Ana Radovanovi\u0107",
+      "Ross Koningstein",
+      "Ian Schneider",
+      "Bokan Chen",
+      "Alexandre Duarte",
+      "Binz Roy",
+      "Diyue Xiao",
+      "Maya Haridasan",
+      "Patrick Hung",
+      "Nick Care",
+      "Saurav Talukdar",
+      "Eric Mullen",
+      "Kendal Smith",
+      "MariEllen Cottman",
+      "Walfredo Cirne"
+     ],
+     "year": 2023,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Carbon-Aware Computing for Datacenters",
+     "relevance": 0.626
+    },
+    {
+     "title": "On the Limitations of Carbon-Aware Temporal and Spatial Workload Shifting in the Cloud",
+     "authors": [
+      "Thanathorn Sukprasert",
+      "Abel Souza",
+      "Noman Bashir",
+      "David Irwin",
+      "Prashant Shenoy"
+     ],
+     "year": 2024,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "On the Limitations of Carbon-Aware Temporal and Spatial Workload Shifting in the Cloud",
+     "relevance": 0.69
+    },
+    {
+     "title": "CarbonScaler: Leveraging Cloud Workload Elasticity for Optimizing Carbon-Efficiency",
+     "authors": [
+      "Walid A. Hanafy",
+      "Qianlin Liang",
+      "Noman Bashir",
+      "David Irwin",
+      "Prashant Shenoy"
+     ],
+     "year": 2023,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "CarbonScaler: Leveraging Cloud Workload Elasticity for Optimizing Carbon-Efficiency",
+     "relevance": 0.687
+    },
+    {
+     "title": "Carbon Explorer: A Holistic Framework for Designing Carbon Aware Datacenters",
+     "authors": [
+      "Bilge Acun",
+      "Benjamin Lee",
+      "Fiodar Kazhamiaka",
+      "Kiwan Maeng",
+      "Udit Gupta",
+      "Manoj Chakkaravarthy",
+      "David Brooks",
+      "Carole-Jean Wu"
+     ],
+     "year": 2023,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Carbon Explorer: A Holistic Framework for Designing Carbon Aware Datacenters",
+     "relevance": 0.608
+    }
+   ],
+   "baseline_tokens": {
+    "prompt": 1603,
+    "completion": 2865
+   },
+   "baseline_latency_s": 27.16,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "Quantifying the Carbon Reduction of DAG Workloads: A Job Shop Scheduling Perspective",
+     "authors": [
+      "Roozbeh Bostandoost",
+      "Adam Lechowicz",
+      "Walid A. Hanafy"
+     ],
+     "year": 2025,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Quantifying the Carbon Reduction of DAG Workloads: A Job Shop Scheduling Perspective",
+     "relevance": 0.757
+    },
+    {
+     "title": "Parallel Batch Scheduling With Incompatible Job Families Via Constraint Programming",
+     "authors": [
+      "Jorge A. Huertas",
+      "Pascal Van Hentenryck"
+     ],
+     "year": 2024,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Parallel Batch Scheduling With Incompatible Job Families Via Constraint Programming",
+     "relevance": 0.606
+    },
+    {
+     "title": "On the Limitations of Carbon-Aware Temporal and Spatial Workload Shifting in the Cloud",
+     "authors": [
+      "Thanathorn Sukprasert",
+      "Abel Souza",
+      "Noman Bashir"
+     ],
+     "year": 2023,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "On the Limitations of Carbon-Aware Temporal and Spatial Workload Shifting in the Cloud",
+     "relevance": 0.69
+    },
+    {
+     "title": "Let's Wait Awhile: How Temporal Workload Shifting Can Reduce Carbon Emissions in the Cloud",
+     "authors": [
+      "Philipp Wiesner",
+      "Ilja Behnke",
+      "Dominik Scheinert"
+     ],
+     "year": 2021,
+     "status": "unchecked",
+     "title_similarity": 0.536,
+     "matched_title": "Spatio-Temporal Shifting to Reduce Carbon, Water, and Land Use Footprints of Cloud Workloads",
+     "relevance": 0.731
+    },
+    {
+     "title": "Pre-emptive Carbon Aware Scheduling for Edge Workloads",
+     "authors": [
+      "Cecilia Chen",
+      "Rajni Dabas",
+      "Samir Khuller"
+     ],
+     "year": 2026,
+     "status": "unchecked",
+     "title_similarity": 0.543,
+     "matched_title": "Uncertainty-Aware RL-Based Scheduling of Multi-DNN Workloads on Edge MPSoCs",
+     "relevance": 0.723
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Data-centre batch workloads usually run as soon as they are submitted, no matter how carbon-intensive the grid is at that hour. The Carbon Aware Scheduler needs to move flexible batch work, including "
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 4164,
+     "completion_tokens": 919,
+     "latency_s": 10.13,
+     "prompt_chars": 8188,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 7112,
+     "completion_tokens": 5366,
+     "latency_s": 47.22,
+     "prompt_chars": 10538,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 18,
+   "atlas_wall_s": 66.6
+  },
+  {
+   "name": "Log Anomaly Detection",
+   "kind": "research",
+   "baseline_citations": [
+    {
+     "title": "DeepLog: Anomaly Detection and Diagnosis from System Logs through Deep Learning",
+     "authors": [
+      "Min Du",
+      "Feifei Li",
+      "Guineng Zheng",
+      "Vivek Srikumar"
+     ],
+     "year": 2017,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "DeepLog: Anomaly Detection and Diagnosis from System Logs through Deep Learning",
+     "relevance": 0.849
+    },
+    {
+     "title": "Semi-Supervised Log-Based Anomaly Detection via Probabilistic Label Estimation",
+     "authors": [
+      "Lin Yang",
+      "Junjie Chen",
+      "Zan Wang",
+      "Weijing Wang",
+      "Jiajun Jiang",
+      "Xuyuan Dong",
+      "Wenbin Zhang"
+     ],
+     "year": 2021,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Semi-Supervised Log-Based Anomaly Detection via Probabilistic Label Estimation",
+     "relevance": 0.757
+    },
+    {
+     "title": "Robust Log-Based Anomaly Detection on Unstable Log Data",
+     "authors": [
+      "Xu Zhang",
+      "Yong Xu",
+      "Qingwei Lin",
+      "Bo Qiao",
+      "Hongyu Zhang",
+      "Yingnong Dang",
+      "Chunyu Xie",
+      "Xinsheng Yang",
+      "Qian Cheng",
+      "Ze Li",
+      "Junjie Chen",
+      "Xiaoting He",
+      "Randolph Yao",
+      "Jian-Guang Lou",
+      "Murali Chintalapati",
+      "Furao Shen",
+      "Dongmei Zhang"
+     ],
+     "year": 2019,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Robust log-based anomaly detection on unstable log data",
+     "relevance": 0.743
+    },
+    {
+     "title": "LogBERT: Log Anomaly Detection via BERT",
+     "authors": [
+      "Haixuan Guo",
+      "Shuhan Yuan",
+      "Xintao Wu"
+     ],
+     "year": 2021,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "LogBERT: Log Anomaly Detection via BERT",
+     "relevance": 0.74
+    },
+    {
+     "title": "Log-based Anomaly Detection with Deep Learning: How Far Are We?",
+     "authors": [
+      "Van-Hoang Le",
+      "Hongyu Zhang"
+     ],
+     "year": 2022,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Log-based anomaly detection with deep learning: how far are we?",
+     "relevance": 0.795
+    }
+   ],
+   "baseline_tokens": {
+    "prompt": 1602,
+    "completion": 2399
+   },
+   "baseline_latency_s": 23.22,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "Impact of Log Parsing on Deep Learning-Based Anomaly Detection",
+     "authors": [
+      "Zanis Ali Khan",
+      "Donghwan Shin",
+      "Domenico Bianculli"
+     ],
+     "year": 2023,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Impact of log parsing on deep learning-based anomaly detection",
+     "relevance": 0.83
+    },
+    {
+     "title": "Log-based Anomaly Detection Without Log Parsing",
+     "authors": [
+      "Van-Hoang Le",
+      "Hongyu Zhang"
+     ],
+     "year": 2021,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Log-based Anomaly Detection Without Log Parsing",
+     "relevance": 0.778
+    },
+    {
+     "title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice",
+     "authors": [
+      "Deep Pandey",
+      "Qi Yu"
+     ],
+     "year": 2023,
+     "status": "unchecked",
+     "title_similarity": 0.545,
+     "matched_title": "Review of Evidence-based Psychotherapy: Where Theory and Practice Meet.",
+     "relevance": 0.507
+    },
+    {
+     "title": "Deep Learning for Anomaly Detection in Log Data: A Survey",
+     "authors": [
+      "Max Landauer",
+      "Sebastian Onder",
+      "Florian Skopik"
+     ],
+     "year": 2022,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Deep learning for anomaly detection in log data: A survey",
+     "relevance": 0.831
+    },
+    {
+     "title": "The Modern Mathematics of Deep Learning",
+     "authors": [
+      "Julius Berner",
+      "Philipp Grohs",
+      "Gitta Kutyniok"
+     ],
+     "year": 2021,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "The Modern Mathematics of Deep Learning",
+     "relevance": 0.531
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Large-scale systems produce huge volumes of semi-structured logs, and operators need to spot unusual behaviour in them before it turns into an outage. Deep learning detectors for log sequences have do"
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 3800,
+     "completion_tokens": 762,
+     "latency_s": 9.43,
+     "prompt_chars": 7544,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 6809,
+     "completion_tokens": 5037,
+     "latency_s": 46.12,
+     "prompt_chars": 9915,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 15,
+   "atlas_wall_s": 64.1
+  },
+  {
+   "name": "Edge Vector Search",
+   "kind": "research",
+   "baseline_citations": [
+    {
+     "title": "Efficient and Robust Approximate Nearest Neighbor Search Using Hierarchical Navigable Small World Graphs",
+     "authors": [
+      "Yury A. Malkov",
+      "Dmitry A. Yashunin"
+     ],
+     "year": 2020,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Efficient and Robust Approximate Nearest Neighbor Search Using Hierarchical Navigable Small World Graphs",
+     "relevance": 0.761
+    },
+    {
+     "title": "DiskANN: Fast Accurate Billion-point Nearest Neighbor Search on a Single Node",
+     "authors": [
+      "Suhas Jayaram Subramanya",
+      "Fnu Devvrit",
+      "Rohan Kadekodi",
+      "Ravishankar Krishnaswamy",
+      "Harsha Vardhan Simhadri"
+     ],
+     "year": 2019,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "DiskANN: Fast Accurate Billion-point Nearest Neighbor Search on a Single Node",
+     "relevance": 0.711
+    },
+    {
+     "title": "Fast Approximate Nearest Neighbor Search With The Navigating Spreading-out Graph",
+     "authors": [
+      "Cong Fu",
+      "Chao Xiang",
+      "Changxu Wang",
+      "Deng Cai"
+     ],
+     "year": 2019,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Fast approximate nearest neighbor search with the navigating spreading-out graph",
+     "relevance": 0.77
+    },
+    {
+     "title": "Product Quantization for Nearest Neighbor Search",
+     "authors": [
+      "Herv\u00e9 J\u00e9gou",
+      "Matthijs Douze",
+      "Cordelia Schmid"
+     ],
+     "year": 2011,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Product Quantization for Nearest Neighbor Search",
+     "relevance": 0.675
+    },
+    {
+     "title": "Accelerating Large-Scale Inference with Anisotropic Vector Quantization",
+     "authors": [
+      "Ruiqi Guo",
+      "Philip Sun",
+      "Erik Lindgren",
+      "Quan Geng",
+      "David Simcha",
+      "Felix Chern",
+      "Sanjiv Kumar"
+     ],
+     "year": 2020,
+     "status": "unchecked",
+     "title_similarity": 0.632,
+     "matched_title": "Accelerating Large Scale GCN Inference on FPGA",
+     "relevance": 0.536
+    }
+   ],
+   "baseline_tokens": {
+    "prompt": 1593,
+    "completion": 2439
+   },
+   "baseline_latency_s": 24.1,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "Toward Efficient and Scalable Design of In-Memory Graph-Based Vector Search",
+     "authors": [
+      "Ilias Azizi",
+      "Karima Echihab",
+      "Themis Palpanas"
+     ],
+     "year": 2025,
+     "status": "unchecked",
+     "title_similarity": 0.681,
+     "matched_title": "Efficient and Scalable Motif Discovery using Graph-based Search",
+     "relevance": 0.743
+    },
+    {
+     "title": "A Memory-Efficient Distributed Algorithm for Approximate Nearest Neighbour Search with Arbitrary Distances",
+     "authors": [
+      "Elena Garcia-Morato",
+      "Maria Jesus Algar",
+      "Cesar Alfaro"
+     ],
+     "year": 2024,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "A Memory-Efficient Distributed Algorithm for Approximate Nearest Neighbour Search With Arbitrary Distances",
+     "relevance": 0.798
+    },
+    {
+     "title": "GrAND: GPU-based Dynamic Graph Indexes for Approximate Nearest Neighbour Search",
+     "authors": [
+      "Karthik Venkatasubba",
+      "Shivendra Deshpande",
+      "Shivram S"
+     ],
+     "year": 2026,
+     "status": "unchecked",
+     "title_similarity": 0.684,
+     "matched_title": "Realtime Registration-Based Tracking via Approximate Nearest Neighbour Search",
+     "relevance": 0.807
+    },
+    {
+     "title": "Memory-efficient Segmentation of High-resolution Volumetric MicroCT Images",
+     "authors": [
+      "Yuan Wang",
+      "Laura Blackie",
+      "Irene Miguel-Aliaga"
+     ],
+     "year": 2022,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Memory-efficient Segmentation of High-resolution Volumetric MicroCT Images",
+     "relevance": 0.536
+    },
+    {
+     "title": "Nearest-Neighbour-Induced Isolation Similarity and its Impact on Density-Based Clustering",
+     "authors": [
+      "Xiaoyu Qin",
+      "Kai Ming Ting",
+      "Ye Zhu"
+     ],
+     "year": 2019,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Nearest-Neighbour-Induced Isolation Similarity and Its Impact on Density-Based Clustering",
+     "relevance": 0.627
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Approximate nearest-neighbour (ANN) search on phones has to fit in a small, shared memory budget. Phones have a few GB of RAM shared with the OS and other apps, no discrete GPU, and strict energy and "
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 4277,
+     "completion_tokens": 864,
+     "latency_s": 9.31,
+     "prompt_chars": 8493,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 7068,
+     "completion_tokens": 5601,
+     "latency_s": 51.57,
+     "prompt_chars": 10245,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 15,
+   "atlas_wall_s": 70.4
+  },
+  {
+   "name": "Code Review Assistant",
+   "kind": "research",
+   "baseline_citations": [
+    {
+     "title": "Automating Code Review Activities by Large-Scale Pre-training",
+     "authors": [
+      "Zhiyu Li",
+      "Shuai Lu",
+      "Daya Guo",
+      "Nan Duan",
+      "Shailesh Jannu",
+      "Grant Jenks",
+      "Deep Majumder",
+      "Jared Green",
+      "Alexey Svyatkovskiy",
+      "Shengyu Fu",
+      "Neel Sundaresan"
+     ],
+     "year": 2022,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Automating code review activities by large-scale pre-training",
+     "relevance": 0.668
+    },
+    {
+     "title": "Towards Automating Code Review Activities",
+     "authors": [
+      "Rosalia Tufano",
+      "Luca Pascarella",
+      "Michele Tufano",
+      "Denys Poshyvanyk",
+      "Gabriele Bavota"
+     ],
+     "year": 2021,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Towards Automating Code Review Activities",
+     "relevance": 0.747
+    },
+    {
+     "title": "Using Pre-Trained Models to Boost Code Review Automation",
+     "authors": [
+      "Rosalia Tufano",
+      "Simone Masiero",
+      "Antonio Mastropaolo",
+      "Luca Pascarella",
+      "Denys Poshyvanyk",
+      "Gabriele Bavota"
+     ],
+     "year": 2022,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Using pre-trained models to boost code review automation",
+     "relevance": 0.787
+    },
+    {
+     "title": "LLaMA-Reviewer: Advancing Code Review Automation with Large Language Models through Parameter-Efficient Fine-Tuning",
+     "authors": [
+      "Junyi Lu",
+      "Lei Yu",
+      "Xiaojia Li",
+      "Li Yang",
+      "Chun Zuo"
+     ],
+     "year": 2023,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "LLaMA-Reviewer: Advancing Code Review Automation with Large Language Models through Parameter-Efficient Fine-Tuning",
+     "relevance": 0.722
+    },
+    {
+     "title": "CORE: Automating Review Recommendation for Code Changes",
+     "authors": [
+      "Jing Kai Siow",
+      "Cuiyun Gao",
+      "Lingling Fan",
+      "Sen Chen",
+      "Yang Liu"
+     ],
+     "year": 2020,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "CORE: Automating Review Recommendation for Code Changes",
+     "relevance": 0.709
+    }
+   ],
+   "baseline_tokens": {
+    "prompt": 1583,
+    "completion": 2562
+   },
+   "baseline_latency_s": 23.52,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "How Do Developers Use Code Suggestions in Pull Request Reviews?",
+     "authors": [
+      "Abir Bouraffa",
+      "Yen Dieu Pham",
+      "Walid Maalej"
+     ],
+     "year": 2025,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "How do Developers Use Code Suggestions in Pull Request Reviews?",
+     "relevance": 0.711
+    },
+    {
+     "title": "Reviewing Beyond the Change: Repository Size and Existing Code Across Agent and Human Pull Requests",
+     "authors": [
+      "Sabry E. Farrag"
+     ],
+     "year": 2026,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Reviewing Beyond the Change: Repository Size and Existing Code Across Agent and Human Pull Requests",
+     "relevance": 0.667
+    },
+    {
+     "title": "These Aren't the Reviews You're Looking For How Humans Review AI-Generated Pull Requests",
+     "authors": [
+      "Kacper Duma",
+      "Patryk Wr\u00f3blewski",
+      "Jagoda Bobi\u0144ska"
+     ],
+     "year": 2026,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "These Aren't the Reviews You're Looking For How Humans Review AI-Generated Pull Requests",
+     "relevance": 0.721
+    },
+    {
+     "title": "How AI Coding Agents Communicate: A Study of Pull Request Description Characteristics and Human Review Responses",
+     "authors": [
+      "Kan Watanabe",
+      "Rikuto Tsuchida",
+      "Takahiro Monno"
+     ],
+     "year": 2026,
+     "status": "verified",
+     "title_similarity": 0.943,
+     "matched_title": "How AI Coding Agents Communicate: A Study of Pull Request Characteristics and Human Review Responses",
+     "relevance": 0.729
+    },
+    {
+     "title": "Rights by Architecture: A Human-Compatible Sociotechnical Layer for Digital Protection Across Regulatory Regimes",
+     "authors": [
+      "Soheil Human"
+     ],
+     "year": 2026,
+     "status": "unchecked",
+     "title_similarity": 0.475,
+     "matched_title": "Human-compatible digital protection: a cornerstone of sustainable digital transformation",
+     "relevance": 0.482
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Human code review is a bottleneck. Reviewer attention is uneven, and many pull requests, especially AI-generated ones, get little or no human review. The project aims to train a neural model on past h"
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 3899,
+     "completion_tokens": 905,
+     "latency_s": 11.54,
+     "prompt_chars": 7604,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 7051,
+     "completion_tokens": 4846,
+     "latency_s": 44.27,
+     "prompt_chars": 10671,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 15,
+   "atlas_wall_s": 64.7
+  },
+  {
+   "name": "Flaky Test Detector",
+   "kind": "research",
+   "baseline_citations": [
+    {
+     "title": "FlakeFlagger: Predicting Flakiness Without Rerunning Tests",
+     "authors": [
+      "Abdulrahman Alshammari",
+      "Christopher Morris",
+      "Michael Hilton",
+      "Jonathan Bell"
+     ],
+     "year": 2021,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "FlakeFlagger: Predicting Flakiness Without Rerunning Tests",
+     "relevance": 0.752
+    },
+    {
+     "title": "What is the Vocabulary of Flaky Tests?",
+     "authors": [
+      "Gustavo Pinto",
+      "Breno Miranda",
+      "Supun Dissanayake",
+      "Marcelo d'Amorim",
+      "Christoph Treude",
+      "Antonia Bertolino"
+     ],
+     "year": 2020,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "What is the Vocabulary of Flaky Tests?",
+     "relevance": 0.703
+    },
+    {
+     "title": "DeFlaker: Automatically Detecting Flaky Tests",
+     "authors": [
+      "Jonathan Bell",
+      "Owolabi Legunsen",
+      "Michael Hilton",
+      "Lamyaa Eloussi",
+      "Tifany Yung",
+      "Darko Marinov"
+     ],
+     "year": 2018,
+     "status": "verified",
+     "title_similarity": 0.967,
+     "matched_title": "D e F laker: automatically detecting flaky tests",
+     "relevance": 0.709
+    },
+    {
+     "title": "An Empirical Analysis of Flaky Tests",
+     "authors": [
+      "Qingzhou Luo",
+      "Farah Hariri",
+      "Lamyaa Eloussi",
+      "Darko Marinov"
+     ],
+     "year": 2014,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "An empirical analysis of flaky tests",
+     "relevance": 0.733
+    },
+    {
+     "title": "iDFlakies: A Framework for Detecting and Partially Classifying Flaky Tests",
+     "authors": [
+      "Wing Lam",
+      "Reed Oei",
+      "August Shi",
+      "Darko Marinov",
+      "Tao Xie"
+     ],
+     "year": 2019,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "iDFlakies: A Framework for Detecting and Partially Classifying Flaky Tests",
+     "relevance": 0.725
+    }
+   ],
+   "baseline_tokens": {
+    "prompt": 1583,
+    "completion": 1939
+   },
+   "baseline_latency_s": 18.72,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "Reduction of Test Re-runs by Prioritizing Potential Order Dependent Flaky Tests",
+     "authors": [
+      "Hasnain Iqbal",
+      "Zerina Begum",
+      "Kazi Sakib"
+     ],
+     "year": 2025,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Reduction of Test Re-runs by Prioritizing Potential Order Dependent Flaky Tests",
+     "relevance": 0.671
+    },
+    {
+     "title": "Flaky Tests in a Large Industrial Database Management System: An Empirical Study of Fixed Issue Reports for SAP HANA",
+     "authors": [
+      "Alexander Berndt",
+      "Thomas Bach",
+      "Sebastian Baltes"
+     ],
+     "year": 2026,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Flaky Tests in a Large Industrial Database Management System: An Empirical Study of Fixed Issue Reports for SAP HANA",
+     "relevance": 0.638
+    },
+    {
+     "title": "Practical Flaky Test Prediction using Common Code Evolution and Test History Data",
+     "authors": [
+      "Martin Gruber",
+      "Michael Heine",
+      "Norbert Oster"
+     ],
+     "year": 2023,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Practical Flaky Test Prediction using Common Code Evolution and Test History Data",
+     "relevance": 0.853
+    },
+    {
+     "title": "FlakyFix: Using Large Language Models for Predicting Flaky Test Fix Categories and Test Code Repair",
+     "authors": [
+      "Sakina Fatima",
+      "Hadi Hemmati",
+      "Lionel Briand"
+     ],
+     "year": 2023,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "FlakyFix: Using Large Language Models for Predicting Flaky Test Fix Categories and Test Code Repair",
+     "relevance": 0.749
+    },
+    {
+     "title": "On the use of test smells for prediction of flaky tests",
+     "authors": [
+      "B. H. P. Camara",
+      "M. A. G. Silva",
+      "A. T. Endo"
+     ],
+     "year": 2021,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "On the use of test smells for prediction of flaky tests",
+     "relevance": 0.746
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Flaky tests pass and fail on the same code. They erode trust in CI, waste compute and developer time, and hide real regressions. The usual way to find them is to re-run tests many times, often hundred"
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 4270,
+     "completion_tokens": 763,
+     "latency_s": 9.03,
+     "prompt_chars": 8898,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 6903,
+     "completion_tokens": 4781,
+     "latency_s": 41.79,
+     "prompt_chars": 10097,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 16,
+   "atlas_wall_s": 58.1
+  },
+  {
+   "name": "Medical Image Triage",
+   "kind": "research",
+   "baseline_citations": [
+    {
+     "title": "Automated Triaging of Adult Chest Radiographs with Deep Artificial Neural Networks",
+     "authors": [
+      "Mauro Annarumma",
+      "Samuel J. Withey",
+      "Robert J. Bakewell",
+      "Emanuele Pesce",
+      "Vicky Goh",
+      "Giovanni Montana"
+     ],
+     "year": 2019,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Automated Triaging of Adult Chest Radiographs with Deep Artificial Neural Networks",
+     "relevance": 0.76
+    },
+    {
+     "title": "Development and Validation of a Deep Learning\u2013Based Automated Detection Algorithm for Major Thoracic Diseases on Chest Radiographs",
+     "authors": [
+      "Eui Jin Hwang",
+      "Sunggyun Park",
+      "Kwang-Nam Jin",
+      "Jung Im Kim",
+      "So Young Choi",
+      "Jong Hyuk Lee",
+      "Jin Mo Goo",
+      "Jaehong Aum",
+      "Jae-Joon Yim",
+      "Julien G. Cohen",
+      "Gilbert R. Ferretti",
+      "Chang Min Park"
+     ],
+     "year": 2019,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Development and Validation of a Deep Learning\u2013Based Automated Detection Algorithm for Major Thoracic Diseases on Chest Radiographs",
+     "relevance": 0.77
+    },
+    {
+     "title": "CheXNet: Radiologist-Level Pneumonia Detection on Chest X-Rays with Deep Learning",
+     "authors": [
+      "Pranav Rajpurkar",
+      "Jeremy Irvin",
+      "Kaylie Zhu",
+      "Brandon Yang",
+      "Hershel Mehta",
+      "Tony Duan",
+      "Daisy Ding",
+      "Aarti Bagul",
+      "Curtis Langlotz",
+      "Katie Shpanskaya",
+      "Matthew P. Lungren",
+      "Andrew Y. Ng"
+     ],
+     "year": 2017,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "CheXNet: Radiologist-Level Pneumonia Detection on Chest X-Rays with Deep Learning",
+     "relevance": 0.74
+    },
+    {
+     "title": "ChestX-ray8: Hospital-scale Chest X-ray Database and Benchmarks on Weakly-Supervised Classification and Localization of Common Thorax Diseases",
+     "authors": [
+      "Xiaosong Wang",
+      "Yifan Peng",
+      "Le Lu",
+      "Zhiyong Lu",
+      "Mohammadhadi Bagheri",
+      "Ronald M. Summers"
+     ],
+     "year": 2017,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "ChestX-Ray8: Hospital-Scale Chest X-Ray Database and Benchmarks on Weakly-Supervised Classification and Localization of Common Thorax Diseases",
+     "relevance": 0.722
+    },
+    {
+     "title": "CheXpert: A Large Chest Radiograph Dataset with Uncertainty Labels and Expert Comparison",
+     "authors": [
+      "Jeremy Irvin",
+      "Pranav Rajpurkar",
+      "Michael Ko",
+      "Yifan Yu",
+      "Silviana Ciurea-Ilcus",
+      "Chris Chute",
+      "Henrik Marklund",
+      "Behzad Haghgoo",
+      "Robyn Ball",
+      "Katie Shpanskaya",
+      "Jayne Seekins",
+      "David A. Mong",
+      "Safwan S. Halabi",
+      "Jesse K. Sandberg",
+      "Ricky Jones",
+      "David B. Larson",
+      "Curtis P. Langlotz",
+      "Bhavik N. Patel",
+      "Matthew P. Lungren",
+      "Andrew Y. Ng"
+     ],
+     "year": 2019,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "CheXpert: A Large Chest Radiograph Dataset with Uncertainty Labels and Expert Comparison",
+     "relevance": 0.67
+    }
+   ],
+   "baseline_tokens": {
+    "prompt": 1597,
+    "completion": 3310
+   },
+   "baseline_latency_s": 27.69,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "Towards Clinical Practice: Design and Implementation of Convolutional Neural Network-Based Assistive Diagnosis System for COVID-19 Case Detection from Chest X-Ray Images",
+     "authors": [
+      "Daniel Kvak",
+      "Marian Bendik",
+      "Anna Chromcova"
+     ],
+     "year": 2022,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Towards Clinical Practice: Design and Implementation of Convolutional Neural Network-Based Assistive Diagnosis System for COVID-19 Case Detection from Chest X-Ray Images",
+     "relevance": 0.752
+    },
+    {
+     "title": "Extracting and Learning Fine-Grained Labels from Chest Radiographs",
+     "authors": [
+      "Tanveer Syeda-Mahmood",
+      "Ph. D",
+      "K. C. L Wong"
+     ],
+     "year": 2020,
+     "status": "unchecked",
+     "title_similarity": 0.573,
+     "matched_title": "Weakly supervised clustering: Learning fine-grained signals from coarse labels",
+     "relevance": 0.74
+    },
+    {
+     "title": "A Tutorial about Random Neural Networks in Supervised Learning",
+     "authors": [
+      "Sebasti\u00e1n Basterrech",
+      "Gerardo Rubino"
+     ],
+     "year": 2016,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+     "relevance": 0.536
+    },
+    {
+     "title": "A Classical-Quantum Convolutional Neural Network for Detecting Pneumonia from Chest Radiographs",
+     "authors": [
+      "Viraj Kulkarni",
+      "Sanjesh Pawale",
+      "Amit Kharat"
+     ],
+     "year": 2022,
+     "status": "verified",
+     "title_similarity": 0.995,
+     "matched_title": "A classical\u2013quantum convolutional neural network for detecting pneumonia from chest radiographs",
+     "relevance": 0.734
+    },
+    {
+     "title": "CheXNet: Radiologist-Level Pneumonia Detection on Chest X-Rays with Deep Learning",
+     "authors": [
+      "Pranav Rajpurkar",
+      "Jeremy Irvin",
+      "Kaylie Zhu"
+     ],
+     "year": 2017,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "CheXNet: Radiologist-Level Pneumonia Detection on Chest X-Rays with Deep Learning",
+     "relevance": 0.74
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Radiology worklists are usually read first-in, first-out, so a chest X-ray showing an urgent finding can wait in the queue behind routine studies. The project needs a CNN-based classifier that gives e"
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 3592,
+     "completion_tokens": 704,
+     "latency_s": 7.79,
+     "prompt_chars": 6472,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 6926,
+     "completion_tokens": 5585,
+     "latency_s": 51.72,
+     "prompt_chars": 9924,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 15,
+   "atlas_wall_s": 67.7
+  },
+  {
+   "name": "Robot Grasp Planning",
+   "kind": "research",
+   "baseline_citations": [
+    {
+     "title": "Dex-Net 2.0: Deep Learning to Plan Robust Grasps with Synthetic Point Clouds and Analytic Grasp Metrics",
+     "authors": [
+      "Jeffrey Mahler",
+      "Jacky Liang",
+      "Sherdil Niyaz",
+      "Michael Laskey",
+      "Richard Doan",
+      "Xinyu Liu",
+      "Juan Aparicio Ojea",
+      "Ken Goldberg"
+     ],
+     "year": 2017,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Dex-Net 2.0: Deep Learning to Plan Robust Grasps with Synthetic Point Clouds and Analytic Grasp Metrics",
+     "relevance": 0.715
+    },
+    {
+     "title": "Learning ambidextrous robot grasping policies",
+     "authors": [
+      "Jeffrey Mahler",
+      "Matthew Matl",
+      "Vishal Satish",
+      "Michael Danielczuk",
+      "Bill DeRose",
+      "Stephen McKinley",
+      "Ken Goldberg"
+     ],
+     "year": 2019,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Learning ambidextrous robot grasping policies",
+     "relevance": 0.658
+    },
+    {
+     "title": "Closing the Loop for Robotic Grasping: A Real-time, Generative Grasp Synthesis Approach",
+     "authors": [
+      "Douglas Morrison",
+      "Peter Corke",
+      "J\u00fcrgen Leitner"
+     ],
+     "year": 2018,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Closing the Loop for Robotic Grasping: A Real-time, Generative Grasp Synthesis Approach",
+     "relevance": 0.722
+    },
+    {
+     "title": "Grasp Pose Detection in Point Clouds",
+     "authors": [
+      "Andreas ten Pas",
+      "Marcus Gualtieri",
+      "Kate Saenko",
+      "Robert Platt"
+     ],
+     "year": 2017,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Grasp Pose Detection in Point Clouds",
+     "relevance": 0.66
+    },
+    {
+     "title": "Contact-GraspNet: Efficient 6-DoF Grasp Generation in Cluttered Scenes",
+     "authors": [
+      "Martin Sundermeyer",
+      "Arsalan Mousavian",
+      "Rudolph Triebel",
+      "Dieter Fox"
+     ],
+     "year": 2021,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Contact-GraspNet: Efficient 6-DoF Grasp Generation in Cluttered Scenes",
+     "relevance": 0.68
+    }
+   ],
+   "baseline_tokens": {
+    "prompt": 1590,
+    "completion": 2221
+   },
+   "baseline_latency_s": 20.14,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "Attend2Pack: Bin Packing through Deep Reinforcement Learning with Attention",
+     "authors": [
+      "Jingwei Zhang",
+      "Bin Zi",
+      "Xiaoyu Ge"
+     ],
+     "year": 2021,
+     "status": "unchecked",
+     "title_similarity": 0.6,
+     "matched_title": "Solving Online 3D Multi-Bin Packing Problem with Deep Reinforcement Learning",
+     "relevance": 0.675
+    },
+    {
+     "title": "Deep Transfer Learning of Pick Points on Fabric for Robot Bed-Making",
+     "authors": [
+      "Daniel Seita",
+      "Nawid Jamali",
+      "Michael Laskey"
+     ],
+     "year": 2018,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Deep Transfer Learning of\u00a0Pick Points on\u00a0Fabric for\u00a0Robot Bed-Making",
+     "relevance": 0.752
+    },
+    {
+     "title": "Learning a visuomotor controller for real world robotic grasping using simulated depth images",
+     "authors": [
+      "Ulrich Viereck",
+      "Andreas ten Pas",
+      "Kate Saenko"
+     ],
+     "year": 2017,
+     "status": "unchecked",
+     "title_similarity": 0.701,
+     "matched_title": "Learning visuomotor controllers in simulation for real-world robotic manipulation",
+     "relevance": 0.749
+    },
+    {
+     "title": "Robot Learning of Shifting Objects for Grasping in Cluttered Environments",
+     "authors": [
+      "Lars Berscheid",
+      "Pascal Mei\u00dfner",
+      "Torsten Kr\u00f6ger"
+     ],
+     "year": 2019,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Robot Learning of Shifting Objects for Grasping in Cluttered Environments",
+     "relevance": 0.794
+    },
+    {
+     "title": "Suction Grasp Region Prediction using Self-supervised Learning for Object Picking in Dense Clutter",
+     "authors": [
+      "Quanquan Shao",
+      "Jie Hu",
+      "Weiming Wang"
+     ],
+     "year": 2019,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Suction Grasp Region Prediction Using Self-supervised Learning for Object Picking in Dense Clutter",
+     "relevance": 0.754
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "A robot arm has to pick up objects it has never seen before from a cluttered bin. It gets no object models, no object recognition and no pose estimation. The system must predict good grasp poses direc"
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 3623,
+     "completion_tokens": 715,
+     "latency_s": 8.11,
+     "prompt_chars": 6545,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 6851,
+     "completion_tokens": 4835,
+     "latency_s": 43.65,
+     "prompt_chars": 9873,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 17,
+   "atlas_wall_s": 61.2
+  },
+  {
+   "name": "Invoice Parser",
+   "kind": "engineering",
+   "baseline_citations": [
+    {
+     "title": "CloudScan - A configuration-free invoice analysis system using recurrent neural networks",
+     "authors": [
+      "Rasmus Berg Palm",
+      "Ole Winther",
+      "Florian Laws"
+     ],
+     "year": 2017,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "CloudScan - A Configuration-Free Invoice Analysis System Using Recurrent Neural Networks",
+     "relevance": 0.557
+    },
+    {
+     "title": "Chargrid: Towards Understanding 2D Documents",
+     "authors": [
+      "Anoop R. Katti",
+      "Christian Reisswig",
+      "Cordula Guder",
+      "Sebastian Brarda",
+      "Steffen Bickel",
+      "Johannes H\u00f6hne",
+      "Jean Baptiste Faddoul"
+     ],
+     "year": 2018,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Chargrid: Towards Understanding 2D Documents",
+     "relevance": 0.506
+    },
+    {
+     "title": "LayoutLM: Pre-training of Text and Layout for Document Image Understanding",
+     "authors": [
+      "Yiheng Xu",
+      "Minghao Li",
+      "Lei Cui",
+      "Shaohan Huang",
+      "Furu Wei",
+      "Ming Zhou"
+     ],
+     "year": 2020,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "LayoutLM: Pre-training of Text and Layout for Document Image Understanding",
+     "relevance": 0.525
+    },
+    {
+     "title": "LayoutLMv3: Pre-training for Document AI with Unified Text and Image Masking",
+     "authors": [
+      "Yupan Huang",
+      "Tengchao Lv",
+      "Lei Cui",
+      "Yutong Lu",
+      "Furu Wei"
+     ],
+     "year": 2022,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "LayoutLMv3: Pre-training for Document AI with Unified Text and Image Masking",
+     "relevance": 0.511
+    },
+    {
+     "title": "OCR-free Document Understanding Transformer",
+     "authors": [
+      "Geewook Kim",
+      "Teakgyu Hong",
+      "Moonbin Yim",
+      "Jeongyeon Nam",
+      "Jinyoung Park",
+      "Jinyeong Yim",
+      "Wonseok Hwang",
+      "Sangdoo Yun",
+      "Dongyoon Han",
+      "Seunghyun Park"
+     ],
+     "year": 2022,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "OCR-free Document Understanding Transformer",
+     "relevance": 0.507
+    }
+   ],
+   "baseline_tokens": {
+    "prompt": 1590,
+    "completion": 2225
+   },
+   "baseline_latency_s": 20.57,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "Abstractive Information Extraction from Scanned Invoices (AIESI) using End-to-end Sequential Approach",
+     "authors": [
+      "Shreeshiv Patel",
+      "Dvijesh Bhatt"
+     ],
+     "year": 2020,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Abstractive Information Extraction from Scanned Invoices (AIESI) using End-to-end Sequential Approach",
+     "relevance": 0.687
+    },
+    {
+     "title": "Interpol review of digital evidence for 2019\u20132022",
+     "authors": [
+      "Paul Reedy"
+     ],
+     "year": 2023,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Interpol review of digital evidence for 2019\u20132022",
+     "relevance": 0.528
+    },
+    {
+     "title": "Invoice Information Extraction: Methods and Performance Evaluation",
+     "authors": [
+      "Sai Yashwant",
+      "Anurag Dubey",
+      "Praneeth Paikray"
+     ],
+     "year": 2025,
+     "status": "unchecked",
+     "title_similarity": 0.511,
+     "matched_title": "Information Extraction from Multi-Layout Invoice Images using FATURA Dataset",
+     "relevance": 0.689
+    },
+    {
+     "title": "Conceptual Model for Raising Accounts Payable Accuracy Through Process Intelligence in Research Institutions",
+     "authors": [
+      "Ajibola Oluwafemi Oyeleye",
+      "Onyeka Franca Asuzu",
+      "Adaobi Vivian Ibeh"
+     ],
+     "year": 2024,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Conceptual Model for Raising Accounts Payable Accuracy Through Process Intelligence in Research Institutions",
+     "relevance": 0.45
+    },
+    {
+     "title": "Information Extraction from Scanned Invoice Images using Text Analysis and Layout Features",
+     "authors": [
+      "Hien Thi Ha",
+      "Ale\u0161 Hor\u00e1k"
+     ],
+     "year": 2022,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Information extraction from scanned invoice images using text analysis and layout features",
+     "relevance": 0.709
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Supplier invoices arrive as PDFs in two forms: born-digital files with an embedded text layer, and scanned images that need OCR. Supplier layouts vary widely. The Invoice Parser has to extract header "
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 3716,
+     "completion_tokens": 588,
+     "latency_s": 7.41,
+     "prompt_chars": 6927,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 6760,
+     "completion_tokens": 5696,
+     "latency_s": 52.78,
+     "prompt_chars": 9641,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 18,
+   "atlas_wall_s": 68.1
+  },
+  {
+   "name": "Rate Limiter Service",
+   "kind": "engineering",
+   "baseline_citations": [
+    {
+     "title": "Cloud Control with Distributed Rate Limiting",
+     "authors": [
+      "Barath Raghavan",
+      "Kashi Vishwanath",
+      "Sriram Ramabhadran",
+      "Kenneth Yocum",
+      "Alex C. Snoeren"
+     ],
+     "year": 2007,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Cloud control with distributed rate limiting",
+     "relevance": 0.734
+    },
+    {
+     "title": "Fully Decentralized Emulation of Best-Effort and Processor Sharing Queues",
+     "authors": [
+      "Rade Stanojevi\u0107",
+      "Robert Shorten"
+     ],
+     "year": 2008,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Fully decentralized emulation of best-effort and processor sharing queues",
+     "relevance": 0.604
+    },
+    {
+     "title": "Conflict-free Replicated Data Types",
+     "authors": [
+      "Marc Shapiro",
+      "Nuno Pregui\u00e7a",
+      "Carlos Baquero",
+      "Marek Zawirski"
+     ],
+     "year": 2011,
+     "status": "verified",
+     "title_similarity": 0.921,
+     "matched_title": "Conflict-Free Replicated Data Types CRDTs",
+     "relevance": 0.523
+    },
+    {
+     "title": "An Improved Data Stream Summary: The Count-Min Sketch and its Applications",
+     "authors": [
+      "Graham Cormode",
+      "S. Muthukrishnan"
+     ],
+     "year": 2005,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "An improved data stream summary: the count-min sketch and its applications",
+     "relevance": 0.486
+    },
+    {
+     "title": "Breakwater: Overload Control for \u00b5s-scale RPCs",
+     "authors": [
+      "Inho Cho",
+      "Ahmed Saeed",
+      "Joshua Fried",
+      "Seo Jin Park",
+      "Mohammad Alizadeh",
+      "Adam Belay"
+     ],
+     "year": 2020,
+     "status": "unchecked",
+     "title_similarity": 0.52,
+     "matched_title": "CoreSync: A Protocol for Joint Core Scheduling and Overload Control of \u00b5s-Scale Tasks",
+     "relevance": 0.587
+    }
+   ],
+   "baseline_tokens": {
+    "prompt": 1589,
+    "completion": 2553
+   },
+   "baseline_latency_s": 25.37,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "Computational efficiency of numerical integration methods for the tangent dynamics of many-body Hamiltonian systems in one and two spatial dimensions",
+     "authors": [
+      "Carlo Danieli",
+      "Bertin Many Manda",
+      "Mithun Thudiyangal"
+     ],
+     "year": 2018,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Computational efficiency of numerical integration methods for the tangent dynamics of many-body Hamiltonian systems in one and two spatial dimensions",
+     "relevance": 0.406
+    },
+    {
+     "title": "Twelve Years of Education and Public Outreach with the Fermi Gamma-ray Space Telescope",
+     "authors": [
+      "Lynn Cominsky",
+      "Kevin McLin",
+      "Aurore Simonnet"
+     ],
+     "year": 2013,
+     "status": "unchecked",
+     "title_similarity": 0.644,
+     "matched_title": "Observations de pulsars avec le Fermi gamma-ray space telescope",
+     "relevance": 0.379
+    },
+    {
+     "title": "Urban Limits as Design Constraints: Identifying Suitable Locations for Distributed, Photovoltaic-Powered Servers",
+     "authors": [
+      "Justin Chikhaoui",
+      "Thomas Leduc",
+      "Daniel Siret"
+     ],
+     "year": 2026,
+     "status": "unchecked",
+     "title_similarity": 0.453,
+     "matched_title": "GIS Techniques for Suitable Locations for Urban Green Space in District 2 of Tabriz, City, Iran",
+     "relevance": 0.574
+    },
+    {
+     "title": "Rate Control under Heavy Traffic with Strategic Servers",
+     "authors": [
+      "Erhan Bayraktar",
+      "Amarjit Budhiraja",
+      "Asaf Cohen"
+     ],
+     "year": 2016,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Rate control under heavy traffic with strategic servers",
+     "relevance": 0.619
+    },
+    {
+     "title": "Distributed Ride-Matching for Shared Ridehailing Service with Intelligent City Infrastructure",
+     "authors": [
+      "Seyed Mehdi Meshkani",
+      "Bilal Farooq"
+     ],
+     "year": 2022,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Distributed Ride-Matching for Shared Ridehailing Service with Intelligent City Infrastructure",
+     "relevance": 0.544
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Public APIs served by many stateless server instances need per-client request limits (for example N requests per window per API key or IP) that hold no matter which instance gets each request. If ever"
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 3751,
+     "completion_tokens": 915,
+     "latency_s": 10.14,
+     "prompt_chars": 6857,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 7115,
+     "completion_tokens": 4890,
+     "latency_s": 44.4,
+     "prompt_chars": 10622,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 12,
+   "atlas_wall_s": 62.2
+  },
+  {
+   "name": "Feature Flag Platform",
+   "kind": "engineering",
+   "baseline_citations": [
+    {
+     "title": "Holistic Configuration Management at Facebook",
+     "authors": [
+      "Chunqiang Tang",
+      "Thawan Kooburat",
+      "Pradeep Venkatachalam",
+      "Akshay Chander",
+      "Zhe Wen",
+      "Aravind Narayanan",
+      "Patrick Dowell",
+      "Robert Karl"
+     ],
+     "year": 2015,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Holistic configuration management at Facebook",
+     "relevance": 0.512
+    },
+    {
+     "title": "Feature Toggles: Practitioner Practices and a Case Study",
+     "authors": [
+      "Md Tajmilur Rahman",
+      "Louis-Philippe Querel",
+      "Peter C. Rigby",
+      "Bram Adams"
+     ],
+     "year": 2016,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Feature toggles: practitioner practices and a case study",
+     "relevance": 0.528
+    },
+    {
+     "title": "Software Development with Feature Toggles: Practices Used by Practitioners",
+     "authors": [
+      "Rezvan Mahdavi-Hezaveh",
+      "Jacob Dremann",
+      "Laurie Williams"
+     ],
+     "year": 2021,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Software development with feature toggles: practices used by practitioners",
+     "relevance": 0.59
+    },
+    {
+     "title": "Overlapping Experiment Infrastructure: More, Better, Faster Experimentation",
+     "authors": [
+      "Diane Tang",
+      "Ashish Agarwal",
+      "Deirdre O'Brien",
+      "Mike Meyer"
+     ],
+     "year": 2010,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Overlapping experiment infrastructure: more, better, faster experimentation",
+     "relevance": 0.467
+    },
+    {
+     "title": "Practical Guide to Controlled Experiments on the Web: Listen to Your Customers not to the HiPPO",
+     "authors": [
+      "Ron Kohavi",
+      "Randal M. Henne",
+      "Dan Sommerfield"
+     ],
+     "year": 2007,
+     "status": "unchecked",
+     "title_similarity": 0.712,
+     "matched_title": "Practical guide to controlled experiments on the web",
+     "relevance": 0.467
+    }
+   ],
+   "baseline_tokens": {
+    "prompt": 1591,
+    "completion": 2155
+   },
+   "baseline_latency_s": 20.74,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "Label-dependent Feature Extraction in Social Networks for Node Classification",
+     "authors": [
+      "Tomasz Kajdanowicz",
+      "Przemyslaw Kazienko",
+      "Piotr Doskocz"
+     ],
+     "year": 2013,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Label-Dependent Feature Extraction in Social Networks for Node Classification",
+     "relevance": 0.463
+    },
+    {
+     "title": "A Composite Design Pattern for Service Injection and Composition of Web Services for Peer-To-Peer Computing with Service Oriented Architecture",
+     "authors": [
+      "Vishnuvardhan Mannava",
+      "T. Ramesh"
+     ],
+     "year": 2012,
+     "status": "verified",
+     "title_similarity": 0.996,
+     "matched_title": "A Composite Design Pattern for Service Injection and Composition of Web Services for Peer-To-Peer Computing with Serviceoriented Architecture",
+     "relevance": 0.497
+    },
+    {
+     "title": "A Software-Defined Networking Solution for Transparent Session and Service Continuity in Dynamic Multi-Access Edge Computing",
+     "authors": [
+      "Pablo Fondo-Ferreiro",
+      "Felipe Gil-Casti\u00f1eira",
+      "Francisco Javier Gonz\u00e1lez-Casta\u00f1o"
+     ],
+     "year": 2020,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "A Software-Defined Networking Solution for Transparent Session and Service Continuity in Dynamic Multi-Access Edge Computing",
+     "relevance": 0.525
+    },
+    {
+     "title": "Ultra-Reliable and Low Latency Communication in mmWave-Enabled Massive MIMO Networks",
+     "authors": [
+      "Trung Kien Vu",
+      "Chen-Feng Liu",
+      "Mehdi Bennis"
+     ],
+     "year": 2017,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Ultra-Reliable and Low Latency Communication in mmWave-Enabled Massive MIMO Networks",
+     "relevance": 0.54
+    },
+    {
+     "title": "Tiered-Latency DRAM (TL-DRAM)",
+     "authors": [
+      "Donghyuk Lee",
+      "Yoongu Kim",
+      "Vivek Seshadri"
+     ],
+     "year": 2016,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Tiered-Latency DRAM (TL-DRAM)",
+     "relevance": 0.544
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Teams need to turn features on for a set percentage of users and roll them back instantly without a deploy. Today, releasing or reverting a feature is tied to the deploy pipeline. That makes rollbacks"
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 3532,
+     "completion_tokens": 823,
+     "latency_s": 9.57,
+     "prompt_chars": 6134,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 7051,
+     "completion_tokens": 5620,
+     "latency_s": 52.3,
+     "prompt_chars": 10429,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 15,
+   "atlas_wall_s": 69.7
+  },
+  {
+   "name": "Mobile Offline Sync",
+   "kind": "engineering",
+   "baseline_citations": [
+    {
+     "title": "Disconnected Operation in the Coda File System",
+     "authors": [
+      "James J. Kistler",
+      "M. Satyanarayanan"
+     ],
+     "year": 1992,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Disconnected operation in the Coda file system",
+     "relevance": 0.481
+    },
+    {
+     "title": "Managing Update Conflicts in Bayou, a Weakly Connected Replicated Storage System",
+     "authors": [
+      "Douglas B. Terry",
+      "Marvin M. Theimer",
+      "Karin Petersen",
+      "Alan J. Demers",
+      "Mike J. Spreitzer",
+      "Carl H. Hauser"
+     ],
+     "year": 1995,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Managing update conflicts in Bayou, a weakly connected replicated storage system",
+     "relevance": 0.607
+    },
+    {
+     "title": "Conflict-free Replicated Data Types",
+     "authors": [
+      "Marc Shapiro",
+      "Nuno Pregui\u00e7a",
+      "Carlos Baquero",
+      "Marek Zawirski"
+     ],
+     "year": 2011,
+     "status": "verified",
+     "title_similarity": 0.921,
+     "matched_title": "Conflict-Free Replicated Data Types CRDTs",
+     "relevance": 0.546
+    },
+    {
+     "title": "A Conflict-Free Replicated JSON Datatype",
+     "authors": [
+      "Martin Kleppmann",
+      "Alastair R. Beresford"
+     ],
+     "year": 2017,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "A Conflict-Free Replicated JSON Datatype",
+     "relevance": 0.546
+    },
+    {
+     "title": "Local-First Software: You Own Your Data, in Spite of the Cloud",
+     "authors": [
+      "Martin Kleppmann",
+      "Adam Wiggins",
+      "Peter van Hardenberg",
+      "Mark McGranaghan"
+     ],
+     "year": 2019,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Local-first software: you own your data, in spite of the cloud",
+     "relevance": 0.62
+    }
+   ],
+   "baseline_tokens": {
+    "prompt": 1588,
+    "completion": 1724
+   },
+   "baseline_latency_s": 16.46,
+   "baseline_error": "",
+   "atlas_citations": [],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 3,
+     "succeeded": false,
+     "errors": [
+      "ProposalValidationError: Opportunity must reference at least one finding index.",
+      "ProposalValidationError: Opportunity must reference at least one finding index.",
+      "ProposalValidationError: Opportunity must reference at least one finding index."
+     ],
+     "headline": ""
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 5082,
+     "completion_tokens": 2758,
+     "latency_s": 30.49,
+     "prompt_chars": 5421,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 2,
+     "prompt_tokens": 13188,
+     "completion_tokens": 5811,
+     "latency_s": 53.7,
+     "prompt_chars": 5421,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 3,
+     "prompt_tokens": 5082,
+     "completion_tokens": 3030,
+     "latency_s": 35.24,
+     "prompt_chars": 5421,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 0,
+   "atlas_wall_s": 165.1
+  },
+  {
+   "name": "Recipe Recommender",
+   "kind": "engineering",
+   "baseline_citations": [
+    {
+     "title": "Intelligent Food Planning: Personalized Recipe Recommendation",
+     "authors": [
+      "Jill Freyne",
+      "Shlomo Berkovsky"
+     ],
+     "year": 2010,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Intelligent food planning: personalized recipe recommendation",
+     "relevance": 0.7
+    },
+    {
+     "title": "Recipe Recommendation Using Ingredient Networks",
+     "authors": [
+      "Chun-Yuen Teng",
+      "Yu-Ru Lin",
+      "Lada A. Adamic"
+     ],
+     "year": 2012,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Recipe recommendation using ingredient networks",
+     "relevance": 0.757
+    },
+    {
+     "title": "Matrix Factorization Techniques for Recommender Systems",
+     "authors": [
+      "Yehuda Koren",
+      "Robert Bell",
+      "Chris Volinsky"
+     ],
+     "year": 2009,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Matrix Factorization Techniques for Recommender Systems",
+     "relevance": 0.597
+    },
+    {
+     "title": "Food Recommender Systems: Important Contributions, Challenges and Future Research Directions",
+     "authors": [
+      "Christoph Trattner",
+      "David Elsweiler"
+     ],
+     "year": 2017,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Food Recommender Systems: Important Contributions, Challenges and Future Research Directions",
+     "relevance": 0.707
+    },
+    {
+     "title": "Generating Personalized Recipes from Historical User Preferences",
+     "authors": [
+      "Bodhisattwa Prasad Majumder",
+      "Shuyang Li",
+      "Jianmo Ni",
+      "Julian McAuley"
+     ],
+     "year": 2019,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Generating Personalized Recipes from Historical User Preferences",
+     "relevance": 0.716
+    }
+   ],
+   "baseline_tokens": {
+    "prompt": 1592,
+    "completion": 1851
+   },
+   "baseline_latency_s": 18.76,
+   "baseline_error": "",
+   "atlas_citations": [],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 3,
+     "succeeded": false,
+     "errors": [
+      "ProposalValidationError: Opportunity must reference at least one finding index.",
+      "ProposalValidationError: Opportunity must reference at least one finding index.",
+      "ProposalValidationError: Opportunity must reference at least one finding index."
+     ],
+     "headline": ""
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 5083,
+     "completion_tokens": 2928,
+     "latency_s": 32.0,
+     "prompt_chars": 5420,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 2,
+     "prompt_tokens": 5084,
+     "completion_tokens": 2915,
+     "latency_s": 30.84,
+     "prompt_chars": 5420,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 3,
+     "prompt_tokens": 5081,
+     "completion_tokens": 2043,
+     "latency_s": 22.61,
+     "prompt_chars": 5420,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 0,
+   "atlas_wall_s": 119.7
+  },
+  {
+   "name": "Payment Reconciliation",
+   "kind": "engineering",
+   "baseline_citations": [
+    {
+     "title": "A Theory for Record Linkage",
+     "authors": [
+      "Ivan P. Fellegi",
+      "Alan B. Sunter"
+     ],
+     "year": 1969,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "A Theory for Record Linkage",
+     "relevance": 0.464
+    },
+    {
+     "title": "Duplicate Record Detection: A Survey",
+     "authors": [
+      "Ahmed K. Elmagarmid",
+      "Panagiotis G. Ipeirotis",
+      "Vassilios S. Verykios"
+     ],
+     "year": 2007,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Duplicate Record Detection: A Survey",
+     "relevance": 0.479
+    },
+    {
+     "title": "A Comparison of String Distance Metrics for Name-Matching Tasks",
+     "authors": [
+      "William W. Cohen",
+      "Pradeep Ravikumar",
+      "Stephen E. Fienberg"
+     ],
+     "year": 2003,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "A comparison of string distance metrics for name-matching tasks",
+     "relevance": 0.477
+    },
+    {
+     "title": "Deep Learning for Entity Matching: A Design Space Exploration",
+     "authors": [
+      "Sidharth Mudgal",
+      "Han Li",
+      "Theodoros Rekatsinas",
+      "AnHai Doan",
+      "Youngchoon Park",
+      "Ganesh Krishnan",
+      "Rohit Deep",
+      "Esteban Arcaute",
+      "Vijay Raghavendra"
+     ],
+     "year": 2018,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Deep Learning for Entity Matching: A Design Space Exploration",
+     "relevance": 0.476
+    },
+    {
+     "title": "Deep Entity Matching with Pre-Trained Language Models",
+     "authors": [
+      "Yuliang Li",
+      "Jinfeng Li",
+      "Yoshihiko Suhara",
+      "AnHai Doan",
+      "Wang-Chiew Tan"
+     ],
+     "year": 2020,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Deep entity matching with pre-trained language models",
+     "relevance": 0.486
+    }
+   ],
+   "baseline_tokens": {
+    "prompt": 1592,
+    "completion": 2156
+   },
+   "baseline_latency_s": 23.86,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "Geometrical isomorphisms between categories of fuzzy coverings and fuzzy partitions",
+     "authors": [
+      "Mircea Cimpoeas",
+      "Adrian Gabriel Neacsu"
+     ],
+     "year": 2022,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Geometrical isomorphisms between categories of fuzzy coverings and fuzzy partitions",
+     "relevance": 0.456
+    },
+    {
+     "title": "Fuzzy L languages",
+     "authors": [
+      "Zu-Guo Yu"
+     ],
+     "year": 1998,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Fuzzy L languages",
+     "relevance": 0.38
+    },
+    {
+     "title": "A new equivalence relation to classify the fuzzy subgroups of finite groups",
+     "authors": [
+      "Marius T\u0103rn\u0103uceanu"
+     ],
+     "year": 2015,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "A new equivalence relation to classify the fuzzy subgroups of finite groups",
+     "relevance": 0.44
+    },
+    {
+     "title": "Bisimulation and bisimilarity for fuzzy description logics under the G\u00f6del semantics",
+     "authors": [
+      "Linh Anh Nguyen",
+      "Quang-Thuy Ha",
+      "Ngoc Thanh Nguyen"
+     ],
+     "year": 2020,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Bisimulation and bisimilarity for fuzzy description logics under the G\u00f6del semantics",
+     "relevance": 0.464
+    },
+    {
+     "title": "Fuzzy Discrete Event Systems under Fuzzy Observability and a test-algorithm",
+     "authors": [
+      "Daowen Qiu",
+      "Fuchun Liu"
+     ],
+     "year": 2006,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Fuzzy Discrete-Event Systems Under Fuzzy Observability and a Test Algorithm",
+     "relevance": 0.479
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 3,
+     "succeeded": true,
+     "errors": [
+      "ProposalValidationError: Opportunity must reference at least one finding index.",
+      "ProposalValidationError: Opportunity must reference at least one finding index."
+     ],
+     "headline": "Every night, the Payment Reconciliation system must match bank statement lines to open invoices and payouts in the ledger. Bank data is noisy: references are truncated or mistyped, amounts are netted "
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 5088,
+     "completion_tokens": 2600,
+     "latency_s": 29.23,
+     "prompt_chars": 5426,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 2,
+     "prompt_tokens": 5085,
+     "completion_tokens": 2729,
+     "latency_s": 29.75,
+     "prompt_chars": 5426,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 3,
+     "prompt_tokens": 3725,
+     "completion_tokens": 754,
+     "latency_s": 9.06,
+     "prompt_chars": 6476,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 3,
+     "prompt_tokens": 6821,
+     "completion_tokens": 5857,
+     "latency_s": 56.32,
+     "prompt_chars": 9768,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 16,
+   "atlas_wall_s": 161.0
+  },
+  {
+   "name": "Internal Search",
+   "kind": "engineering",
+   "baseline_citations": [
+    {
+     "title": "The Probabilistic Relevance Framework: BM25 and Beyond",
+     "authors": [
+      "Stephen Robertson",
+      "Hugo Zaragoza"
+     ],
+     "year": 2009,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "The Probabilistic Relevance Framework: BM25 and Beyond",
+     "relevance": 0.465
+    },
+    {
+     "title": "Dense Passage Retrieval for Open-Domain Question Answering",
+     "authors": [
+      "Vladimir Karpukhin",
+      "Barlas O\u011fuz",
+      "Sewon Min",
+      "Patrick Lewis",
+      "Ledell Wu",
+      "Sergey Edunov",
+      "Danqi Chen",
+      "Wen-tau Yih"
+     ],
+     "year": 2020,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Dense Passage Retrieval for Open-Domain Question Answering",
+     "relevance": 0.592
+    },
+    {
+     "title": "ColBERT: Efficient and Effective Passage Search via Contextualized Late Interaction over BERT",
+     "authors": [
+      "Omar Khattab",
+      "Matei Zaharia"
+     ],
+     "year": 2020,
+     "status": "unchecked",
+     "title_similarity": 0.578,
+     "matched_title": "Learned Token Pruning in Contextualized Late Interaction over BERT (ColBERT)",
+     "relevance": 0.605
+    },
+    {
+     "title": "Reciprocal Rank Fusion outperforms Condorcet and individual Rank Learning Methods",
+     "authors": [
+      "Gordon V. Cormack",
+      "Charles L. A. Clarke",
+      "Stefan B\u00fcttcher"
+     ],
+     "year": 2009,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Reciprocal rank fusion outperforms condorcet and individual rank learning methods",
+     "relevance": 0.494
+    },
+    {
+     "title": "BEIR: A Heterogeneous Benchmark for Zero-shot Evaluation of Information Retrieval Models",
+     "authors": [
+      "Nandan Thakur",
+      "Nils Reimers",
+      "Andreas R\u00fcckl\u00e9",
+      "Abhishek Srivastava",
+      "Iryna Gurevych"
+     ],
+     "year": 2021,
+     "status": "verified",
+     "title_similarity": 0.994,
+     "matched_title": "BEIR: A Heterogenous Benchmark for Zero-shot Evaluation of Information Retrieval Models",
+     "relevance": 0.566
+    }
+   ],
+   "baseline_tokens": {
+    "prompt": 1581,
+    "completion": 1986
+   },
+   "baseline_latency_s": 22.3,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "AceWiki: A Natural and Expressive Semantic Wiki",
+     "authors": [
+      "Tobias Kuhn"
+     ],
+     "year": 2008,
+     "status": "unchecked",
+     "title_similarity": 0.47,
+     "matched_title": "General Architecture of a Controlled Natural Language Based Multilingual Semantic Wiki",
+     "relevance": 0.604
+    },
+    {
+     "title": "What Users See - Structures in Search Engine Results Pages",
+     "authors": [
+      "Nadine Hoechstoetter",
+      "Dirk Lewandowski"
+     ],
+     "year": 2015,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "What users see \u2013 Structures in search engine results pages",
+     "relevance": 0.619
+    },
+    {
+     "title": "How Controlled English can Improve Semantic Wikis",
+     "authors": [
+      "Tobias Kuhn"
+     ],
+     "year": 2009,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "How Controlled English can Improve Semantic Wikis",
+     "relevance": 0.601
+    },
+    {
+     "title": "A Multilingual Semantic Wiki Based on Attempto Controlled English and Grammatical Framework",
+     "authors": [
+      "Kaarel Kaljurand",
+      "Tobias Kuhn"
+     ],
+     "year": 2013,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "A Multilingual Semantic Wiki Based on Attempto Controlled English and Grammatical Framework",
+     "relevance": 0.605
+    },
+    {
+     "title": "Multi-keyword multi-click advertisement option contracts for sponsored search",
+     "authors": [
+      "Bowei Chen",
+      "Jun Wang",
+      "Ingemar J. Cox"
+     ],
+     "year": 2013,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Multi-Keyword Multi-Click Advertisement Option Contracts for Sponsored Search",
+     "relevance": 0.628
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Company knowledge is split across the wiki, the ticketing system and chat history, and each has its own search. Users must already know which tool holds the answer and how that tool's search works. Th"
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 3680,
+     "completion_tokens": 881,
+     "latency_s": 9.43,
+     "prompt_chars": 6845,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 6888,
+     "completion_tokens": 5779,
+     "latency_s": 55.63,
+     "prompt_chars": 10103,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 14,
+   "atlas_wall_s": 74.5
+  },
+  {
+   "name": "CI Cost Reducer",
+   "kind": "engineering",
+   "baseline_citations": [
+    {
+     "title": "Practical Regression Test Selection with Dynamic File Dependencies",
+     "authors": [
+      "Milos Gligoric",
+      "Lamyaa Eloussi",
+      "Darko Marinov"
+     ],
+     "year": 2015,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Practical regression test selection with dynamic file dependencies",
+     "relevance": 0.659
+    },
+    {
+     "title": "Predictive Test Selection",
+     "authors": [
+      "Mateusz Machalica",
+      "Alex Samylkin",
+      "Meredith Porth",
+      "Satish Chandra"
+     ],
+     "year": 2019,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Predictive Test Selection",
+     "relevance": 0.553
+    },
+    {
+     "title": "Taming Google-Scale Continuous Testing",
+     "authors": [
+      "Atif Memon",
+      "Zebao Gao",
+      "Bao Nguyen",
+      "Sanjeev Dhanda",
+      "Eric Nickell",
+      "Rob Siemborski",
+      "John Micco"
+     ],
+     "year": 2017,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Taming Google-scale continuous testing",
+     "relevance": 0.613
+    },
+    {
+     "title": "Techniques for Improving Regression Testing in Continuous Integration Development Environments",
+     "authors": [
+      "Sebastian Elbaum",
+      "Gregg Rothermel",
+      "John Penix"
+     ],
+     "year": 2014,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Techniques for improving regression testing in continuous integration development environments",
+     "relevance": 0.755
+    },
+    {
+     "title": "Regression Testing Minimization, Selection and Prioritization: A Survey",
+     "authors": [
+      "Shin Yoo",
+      "Mark Harman"
+     ],
+     "year": 2012,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Regression testing minimization, selection and prioritization: a survey",
+     "relevance": 0.637
+    }
+   ],
+   "baseline_tokens": {
+    "prompt": 1591,
+    "completion": 1744
+   },
+   "baseline_latency_s": 19.74,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "Reinforcement Learning for Automatic Test Case Prioritization and Selection in Continuous Integration",
+     "authors": [
+      "Helge Spieker",
+      "Arnaud Gotlieb",
+      "Dusica Marijan"
+     ],
+     "year": 2018,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Reinforcement learning for automatic test case prioritization and selection in continuous integration",
+     "relevance": 0.628
+    },
+    {
+     "title": "Evaluating LLM-Based Regression Test Generation",
+     "authors": [
+      "Jing Liu",
+      "Seongmin Lee",
+      "Eleonora Losiouk"
+     ],
+     "year": 2025,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Evaluating LLM-Based Regression Test Generation",
+     "relevance": 0.555
+    },
+    {
+     "title": "Identical Runs, Different Results: Benchmarking AI Coding Agents on Open-Weight Models",
+     "authors": [
+      "Eduardo Ari\u00f1o de la Rubia",
+      "Szilard Pafka"
+     ],
+     "year": 2026,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Identical Runs, Different Results: Benchmarking AI Coding Agents on Open-Weight Models",
+     "relevance": 0.505
+    },
+    {
+     "title": "Formalizing Regression Testing for Agile and Continuous Integration Environments",
+     "authors": [
+      "Suddhasvatta Das",
+      "Kevin Gary"
+     ],
+     "year": 2025,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Formalizing Regression Testing for Agile and Continuous Integration Environments",
+     "relevance": 0.72
+    },
+    {
+     "title": "Maximum-Entropy-Rate Selection of Features for Classifying Changes in Knee and Ankle Dynamics During Running",
+     "authors": [
+      "Garry A. Einicke",
+      "Haider A. Sabti",
+      "David V. Thiel"
+     ],
+     "year": 2025,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Maximum-Entropy-Rate Selection of Features for Classifying Changes in Knee and Ankle Dynamics During Running",
+     "relevance": 0.481
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Continuous-integration pipelines usually re-run the whole regression suite on every commit. As the suite grows, this costs more compute and makes developers wait longer for failure feedback. CI Cost R"
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 4007,
+     "completion_tokens": 886,
+     "latency_s": 9.74,
+     "prompt_chars": 7914,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 7012,
+     "completion_tokens": 4783,
+     "latency_s": 41.69,
+     "prompt_chars": 10468,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 13,
+   "atlas_wall_s": 60.0
+  },
+  {
+   "name": "Accessibility Checker",
+   "kind": "engineering",
+   "baseline_citations": [
+    {
+     "title": "Benchmarking web accessibility evaluation tools: measuring the harm of sole reliance on automated tests",
+     "authors": [
+      "Markel Vigo",
+      "Justin Brown",
+      "Vivienne Conway"
+     ],
+     "year": 2013,
+     "status": "unchecked",
+     "title_similarity": 0.631,
+     "matched_title": "Benchmarking web accessibility evaluation tools",
+     "relevance": 0.7
+    },
+    {
+     "title": "Comparing accessibility evaluation tools: a method for tool effectiveness",
+     "authors": [
+      "Giorgio Brajnik"
+     ],
+     "year": 2004,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Comparing accessibility evaluation tools: a method for tool effectiveness",
+     "relevance": 0.603
+    },
+    {
+     "title": "Semantic Web Accessibility Testing via Hierarchical Visual Analysis",
+     "authors": [
+      "Mohammad Bajammal",
+      "Ali Mesbah"
+     ],
+     "year": 2021,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Semantic Web Accessibility Testing via Hierarchical Visual Analysis",
+     "relevance": 0.646
+    },
+    {
+     "title": "Detecting and Localizing Keyboard Accessibility Failures in Web Applications",
+     "authors": [
+      "Paul T. Chiou",
+      "Ali S. Alotaibi",
+      "William G. J. Halfond"
+     ],
+     "year": 2021,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Detecting and localizing keyboard accessibility failures in web applications",
+     "relevance": 0.733
+    },
+    {
+     "title": "Testability and validity of WCAG 2.0: the expertise effect",
+     "authors": [
+      "Giorgio Brajnik",
+      "Yeliz Yesilada",
+      "Simon Harper"
+     ],
+     "year": 2010,
+     "status": "unchecked",
+     "title_similarity": 0.774,
+     "matched_title": "Testability and validity of WCAG 2.0",
+     "relevance": 0.5
+    }
+   ],
+   "baseline_tokens": {
+    "prompt": 1584,
+    "completion": 2698
+   },
+   "baseline_latency_s": 26.47,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "AccessGuru: Leveraging LLMs to Detect and Correct Web Accessibility Violations in HTML Code",
+     "authors": [
+      "Nadeen Fathallah",
+      "Daniel Hern\u00e1ndez",
+      "Steffen Staab"
+     ],
+     "year": 2025,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "AccessGuru: Leveraging LLMs to Detect and Correct Web Accessibility Violations in HTML Code",
+     "relevance": 0.744
+    },
+    {
+     "title": "You, the Web and Your Device: Longitudinal Characterization of Browsing Habits",
+     "authors": [
+      "Luca Vassio",
+      "Idilio Drago",
+      "Marco Mellia"
+     ],
+     "year": 2018,
+     "status": "unchecked",
+     "title_similarity": 0.524,
+     "matched_title": "You, the Web, and Your Device",
+     "relevance": 0.54
+    },
+    {
+     "title": "ACCESS: Prompt Engineering for Automated Web Accessibility Violation Corrections",
+     "authors": [
+      "Calista Huang",
+      "Alyssa Ma",
+      "Suchir Vyasamudri"
+     ],
+     "year": 2024,
+     "status": "unchecked",
+     "title_similarity": 0.618,
+     "matched_title": "An inclusive framework for automated web content accessibility evaluation",
+     "relevance": 0.76
+    },
+    {
+     "title": "Web Accessibility - A timely recognized challenge",
+     "authors": [
+      "Jameel A. Qadri",
+      "M. Tariq Banday"
+     ],
+     "year": 2011,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Web Accessibility - A timely recognized challenge",
+     "relevance": 0.742
+    },
+    {
+     "title": "A feasibility study on filtering low-accessibility web pages considering color vision deficiency",
+     "authors": [
+      "Ryota Mizutani",
+      "Shiori Nakayama",
+      "Masateru Tsunoda"
+     ],
+     "year": 2026,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "A feasibility study on filtering low-accessibility web pages considering color vision deficiency",
+     "relevance": 0.676
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Accessibility violations in web pages are usually found after release, when they are expensive to fix and already affect users with disabilities. The evidence suggests violations are widespread: over "
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 3966,
+     "completion_tokens": 652,
+     "latency_s": 8.5,
+     "prompt_chars": 7838,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 6757,
+     "completion_tokens": 5592,
+     "latency_s": 50.49,
+     "prompt_chars": 9707,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 17,
+   "atlas_wall_s": 67.2
+  },
+  {
+   "name": "Warehouse Pick Routing",
+   "kind": "engineering",
+   "baseline_citations": [
+    {
+     "title": "Order-Picking in a Rectangular Warehouse: A Solvable Case of the Traveling Salesman Problem",
+     "authors": [
+      "H. Donald Ratliff",
+      "Arnon S. Rosenthal"
+     ],
+     "year": 1983,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Order-Picking in a Rectangular Warehouse: A Solvable Case of the Traveling Salesman Problem",
+     "relevance": 0.761
+    },
+    {
+     "title": "Design and control of warehouse order picking: A literature review",
+     "authors": [
+      "Ren\u00e9 de Koster",
+      "Tho Le-Duc",
+      "Kees Jan Roodbergen"
+     ],
+     "year": 2007,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Design and control of warehouse order picking: A literature review",
+     "relevance": 0.803
+    },
+    {
+     "title": "Routing methods for warehouses with multiple cross aisles",
+     "authors": [
+      "Kees Jan Roodbergen",
+      "Ren\u00e9 de Koster"
+     ],
+     "year": 2001,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Routing methods for warehouses with multiple cross aisles",
+     "relevance": 0.64
+    },
+    {
+     "title": "Order batching to minimize total travel time in a parallel-aisle warehouse",
+     "authors": [
+      "Noud Gademann",
+      "Steef van de Velde"
+     ],
+     "year": 2005,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Order batching to minimize total travel time in a parallel-aisle warehouse",
+     "relevance": 0.812
+    },
+    {
+     "title": "Order picking with multiple pickers and due dates \u2013 Simultaneous solution of Order Batching, Batch Assignment and Sequencing, and Picker Routing Problems",
+     "authors": [
+      "Andr\u00e9 Scholz",
+      "Daniel Schubert",
+      "Gerhard W\u00e4scher"
+     ],
+     "year": 2017,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Order picking with multiple pickers and due dates \u2013 Simultaneous solution of Order Batching, Batch Assignment and Sequencing, and Picker Routing Problems",
+     "relevance": 0.779
+    }
+   ],
+   "baseline_tokens": {
+    "prompt": 1593,
+    "completion": 1114
+   },
+   "baseline_latency_s": 14.32,
+   "baseline_error": "",
+   "atlas_citations": [
+    {
+     "title": "Solving the Joint Order Batching and Picker Routing Problem for Large Instances",
+     "authors": [
+      "Wei Hao Khoong"
+     ],
+     "year": 2020,
+     "status": "unchecked",
+     "title_similarity": 0.797,
+     "matched_title": "Optimally solving the joint order batching and picker routing problem",
+     "relevance": 0.719
+    },
+    {
+     "title": "Optimally solving the joint order batching and picker routing problem",
+     "authors": [
+      "Cristiano Arbex Valle",
+      "John E Beasley",
+      "Alexandre Salles da Cunha"
+     ],
+     "year": 2017,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Optimally solving the joint order batching and picker routing problem",
+     "relevance": 0.738
+    },
+    {
+     "title": "Order batching using an approximation for the distance travelled by pickers",
+     "authors": [
+      "Cristiano Arbex Valle",
+      "John E Beasley"
+     ],
+     "year": 2018,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Order batching using an approximation for the distance travelled by pickers",
+     "relevance": 0.776
+    },
+    {
+     "title": "Improved formulations of the joint order batching and picker routing problem",
+     "authors": [
+      "Zhang Kai",
+      "Gao Chuanhou"
+     ],
+     "year": 2022,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Improved formulations of the joint order batching and picker routing problem",
+     "relevance": 0.713
+    },
+    {
+     "title": "Double Traversals in Optimal Picker Routes for Warehouses with Multiple Blocks",
+     "authors": [
+      "George Dunn",
+      "Hadi Charkhgard",
+      "Ali Eshragh"
+     ],
+     "year": 2025,
+     "status": "verified",
+     "title_similarity": 1.0,
+     "matched_title": "Double traversals in optimal picker routes for warehouses with multiple blocks",
+     "relevance": 0.733
+    }
+   ],
+   "stages": [
+    {
+     "stage": "research",
+     "attempts": 1,
+     "succeeded": true,
+     "errors": [],
+     "headline": "Warehouse pickers serving several orders at once need to be told which orders to batch together and the shortest order in which to visit pick locations. This is the joint order batching and picker rou"
+    }
+   ],
+   "calls": [
+    {
+     "stage": "research",
+     "schema": "EvidenceSummaryBatchDraft",
+     "attempt": 1,
+     "prompt_tokens": 3599,
+     "completion_tokens": 847,
+     "latency_s": 9.36,
+     "prompt_chars": 6980,
+     "error": ""
+    },
+    {
+     "stage": "research",
+     "schema": "ResearchProposalDraft",
+     "attempt": 1,
+     "prompt_tokens": 6872,
+     "completion_tokens": 4636,
+     "latency_s": 41.79,
+     "prompt_chars": 10333,
+     "error": ""
+    }
+   ],
+   "knowledge_candidates": 14,
+   "atlas_wall_s": 60.2
+  }
+ ]
+}

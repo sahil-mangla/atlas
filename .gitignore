@@ -53,3 +53,6 @@ evals/runs/
 # AI Agent IDEs and extensions
 .agents/
 .continue/
+
+# Citation eval API cache (rebuilt on demand)
+evals/citations/.verify_cache.json

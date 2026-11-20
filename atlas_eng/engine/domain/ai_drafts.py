@@ -1,8 +1,9 @@
 """Strongly typed AI generation draft models mirroring domain aggregates."""
 
+import re
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from atlas_eng.engine.domain.enums import (
     FindingCategory,
@@ -63,7 +64,8 @@ class ResearchFindingDraft(BaseModel):
         default_factory=list,
         description=(
             "0-based indices of evidence from the proposal's evidence "
-            "list that support this finding."
+            "list that support this finding. At least one is required: leave "
+            "out any finding that none of the evidence supports."
         ),
     )
 
@@ -94,7 +96,8 @@ class ResearchOpportunityDraft(BaseModel):
         default_factory=list,
         description=(
             "0-based indices of findings from the proposal's findings "
-            "list that support this opportunity."
+            "list that support this opportunity. At least one is required: "
+            "leave out any opportunity that none of the findings supports."
         ),
     )
 
@@ -171,8 +174,22 @@ class ArchitectureComponentDraft(BaseModel):
     responsibilities: list[str] = Field(default_factory=list)
     public_interfaces: list[str] = Field(default_factory=list)
     owned_data: list[str] = Field(default_factory=list)
-    internal_dependencies: list[str] = Field(default_factory=list)
-    external_dependencies: list[str] = Field(default_factory=list)
+    internal_dependencies: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Components in this proposal that this one calls or reads from. Each "
+            "entry is the exact `name` of another component in `components`, with "
+            "no notes added; list alternatives as separate entries. Dependencies "
+            "must not form a cycle."
+        ),
+    )
+    external_dependencies: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Systems outside this proposal (databases, cloud services, "
+            "third-party APIs) that this component relies on."
+        ),
+    )
 
 
 class ArchitecturalDecisionDraft(BaseModel):
@@ -197,6 +214,76 @@ class ArchitectureProposalDraft(BaseModel):
     components: list[ArchitectureComponentDraft] = Field(default_factory=list)
     decisions: list[ArchitecturalDecisionDraft] = Field(default_factory=list)
     risks: list[ArchitectureRiskDraft] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _resolve_dependency_names(self) -> "ArchitectureProposalDraft":
+        """Rewrite each internal dependency to the exact component name it means.
+
+        Models often refer to a component loosely: "Server-side SDK" for
+        "Server-side SDK (Go, Java)", "Store (via replica)", or "Gateway or
+        Relay". A reference is rewritten only when it points at exactly one
+        component; anything else is left as written for the validator to reject.
+        """
+        names = [component.name.strip() for component in self.components]
+        for component in self.components:
+            resolved: list[str] = []
+            for reference in component.internal_dependencies:
+                for name in resolve_component_reference(reference, names):
+                    if name not in resolved:
+                        resolved.append(name)
+            component.internal_dependencies = resolved
+        return self
+
+
+_PARENTHETICAL = re.compile(r"\([^)]*\)")
+_ALTERNATIVES = re.compile(r"\s+(?:or|and)\s+|\s*/\s*|\s*,\s*", re.IGNORECASE)
+_HALVES = re.compile(r"\s*&\s*|\s+and\s+")
+
+
+def _name_key(text: str) -> str:
+    return " ".join(_PARENTHETICAL.sub(" ", text).casefold().split())
+
+
+def _match_one(reference: str, names: list[str]) -> str | None:
+    key = _name_key(reference)
+    if not key:
+        return None
+    exact = [name for name in names if _name_key(name) == key]
+    if len(exact) == 1:
+        return exact[0]
+    prefixed = [name for name in names if _name_key(name).startswith(key + " ")]
+    if len(prefixed) == 1:
+        return prefixed[0]
+    # A merged component such as "Tracker & Telemetry Pipeline" answers to
+    # either half.
+    halves = [
+        name
+        for name in names
+        if any(
+            half == key or half.startswith(key + " ")
+            for half in _HALVES.split(_name_key(name))
+        )
+    ]
+    return halves[0] if len(halves) == 1 else None
+
+
+def resolve_component_reference(reference: str, names: list[str]) -> list[str]:
+    """Map a loosely written component reference to exact component names.
+
+    Returns the reference unchanged (stripped) when it cannot be resolved
+    unambiguously, so validation can report it.
+    """
+    stripped = reference.strip()
+    if stripped in names:
+        return [stripped]
+    single = _match_one(stripped, names)
+    if single is not None:
+        return [single]
+    parts = _ALTERNATIVES.split(_PARENTHETICAL.sub(" ", stripped))
+    matches = [_match_one(part, names) for part in parts if part.strip()]
+    if len(matches) > 1 and all(match is not None for match in matches):
+        return [match for match in matches if match is not None]
+    return [stripped]
 
 
 # ==========================================
